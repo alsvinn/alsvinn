@@ -1,0 +1,5 @@
+FILE(GLOB_RECURSE SRC src/*.cpp)
+FILE(GLOB_RECURSE HEADERS include/*.hpp)
+INCLUDE_DIRECTORIES("include")
+ADD_LIBRARY(alsfvm ${SRC} ${HEADERS})
+
