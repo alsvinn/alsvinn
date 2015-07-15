@@ -1,8 +1,13 @@
 cmake_minimum_required (VERSION 2.8.11)
-FIND_PACKAGE(GTEST)
+
+# We need the thread package for GTest
+FIND_PACKAGE(Threads REQUIRED)
+FIND_PACKAGE(GTest REQUIRED)
 
 FILE(GLOB_RECURSE SRC src/*.cpp)
-FIND_PACKAGE(CUDA REQUIRED)
+
 ADD_EXECUTABLE(alstest ${SRC})
 INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS} "../alsfvm/include")
-TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm ${CUDA_LIBRARIES})
+TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm
+                              ${CUDA_LIBRARIES}
+                              ${CMAKE_THREAD_LIBS_INIT})

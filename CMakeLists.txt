@@ -1,5 +1,16 @@
 cmake_minimum_required (VERSION 2.8.11)
 project (alsvinn)
 
+SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=c++11)
+find_package(CUDA)
+if(CUDA_FOUND)
+  set(ALSVINN_HAVE_CUDA On)
+  add_definitions(-DALSVINN_HAVE_CUDA)
+else()
+  set(ALSVINN_HAVE_CUDA Off)
+  set(CUDA_INCLUDE_DIRS "")
+  set(CUDA_LIBRARIES "")
+endif()
+
 add_subdirectory("alsfvm")
 add_subdirectory("test")

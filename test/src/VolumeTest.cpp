@@ -2,7 +2,13 @@
 #include "gtest/gtest.h"
 
 TEST(VolumeTest, SizeTest) {
-	size_t numberOfVariables = 10;
-	alsfvm::volume::Volume volume(numberOfVariables);
-	ASSERT_EQ(numberOfVariables, volume.getNumberOfVariables());
+    std::vector<std::string> variableNames = {"a", "b"};
+
+    const size_t nx=10;
+    const size_t ny=10;
+    const size_t nz=10;
+
+    std::shared_ptr<alsfvm::memory::MemoryFactory> factory;
+    alsfvm::volume::Volume volume(variableNames, factory, nx, ny, nz);
+    ASSERT_EQ(variableNames.size(), volume.getNumberOfVariables());
 }

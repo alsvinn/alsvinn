@@ -2,8 +2,10 @@
 
 namespace alsfvm {
 	namespace volume {
-		Volume::Volume(size_t numberOfVariables)
-			: numberOfVariables(numberOfVariables)
+        Volume::Volume(const std::vector<std::string>& variableNames,
+           std::shared_ptr<memory::MemoryFactory> memoryFactory,
+           size_t nx, size_t ny, size_t nz)
+            : variableNames(variableNames), memoryFactory(memoryFactory)
 		{
 		}
 
@@ -13,7 +15,7 @@ namespace alsfvm {
 		}
 
 		size_t Volume::getNumberOfVariables() const {
-			return numberOfVariables;
+            return variableNames.size();
 		}
 
 	}
