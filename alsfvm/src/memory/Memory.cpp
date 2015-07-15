@@ -7,7 +7,7 @@ namespace alsfvm {
         Memory<T>::Memory(size_t size) : size(size) {}
 
         template<class T>
-        size_t Memory<T>::getSize() {
+        size_t Memory<T>::getSize() const {
 			return size;
 		}
 

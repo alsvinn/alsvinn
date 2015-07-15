@@ -25,6 +25,7 @@ IF(NOT ALSVINN_HAVE_CUDA)
 ENDIF()
 
 FILE(GLOB_RECURSE HEADERS include/*.hpp)
+
 IF(NOT ALSVINN_HAVE_CUDA)
     FILE(GLOB_RECURSE CUDA_HEADERS include/alsfvm/cuda/*.hpp)
     LIST(REMOVE_ITEM HEADERS ${CUDA_HEADERS})
@@ -32,10 +33,20 @@ ENDIF()
 
 set_source_groups( "Source Files" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SRC}")
 set_source_groups( "Header Files" "${CMAKE_CURRENT_SOURCE_DIR}/include/alsfvm" "${HEADERS}")
-#source_group_by_dir(SRC)
-#source_group_by_dir(HEADERS)
+
 
 INCLUDE_DIRECTORIES("include" ${CUDA_INCLUDE_DIRS})
-ADD_LIBRARY(alsfvm ${SRC} ${HEADERS})
+
+
+IF(ALSVINN_HAVE_CUDA) 
+	CUDA_INCLUDE_DIRECTORIES("include")
+	FILE(GLOB_RECURSE CUDA_SRC src/*.cu)
+	set_source_groups( "CUDA Files" "${CMAKE_CURRENT_SOURCE_DIR}/src/" "${CUDA_SRC}")
+	CUDA_COMPILE(ALSFVM_CUDA alsfvm_cuda ${CUDA_SRC})
+ELSE()
+	SET(ALSFVM_CUDA "")
+ENDIF()
+
+ADD_LIBRARY(alsfvm ${SRC} ${HEADERS} ${ALSFVM_CUDA})
 TARGET_LINK_LIBRARIES(alsfvm ${CUDA_LIBRARIES})
 

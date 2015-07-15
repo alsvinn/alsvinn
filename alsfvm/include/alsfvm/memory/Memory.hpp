@@ -1,6 +1,6 @@
 #pragma once
 #include "alsfvm/types.hpp"
-
+#include "alsfvm/memory/MemoryBase.hpp"
 namespace alsfvm {
 	namespace memory {
 		///
@@ -8,7 +8,7 @@ namespace alsfvm {
 		/// look at the other concrete implementations to use this. 
 		///
         template<class T>
-		class Memory {
+		class Memory : public MemoryBase {
 		public:
 			///
             /// @param size the size of the memory area (in number of T)
@@ -22,7 +22,7 @@ namespace alsfvm {
 			///
             /// @returns the size (in number of T) of the memory
 			///
-			size_t getSize();
+			size_t getSize() const;
 
 			///
 			/// Checks if the memory area is on the host (CPU) or 
@@ -30,7 +30,7 @@ namespace alsfvm {
 			/// before reading it.
 			/// @returns true if the memory is on host, false otherwise
 			///
-			virtual bool isOnHost() = 0;
+			virtual bool isOnHost() const = 0;
 
 			///
 			/// Gets the pointer to the data (need not be on the host!)
@@ -39,6 +39,14 @@ namespace alsfvm {
             /// first cast to OpenCL memory, then get the OpenCL buffer pointer.
 			///
             virtual T* getPointer() = 0;
+
+			///
+			/// Gets the pointer to the data (need not be on the host!)
+			/// \note If this is an OpenCL implementation, the pointer will
+			/// be useless! If you want to use the OpenCL memory, you should
+			/// first cast to OpenCL memory, then get the OpenCL buffer pointer.
+			///
+			virtual const T* getPointer() const = 0;
 
 			/// 
 			/// Copies the memory to the given buffer
@@ -57,6 +65,30 @@ namespace alsfvm {
             ///
             virtual void copyFromHost(const T* bufferPointer,
                                       size_t bufferLength) = 0;
+
+			///
+			/// Adds the other memory area to this one
+			/// \param other the memory area to add from
+			///
+			virtual void operator+=(const Memory<T>& other) = 0;
+
+			///
+			/// Mutliplies the other memory area to this one
+			/// \param other the memory area to multiply from
+			///
+			virtual void operator*=(const Memory<T>& other) = 0;
+
+			///
+			/// Subtracts the other memory area to this one
+			/// \param other the memory area to subtract from
+			///
+			virtual void operator-=(const Memory<T>& other) = 0;
+
+			///
+			/// Divides the other memory area to this one
+			/// \param other the memory area to divide from
+			///
+			virtual void operator/=(const Memory<T>& other) = 0;
 			
 		protected:
 			size_t size;

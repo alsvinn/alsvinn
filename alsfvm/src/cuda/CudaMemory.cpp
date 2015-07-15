@@ -5,6 +5,7 @@
 #include <cassert>
 #include <algorithm>
 #include "alsfvm/memory/memory_utils.hpp"
+#include "alsfvm/cuda/vector_operations.hpp"
 
 namespace alsfvm {
 	namespace cuda {
@@ -33,7 +34,7 @@ namespace alsfvm {
 		/// @returns true if the memory is on host, false otherwise
 		///
 		template<class T>
-		bool CudaMemory<T>::isOnHost() 
+		bool CudaMemory<T>::isOnHost() const
 		{
 			return false;
 		}
@@ -43,6 +44,14 @@ namespace alsfvm {
 		///
 		template<class T>
 		T* CudaMemory<T>::getPointer() {
+			return memoryPointer;
+		}
+
+		///
+		/// Gets the pointer to the data (need not be on the host!)
+		///
+		template<class T>
+		const T* CudaMemory<T>::getPointer() const {
 			return memoryPointer;
 		}
 
@@ -64,7 +73,50 @@ namespace alsfvm {
 			CUDA_SAFE_CALL(cudaMemcpy(memoryPointer, bufferPointer, copySize*sizeof(T), cudaMemcpyHostToDevice));
 		}
 
+
+		///
+		/// Adds the other memory area to this one
+		/// \param other the memory area to add from
+		///
+		template<class T>
+		void CudaMemory<T>::operator+=(const Memory<T>& other) {
+			add(getPointer(), getPointer(),
+				other.getPointer(), Memory<T>::getSize());
+		}
+
+
+		///
+		/// Mutliplies the other memory area to this one
+		/// \param other the memory area to multiply from
+		///
+		template<class T>
+		void CudaMemory<T>::operator*=(const Memory<T>& other) {
+			multiply(getPointer(), getPointer(),
+				other.getPointer(), Memory<T>::getSize());
+		}
+
+		///
+		/// Subtracts the other memory area to this one
+		/// \param other the memory area to subtract from
+		///
+		template<class T>
+		void CudaMemory<T>::operator-=(const Memory<T>& other) {
+			subtract(getPointer(), getPointer(),
+				other.getPointer(), Memory<T>::getSize());
+		}
+
+		///
+		/// Divides the other memory area to this one
+		/// \param other the memory area to divide from
+		///
+		template<class T>
+		void CudaMemory<T>::operator/=(const Memory<T>& other) {
+			divide(getPointer(), getPointer(),
+				other.getPointer(), Memory<T>::getSize());
+		}
+
 		INSTANTIATE_MEMORY(CudaMemory)
+		ADD_MEMORY_TO_FACTORY(CudaMemory)
 	}
 
 }
