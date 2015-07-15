@@ -43,10 +43,10 @@ TEST(CudaMemoryTest, AdditionTest) {
 		buffer[i] = i;
 	}
 
-	alsfvm::memory::HostMemory<alsfvm::real> memory(size);
+	alsfvm::cuda::CudaMemory<alsfvm::real> memory(size);
 	memory.copyFromHost(buffer.data(), buffer.size());
 
-	alsfvm::memory::HostMemory<alsfvm::real> memory2(size);
+	alsfvm::cuda::CudaMemory<alsfvm::real> memory2(size);
 	memory2.copyFromHost(buffer.data(), buffer.size());
 
 	memory += memory2;
@@ -73,10 +73,10 @@ TEST(CudaMemoryTest, MultiplyTest) {
 		buffer[i] = i;
 	}
 
-	alsfvm::memory::HostMemory<alsfvm::real> memory(size);
+	alsfvm::cuda::CudaMemory<alsfvm::real> memory(size);
 	memory.copyFromHost(buffer.data(), buffer.size());
 
-	alsfvm::memory::HostMemory<alsfvm::real> memory2(size);
+	alsfvm::cuda::CudaMemory<alsfvm::real> memory2(size);
 	memory2.copyFromHost(buffer.data(), buffer.size());
 
 	memory *= memory2;
@@ -103,11 +103,11 @@ TEST(CudaMemoryTest, DivideTest) {
 	}
 
 
-	alsfvm::memory::HostMemory<alsfvm::real> memory(size);
+	alsfvm::cuda::CudaMemory<alsfvm::real> memory(size);
 	memory.copyFromHost(buffer.data(), buffer.size());
 
 
-	alsfvm::memory::HostMemory<alsfvm::real> memory2(size);
+	alsfvm::cuda::CudaMemory<alsfvm::real> memory2(size);
 
 	std::vector<alsfvm::real> buffer2(size, 42);
 	memory2.copyFromHost(buffer2.data(), buffer2.size());
@@ -124,35 +124,112 @@ TEST(CudaMemoryTest, DivideTest) {
 		ASSERT_EQ(42, data2[i]);
 		ASSERT_EQ(alsfvm::real(i + 1) / alsfvm::real(42), data1[i]);
 	}
+
 }
+	TEST(CudaMemoryTest, AdditionScalarTest) {
+		size_t size = 10;
 
-TEST(CudaMemoryTest, SubtractTest) {
-	size_t size = 10;
+		std::vector<alsfvm::real> buffer(size);
 
-	std::vector<alsfvm::real> buffer(size);
+		for (size_t i = 0; i < size; i++) {
+			buffer[i] = i;
+		}
 
-	for (size_t i = 0; i < size; i++) {
-		buffer[i] = i + 1;
+		alsfvm::cuda::CudaMemory<alsfvm::real> memory(size);
+		memory.copyFromHost(buffer.data(), buffer.size());
+
+		const alsfvm::real scalar = 42.42;
+		memory += scalar;
+
+		std::vector<alsfvm::real> bufferOut1(size);
+
+		memory.copyToHost(bufferOut1.data(), size);
+
+		auto data1 = bufferOut1.data();
+		
+		for (size_t i = 0; i < size; i++) {
+			ASSERT_EQ(i+scalar, data1[i]);
+		}
 	}
 
-	alsfvm::memory::HostMemory<alsfvm::real> memory(size);
-	memory.copyFromHost(buffer.data(), buffer.size());
 
-	alsfvm::memory::HostMemory<alsfvm::real> memory2(size);
+	TEST(CudaMemoryTest, MultiplyScalarTest) {
+		size_t size = 10;
 
-	std::vector<alsfvm::real> buffer2(size, 42);
-	memory2.copyFromHost(buffer2.data(), buffer2.size());
+		std::vector<alsfvm::real> buffer(size);
 
-	memory -= memory2;
+		for (size_t i = 0; i < size; i++) {
+			buffer[i] = i;
+		}
 
-	auto data1 = memory.getPointer();
-	auto data2 = memory2.getPointer();
+		alsfvm::cuda::CudaMemory<alsfvm::real> memory(size);
+		memory.copyFromHost(buffer.data(), buffer.size());
 
-	for (size_t i = 0; i < size; i++) {
-		ASSERT_EQ(alsfvm::real(42), data2[i]);
-		ASSERT_EQ(int(i + 1) - 42, data1[i]);
+		const alsfvm::real scalar = 42.42;
+		memory *= scalar;
+
+		std::vector<alsfvm::real> bufferOut1(size);
+
+		memory.copyToHost(bufferOut1.data(), size);
+
+		auto data1 = bufferOut1.data();
+
+		for (size_t i = 0; i < size; i++) {
+			ASSERT_EQ(i * scalar, data1[i]);
+		}
 	}
-}
+
+	TEST(CudaMemoryTest, DivideScalarTest) {
+		size_t size = 10;
+
+		std::vector<alsfvm::real> buffer(size);
+
+		for (size_t i = 0; i < size; i++) {
+			buffer[i] = i;
+		}
+
+		alsfvm::cuda::CudaMemory<alsfvm::real> memory(size);
+		memory.copyFromHost(buffer.data(), buffer.size());
+
+		const alsfvm::real scalar = 42.42;
+		memory /= scalar;
+
+		std::vector<alsfvm::real> bufferOut1(size);
+
+		memory.copyToHost(bufferOut1.data(), size);
+
+		auto data1 = bufferOut1.data();
+
+		for (size_t i = 0; i < size; i++) {
+			ASSERT_EQ(i / scalar, data1[i]);
+		}
+	}
+
+	TEST(CudaMemoryTest, SubtractScalarTest) {
+		size_t size = 10;
+
+		std::vector<alsfvm::real> buffer(size);
+
+		for (size_t i = 0; i < size; i++) {
+			buffer[i] = i;
+		}
+
+		alsfvm::cuda::CudaMemory<alsfvm::real> memory(size);
+		memory.copyFromHost(buffer.data(), buffer.size());
+
+		const alsfvm::real scalar = 42.42;
+		memory -= scalar;
+
+		std::vector<alsfvm::real> bufferOut1(size);
+
+		memory.copyToHost(bufferOut1.data(), size);
+
+		auto data1 = bufferOut1.data();
+
+		for (size_t i = 0; i < size; i++) {
+			ASSERT_EQ(i - scalar, data1[i]);
+		}
+	}
 #endif
 
 TEST(HostMemoryTest, InitializeTest) {
@@ -316,3 +393,107 @@ TEST(HostMemoryTest, SubtractTest) {
 }
 
 
+TEST(HostMemoryTest, AdditionScalarTest) {
+	size_t size = 10;
+
+	std::vector<alsfvm::real> buffer(size);
+
+	for (size_t i = 0; i < size; i++) {
+		buffer[i] = i;
+	}
+
+	alsfvm::memory::HostMemory<alsfvm::real> memory(size);
+	memory.copyFromHost(buffer.data(), buffer.size());
+
+	const alsfvm::real scalar = 42.42;
+	memory += scalar;
+
+	std::vector<alsfvm::real> bufferOut1(size);
+
+	memory.copyToHost(bufferOut1.data(), size);
+
+	auto data1 = bufferOut1.data();
+
+	for (size_t i = 0; i < size; i++) {
+		ASSERT_EQ(i + scalar, data1[i]);
+	}
+}
+
+
+TEST(HostMemoryTest, MultiplyScalarTest) {
+	size_t size = 10;
+
+	std::vector<alsfvm::real> buffer(size);
+
+	for (size_t i = 0; i < size; i++) {
+		buffer[i] = i;
+	}
+
+	alsfvm::memory::HostMemory<alsfvm::real> memory(size);
+	memory.copyFromHost(buffer.data(), buffer.size());
+
+	const alsfvm::real scalar = 42.42;
+	memory *= scalar;
+
+	std::vector<alsfvm::real> bufferOut1(size);
+
+	memory.copyToHost(bufferOut1.data(), size);
+
+	auto data1 = bufferOut1.data();
+
+	for (size_t i = 0; i < size; i++) {
+		ASSERT_EQ(i * scalar, data1[i]);
+	}
+}
+
+TEST(HostMemoryTest, DivideScalarTest) {
+	size_t size = 10;
+
+	std::vector<alsfvm::real> buffer(size);
+
+	for (size_t i = 0; i < size; i++) {
+		buffer[i] = i;
+	}
+
+	alsfvm::memory::HostMemory<alsfvm::real> memory(size);
+	memory.copyFromHost(buffer.data(), buffer.size());
+
+	const alsfvm::real scalar = 42.42;
+	memory /= scalar;
+
+	std::vector<alsfvm::real> bufferOut1(size);
+
+	memory.copyToHost(bufferOut1.data(), size);
+
+	auto data1 = bufferOut1.data();
+
+	for (size_t i = 0; i < size; i++) {
+		ASSERT_EQ(i / scalar, data1[i]);
+	}
+}
+
+TEST(HostMemoryTest, SubtractScalarTest) {
+	size_t size = 10;
+
+	std::vector<alsfvm::real> buffer(size);
+
+	for (size_t i = 0; i < size; i++) {
+		buffer[i] = i;
+	}
+
+	alsfvm::memory::HostMemory<alsfvm::real> memory(size);
+	memory.copyFromHost(buffer.data(), buffer.size());
+
+	const alsfvm::real scalar = 42.42;
+	memory -= scalar;
+
+	std::vector<alsfvm::real> bufferOut1(size);
+
+	memory.copyToHost(bufferOut1.data(), size);
+
+	auto data1 = bufferOut1.data();
+
+	for (size_t i = 0; i < size; i++) {
+		ASSERT_EQ(i - scalar, data1[i]);
+	}
+}

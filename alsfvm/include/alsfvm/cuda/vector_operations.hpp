@@ -46,5 +46,45 @@ namespace alsfvm {
 		///
 		template<class T>
 		void divide(T* result, const T* a, const T* b, size_t size);
+
+		///
+		/// Adds scalar to each component of b and stores the result to result
+		/// \param result the device memory to write to (can be the same
+		///               as a ). Must have length size (in T)
+		/// \param a must have length size (in T)
+		/// \param scalar the scalar
+		///
+		template<class T>
+		void add(T* result, const T* a, T scalar, size_t size);
+
+		///
+		/// Multiplies scalar to each component of b and stores the result to result
+		/// \param result the device memory to write to (can be the same
+		///               as a ). Must have length size (in T)
+		/// \param a must have length size (in T)
+		/// \param scalar the scalar
+		///
+		template<class T>
+		void multiply(T* result, const T* a, T scalar, size_t size);
+
+		///
+		/// Subtracts scalar from each component of b and stores the result to result
+		/// \param result the device memory to write to (can be the same
+		///               as a ). Must have length size (in T)
+		/// \param a must have length size (in T)
+		/// \param scalar the scalar
+		///
+		template<class T>
+		void subtract(T* result, const T* a, T scalar, size_t size);
+
+		///
+		/// Divides scalar from each component of b and stores the result to result
+		/// \param result the device memory to write to (can be the same
+		///               as a ). Must have length size (in T)
+		/// \param a must have length size (in T)
+		/// \param scalar the scalar
+		///
+		template<class T>
+		void divide(T* result, const T* a, T scalar, size_t size);
 	}
 }

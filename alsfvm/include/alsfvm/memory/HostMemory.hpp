@@ -81,6 +81,30 @@ public:
 	/// \param other the memory area to divide from
 	///
 	virtual void operator/=(const Memory<T>& other);
+
+	///
+	/// Adds the scalar to each component
+	/// \param scalar the scalar to add
+	///
+	virtual void operator+=(real scalar);
+
+	///
+	/// Multiplies the scalar to each component
+	/// \param scalar the scalar to multiply
+	///
+	virtual void operator*=(real scalar);
+
+	///
+	/// Subtracts the scalar from each component
+	/// \param scalar the scalar to subtract
+	///
+	virtual void operator-=(real scalar);
+
+	///
+	/// Divides the each component by the scalar
+	/// \param scalar the scalar to divide
+	///
+	virtual void operator/=(real scalar);
 private:
     std::vector<T> data;
 };

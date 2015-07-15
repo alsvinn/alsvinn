@@ -74,6 +74,10 @@ void HostMemory<T>::operator*=(const Memory<T>& other) {
 		THROW("Memory not on host");
 	}
 
+	if (other.getSize() != this->getSize()) {
+		THROW("Memory size not the same");
+	}
+
 	auto pointer = other.getPointer();
 	for (size_t i = 0; i < data.size(); ++i) {
 		data[i] *= pointer[i];
@@ -88,6 +92,9 @@ template <class T>
 void HostMemory<T>::operator-=(const Memory<T>& other) {
 	if (!other.isOnHost()) {
 		THROW("Memory not on host");
+	}
+	if (other.getSize() != this->getSize()) {
+		THROW("Memory size not the same");
 	}
 
 	auto pointer = other.getPointer();
@@ -105,10 +112,60 @@ void HostMemory<T>::operator/=(const Memory<T>& other) {
 	if (!other.isOnHost()) {
 		THROW("Memory not on host");
 	}
+	if (other.getSize() != this->getSize()) {
+		THROW("Memory size not the same");
+	}
 
 	auto pointer = other.getPointer();
 	for (size_t i = 0; i < data.size(); ++i) {
 		data[i] /= pointer[i];
+	}
+}
+
+///
+/// Adds the scalar to each component
+/// \param scalar the scalar to add
+///
+template <class T>
+void HostMemory<T>::operator+=(real scalar) {
+
+	for (size_t i = 0; i < data.size(); ++i) {
+		data[i] += scalar;
+	}
+}
+
+///
+/// Multiplies the scalar to each component
+/// \param scalar the scalar to multiply
+///
+template <class T>
+void HostMemory<T>::operator*=(real scalar) {
+
+	for (size_t i = 0; i < data.size(); ++i) {
+		data[i] *= scalar;
+	}
+}
+
+///
+/// Subtracts the scalar from each component
+/// \param scalar the scalar to subtract
+///
+template <class T>
+void HostMemory<T>::operator-=(real scalar) {
+
+	for (size_t i = 0; i < data.size(); ++i) {
+		data[i] -= scalar;
+	}
+}
+
+///
+/// Divides the each component by the scalar
+/// \param scalar the scalar to divide
+///
+template <class T>
+void HostMemory<T>::operator/=(real scalar) {
+	for (size_t i = 0; i < data.size(); ++i) {
+		data[i] /= scalar;
 	}
 }
 

@@ -89,6 +89,31 @@ namespace alsfvm {
 			/// \param other the memory area to divide from
 			///
 			virtual void operator/=(const Memory<T>& other) = 0;
+
+
+			///
+			/// Adds the scalar to each component
+			/// \param scalar the scalar to add
+			///
+			virtual void operator+=(real scalar) = 0;
+
+			///
+			/// Multiplies the scalar to each component
+			/// \param scalar the scalar to multiply
+			///
+			virtual void operator*=(real scalar) = 0;
+
+			///
+			/// Subtracts the scalar from each component
+			/// \param scalar the scalar to subtract
+			///
+			virtual void operator-=(real scalar) = 0;
+
+			///
+			/// Divides the each component by the scalar
+			/// \param scalar the scalar to divide
+			///
+			virtual void operator/=(real scalar) = 0;
 			
 		protected:
 			size_t size;

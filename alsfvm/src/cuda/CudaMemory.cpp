@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "alsfvm/memory/memory_utils.hpp"
 #include "alsfvm/cuda/vector_operations.hpp"
+#include "alsfvm/error/Exception.hpp"
 
 namespace alsfvm {
 	namespace cuda {
@@ -80,6 +81,10 @@ namespace alsfvm {
 		///
 		template<class T>
 		void CudaMemory<T>::operator+=(const Memory<T>& other) {
+			if (other.getSize() != this->getSize()) {
+				THROW("Memory size not the same");
+			}
+
 			add(getPointer(), getPointer(),
 				other.getPointer(), Memory<T>::getSize());
 		}
@@ -91,6 +96,10 @@ namespace alsfvm {
 		///
 		template<class T>
 		void CudaMemory<T>::operator*=(const Memory<T>& other) {
+			if (other.getSize() != this->getSize()) {
+				THROW("Memory size not the same");
+			}
+
 			multiply(getPointer(), getPointer(),
 				other.getPointer(), Memory<T>::getSize());
 		}
@@ -101,6 +110,10 @@ namespace alsfvm {
 		///
 		template<class T>
 		void CudaMemory<T>::operator-=(const Memory<T>& other) {
+			if (other.getSize() != this->getSize()) {
+				THROW("Memory size not the same");
+			}
+
 			subtract(getPointer(), getPointer(),
 				other.getPointer(), Memory<T>::getSize());
 		}
@@ -111,8 +124,52 @@ namespace alsfvm {
 		///
 		template<class T>
 		void CudaMemory<T>::operator/=(const Memory<T>& other) {
+			if (other.getSize() != this->getSize()) {
+				THROW("Memory size not the same");
+			}
+
 			divide(getPointer(), getPointer(),
 				other.getPointer(), Memory<T>::getSize());
+		}
+
+
+		///
+		/// Adds the scalar to each component
+		/// \param scalar the scalar to add
+		///
+		template<class T>
+		void CudaMemory<T>::operator+=(real scalar) {
+			add(getPointer(), getPointer(),
+				scalar, Memory<T>::getSize());
+		}
+		///
+		/// Multiplies the scalar to each component
+		/// \param scalar the scalar to multiply
+		///
+		template<class T>
+		void CudaMemory<T>::operator*=(real scalar) {
+			multiply(getPointer(), getPointer(),
+				scalar, Memory<T>::getSize());
+		}
+
+		///
+		/// Subtracts the scalar from each component
+		/// \param scalar the scalar to subtract
+		///
+		template<class T>
+		void CudaMemory<T>::operator-=(real scalar) {
+			subtract(getPointer(), getPointer(),
+				scalar, Memory<T>::getSize());
+		}
+
+		///
+		/// Divides the each component by the scalar
+		/// \param scalar the scalar to divide
+		///
+		template<class T>
+		void CudaMemory<T>::operator/=(real scalar) {
+			divide(getPointer(), getPointer(),
+				scalar, Memory<T>::getSize());
 		}
 
 		INSTANTIATE_MEMORY(CudaMemory)
