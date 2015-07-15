@@ -4,19 +4,22 @@
 #include "alsfvm/cuda/cuda_utils.hpp"
 #include <cassert>
 #include <algorithm>
+#include "alsfvm/memory/memory_utils.hpp"
 
 namespace alsfvm {
 	namespace cuda {
 
-		CudaMemory::CudaMemory(size_t size) 
-			: memory::Memory(size) 
+		template<class T>
+		CudaMemory<T>::CudaMemory(size_t size) 
+			: memory::Memory<T>(size) 
 		{
-			CUDA_SAFE_CALL(cudaMalloc(&memoryPointer, size));
+			CUDA_SAFE_CALL(cudaMalloc(&memoryPointer, size*sizeof(T)));
 		}
 
 		// Note: Virtual distructor since we will inherit
 		// from this. 
-		CudaMemory::~CudaMemory() 
+		template<class T>
+		CudaMemory<T>::~CudaMemory() 
 		{
 			CUDA_SAFE_CALL(cudaFree(memoryPointer));
 		}
@@ -29,7 +32,8 @@ namespace alsfvm {
 		/// before reading it.
 		/// @returns true if the memory is on host, false otherwise
 		///
-		bool CudaMemory::isOnHost() 
+		template<class T>
+		bool CudaMemory<T>::isOnHost() 
 		{
 			return false;
 		}
@@ -37,24 +41,30 @@ namespace alsfvm {
 		///
 		/// Gets the pointer to the data (need not be on the host!)
 		///
-		void* CudaMemory::getPointer() {
+		template<class T>
+		T* CudaMemory<T>::getPointer() {
 			return memoryPointer;
 		}
 
 		/// 
 		/// Copies the memory to the given buffer
 		///
-		void CudaMemory::copyToHost(void* bufferPointer, size_t bufferLength) {
+		template<class T>
+		void CudaMemory<T>::copyToHost(T* bufferPointer, size_t bufferLength) {
 			assert(bufferLength >= size);
-			CUDA_SAFE_CALL(cudaMemcpy(bufferPointer, memoryPointer, size, cudaMemcpyDeviceToHost));
+			CUDA_SAFE_CALL(cudaMemcpy(bufferPointer, memoryPointer, size*sizeof(T), cudaMemcpyDeviceToHost));
 		}
 
 		///
 		/// Copies the memory from the buffer (assumed to be on Host/CPU)
 		///
-		void CudaMemory::copyFromHost(const void* bufferPointer, size_t bufferLength) {
+		template<class T>
+		void CudaMemory<T>::copyFromHost(const T* bufferPointer, size_t bufferLength) {
 			const size_t copySize = std::min(bufferLength, size);
-			CUDA_SAFE_CALL(cudaMemcpy(memoryPointer, bufferPointer, copySize, cudaMemcpyHostToDevice));
+			CUDA_SAFE_CALL(cudaMemcpy(memoryPointer, bufferPointer, copySize*sizeof(T), cudaMemcpyHostToDevice));
 		}
+
+		INSTANTIATE_MEMORY(CudaMemory)
 	}
+
 }

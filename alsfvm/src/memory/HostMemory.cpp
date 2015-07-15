@@ -1,6 +1,7 @@
 #include "alsfvm/memory/HostMemory.hpp"
 #include "alsfvm/memory/memory_utils.hpp"
 #include <cassert>
+#include <algorithm>
 namespace alsfvm {
 namespace memory {
 
