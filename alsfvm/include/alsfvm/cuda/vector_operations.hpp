@@ -13,6 +13,7 @@ namespace alsfvm {
 		///               as a or b). Must have length size (in T)
 		/// \param a must have length size (in T)
 		/// \param b must have length size (in T)
+                /// \param size the size of the memory (in T)
 		///
 		template<class T>
 		void add(T* result, const T* a, const T* b, size_t size);
@@ -23,6 +24,7 @@ namespace alsfvm {
 		///               as a or b). Must have length size (in T)
 		/// \param a must have length size (in T)
 		/// \param b must have length size (in T)
+                /// \param size the size of the memory (in T)
 		///
 		template<class T>
 		void multiply(T* result, const T* a, const T* b, size_t size);
@@ -33,6 +35,7 @@ namespace alsfvm {
 		///               as a or b). Must have length size (in T)
 		/// \param a must have length size (in T)
 		/// \param b must have length size (in T)
+                /// \param size the size of the memory (in T)
 		///
 		template<class T>
 		void subtract(T* result, const T* a, const T* b, size_t size);
@@ -43,6 +46,7 @@ namespace alsfvm {
 		///               as a or b). Must have length size (in T)
 		/// \param a must have length size (in T)
 		/// \param b must have length size (in T)
+                /// \param size the size of the memory (in T)
 		///
 		template<class T>
 		void divide(T* result, const T* a, const T* b, size_t size);
@@ -53,6 +57,7 @@ namespace alsfvm {
 		///               as a ). Must have length size (in T)
 		/// \param a must have length size (in T)
 		/// \param scalar the scalar
+                /// \param size the size of the memory (in T)
 		///
 		template<class T>
 		void add(T* result, const T* a, T scalar, size_t size);
@@ -62,6 +67,7 @@ namespace alsfvm {
 		/// \param result the device memory to write to (can be the same
 		///               as a ). Must have length size (in T)
 		/// \param a must have length size (in T)
+                /// \param size the size of the memory (in T)
 		/// \param scalar the scalar
 		///
 		template<class T>
@@ -73,6 +79,7 @@ namespace alsfvm {
 		///               as a ). Must have length size (in T)
 		/// \param a must have length size (in T)
 		/// \param scalar the scalar
+                /// \param size the size of the memory (in T)
 		///
 		template<class T>
 		void subtract(T* result, const T* a, T scalar, size_t size);
@@ -83,6 +90,7 @@ namespace alsfvm {
 		///               as a ). Must have length size (in T)
 		/// \param a must have length size (in T)
 		/// \param scalar the scalar
+                /// \param size the size of the memory (in T)
 		///
 		template<class T>
 		void divide(T* result, const T* a, T scalar, size_t size);

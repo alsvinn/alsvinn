@@ -3,16 +3,21 @@
 
 namespace alsfvm {
 	namespace volume {
+
 		Volume::Volume(const std::vector<std::string>& variableNames,
 			std::shared_ptr<memory::MemoryFactory> memoryFactory,
 			size_t nx, size_t ny, size_t nz)
 			: variableNames(variableNames), memoryFactory(memoryFactory)
 		{
+            for (size_t i=0; i < variableNames.size(); i++) {
+                memoryAreas.push_back(memoryFactory->createScalarMemory(nx, ny, nz));
+            }
 		}
 
 
 		Volume::~Volume()
 		{
+            // Everything is deleted automatically
 		}
 
 		size_t Volume::getNumberOfVariables() const {

@@ -33,7 +33,8 @@ namespace memory {
 		/// \param memoryName the name of the memory implementation to use (eg. HostMemory, CudaMemory, ...)
 		/// \param deviceConfiguration the deviceConfiguration to use (this is mostly only relevant for GPU, on CPU it can be empty)
 		///
-		MemoryFactory(const std::string& memoryName, std::shared_ptr<DeviceConfiguration>& deviceConfiguration);
+        MemoryFactory(const std::string& memoryName,
+                      std::shared_ptr<DeviceConfiguration>& deviceConfiguration);
 
 		///
 		/// Creates scalar memory of the given size

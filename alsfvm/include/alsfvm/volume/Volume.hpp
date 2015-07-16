@@ -55,7 +55,8 @@ namespace alsfvm {
 			/// \brief getScalarMemoryArea gets the scalar memory area (real)
 			/// \param name the name of the variable
 			/// \return the MemoryArea for the given name
-			/// \note Equivalent to calling getScalarMemoryArea(getIndexFromName(name))
+            /// \note Equivalent to calling
+            ///     getScalarMemoryArea(getIndexFromName(name))
 			///
 			std::shared_ptr<memory::Memory<real> >&
 				getScalarMemoryArea(const std::string& name);

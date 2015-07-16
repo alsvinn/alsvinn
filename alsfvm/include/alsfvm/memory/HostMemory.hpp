@@ -12,7 +12,9 @@ class HostMemory : public alsfvm::memory::Memory<T>
 public:
 
     ///
-    /// @param size the size of the memory area (in bytes)
+    /// @param nx the size of the memory area in X (number of T)
+    /// @param ny the size of the memory area in Y (number of T)
+    /// @param nz the size of the memory area in Z (number of T)
     ///
     HostMemory(size_t nx, size_t ny=1, size_t nz=1);
 
@@ -108,9 +110,23 @@ public:
 	///
 	virtual void operator/=(real scalar);
 
-
+    ///
+    /// \brief at returns the data at the given index
+    /// \param x the x index
+    /// \param y the y index
+    /// \param z the z index
+    /// \return the data at the given index
+    ///
     virtual T& at(size_t x, size_t y=0, size_t z=0);
 
+
+    ///
+    /// \brief at returns the data at the given index
+    /// \param x the x index
+    /// \param y the y index
+    /// \param z the z index
+    /// \return the data at the given index
+    ///
     virtual const T& at(size_t x, size_t y=0, size_t z=0) const;
 
 

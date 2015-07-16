@@ -14,3 +14,4 @@ endif()
 
 add_subdirectory("alsfvm")
 add_subdirectory("test")
+add_subdirectory("doxygen")
