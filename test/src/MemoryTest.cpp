@@ -497,3 +497,36 @@ TEST(HostMemoryTest, SubtractScalarTest) {
 		ASSERT_EQ(i - scalar, data1[i]);
 	}
 }
+
+TEST(HostMemoryTest, 2DArrayTest) {
+    size_t nx=16;
+    size_t ny=8;
+    size_t nz=4;
+
+    alsfvm::memory::HostMemory<alsfvm::real> memory(nx, ny, nz);
+
+    ASSERT_EQ(memory.getSizeX(), nx);
+    ASSERT_EQ(memory.getSizeY(), ny);
+    ASSERT_EQ(memory.getSizeZ(), nz);
+
+    auto data = memory.getPointer();
+
+    for(size_t i = 0; i < nz; i++) {
+        for(size_t j= 0; j < ny; j++) {
+            for(size_t k=0; k < nx; k++) {
+
+                memory.at(k, j, i) = calculateIndex(k, j, i, nx, ny);
+            }
+        }
+    }
+
+    for(size_t i = 0; i < nz; i++) {
+        for(size_t j= 0; j < ny; j++) {
+            for(size_t k=0; k < nx; k++) {
+
+                ASSERT_EQ(memory.at(k, j, i), data[calculateIndex(k, j, i, nx, ny)]);
+                ASSERT_EQ(memory.at(k, j, i), calculateIndex(k, j, i, nx, ny));
+            }
+        }
+    }
+}

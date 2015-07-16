@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include "alsfvm/memory/Memory.hpp"
+#include "alsfvm/memory/index.hpp"
+
 namespace alsfvm {
 namespace memory {
 
@@ -105,9 +107,26 @@ public:
 	/// \param scalar the scalar to divide
 	///
 	virtual void operator/=(real scalar);
+
+
+    virtual T& at(size_t x, size_t y=0, size_t z=0);
+
+    virtual const T& at(size_t x, size_t y=0, size_t z=0) const;
+
+
 private:
     std::vector<T> data;
 };
+
+template<class T>
+T& HostMemory<T>::at(size_t x, size_t y, size_t z) {
+    return data[calculateIndex(x, y, z, this->nx, this->ny)];
+}
+
+template<class T>
+const T& HostMemory<T>::at(size_t x, size_t y, size_t z) const {
+    return data[calculateIndex(x, y, z, this->nx, this->ny)];
+}
 
 } // namespace memory
 } // namespace alsfvm
