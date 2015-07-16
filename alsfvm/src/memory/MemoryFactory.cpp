@@ -1,4 +1,5 @@
 #include "alsfvm/memory/MemoryFactory.hpp"
+#include "alsfvm/error/Exception.hpp"
 
 
 namespace alsfvm {
@@ -38,7 +39,7 @@ namespace alsfvm {
 		std::shared_ptr<Memory<real> > MemoryFactory::createScalarMemory(size_t size) {
 			auto& constructors = getMemoryFactoryMapInstance();
 			if (constructors.find(memoryName) == constructors.end()) {
-				throw std::exception("Unrecognized memory name");
+                THROW("Unrecognized memory name" << memoryName);
 			}
 		
 			return std::dynamic_pointer_cast<Memory<real> > (constructors[memoryName](size, REAL, deviceConfiguration));

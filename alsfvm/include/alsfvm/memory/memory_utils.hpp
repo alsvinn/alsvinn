@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/types.hpp"
 #include "alsfvm/memory/MemoryFactory.hpp"
+#include "alsfvm/error/Exception.hpp"
 ///
 /// Utility file for the memory components, this is not meant to be used
 /// from other parts of the system.
@@ -21,7 +22,7 @@
 						alsfvm::memory::MemoryFactory::MemoryPtr ptr(new classname<alsfvm::real>(size)); \
 						return ptr; \
 					} else { \
-						throw std::exception("Could not find memory type"); \
+                        THROW("Could not find memory type"); \
 					} \
 				}); \
 			} \
