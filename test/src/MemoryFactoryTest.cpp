@@ -10,9 +10,12 @@ TEST(CudaMemoryFactoryTest, CreateCudaMemoryArea) {
 	const std::string memoryName = "CudaMemory";
 	alsfvm::memory::MemoryFactory factory(memoryName, deviceConfiguration);
 
-	size_t size = 10;
-	auto memory = factory.createScalarMemory(size);
-	ASSERT_EQ(size, memory->getSize());
+
+    size_t nx = 10;
+    size_t ny = 10;
+    size_t nz = 10;
+    auto memory = factory.createScalarMemory(nx, ny, nz);
+    ASSERT_EQ(nx*ny*nz, memory->getSize());
 
 	auto cudaMemory = std::dynamic_pointer_cast<alsfvm::cuda::CudaMemory <alsfvm::real >> (memory);
 	ASSERT_TRUE(!!cudaMemory);
@@ -26,10 +29,16 @@ TEST(HostMemoryFactoryTest, CreateHostMemoryArea) {
 	const std::string memoryName = "HostMemory";
 	alsfvm::memory::MemoryFactory factory(memoryName, deviceConfiguration);
 
-	size_t size = 10;
-	auto memory = factory.createScalarMemory(size);
-	ASSERT_EQ(size, memory->getSize());
 
+    size_t nx = 10;
+    size_t ny = 10;
+    size_t nz = 10;
+    auto memory = factory.createScalarMemory(nx, ny, nz);
+    ASSERT_EQ(nx*ny*nz, memory->getSize());
+
+    ASSERT_EQ(nx, memory->getSizeX());
+    ASSERT_EQ(ny, memory->getSizeY());
+    ASSERT_EQ(nz, memory->getSizeZ());
 
 	auto hostMemory = std::dynamic_pointer_cast<alsfvm::memory::HostMemory<alsfvm::real>>(memory);
 	ASSERT_TRUE(!!hostMemory);

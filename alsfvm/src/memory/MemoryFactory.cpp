@@ -32,17 +32,20 @@ namespace alsfvm {
 
 		///
 		/// Creates scalar memory of the given size
-		/// \param size the number of real numbers to store
-		/// \note size is in number of reals
+        /// \param nx the number of real numbers to store in X direction
+        /// \param ny the number of real numbers to store in Y direction
+        /// \param nz the number of real numbers to store in Z direction
+        /// \note nx, ny, nz is in number of reals
 		/// \returns the pointer to the newly created memory area.
 		///
-		std::shared_ptr<Memory<real> > MemoryFactory::createScalarMemory(size_t size) {
+        std::shared_ptr<Memory<real> >
+            MemoryFactory::createScalarMemory(size_t nx, size_t ny, size_t nz) {
 			auto& constructors = getMemoryFactoryMapInstance();
 			if (constructors.find(memoryName) == constructors.end()) {
                 THROW("Unrecognized memory name" << memoryName);
 			}
 		
-			return std::dynamic_pointer_cast<Memory<real> > (constructors[memoryName](size, REAL, deviceConfiguration));
+            return std::dynamic_pointer_cast<Memory<real> > (constructors[memoryName](nx, ny, nz, REAL, deviceConfiguration));
 
 		}
 	}

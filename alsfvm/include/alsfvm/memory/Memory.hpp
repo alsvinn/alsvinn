@@ -10,10 +10,13 @@ namespace alsfvm {
         template<class T>
 		class Memory : public MemoryBase {
 		public:
-			///
-            /// @param size the size of the memory area (in number of T)
-			///
-			Memory(size_t size);
+            ///
+            /// \brief Memory constructs new memory
+            /// \param nx the number of cells in x direction
+            /// \param ny the number of cells in y direction
+            /// \param nz the number of cells in z direction
+            ///
+            Memory(size_t nx, size_t ny, size_t nz);
 
 			// Note: Virtual distructor since we will inherit
 			// from this. 
@@ -22,7 +25,44 @@ namespace alsfvm {
 			///
             /// @returns the size (in number of T) of the memory
 			///
-			size_t getSize() const;
+            virtual size_t getSize() const;
+
+            ///
+            /// @returns the size (in number of T) of the memory in X diretion
+            ///
+            virtual size_t getSizeX() const;
+
+            ///
+            /// @returns the size (in number of T) of the memory in Y diretion
+            ///
+            virtual size_t getSizeY() const;
+
+            ///
+            /// @returns the size (in number of T) of the memory in Z diretion
+            ///
+            virtual size_t getSizeZ() const;
+
+            ///
+            /// @returns the size (in bytes) of the memory in X direction.
+            /// \note use this for indexing
+            /// <code>
+            /// const size_t extentX = memory.getExtentXInBytes();
+            /// const size_t extentY = memory.getExtentYInBytes();
+            /// size_t indexByte = i*extentX*ExtentY+j*extentX+k;
+            /// </code>
+            ///
+            virtual size_t getExtentXInBytes() const;
+
+            ///
+            /// @returns the size (in bytes) of the memory in Y direction.
+            /// \note use this for indexing
+            /// <code>
+            /// const size_t extentX = memory.getExtentXInBytes();
+            /// const size_t extentY = memory.getExtentYInBytes();
+            /// size_t indexByte = i*extentX*ExtentY+j*extentX+k;
+            /// </code>
+            ///
+            virtual size_t getExtentYInBytes() const;
 
 			///
 			/// Checks if the memory area is on the host (CPU) or 
@@ -116,7 +156,9 @@ namespace alsfvm {
 			virtual void operator/=(real scalar) = 0;
 			
 		protected:
-			size_t size;
+            const size_t nx;
+            const size_t ny;
+            const size_t nz;
 		};
 	}
 }

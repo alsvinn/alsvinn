@@ -8,8 +8,8 @@ namespace alsfvm {
 namespace memory {
 
 template<class T>
-HostMemory<T>::HostMemory(size_t size)
-    : Memory<T>(size), data(size)
+HostMemory<T>::HostMemory(size_t nx, size_t ny, size_t nz)
+    : Memory<T>(nx, ny, nz), data(nx*ny*nz)
 {
 
 }

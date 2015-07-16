@@ -18,7 +18,7 @@ namespace memory {
 		///
 		/// The function definition for the memory constructors.
 		///
-		typedef std::function < MemoryPtr(size_t size, Types type,
+        typedef std::function < MemoryPtr(size_t nx, size_t ny, size_t nz, Types type,
 			std::shared_ptr<DeviceConfiguration>& deviceConfiguration)> MemoryConstructor;
 
 		///
@@ -37,11 +37,13 @@ namespace memory {
 
 		///
 		/// Creates scalar memory of the given size
-		/// \param size the number of real numbers to store
-		/// \note size is in number of reals
+        /// \param nx the number of real numbers to store in X direction
+        /// \param ny the number of real numbers to store in Y direction
+        /// \param nz the number of real numbers to store in Z direction
+        /// \note nx, ny, nz is in number of reals
 		/// \returns the pointer to the newly created memory area.
 		///
-		std::shared_ptr<Memory<real> > createScalarMemory(size_t size);
+        std::shared_ptr<Memory<real> > createScalarMemory(size_t nx, size_t ny, size_t nz);
 	private:
 
 		

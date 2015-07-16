@@ -12,7 +12,7 @@ public:
     ///
     /// @param size the size of the memory area (in bytes)
     ///
-    HostMemory(size_t size);
+    HostMemory(size_t nx, size_t ny=1, size_t nz=1);
 
 
     ///
