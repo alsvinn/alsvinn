@@ -51,6 +51,16 @@ namespace alsfvm {
             std::shared_ptr<memory::Memory<real> >&
                 getScalarMemoryArea(size_t index);
 
+            ///
+            /// \brief getScalarMemoryArea gets the scalar memory area (real)
+            /// \param index the index of the variable. Use getIndexFromName
+            ///              to get the index.
+            ///
+            /// \return the MemoryArea for the given index
+            ///
+            std::shared_ptr<const memory::Memory<real> >
+                getScalarMemoryArea(size_t index) const;
+
 			///
 			/// \brief getScalarMemoryArea gets the scalar memory area (real)
 			/// \param name the name of the variable
@@ -62,11 +72,22 @@ namespace alsfvm {
 				getScalarMemoryArea(const std::string& name);
 
             ///
+            /// \brief getScalarMemoryArea gets the scalar memory area (real)
+            /// \param name the name of the variable
+            /// \return the MemoryArea for the given name
+            /// \note Equivalent to calling
+            ///     getScalarMemoryArea(getIndexFromName(name))
+            ///
+            std::shared_ptr<const memory::Memory<real> >
+                getScalarMemoryArea(const std::string& name) const;
+
+
+            ///
             /// \brief getIndexFromName returns the given index from the name
             /// \param name the name of the variable
             /// \return the index of the name.
             ///
-            size_t getIndexFromName(const std::string& name);
+            size_t getIndexFromName(const std::string& name) const ;
 
 			///
 			/// Gets the variable name associated to the given index
@@ -74,7 +95,7 @@ namespace alsfvm {
 			/// \returns the variable name
 			/// \note This implicitly uses the std::move-feature of C++11
 			///
-			std::string getName(size_t index);
+            std::string getName(size_t index) const;
 
 
 		private:

@@ -17,10 +17,12 @@ public:
 
     ///
     /// \brief write writes the data to disk
-    /// \param volume the volume to write to disk
+    /// \param conservedVariables the conservedVariables to write
+    /// \param extraVariables the extra variables to write
     /// \param timestepInformation
     ///
-    virtual void write(const volume::Volume& volume,
+    virtual void write(const volume::Volume& conservedVariables,
+                       const volume::Volume& extraVariables,
                        const simulator::TimestepInformation& timestepInformation) = 0;
 
 };
