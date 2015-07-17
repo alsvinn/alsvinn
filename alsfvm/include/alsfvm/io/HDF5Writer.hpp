@@ -32,9 +32,19 @@ public:
     ///
     virtual void write(const volume::Volume& conservedVariables,
                        const volume::Volume& extraVariables,
+					   const grid::Grid& grid,
                        const simulator::TimestepInformation& timestepInformation);
 
 protected:
+
+	///
+	/// Writes the grid to the file in VizSchema format
+	/// \param object the object to write the grid to 
+	/// \param grid the grid to use
+	/// \notes This function creates a new group in object named "grid"
+	///
+	void writeGrid(hid_t object, const grid::Grid& grid);
+
     ///
     /// \brief writeVolume takes each variable of the volume and writes it
     /// \param volume the volume to read from

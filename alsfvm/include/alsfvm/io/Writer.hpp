@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/simulator/TimestepInformation.hpp"
 #include "alsfvm/volume/Volume.hpp"
+#include "alsfvm/grid/Grid.hpp"
 
 namespace alsfvm {
 namespace io {
@@ -23,6 +24,7 @@ public:
     ///
     virtual void write(const volume::Volume& conservedVariables,
                        const volume::Volume& extraVariables,
+					   const grid::Grid& grid, 
                        const simulator::TimestepInformation& timestepInformation) = 0;
 
 };

@@ -9,6 +9,7 @@
 using namespace alsfvm::io;
 using namespace alsfvm::memory;
 using namespace alsfvm::volume;
+using namespace alsfvm;
 
 class HDF5WriterTest : public ::testing::Test {
 public:
@@ -24,6 +25,7 @@ public:
     Volume conservedVariables;
     Volume extraVariables;
     HDF5Writer writer;
+	alsfvm::grid::Grid grid;
     HDF5WriterTest()
         : nx(10), ny(10), nz(10), basename("base"),
           deviceConfiguration(new alsfvm::DeviceConfiguration()),
@@ -32,14 +34,14 @@ public:
           namesExtra({"rho", "phi"}),
           conservedVariables(namesConserved, memoryFactory, nx, ny, nz),
           extraVariables(namesExtra, memoryFactory, nx, ny, nz),
-          writer(basename)
+		  writer(basename), grid(rvec3(0, 0, 0), rvec3(10, 10, 10), ivec3(nx, nx, nx))
     {
 
     }
 };
 
 TEST_F(HDF5WriterTest, ConstructTest) {
-    writer.write(conservedVariables, extraVariables, info);
+    writer.write(conservedVariables, extraVariables, grid,  info);
 }
 
 TEST_F(HDF5WriterTest, WriteAndReadTest) {
@@ -60,7 +62,7 @@ TEST_F(HDF5WriterTest, WriteAndReadTest) {
         }
     }
 
-    writer.write(conservedVariables, extraVariables, info);
+    writer.write(conservedVariables, extraVariables, grid, info);
 
     // Now we will read back
     const std::string outputFilename = alsfvm::io::getOutputname(basename, 0)

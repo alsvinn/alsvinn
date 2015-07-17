@@ -16,6 +16,7 @@ HDF5Writer::HDF5Writer(const std::string& basefileName)
 
 void HDF5Writer::write(const volume::Volume &conservedVariables,
                        const volume::Volume &extraVariables,
+					   const grid::Grid& grid,
                        const simulator::TimestepInformation &timestepInformation)
 {
     std::string name = getOutputname(basefileName, snapshotNumber);
@@ -24,10 +25,40 @@ void HDF5Writer::write(const volume::Volume &conservedVariables,
                                 H5F_ACC_TRUNC, H5P_DEFAULT,
                                 H5P_DEFAULT), H5Fclose);
 
-
+	writeGrid(file.hid(), grid);
     writeVolume(conservedVariables, file.hid());
     writeVolume(extraVariables, file.hid());
     snapshotNumber++;
+}
+
+void HDF5Writer::writeGrid(hid_t object, const grid::Grid& grid) {
+	HDF5Resource gridGroup(H5Gcreate2(object, "grid", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT), H5Gclose);
+	
+	// The comment below is from https://ice.txcorp.com/trac/vizschema/wiki/WikiStart
+	// Describe the mesh:
+	//   Group "mycartgrid" {
+	//   Att vsType = "mesh"                         // Required string
+	//   Att vsKind = "uniform"                      // Required string
+	//   Att vsStartCell = [0, 0, 0]                 // Required integer array if part of a larger mesh
+	//   Att vsNumCells = [200, 200, 104]            // Required integer array giving the number of cells in the x, y, and z directions, respectively
+	//   Att vsIndexOrder = "compMinorC"             // Default value is "compMinorC", with the other choice being "compMinorF".
+	//                                               // ("compMajorC" and "compMajorF" have the same result as the minor variants). 
+	//   Att vsLowerBounds = [-2.5, -2.5, -1.3]      // Required float array
+	//   Att vsUpperBounds = [2.5, 2.5, 1.3]         // Required float array
+	//   Att vsTemporalDimension = 0                 // Optional unsigned integer denoting which axis is time.
+	//                                               // No temporal axis if this attribute is not present.
+	// }
+	writeString(gridGroup.hid(), "vsType", "mesh");
+	writeString(gridGroup.hid(), "vsKind", "uniform");
+	writeString(gridGroup.hid(), "vsIndexOrder", "compMinorC");
+
+	writeIntegers(gridGroup.hid(), "vsStartCell", { 0, 0, 0 });
+	writeIntegers(gridGroup.hid(), "vsNumCells", grid.getDimensions().toStdVector());
+	writeFloats(gridGroup.hid(), "vsLowerBounds", 
+		grid.getOrigin().convert<float>().toStdVector());
+	writeFloats(gridGroup.hid(), "vsUpperBounds", 
+		grid.getTop().convert<float>().toStdVector());
+	
 }
 
 void HDF5Writer::writeVolume(const volume::Volume &volume, hid_t file)
@@ -42,6 +73,7 @@ void HDF5Writer::writeMemory(const memory::Memory<real> &memory,
                              const std::string& name,
                              hid_t file)
 {
+	// The comment below is from https://ice.txcorp.com/trac/vizschema/wiki/WikiStart
     //   GROUP "/" {
     //   Group "A" {
     //     Dataset "phi" {
@@ -80,6 +112,7 @@ void HDF5Writer::writeMemory(const memory::Memory<real> &memory,
 
     // The offset (where we will start writing data
     hsize_t offset[] = {0, 0, 0};
+
     // We need a temporary memory space to hold the data
     HDF5Resource memspace(H5Screate_simple(3, count, NULL), H5Sclose);
 
@@ -99,6 +132,8 @@ void HDF5Writer::writeMemory(const memory::Memory<real> &memory,
 	// We will only use this is the data is on the GPU
 	std::vector<real> hostDataFromGPU; 
 	if (!memory.isOnHost()) {
+
+		// We need to copy the memory back from the GPU
 		hostDataFromGPU.resize(memory.getSize());
 		memory.copyToHost(hostDataFromGPU.data(), hostDataFromGPU.size());
 
