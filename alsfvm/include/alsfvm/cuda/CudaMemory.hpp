@@ -5,7 +5,12 @@ namespace alsfvm {
 		template<class T>
 		class CudaMemory : public memory::Memory<T> {
 		public:
-			CudaMemory(size_t size);
+			///
+			/// \param nx the number of cells in x direction
+			/// \param ny the number of cells in y direction
+			/// \param nz the number of cells in z direction
+			///
+			CudaMemory(size_t nx, size_t ny=1, size_t nz=1);
 
 			// Note: Virtual distructor since we will inherit
 			// from this. 
