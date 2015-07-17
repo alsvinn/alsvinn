@@ -1,6 +1,7 @@
 #include "alsfvm/io/HDF5Writer.hpp"
 #include "alsfvm/io/io_utils.hpp"
 #include <memory>
+#include <cassert>
 #include "alsfvm/io/hdf5_utils.hpp"
 
 
@@ -91,6 +92,9 @@ void HDF5Writer::writeMemory(const memory::Memory<real> &memory,
 
     // Here we only support double writing at the moment
     static_assert(std::is_same<real, double>::value, "HDF5 only supports double for now");
+
+    // Need to redo for GPU
+    assert(memory.isOnHost());
     // Then we write the data as we normally would.
     HDF5_SAFE_CALL(H5Dwrite(dataset.hid(), H5T_NATIVE_DOUBLE,
                 memspace.hid(), filespace.hid(), H5P_DEFAULT,
