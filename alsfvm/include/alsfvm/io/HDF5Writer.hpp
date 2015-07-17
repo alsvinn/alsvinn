@@ -51,6 +51,32 @@ protected:
     void writeMemory(const memory::Memory<real>& memory, const std::string& name,
                      hid_t file);
 
+
+    ///
+    /// \brief writeString writes the string as an attribute to the given object
+    /// \param object the id of the (opened) object to write to
+    /// \param name the name of the attribute
+    /// \param value the string value
+    ///
+    void writeString(hid_t object, const std::string& name, const std::string& value);
+
+
+    ///
+    /// \brief writeFloats writes the vector of floats as an attribute
+    /// \param object the object to write to
+    /// \param name the name of the attribute
+    /// \param values the values to write
+    ///
+    void writeFloats(hid_t object, const std::string& name, const std::vector<float>& values);
+
+    ///
+    /// \brief writeIntegerss writes the vector of integers as an attribute
+    /// \param object the object to write to
+    /// \param name the name of the attribute
+    /// \param values the values to write
+    ///
+    void writeIntegers(hid_t object, const std::string& name, const std::vector<int>& values);
+
 private:
     size_t snapshotNumber;
     std::string basefileName;

@@ -100,10 +100,55 @@ void HDF5Writer::writeMemory(const memory::Memory<real> &memory,
                 memspace.hid(), filespace.hid(), H5P_DEFAULT,
                 memory.getPointer()));
 
-    //writeString(dataset, "vsType", "variable");
-    //writeString(dataset, "vsMesh", "grid");
-    //writeString(dataset, "vsCentering", "zonal");
+    writeString(dataset.hid(), "vsType", "variable");
+    writeString(dataset.hid(), "vsMesh", "grid");
+    writeString(dataset.hid(), "vsCentering", "zonal");
 
+}
+
+void HDF5Writer::writeString(hid_t object, const std::string &name, const std::string &value)
+{
+    HDF5Resource dataspace(H5Screate(H5S_SCALAR), H5Sclose);
+
+    HDF5Resource type(H5Tcopy(H5T_C_S1), H5Tclose);
+
+    HDF5_SAFE_CALL(H5Tset_size(type.hid(), value.size()));
+
+    // Create attribute and write to it
+    HDF5Resource attribute(H5Acreate(object, name.c_str(), type.hid(), dataspace.hid(),
+                               H5P_DEFAULT, H5P_DEFAULT), H5Aclose);
+
+    const char* cString = value.c_str();
+    HDF5_SAFE_CALL(H5Awrite(attribute.hid(), type.hid(), cString));
+}
+
+void HDF5Writer::writeFloats(hid_t object, const std::string &name, const std::vector<float> &values)
+{
+
+    hsize_t dims = values.size();
+
+    // Create the data space for the attribute.
+    HDF5Resource dataspace(H5Screate_simple(1, &dims, NULL), H5Sclose);
+
+    // Create a dataset attribute.
+    HDF5Resource attribute(H5Acreate2(object,  name.c_str(), H5T_IEEE_F32LE,
+                                 dataspace.hid(), H5P_DEFAULT, H5P_DEFAULT), H5Aclose);
+
+    HDF5_SAFE_CALL(H5Awrite(attribute.hid(), H5T_NATIVE_INT, values.data()));
+}
+
+void HDF5Writer::writeIntegers(hid_t object, const std::string &name, const std::vector<int> &values)
+{
+    hsize_t dims = values.size();
+
+    // Create the data space for the attribute.
+    HDF5Resource dataspace(H5Screate_simple(1, &dims, NULL), H5Sclose);
+
+    // Create a dataset attribute.
+    HDF5Resource attribute(H5Acreate2(object,  name.c_str(), H5T_STD_I32LE,
+                                 dataspace.hid(), H5P_DEFAULT, H5P_DEFAULT), H5Aclose);
+
+    HDF5_SAFE_CALL(H5Awrite(attribute.hid(), H5T_NATIVE_INT, values.data()));
 }
 
 } // namespace io
