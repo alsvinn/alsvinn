@@ -60,7 +60,7 @@ namespace alsfvm {
 		/// Copies the memory to the given buffer
 		///
 		template<class T>
-		void CudaMemory<T>::copyToHost(T* bufferPointer, size_t bufferLength) {
+		void CudaMemory<T>::copyToHost(T* bufferPointer, size_t bufferLength) const {
 			assert(bufferLength >= this->getSize());
 			CUDA_SAFE_CALL(cudaMemcpy(bufferPointer, memoryPointer, this->getSize()*sizeof(T), cudaMemcpyDeviceToHost));
 		}

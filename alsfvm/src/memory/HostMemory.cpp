@@ -33,7 +33,7 @@ const T *HostMemory<T>::getPointer() const
 }
 
 template<class T>
-void HostMemory<T>::copyToHost(T *bufferPointer, size_t bufferLength)
+void HostMemory<T>::copyToHost(T *bufferPointer, size_t bufferLength) const
 {
     assert(bufferLength >= Memory<T>::getSize());
     std::copy(data.begin(), data.end(), bufferPointer);

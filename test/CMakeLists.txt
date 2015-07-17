@@ -7,7 +7,8 @@ FIND_PACKAGE(GTest REQUIRED)
 FILE(GLOB_RECURSE SRC src/*.cpp)
 
 ADD_EXECUTABLE(alstest ${SRC})
-INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS} "../alsfvm/include")
+INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS} "../alsfvm/include")
+
 TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm
                               ${CUDA_LIBRARIES}
                               ${CMAKE_THREAD_LIBS_INIT})

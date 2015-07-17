@@ -93,12 +93,21 @@ void HDF5Writer::writeMemory(const memory::Memory<real> &memory,
     // Here we only support double writing at the moment
     static_assert(std::is_same<real, double>::value, "HDF5 only supports double for now");
 
-    // Need to redo for GPU
-    assert(memory.isOnHost());
+    
+	auto dataPointer = memory.getPointer();
+
+	// We will only use this is the data is on the GPU
+	std::vector<real> hostDataFromGPU; 
+	if (!memory.isOnHost()) {
+		hostDataFromGPU.resize(memory.getSize());
+		memory.copyToHost(hostDataFromGPU.data(), hostDataFromGPU.size());
+
+		dataPointer = hostDataFromGPU.data();
+	}
     // Then we write the data as we normally would.
     HDF5_SAFE_CALL(H5Dwrite(dataset.hid(), H5T_NATIVE_DOUBLE,
                 memspace.hid(), filespace.hid(), H5P_DEFAULT,
-                memory.getPointer()));
+				dataPointer));
 
     writeString(dataset.hid(), "vsType", "variable");
     writeString(dataset.hid(), "vsMesh", "grid");

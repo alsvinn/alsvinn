@@ -40,7 +40,7 @@ namespace alsfvm {
 			/// 
 			/// Copies the memory to the given buffer
 			///
-			virtual void copyToHost(T* bufferPointer, size_t bufferLength);
+			virtual void copyToHost(T* bufferPointer, size_t bufferLength) const;
 
 
 			///

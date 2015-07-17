@@ -50,7 +50,7 @@ public:
     /// \param bufferLength the size of the buffer (in number of T's)
     ///
     virtual void copyToHost(T* bufferPointer,
-                            size_t bufferLength);
+                            size_t bufferLength) const;
 
     ///
     /// Copies the memory from the buffer (assumed to be on Host/CPU)

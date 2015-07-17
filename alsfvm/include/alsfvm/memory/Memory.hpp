@@ -95,7 +95,7 @@ namespace alsfvm {
             /// \param bufferLength the size of the buffer (in number of T's)
 			///
             virtual void copyToHost(T* bufferPointer,
-                                    size_t bufferLength) = 0;
+                                    size_t bufferLength) const = 0;
 
 			///
 			/// Copies the memory from the buffer (assumed to be on Host/CPU)
