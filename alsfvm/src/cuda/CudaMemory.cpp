@@ -12,10 +12,10 @@ namespace alsfvm {
 	namespace cuda {
 
 		template<class T>
-		CudaMemory<T>::CudaMemory(size_t size) 
-			: memory::Memory<T>(size) 
+		CudaMemory<T>::CudaMemory(size_t nx, size_t ny, size_t nz)
+			: memory::Memory<T>(nx, ny, nz) 
 		{
-			CUDA_SAFE_CALL(cudaMalloc(&memoryPointer, size*sizeof(T)));
+			CUDA_SAFE_CALL(cudaMalloc(&memoryPointer, nx*ny*nz*sizeof(T)));
 		}
 
 		// Note: Virtual distructor since we will inherit
@@ -61,8 +61,8 @@ namespace alsfvm {
 		///
 		template<class T>
 		void CudaMemory<T>::copyToHost(T* bufferPointer, size_t bufferLength) {
-			assert(bufferLength >= size);
-			CUDA_SAFE_CALL(cudaMemcpy(bufferPointer, memoryPointer, size*sizeof(T), cudaMemcpyDeviceToHost));
+			assert(bufferLength >= this->getSize());
+			CUDA_SAFE_CALL(cudaMemcpy(bufferPointer, memoryPointer, this->getSize()*sizeof(T), cudaMemcpyDeviceToHost));
 		}
 
 		///
@@ -70,7 +70,7 @@ namespace alsfvm {
 		///
 		template<class T>
 		void CudaMemory<T>::copyFromHost(const T* bufferPointer, size_t bufferLength) {
-			const size_t copySize = std::min(bufferLength, size);
+			const size_t copySize = std::min(bufferLength, this->getSize());
 			CUDA_SAFE_CALL(cudaMemcpy(memoryPointer, bufferPointer, copySize*sizeof(T), cudaMemcpyHostToDevice));
 		}
 
