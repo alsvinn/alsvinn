@@ -45,7 +45,7 @@ qualifedClassname is on the form foo::bar::Classname
 """
 def getHppFilename(qualifiedClassname):
     splitName = qualifiedClassname.split("::")
-    path = "include/alsfvm/"
+    path = "include/"
     for name in splitName:
         path += "%s/" % name
 
@@ -62,7 +62,7 @@ def getCppFilename(qualifiedClassname):
     splitName = qualifiedClassname.split("::")
     path = "src/"
     # We don't include the alsfvm part in the start
-    for name in splitName:
+    for name in splitName[1:]:
         path += "%s/" % name
 
     path = path[:-1]
@@ -96,7 +96,7 @@ def createClassTextHpp(qualifiedClassname):
 
 
 def createClassTextCpp(qualifiedClassname):
-    text = "#include \"%s\"" % getHppFilename(qualifiedClassname)
+    text = "#include \"%s\"" % getHppFilename(qualifiedClassname).replace("include/", "")
     text += os.linesep + os.linesep
     splitName = qualifiedClassname.split("::")
     for name in splitName[0:-1]:
@@ -113,6 +113,9 @@ def createClassTextCpp(qualifiedClassname):
     
 if __name__ == "__main__":
     className = sys.argv[1]
+    if not className.startswith("alsfvm"):
+        className = "alsfvm::" + className
+        
     print "Creating class %s" % className
     classTextHpp = createClassTextHpp(className)
     classTextCpp = createClassTextCpp(className)
