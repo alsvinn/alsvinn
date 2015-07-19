@@ -36,5 +36,48 @@ namespace alsfvm {
 		vec3<S> convert() {
 			return vec3<S>(S(x), S(y), S(z));
 		}
+
+		///
+		/// Returns the i-th component of the vector.
+		///
+		const T& operator[](size_t i) const {
+			// Note: We only store three numbers in this struct, hence this is safe
+			return ((T*)this)[i];
+		}
+
+		///
+		/// Returns the i-th component of the vector.
+		///
+		T& operator[](size_t i) {
+			// Note: We only store three numbers in this struct, hence this is safe
+			return ((T*)this)[i];
+		}
 	};
+
+	///
+	/// Computes the product \f$\mathrm{scalar} \vec{a}\f$
+	/// \note Creates a new vector instance
+	///
+	template<class T>
+	inline vec3<T> operator*(T scalar, const vec3<T>& a) {
+		return vec3<T>(a.x*scalar, a.y*scalar, a.z*scalar);
+	}
+
+	///
+	/// Computes the division \f$\frac{1}{\mathrm{scalar}} \vec{a}\f$
+	/// \note Creates a new vector instance
+	///
+	template<class T>
+	inline vec3<T> operator/(const vec3<T>& a,T scalar) {
+		return vec3<T>(a.x/scalar, a.y/scalar, a.z/scalar);
+	}
+
+	///
+	/// Computes the product \f$\vec{a}+\vec{b}\f$
+	/// \note Creates a new vector instance.
+	///
+	template<class T>
+	inline vec3<T> operator+(const vec3<T>& a, const vec3<T>& b) {
+		return vec3<T>(a.x+b.x, a.y + b.y,  a.z + b.z);
+	}
 }

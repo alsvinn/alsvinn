@@ -89,7 +89,7 @@ protected:
 
 private:
     size_t snapshotNumber;
-    std::string basefileName;
+    const std::string basefileName;
 };
 
 } // namespace io

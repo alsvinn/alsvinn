@@ -97,17 +97,17 @@ def createClassTextHpp(qualifiedClassname):
 
 def createClassTextCpp(qualifiedClassname):
     text = "#include \"%s\"" % getHppFilename(qualifiedClassname).replace("include/", "")
-    text += os.linesep + os.linesep
+    text += "\n" + "\n"
     splitName = qualifiedClassname.split("::")
     for name in splitName[0:-1]:
         text += "namespace %s { " % name
 
-    text += os.linesep + os.linesep
+    text += "\n" + "\n"
 
     # close namespaces
     for name in splitName[0:-1]:
-        text += "} // namespace %s" % name
-        text += os.linesep
+        text += "}"
+        text += "\n"
     
     return text
     

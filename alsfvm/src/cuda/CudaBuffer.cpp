@@ -71,9 +71,9 @@ namespace alsfvm {
 		///
 		/// \returns the pitch in Y direction  (in bytes!)
 		/// \note Use for indexing by
-		/// <code>
+		/// \code{.cpp}
 		/// size_t index = i*getPitchY()*getPitchX() + j*getPitchX() + k;
-		/// </code>
+		/// \endcode
 		///
 		template<class T>
 		size_t CudaBuffer<T>::getPitchY() const {
@@ -84,9 +84,9 @@ namespace alsfvm {
 		///
 		/// \returns the pitch in X direction (in bytes!)
 		/// \note Use for indexing by
-		/// <code>
+		/// \code{.cpp}
 		/// size_t index = i*getPitchY()*getPitchX() + j*getPitchX() + k;
-		/// </code>
+		/// \endcode
 		///
 		template<class T>
 		size_t CudaBuffer<T>::getPitchX() const {

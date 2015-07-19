@@ -97,6 +97,16 @@ namespace alsfvm {
 			///
             std::string getName(size_t index) const;
 
+			///
+			/// Adds each component of the other volume to this volume
+			///
+			Volume& operator+=(const Volume& other);
+
+
+			/// 
+			/// Multiplies each component of the volume by the scalar
+			///
+			Volume& operator*=(real scalar);
 
 		private:
             const std::shared_ptr<memory::MemoryFactory> memoryFactory;

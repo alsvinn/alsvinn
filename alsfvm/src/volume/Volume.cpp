@@ -96,6 +96,28 @@ namespace alsfvm {
         std::string Volume::getName(size_t index) const {
 			return variableNames[index];
 		}
+
+
+		///
+		/// Adds each component of the other volume to this volume
+		///
+		Volume& Volume::operator+=(const Volume& other) {
+			for (size_t i = 0; i < memoryAreas.size(); i++) {
+				(*(memoryAreas)[i]) += *(other.getScalarMemoryArea(i));
+			}
+			return *this;
+		}
+
+
+		/// 
+		/// Multiplies each component of the volume by the scalar
+		///
+		Volume& Volume::operator*=(real scalar) {
+			for (size_t i = 0; i < memoryAreas.size(); i++) {
+				(*(memoryAreas)[i]) *= scalar;
+			}
+			return *this;
+		}
 	}
 
 }

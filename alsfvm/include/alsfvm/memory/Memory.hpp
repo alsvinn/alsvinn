@@ -45,22 +45,22 @@ namespace alsfvm {
             ///
             /// @returns the size (in bytes) of the memory in X direction.
             /// \note use this for indexing
-            /// <code>
+            /// \code{.cpp}
             /// const size_t extentX = memory.getExtentXInBytes();
             /// const size_t extentY = memory.getExtentYInBytes();
             /// size_t indexByte = i*extentX*ExtentY+j*extentX+k;
-            /// </code>
+            /// \endcode
             ///
             virtual size_t getExtentXInBytes() const;
 
             ///
             /// @returns the size (in bytes) of the memory in Y direction.
             /// \note use this for indexing
-            /// <code>
+            /// \code{.cpp}
             /// const size_t extentX = memory.getExtentXInBytes();
             /// const size_t extentY = memory.getExtentYInBytes();
             /// size_t indexByte = i*extentX*ExtentY+j*extentX+k;
-            /// </code>
+            /// \endcode
             ///
             virtual size_t getExtentYInBytes() const;
 

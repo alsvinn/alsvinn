@@ -28,11 +28,11 @@ namespace io {
         /// \brief HDF5Resource constructs a new HDF5Resource
         ///
         /// Example usage
-        /// <code>
+        /// \code{.cpp}
         /// HDF5Resource file(H5fopen("file.h5")), H5Fclose);
         /// // do something with file.hid()
         /// // deletes when file goes out of scope automatically
-        /// </code>
+        /// \endcode
         ///
         /// \param hdf5Resource the hdf5 id to store (obtained from say H5Fopen
         /// \param deleter the deleter function (eg. H5Fclose)
