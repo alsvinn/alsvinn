@@ -70,27 +70,26 @@ def getCppFilename(qualifiedClassname):
     return path
         
 def createClassTextHpp(qualifiedClassname):
-    classText = "#pragma once" + os.linesep + os.linesep;
+    classText = "#pragma once" + "\n\n";
     splitName = qualifiedClassname.split("::")
 
     # Create namespaces
     for name in splitName[0:-1]:
         classText += "namespace %s { " % name
-    classText += os.linesep
-    classText += os.linesep
+    classText += "\n"
+    classText += "\n"
     # Add classname
     classText += "    class %s {" % splitName[-1]
 
     # Add public at start
-    classText += os.linesep
-    classText += "    public:" + os.linesep
-    classText += os.linesep
-    classText += "    };" + os.linesep
-
+    classText += "\n"
+    classText += "    public:" + "\n"
+    classText += "\n"
+    classText += "    };" + "\n"
     # close namespaces
     for name in splitName[0:-1]:
         classText += "} // namespace %s" % name
-        classText += os.linesep
+        classText += "\n"
 
     return classText
 
