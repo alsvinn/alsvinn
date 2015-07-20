@@ -108,11 +108,29 @@ namespace alsfvm {
 			///
 			Volume& operator*=(real scalar);
 
+			///
+			/// \returns the number of cells in X direction
+			///
+			size_t getNumberOfXCells() const;
+
+			///
+			/// \returns the number of cells in Y direction
+			///
+			size_t getNumberOfYCells() const;
+
+			///
+			/// \returns the number of cells in Z direction
+			///
+			size_t getNumberOfZCells() const;
+
 		private:
             const std::shared_ptr<memory::MemoryFactory> memoryFactory;
             const std::vector<std::string> variableNames;
             std::vector<std::shared_ptr<memory::Memory<real> > >
                 memoryAreas;
+			size_t nx;
+			size_t ny;
+			size_t nz;
 		};
 	}
 }

@@ -8,6 +8,8 @@
 /// \note This will be moved into a paramter struct soon! 
 ///
 #define GAMMA (5.0/3.0)
+
+
 namespace alsfvm {
 	namespace equation {
 		namespace euler {

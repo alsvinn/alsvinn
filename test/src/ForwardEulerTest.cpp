@@ -50,10 +50,15 @@ TEST(ForwardEulerTest, ConvergenceTest) {
 	const real dt = real(1) / real(N);
 	ForwardEuler integrator(flux);
 	for (size_t i = 0; i < N; i++) {
+		// First timestep we use input as input and output as output, 
+		// but then on the second timestep we need to reverse the roles,
+		// and then switch every other timstep
 		if (i % 2) {
+			// Note that we do not care about spatial resolution here
 			integrator.performSubstep(volumeOut, volumeOut, rvec3(0, 0, 0), dt, volumeIn);
 		}
 		else {
+			// Note that we do not care about spatial resolution here
 			integrator.performSubstep(volumeIn, volumeIn, rvec3(0, 0, 0), dt, volumeOut);
 		}
 

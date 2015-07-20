@@ -4,6 +4,15 @@
 
 namespace alsfvm { namespace integrator { 
 
+	/// 
+	/// This is the classical ForwardEuler integrator
+	///  
+	/// For each call to performSubstep it computes
+	///
+	/// \f[u^{n+1} = u^n +\Delta t Q(u^n)\f]
+	///
+	/// where \f$Q(u^n)\f$ is computed by the numerical flux. 
+	///
     class ForwardEuler : public Integrator {
     public:
 		///
@@ -14,8 +23,7 @@ namespace alsfvm { namespace integrator {
 		ForwardEuler(std::shared_ptr<numflux::NumericalFlux> numericalFlux);
 
 		///
-		/// Returns the number of substeps this integrator uses.
-		/// For ForwardEuler this is 1, for RK4 this is 4, etc.
+		/// \returns 1
 		///
 		virtual size_t getNumberOfSubsteps() const;
 

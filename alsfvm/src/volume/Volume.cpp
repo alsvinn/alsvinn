@@ -7,7 +7,7 @@ namespace alsfvm {
 		Volume::Volume(const std::vector<std::string>& variableNames,
 			std::shared_ptr<memory::MemoryFactory> memoryFactory,
 			size_t nx, size_t ny, size_t nz)
-			: variableNames(variableNames), memoryFactory(memoryFactory)
+			: variableNames(variableNames), memoryFactory(memoryFactory), nx(nx), ny(ny), nz(nz)
 		{
             for (size_t i=0; i < variableNames.size(); i++) {
                 memoryAreas.push_back(memoryFactory->createScalarMemory(nx, ny, nz));
@@ -117,6 +117,27 @@ namespace alsfvm {
 				(*(memoryAreas)[i]) *= scalar;
 			}
 			return *this;
+		}
+
+		///
+		/// \returns the number of cells in X direction
+		///
+		size_t Volume::getNumberOfXCells() const {
+			return nx;
+		}
+
+		///
+		/// \returns the number of cells in Y direction
+		///
+		size_t Volume::getNumberOfYCells() const {
+			return ny;
+		}
+
+		///
+		/// \returns the number of cells in Z direction
+		///
+		size_t Volume::getNumberOfZCells() const {
+			return nz;
 		}
 	}
 
