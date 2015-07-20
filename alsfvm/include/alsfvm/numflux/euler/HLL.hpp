@@ -44,7 +44,7 @@ namespace alsfvm { namespace numflux { namespace euler {
 				equation::euler::Euler::computePointFlux<direction>(right, F);
 			}
 			else {
-				ConservedVariables leftFlux, rightFlux;
+                equation::euler::ConservedVariables leftFlux, rightFlux;
 
 				equation::euler::Euler::computePointFlux<direction>(left, leftFlux);
 				equation::euler::Euler::computePointFlux<direction>(right, rightFlux);

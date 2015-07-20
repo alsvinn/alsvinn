@@ -15,19 +15,6 @@ namespace memory {
 		///
 		typedef std::shared_ptr < MemoryBase > MemoryPtr;
 	
-		///
-		/// The function definition for the memory constructors.
-		///
-        typedef std::function < MemoryPtr(size_t nx, size_t ny, size_t nz, Types type,
-			std::shared_ptr<DeviceConfiguration>& deviceConfiguration)> MemoryConstructor;
-
-		///
-		/// Add a constructor to the available constructors
-		/// \note Use this function if you have written your own memory space that you would like
-		/// to be made available.
-		///
-		static void addConstructor(const std::string& name, MemoryConstructor constructor);
-
 
 		/// 
 		/// \param memoryName the name of the memory implementation to use (eg. HostMemory, CudaMemory, ...)

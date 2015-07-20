@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "alsfvm/integrator/ForwardEuler.hpp"
+#include <cmath>
 using namespace alsfvm;
 using namespace alsfvm::integrator;
 using namespace alsfvm::numflux;

@@ -28,6 +28,7 @@ public:
     /// \brief write writes the data to disk
     /// \param conservedVariables the conservedVariables to write
     /// \param extraVariables the extra variables to write
+    /// \param grid the grid currently used (includes whole domain, in case of mpi)
     /// \param timestepInformation
     ///
     virtual void write(const volume::Volume& conservedVariables,
@@ -41,7 +42,7 @@ protected:
 	/// Writes the grid to the file in VizSchema format
 	/// \param object the object to write the grid to 
 	/// \param grid the grid to use
-	/// \notes This function creates a new group in object named "grid"
+    /// \note This function creates a new group in object named "grid"
 	///
 	void writeGrid(hid_t object, const grid::Grid& grid);
 

@@ -1,25 +1,12 @@
 #include "alsfvm/memory/MemoryFactory.hpp"
 #include "alsfvm/error/Exception.hpp"
-
-
+#include "alsfvm/memory/HostMemory.hpp"
+#ifdef  ALSVINN_HAVE_CUDA
+#include "alsfvm/cuda/CudaMemory.hpp"
+#endif
 namespace alsfvm {
 	namespace memory {
-		namespace {
-			///
-			/// Singleton pattern
-			///
-			std::map < std::string, MemoryFactory::MemoryConstructor >& getMemoryFactoryMapInstance() {
-				// The order of initialization is undefined, therefore we must use a singleton for this map
-				// since the static variables within functions are always initialized by the first function call
-				static std::map < std::string, MemoryFactory::MemoryConstructor > memoryFactoryMap;
-				return memoryFactoryMap;
-			}
-		}
 
-		void MemoryFactory::addConstructor(const std::string& name, MemoryConstructor constructor) {
-			auto& constructors = getMemoryFactoryMapInstance();
-			constructors[name] = constructor;
-		}
 
 		/// 
 		/// \param memoryName the name of the memory implementation to use (eg. HostMemory, CudaMemory, ...)
@@ -40,13 +27,18 @@ namespace alsfvm {
 		///
         std::shared_ptr<Memory<real> >
             MemoryFactory::createScalarMemory(size_t nx, size_t ny, size_t nz) {
-			auto& constructors = getMemoryFactoryMapInstance();
-			if (constructors.find(memoryName) == constructors.end()) {
-                THROW("Unrecognized memory name" << memoryName);
-			}
-		
-            return std::dynamic_pointer_cast<Memory<real> > (constructors[memoryName](nx, ny, nz, REAL, deviceConfiguration));
-
+            if (memoryName == "HostMemory") {
+                return std::shared_ptr<Memory<real> >(new HostMemory<real>(nx, ny, nz));
+            }
+            else if (memoryName == "CudaMemory") {
+#ifdef ALSVINN_HAVE_CUDA
+                return std::shared_ptr<Memory<real> >(new CudaMemory(nx,ny, nz));
+#else
+                THROW("CUDA is not enabled for this build");
+#endif
+            } else {
+                THROW("Unknown memory type " << memoryName);
+            }
 		}
 	}
 }

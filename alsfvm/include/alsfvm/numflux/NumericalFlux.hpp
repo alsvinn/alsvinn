@@ -1,4 +1,4 @@
-#pragma once1
+#pragma once
 #include "alsfvm/volume/Volume.hpp"
 
 namespace alsfvm {

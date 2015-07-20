@@ -170,7 +170,6 @@ void HostMemory<T>::operator/=(real scalar) {
 }
 
 INSTANTIATE_MEMORY(HostMemory)
-ADD_MEMORY_TO_FACTORY(HostMemory)
 } // namespace memory
 } // namespace alsfvm
 
