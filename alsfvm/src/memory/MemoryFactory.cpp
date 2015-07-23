@@ -32,7 +32,7 @@ namespace alsfvm {
             }
             else if (memoryName == "CudaMemory") {
 #ifdef ALSVINN_HAVE_CUDA
-                return std::shared_ptr<Memory<real> >(new CudaMemory(nx,ny, nz));
+                return std::shared_ptr<Memory<real> >(new cuda::CudaMemory<real>(nx,ny, nz));
 #else
                 THROW("CUDA is not enabled for this build");
 #endif

@@ -173,7 +173,6 @@ namespace alsfvm {
 		}
 
 		INSTANTIATE_MEMORY(CudaMemory)
-		ADD_MEMORY_TO_FACTORY(CudaMemory)
 	}
 
 }

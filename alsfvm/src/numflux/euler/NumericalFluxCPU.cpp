@@ -75,7 +75,7 @@ namespace alsfvm { namespace numflux { namespace euler {
         // Middle indices
         const int x = i;
         const int y = j;
-        const int z = z;
+        const int z = k;
 
         // Right indices
         const int xr = i + (direction == 0);
@@ -180,14 +180,29 @@ namespace alsfvm { namespace numflux { namespace euler {
             extraVariables.getScalarMemoryArea(3)->getPointer()
         };
 
+		std::array<real*, 5> outputPointers = {
+			output.getScalarMemoryArea(0)->getPointer(),
+			output.getScalarMemoryArea(1)->getPointer(),
+			output.getScalarMemoryArea(2)->getPointer(),
+			output.getScalarMemoryArea(3)->getPointer(),
+			output.getScalarMemoryArea(4)->getPointer(),
+		};
+
 		for (size_t k = 1; k < nz - 1; k++) {
 			for (size_t j = 1; j < ny - 1; j++) {
 				for (size_t i = 1; i < nx - 1; i++) {
+					const size_t outputIndex = index(i, j, k);
 					equation::euler::ConservedVariables flux;
 
                     addFluxDirection<0, Flux>(i, j, k, conservedPointers, extraPointers, flux, index, cellLengths[0], flux);
                     addFluxDirection<1, Flux>(i, j, k, conservedPointers, extraPointers, flux, index, cellLengths[1], flux);
                     addFluxDirection<2, Flux>(i, j, k, conservedPointers, extraPointers, flux, index, cellLengths[2], flux);
+
+					outputPointers[0][outputIndex] = flux.rho;
+					outputPointers[1][outputIndex] = flux.m.x;
+					outputPointers[2][outputIndex] = flux.m.y;
+					outputPointers[3][outputIndex] = flux.m.z;
+					outputPointers[4][outputIndex] = flux.E;
 
 				}
 			}
