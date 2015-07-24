@@ -32,7 +32,7 @@ public:
           grid(rvec3(0,0,0), rvec3(1,1,1), ivec3(20, 20, 20)),
 		  memoryFactory(new memory::MemoryFactory("HostMemory", deviceConfiguration)),
 		  volumeFactory(equation, memoryFactory), nx(10), ny(10), nz(10)
-    {
+	{
 
     }
 };
@@ -71,9 +71,8 @@ TEST_F(NumericalFluxTest, ConsistencyTest) {
 	numericalFlux->computeFlux(*conservedVariables, *extraVariables, rvec3(1, 1, 1), *output);
 
 	// Check that output is what we expect
-
-
-
+	// Here the flux should be consistent, so we expect that 
+	// the difference f(U,Ur)-f(Ul,U) should be zero everywhere.
 	for (size_t n = 0; n < output->getNumberOfVariables(); n++) {
 
 		for (size_t k = 1; k < nz - 1; k++) {
