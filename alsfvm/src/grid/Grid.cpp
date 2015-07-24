@@ -35,7 +35,18 @@ namespace alsfvm {
 		/// \returns the dimensions (number of cells in each direction)
 		///
 		ivec3 Grid::getDimensions() const {
-			return dimensions;
-		}
+            return dimensions;
+        }
+
+        size_t Grid::getActiveDimension() const
+        {
+            if (dimensions.z > 1) {
+                return 3;
+            } else if (dimensions.y > 1) {
+                return 2;
+            } else {
+                return 1;
+            }
+        }
 	}
 }

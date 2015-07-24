@@ -7,8 +7,10 @@ namespace alsfvm { namespace numflux { namespace euler {
 	///
 	/// The class to compute numerical flux on the CPU
 	/// The template argument Flux is used to choose the concrete flux
+    /// The template argument dimension is to choose the correct dimension
+    /// (1 up to and including 3 is supported).
 	///
-	template<class Flux>
+    template<class Flux, size_t dimension>
     class NumericalFluxCPU : public NumericalFlux {
     public:
 

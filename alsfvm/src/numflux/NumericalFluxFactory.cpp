@@ -38,7 +38,16 @@ NumericalFluxFactory::NumericalFluxPtr
         if (equation == "euler") {
             if (fluxname == "HLL") {
                 if (reconstruction == "none") {
-                    return NumericalFluxPtr(new euler::NumericalFluxCPU<euler::HLL>(grid, deviceConfiguration));
+                    if (grid.getActiveDimension() == 3) {
+                        return NumericalFluxPtr(new euler::NumericalFluxCPU<euler::HLL, 3>(grid, deviceConfiguration));
+                    } else if(grid.getActiveDimension() == 2) {
+                        return NumericalFluxPtr(new euler::NumericalFluxCPU<euler::HLL, 2>(grid, deviceConfiguration));
+                    } else if(grid.getActiveDimension() == 1) {
+                        return NumericalFluxPtr(new euler::NumericalFluxCPU<euler::HLL, 2>(grid, deviceConfiguration));
+                    } else {
+                        THROW("Unsupported dimension " << grid.getActiveDimension()
+                              << " for equation " << equation << " platform " << platform << " and fluxname " << fluxname );
+                    }
                 } else {
                     THROW("Unknwon reconstruction " << reconstruction);
                 }

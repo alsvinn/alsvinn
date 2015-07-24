@@ -52,6 +52,13 @@ namespace alsfvm {
 			// Note: We only store three numbers in this struct, hence this is safe
 			return ((T*)this)[i];
 		}
+
+        ///
+        /// Computes the dot (scalar) product
+        ///
+         dot(const vec3<T>& other) const {
+            return x*other.x + y*other.y + z*other.z;
+        }
 	};
 
 	///

@@ -36,6 +36,12 @@ namespace alsfvm {
 			///
 			ivec3 getDimensions() const;
 
+            ///
+            /// Gets the number of active dimensions (eg. 1D, 2D, 3D)
+            /// \returns the number of active space dimensions
+            ///
+            size_t getActiveDimension() const;
+
 		private:
 			rvec3 origin;
 			rvec3 top;

@@ -83,8 +83,10 @@ namespace alsfvm { namespace numflux { namespace euler {
         const int zr = k + (direction == 2);
 
 
-        // This needs to be done with some smart template recursion
+
         const size_t indexLeft = index(xl, yl, xl);
+
+        // This needs to be done with some smart template recursion
         equation::euler::AllVariables left = makeVariableStruct<AllVariables>(
                 conservedVariables[0][indexLeft],
                 conservedVariables[1][indexLeft],
@@ -136,19 +138,23 @@ namespace alsfvm { namespace numflux { namespace euler {
 
     }
 
-    template<class Flux>
-    NumericalFluxCPU<Flux>::NumericalFluxCPU(const grid::Grid &grid, const std::shared_ptr<DeviceConfiguration> &deviceConfiguration)
+    template<class Flux, size_t dimension>
+    NumericalFluxCPU<Flux, dimension>::NumericalFluxCPU(const grid::Grid &grid, const std::shared_ptr<DeviceConfiguration> &deviceConfiguration)
     {
-        // Empty
+        static_assert(dimension > 0, "We only support positive dimension!");
+        static_assert(dimension < 4, "We only support dimension up to 3");
+
     }
 
-    template<class Flux>
-    void NumericalFluxCPU<Flux>::computeFlux(const volume::Volume& conservedVariables,
+    template<class Flux, size_t dimension>
+    void NumericalFluxCPU<Flux, dimension>::computeFlux(const volume::Volume& conservedVariables,
         const volume::Volume& extraVariables,
 		const rvec3& cellLengths,
 		volume::Volume& output
 		) 
 	{
+        static_assert(dimension > 0, "We only support positive dimension!");
+        static_assert(dimension < 4, "We only support dimension up to 3");
 
 		const int nx = conservedVariables.getNumberOfXCells();
 		const int ny = conservedVariables.getNumberOfYCells();
@@ -164,6 +170,8 @@ namespace alsfvm { namespace numflux { namespace euler {
             return k*nx*ny + j *nx + i;
         };
 
+        // We will automate the creation of these pointer arrays soon,
+        // for now we keep them to keep things simple.
         std::array<const real*, 5> conservedPointers = {
             conservedVariables.getScalarMemoryArea(0)->getPointer(),
             conservedVariables.getScalarMemoryArea(1)->getPointer(),
@@ -173,6 +181,8 @@ namespace alsfvm { namespace numflux { namespace euler {
         };
 
 
+        // We will automate the creation of these pointer arrays soon,
+        // for now we keep them to keep things simple.
         std::array<const real*, 4> extraPointers = {
             extraVariables.getScalarMemoryArea(0)->getPointer(),
             extraVariables.getScalarMemoryArea(1)->getPointer(),
@@ -180,6 +190,8 @@ namespace alsfvm { namespace numflux { namespace euler {
             extraVariables.getScalarMemoryArea(3)->getPointer()
         };
 
+        // We will automate the creation of these pointer arrays soon,
+        // for now we keep them to keep things simple.
 		std::array<real*, 5> outputPointers = {
 			output.getScalarMemoryArea(0)->getPointer(),
 			output.getScalarMemoryArea(1)->getPointer(),
@@ -188,15 +200,27 @@ namespace alsfvm { namespace numflux { namespace euler {
 			output.getScalarMemoryArea(4)->getPointer(),
 		};
 
-		for (size_t k = 1; k < nz - 1; k++) {
-			for (size_t j = 1; j < ny - 1; j++) {
+        const int hasZDirection = dimension > 2;
+        const int hasYDirection = dimension > 1;
+
+        // Notice the start and endpoints for k and j.
+        // If we have z direction, then we should only iterate on the internal
+        // cells (ie. start at 1 and end at nz -1). If we do not have z direction,
+        // then we start at 0 and end at nz.
+        for (size_t k = hasZDirection; k < nz - hasZDirection; k++) {
+            for (size_t j = hasYDirection; j < ny - hasYDirection; j++) {
 				for (size_t i = 1; i < nx - 1; i++) {
 					const size_t outputIndex = index(i, j, k);
 					equation::euler::ConservedVariables flux;
 
                     addFluxDirection<0, Flux>(i, j, k, conservedPointers, extraPointers, flux, index, cellLengths[0], flux);
-                    addFluxDirection<1, Flux>(i, j, k, conservedPointers, extraPointers, flux, index, cellLengths[1], flux);
-                    addFluxDirection<2, Flux>(i, j, k, conservedPointers, extraPointers, flux, index, cellLengths[2], flux);
+
+                    if (hasYDirection) {
+                        addFluxDirection<1, Flux>(i, j, k, conservedPointers, extraPointers, flux, index, cellLengths[1], flux);
+                    }
+                    if (hasZDirection) {
+                        addFluxDirection<2, Flux>(i, j, k, conservedPointers, extraPointers, flux, index, cellLengths[2], flux);
+                    }
 
 					outputPointers[0][outputIndex] = flux.rho;
 					outputPointers[1][outputIndex] = flux.m.x;
@@ -212,13 +236,15 @@ namespace alsfvm { namespace numflux { namespace euler {
 	/// 
 	/// \returns the number of ghost cells this specific flux requires
 	///
-	template<class Flux>
-    size_t NumericalFluxCPU<Flux>::getNumberOfGhostCells() {
+    template<class Flux, size_t dimension>
+    size_t NumericalFluxCPU<Flux, dimension>::getNumberOfGhostCells() {
 		return 1;
 
     }
 
-    template class NumericalFluxCPU<HLL>;
+    template class NumericalFluxCPU<HLL, 1>;
+    template class NumericalFluxCPU<HLL, 2>;
+    template class NumericalFluxCPU<HLL, 3>;
 }
 }
 }

@@ -14,7 +14,7 @@ namespace alsfvm {
 	namespace equation {
 		namespace euler {
 
-			class Euler {
+            class Euler {
 			public:
 				///
 				/// Computes the point flux. 
@@ -46,6 +46,17 @@ namespace alsfvm {
 					F.m[direction] += u.p;
 					F.E = (u.E + u.p) * u.u[direction];
 				}
+
+                typedef euler::ConservedVariables ConservedVariables;
+                typedef euler::ExtraVariables ExtraVariables;
+
+                static ExtraVariables computeExtra(const ConservedVariables& u) {
+                    ExtraVariables v;
+                    real ie = u.E - 0.5*u.m.dot(u.m)/u.rho;
+                    v.u = u.m / Uijk.rho;
+                    v.p = (GAMMA-1)*ie;
+                    return v;
+                }
 			};
 		}
 } // namespace alsfvm
