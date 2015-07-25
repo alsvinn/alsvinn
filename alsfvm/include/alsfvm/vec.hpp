@@ -56,7 +56,7 @@ namespace alsfvm {
         ///
         /// Computes the dot (scalar) product
         ///
-         dot(const vec3<T>& other) const {
+        T dot(const vec3<T>& other) const {
             return x*other.x + y*other.y + z*other.z;
         }
 	};

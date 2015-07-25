@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "alsfvm/equation/CellComputer.hpp"
+#include "alsfvm/DeviceConfiguration.hpp"
 
 namespace alsfvm { namespace equation { 
 
@@ -13,9 +14,11 @@ namespace alsfvm { namespace equation {
         /// \brief CellComputerFactory construct a new factory instance
         /// \param platform the platform (eg. "cpu", "cuda")
         /// \param equation (eg. "euler")
+		/// \param deviceConfiguration the deviceConfiguration used.
         ///
         CellComputerFactory(const std::string& platform,
-                            const std::string& equation);
+                            const std::string& equation,
+							std::shared_ptr<DeviceConfiguration>& deviceConfiguration);
 
         ///
         /// \brief createComputer creates a new cell computer

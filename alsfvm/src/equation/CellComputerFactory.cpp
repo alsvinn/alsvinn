@@ -6,7 +6,8 @@
 namespace alsfvm { namespace equation {
 
 CellComputerFactory::CellComputerFactory(const std::string &platform,
-                                         const std::string &equation)
+                                         const std::string &equation,
+										 std::shared_ptr<DeviceConfiguration>& deviceConfiguration)
     : platform(platform), equation(equation)
 {
     // empty

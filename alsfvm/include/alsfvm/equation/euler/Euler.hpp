@@ -16,6 +16,9 @@ namespace alsfvm {
 
             class Euler {
 			public:
+				typedef euler::ConservedVariables ConservedVariables;
+				typedef euler::ExtraVariables ExtraVariables;
+
 				///
 				/// Computes the point flux. 
 				///
@@ -47,16 +50,50 @@ namespace alsfvm {
 					F.E = (u.E + u.p) * u.u[direction];
 				}
 
-                typedef euler::ConservedVariables ConservedVariables;
-                typedef euler::ExtraVariables ExtraVariables;
 
+
+				///
+				/// Computes the extra variables \f$ p \f$ and \f$u\f$. 
+				/// Here we compute
+				/// \f[u =\frac{1}{\rho} m\f]
+				/// and
+				/// \f[p = (1-\gamma)(E-\frac{1}{2\rho}m^2)\f]
+				///
                 static ExtraVariables computeExtra(const ConservedVariables& u) {
                     ExtraVariables v;
                     real ie = u.E - 0.5*u.m.dot(u.m)/u.rho;
-                    v.u = u.m / Uijk.rho;
+                    v.u = u.m / u.rho;
                     v.p = (GAMMA-1)*ie;
                     return v;
                 }
+
+				///
+				/// Computes the wave speed in the given direction
+				/// (absolute value of wave speed)
+				///
+				template<int direction>
+				static real computeWaveSpeed(const ConservedVariables& u,
+					const ExtraVariables& v) {
+					static_assert(direction >= 0, "Direction can not be negative");
+					static_assert(direction < 3, "We only support dimension up to and inclusive 3");
+
+					return fabs(v.u[direction]) + sqrt(GAMMA * v.p / u.rho);
+				}
+
+				/// 
+				/// Checks to see if the variables obeys the constraint.
+				/// In this case it checks that
+				/// \f[\rho > 0\f]
+				/// and
+				/// \f[p\geq 0\f]
+				/// 
+				/// \returns true if the inequalities are fulfilled, false otherwise
+				///
+				static bool obeysConstraints(const ConservedVariables& u,
+					const ExtraVariables& v) 
+				{
+					return (u.rho > 0) && (v.p >= 0);
+				}
 			};
 		}
 } // namespace alsfvm

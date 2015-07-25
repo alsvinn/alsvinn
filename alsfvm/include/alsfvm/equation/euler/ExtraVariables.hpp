@@ -16,6 +16,12 @@ namespace alsfvm { namespace equation { namespace euler {
 
 		}
 
+		ExtraVariables()
+			: p(0), u(0, 0, 0)
+		{
+
+		}
+
 
 		real p;
 		rvec3 u;
