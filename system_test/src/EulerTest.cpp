@@ -8,6 +8,7 @@
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/integrator/ForwardEuler.hpp"
 #include "alsfvm/io/HDF5Writer.hpp"
+#include "alsfvm/boundary/BoundaryFactory.hpp"
 #include <array>
 
 using namespace alsfvm;
@@ -17,6 +18,7 @@ using namespace alsfvm::volume;
 using namespace alsfvm::numflux;
 using namespace alsfvm::equation::euler;
 using namespace alsfvm::equation;
+using namespace alsfvm::boundary;
 
 TEST(EulerTest, ShockTubeTest) {
     const size_t N = 256;
@@ -33,6 +35,7 @@ TEST(EulerTest, ShockTubeTest) {
 
 	NumericalFluxFactory fluxFactory("euler", "HLL", "none", deviceConfiguration);
 	CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
+	BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
 	auto conserved1 = volumeFactory.createConservedVolume(N, N, 1);
 	auto conserved2 = volumeFactory.createConservedVolume(N, N, 1);
 
@@ -79,6 +82,7 @@ TEST(EulerTest, ShockTubeTest) {
     ASSERT_TRUE(cellComputer->obeysConstraints(*conserved1, *extra1));
 	int i = 0;
     size_t numberOfTimesteps = 0;
+	auto boundary = boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells());
 	while (t < T) {
         numberOfTimesteps++;
 		fowardEuler.performSubstep(*conserved1, *extra1, grid.getCellLengths(), dt, *conserved2);
@@ -99,28 +103,11 @@ TEST(EulerTest, ShockTubeTest) {
 
         };
 
-		for (size_t x = 0; x < N; x++) {
-			const size_t index1 = x;
-			const size_t index2 = N + x;
-			const size_t index3 = (N - 1)*N + x;
-			const size_t index4 = (N - 2)*N + x;
-			for (size_t i = 0; i < conservedPointers.size(); i++) {
-				conservedPointers[i][index1] = conservedPointers[i][index2];
-				conservedPointers[i][index3] = conservedPointers[i][index4];
-			}
-		}
+		boundary->applyBoundaryConditions(*conserved1, grid);
 
-		for (size_t y = 0; y < N; y++) {
-			const size_t index1 = y*N;
-			const size_t index2 = y*N + 1;
-			const size_t index3 = y*N + (N - 1);
-			const size_t index4 = y*N + (N - 2);
-			for (size_t i = 0; i < conservedPointers.size(); i++) {
-				conservedPointers[i][index1] = conservedPointers[i][index2];
-				conservedPointers[i][index3] = conservedPointers[i][index4];
-			}
-		}
-
+		
+		// Intense error checking below. We basically check that the output is sane,
+		// this doubles the work of cellComputer->obeysConstraints.
         for(size_t i = 0; i < conserved1->getScalarMemoryArea(0)->getSize();i++) {
             // Check that density and pressure is positive
             ASSERT_GT(conservedPointers[0][i], 0);
@@ -166,7 +153,7 @@ TEST(EulerTest, ShockTubeTest) {
 		i++;
 
 		if (i % 20) {
-            //writer.write(*conserved1, *extra1, grid, simulator::TimestepInformation());
+            writer.write(*conserved1, *extra1, grid, simulator::TimestepInformation());
 		}
 
 
