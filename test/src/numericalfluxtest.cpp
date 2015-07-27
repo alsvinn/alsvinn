@@ -27,10 +27,10 @@ public:
 
     NumericalFluxTest()
         : equation("euler"), flux("HLL"), reconstruction("none"),
-          deviceConfiguration(new DeviceConfiguration),
+          deviceConfiguration(new DeviceConfiguration("cpu")),
           fluxFactory(equation, flux, reconstruction, deviceConfiguration),
           grid(rvec3(0,0,0), rvec3(1,1,1), ivec3(20, 20, 20)),
-		  memoryFactory(new memory::MemoryFactory("HostMemory", deviceConfiguration)),
+		  memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
 		  volumeFactory(equation, memoryFactory), nx(10), ny(10), nz(10)
 	{
 

@@ -42,10 +42,27 @@ namespace alsfvm {
             ///
             size_t getActiveDimension() const;
 
+			/// 
+			/// Gets the cell lengths in each direction
+			///
+			rvec3 getCellLengths() const;
+
+			/// 
+			/// Returns the midpoints of the grid.
+			/// \note this vector is indexed by 
+			/// \code{.cpp}
+			/// size_t index = z*nx*ny + y*nx + x;
+			/// \endcode
+			///
+			const std::vector<rvec3>& getCellMidpoints() const;
 		private:
 			rvec3 origin;
 			rvec3 top;
 			ivec3 dimensions;
+			rvec3 cellLengths;
+			
+			// A vector containing all cell midpoints
+			std::vector<rvec3> cellMidpoints;
 		};
 	}
 }

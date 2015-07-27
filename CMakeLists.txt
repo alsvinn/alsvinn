@@ -16,4 +16,5 @@ find_package(HDF5 REQUIRED)
 
 add_subdirectory("alsfvm")
 add_subdirectory("test")
+add_subdirectory("system_test")
 add_subdirectory("doxygen")

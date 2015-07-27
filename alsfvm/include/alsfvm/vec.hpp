@@ -11,6 +11,11 @@ namespace alsfvm {
 		T y;
 		T z;
 
+		vec3() 
+			: x(0), y(0), z(0)
+		{
+
+		}
 		vec3(T x, T y, T z) 
 		: x(x), y(y), z(z)
 		{
@@ -61,6 +66,16 @@ namespace alsfvm {
         }
 	};
 
+	/// 
+	/// Computes the component wise division of a by b.
+	/// Ie. the new vector will be
+	/// \f[(a_0/b_0, a_1/b_1, a_2/b_2)\f]
+	///
+	template<class T>
+	inline vec3<T> operator/(const vec3<T>& a, const vec3<T>& b) {
+		return vec3<T>(a.x / b.x, a.y / b.y, a.z / b.z);
+	}
+
 	///
 	/// Computes the product \f$\mathrm{scalar} \vec{a}\f$
 	/// \note Creates a new vector instance
@@ -68,6 +83,15 @@ namespace alsfvm {
 	template<class T>
 	inline vec3<T> operator*(T scalar, const vec3<T>& a) {
 		return vec3<T>(a.x*scalar, a.y*scalar, a.z*scalar);
+	}
+
+	///
+	/// Computes the difference \f$ \vec{a}-\vec{b}\f$
+	/// \note Creates a new vector instance
+	///
+	template<class T>
+	inline vec3<T> operator-(const vec3<T>& a, const vec3<T>& b) {
+		return vec3<T>(a.x - b.x, a.y - b.y, a.z - b.z);
 	}
 
 	///

@@ -35,10 +35,9 @@ TEST(ForwardEulerTest, ConvergenceTest) {
 	const size_t ny = 1;
 	const size_t nz = 1;
 
-	auto configuration = std::make_shared<alsfvm::DeviceConfiguration>();
+	auto configuration = std::make_shared<alsfvm::DeviceConfiguration>("cpu");
 
-	auto factory = std::make_shared<alsfvm::memory::MemoryFactory>("HostMemory",
-		configuration);
+	auto factory = std::make_shared<alsfvm::memory::MemoryFactory>(configuration);
 
 	alsfvm::volume::Volume volumeIn(variableNames, factory, nx, ny, nz);
 	alsfvm::volume::Volume volumeOut(variableNames, factory, nx, ny, nz);

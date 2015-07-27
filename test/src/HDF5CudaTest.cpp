@@ -29,8 +29,8 @@ public:
 	alsfvm::grid::Grid grid;
 	HDF5CudaTest()
 		: nx(10), ny(10), nz(10), basename("base_cuda"),
-		deviceConfiguration(new alsfvm::DeviceConfiguration()),
-		memoryFactory(new MemoryFactory("CudaMemory", deviceConfiguration)),
+		deviceConfiguration(new alsfvm::DeviceConfiguration("cuda")),
+		memoryFactory(new MemoryFactory(deviceConfiguration)),
 		namesConserved({ "alpha", "beta", "gamma" }),
 		namesExtra({ "rho", "phi" }),
 		conservedVariables(namesConserved, memoryFactory, nx, ny, nz),

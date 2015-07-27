@@ -63,7 +63,7 @@ namespace alsfvm { namespace numflux { namespace euler {
     void addFluxDirection(int i, int j, int k, const std::array<const real*, 5>& conservedVariables,
                      const std::array<const real*, 4>& extraVariables, equation::euler::ConservedVariables& flux,
                      const std::function<size_t(size_t,size_t,size_t)>& index,
-                     const size_t cellScaling,
+                     const real cellScaling,
                      equation::euler::ConservedVariables& out)
     {
         using namespace equation::euler;
@@ -84,7 +84,7 @@ namespace alsfvm { namespace numflux { namespace euler {
 
 
 
-        const size_t indexLeft = index(xl, yl, xl);
+        const size_t indexLeft = index(xl, yl, zl);
 
         // This needs to be done with some smart template recursion
         equation::euler::AllVariables left = makeVariableStruct<AllVariables>(
@@ -99,7 +99,7 @@ namespace alsfvm { namespace numflux { namespace euler {
                 extraVariables    [3][indexLeft]
                 );
 
-        const size_t indexRight = index(xr, yr, xr);
+        const size_t indexRight = index(xr, yr, zr);
         equation::euler::AllVariables right = makeVariableStruct<AllVariables>(
                 conservedVariables[0][indexRight],
                 conservedVariables[1][indexRight],
@@ -134,7 +134,7 @@ namespace alsfvm { namespace numflux { namespace euler {
         equation::euler::ConservedVariables fluxLeftMiddle;
         Flux::template computeFlux<direction>(left, middle, fluxLeftMiddle);
 
-        out = out - cellScaling*(fluxLeftMiddle - fluxMiddleRight);
+        out = out - (1.0 / cellScaling)*(fluxLeftMiddle - fluxMiddleRight);
 
     }
 

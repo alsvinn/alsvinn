@@ -26,11 +26,11 @@ public:
     std::shared_ptr<Volume> extraVolume;
     CellComputerFactory cellComputerFactory;
     TestExtraComputation()
-        : deviceConfiguration(new DeviceConfiguration),
+        : deviceConfiguration(new DeviceConfiguration("cpu")),
           equation("euler"),
           platform("cpu"),
           nx(10), ny(10), nz(10),
-          memoryFactory(new MemoryFactory("HostMemory", deviceConfiguration)),
+          memoryFactory(new MemoryFactory(deviceConfiguration)),
           volumeFactory("euler", memoryFactory),
           conservedVolume(volumeFactory.createConservedVolume(nx, ny, nz)),
           extraVolume(volumeFactory.createExtraVolume(nx, ny, nz)),

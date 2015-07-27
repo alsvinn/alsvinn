@@ -12,9 +12,8 @@ TEST(VolumeTest, SizeTest) {
     const size_t ny=10;
     const size_t nz=10;
 
-    auto configuration = std::make_shared<alsfvm::DeviceConfiguration>();
-    auto factory = std::make_shared<alsfvm::memory::MemoryFactory>("HostMemory",
-                                                                   configuration);
+    auto configuration = std::make_shared<alsfvm::DeviceConfiguration>("cpu");
+    auto factory = std::make_shared<alsfvm::memory::MemoryFactory>(configuration);
     alsfvm::volume::Volume volume(variableNames, factory, nx, ny, nz);
     ASSERT_EQ(variableNames.size(), volume.getNumberOfVariables());
 }
@@ -26,10 +25,9 @@ TEST(VolumeTest, GetVariableIndex) {
 	const size_t ny = 10;
 	const size_t nz = 10;
 
-    auto configuration = std::make_shared<alsfvm::DeviceConfiguration>();
+    auto configuration = std::make_shared<alsfvm::DeviceConfiguration>("cpu");
 
-    auto factory = std::make_shared<alsfvm::memory::MemoryFactory>("HostMemory",
-                                                                   configuration);
+    auto factory = std::make_shared<alsfvm::memory::MemoryFactory>(configuration);
 	alsfvm::volume::Volume volume(variableNames, factory, nx, ny, nz);
 
 	ASSERT_EQ(0, volume.getIndexFromName("alpha"));
@@ -46,10 +44,9 @@ TEST(VolumeTest, WriteToMemoryArea) {
     const size_t ny = 10;
     const size_t nz = 10;
 
-    auto configuration = std::make_shared<alsfvm::DeviceConfiguration>();
+    auto configuration = std::make_shared<alsfvm::DeviceConfiguration>("cpu");
 
-    auto factory = std::make_shared<alsfvm::memory::MemoryFactory>("HostMemory",
-                                                                   configuration);
+    auto factory = std::make_shared<alsfvm::memory::MemoryFactory>(configuration);
     alsfvm::volume::Volume volume(variableNames, factory, nx, ny, nz);
 
     auto memory0 = volume.getScalarMemoryArea("alpha");
@@ -68,10 +65,9 @@ TEST(VolumeTest, FactoryTestEuler) {
 	const size_t ny = 10;
 	const size_t nz = 10;
 
-	auto configuration = std::make_shared<alsfvm::DeviceConfiguration>();
+	auto configuration = std::make_shared<alsfvm::DeviceConfiguration>("cpu");
 
-	auto factory = std::make_shared<alsfvm::memory::MemoryFactory>("HostMemory",
-		configuration);
+	auto factory = std::make_shared<alsfvm::memory::MemoryFactory>(configuration);
 
 	VolumeFactory volumeFactory("euler", factory);
 

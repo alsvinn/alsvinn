@@ -6,9 +6,8 @@
 #ifdef ALSVINN_HAVE_CUDA
 #include "alsfvm/cuda/CudaMemory.hpp"
 TEST(CudaMemoryFactoryTest, CreateCudaMemoryArea) {
-	auto deviceConfiguration = std::make_shared<alsfvm::DeviceConfiguration>();
-	const std::string memoryName = "CudaMemory";
-	alsfvm::memory::MemoryFactory factory(memoryName, deviceConfiguration);
+	auto deviceConfiguration = std::make_shared<alsfvm::DeviceConfiguration>("cuda");
+	alsfvm::memory::MemoryFactory factory(deviceConfiguration);
 
 
     size_t nx = 10;
@@ -25,9 +24,9 @@ TEST(CudaMemoryFactoryTest, CreateCudaMemoryArea) {
 
 #include "alsfvm/memory/HostMemory.hpp"
 TEST(HostMemoryFactoryTest, CreateHostMemoryArea) {
-	auto deviceConfiguration = std::make_shared<alsfvm::DeviceConfiguration>();
-	const std::string memoryName = "HostMemory";
-	alsfvm::memory::MemoryFactory factory(memoryName, deviceConfiguration);
+	auto deviceConfiguration = std::make_shared<alsfvm::DeviceConfiguration>("cpu");
+
+	alsfvm::memory::MemoryFactory factory(deviceConfiguration);
 
 
     size_t nx = 10;

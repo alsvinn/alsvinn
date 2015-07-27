@@ -4,7 +4,7 @@ namespace alsfvm {
 	class DeviceConfiguration
 	{
 	public:
-		DeviceConfiguration();
+		DeviceConfiguration(const std::string& platform = "cpu");
 		virtual ~DeviceConfiguration();
 
         ///

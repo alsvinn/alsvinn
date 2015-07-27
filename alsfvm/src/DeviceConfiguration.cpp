@@ -2,8 +2,8 @@
 
 namespace alsfvm {
 
-	DeviceConfiguration::DeviceConfiguration()
-        : platform("cpu")
+	DeviceConfiguration::DeviceConfiguration(const std::string& platform)
+        : platform(platform)
 	{
 	}
 

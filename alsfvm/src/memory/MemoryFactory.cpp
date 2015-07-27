@@ -9,11 +9,10 @@ namespace alsfvm {
 
 
 		/// 
-		/// \param memoryName the name of the memory implementation to use (eg. HostMemory, CudaMemory, ...)
 		/// \param deviceConfiguration the deviceConfiguration to use (this is mostly only relevant for GPU, on CPU it can be empty)
 		///
-		MemoryFactory::MemoryFactory(const std::string& memoryName, std::shared_ptr<DeviceConfiguration>& deviceConfiguration)
-			: memoryName(memoryName), deviceConfiguration(deviceConfiguration)
+		MemoryFactory::MemoryFactory(std::shared_ptr<DeviceConfiguration>& deviceConfiguration)
+			: deviceConfiguration(deviceConfiguration)
 		{
 		}
 
@@ -27,17 +26,17 @@ namespace alsfvm {
 		///
         std::shared_ptr<Memory<real> >
             MemoryFactory::createScalarMemory(size_t nx, size_t ny, size_t nz) {
-            if (memoryName == "HostMemory") {
+            if (deviceConfiguration->getPlatform() == "cpu") {
                 return std::shared_ptr<Memory<real> >(new HostMemory<real>(nx, ny, nz));
             }
-            else if (memoryName == "CudaMemory") {
+			else if (deviceConfiguration->getPlatform() == "cuda") {
 #ifdef ALSVINN_HAVE_CUDA
                 return std::shared_ptr<Memory<real> >(new cuda::CudaMemory<real>(nx,ny, nz));
 #else
                 THROW("CUDA is not enabled for this build");
 #endif
             } else {
-                THROW("Unknown memory type " << memoryName);
+				THROW("Unknown memory type " << deviceConfiguration->getPlatform());
             }
 		}
 	}

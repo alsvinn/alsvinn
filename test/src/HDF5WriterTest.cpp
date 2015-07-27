@@ -28,8 +28,8 @@ public:
 	alsfvm::grid::Grid grid;
     HDF5WriterTest()
         : nx(10), ny(10), nz(10), basename("base"),
-          deviceConfiguration(new alsfvm::DeviceConfiguration()),
-          memoryFactory(new MemoryFactory("HostMemory", deviceConfiguration)),
+          deviceConfiguration(new alsfvm::DeviceConfiguration("cpu")),
+          memoryFactory(new MemoryFactory(deviceConfiguration)),
           namesConserved({"alpha", "beta", "gamma"}),
           namesExtra({"rho", "phi"}),
           conservedVariables(namesConserved, memoryFactory, nx, ny, nz),
