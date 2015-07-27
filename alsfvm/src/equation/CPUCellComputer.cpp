@@ -50,6 +50,7 @@ real CPUCellComputer<Equation>::computeMaxWaveSpeed(const volume::Volume& conser
 ///	\param conservedVariables the conserved variables (density, momentum, Energy for Euler)
 /// \param extraVariables the extra variables (pressure and velocity for Euler)
 /// \return true if it obeys the constraints, false otherwise
+/// \todo Tidy up the way we check for nan and inf
 ///
 template<class Equation>
 bool CPUCellComputer<Equation>::obeysConstraints(const volume::Volume& conservedVariables,
@@ -58,9 +59,25 @@ bool CPUCellComputer<Equation>::obeysConstraints(const volume::Volume& conserved
 	bool obeys = true;
 
 	volume::for_each_cell<typename Equation::ConservedVariables,
-		typename Equation::ExtraVariables>(conservedVariables, extraVariables, [&obeys](const euler::ConservedVariables& conserved,
-		const euler::ExtraVariables& extra, size_t index) {
+        typename Equation::ExtraVariables>(conservedVariables, extraVariables, [&obeys](const typename Equation::ConservedVariables& conserved,
+        const typename Equation::ExtraVariables& extra, size_t index) {
+        // Check for nan and inf:
+        const real* conservedAsRealPtr = (const real*)&conserved;
 
+        for (size_t i = 0; i < sizeof(conserved)/sizeof(real); i++) {
+            if (std::isnan(conservedAsRealPtr[i]) || std::isinf(conservedAsRealPtr[i])) {
+                obeys = false;
+            }
+        }
+
+
+        const real* extraAsRealPtr = (const real*)&extra;
+
+        for (size_t i = 0; i < sizeof(extra)/sizeof(real); i++) {
+            if (std::isnan(extraAsRealPtr[i]) || std::isinf(extraAsRealPtr[i])) {
+                obeys = false;
+            }
+        }
 		if (!Equation::obeysConstraints(conserved, extra)) {
 			obeys = false;
 		}

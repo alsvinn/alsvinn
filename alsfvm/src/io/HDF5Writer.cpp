@@ -93,7 +93,7 @@ void HDF5Writer::writeMemory(const memory::Memory<real> &memory,
     HDF5Resource filespace(H5Screate_simple(3, dimensions, NULL), H5Sclose);
 
 
-    HDF5Resource dataset(H5Dcreate(file, name.c_str(), H5T_IEEE_F32LE,
+    HDF5Resource dataset(H5Dcreate(file, name.c_str(), H5T_IEEE_F64LE,
                                    filespace.hid(),
                   H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT), H5Dclose);
 

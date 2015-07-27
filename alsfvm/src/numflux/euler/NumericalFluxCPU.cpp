@@ -207,8 +207,13 @@ namespace alsfvm { namespace numflux { namespace euler {
         // If we have z direction, then we should only iterate on the internal
         // cells (ie. start at 1 and end at nz -1). If we do not have z direction,
         // then we start at 0 and end at nz.
-        for (size_t k = hasZDirection; k < nz - hasZDirection; k++) {
-            for (size_t j = hasYDirection; j < ny - hasYDirection; j++) {
+        const size_t startZ = hasZDirection;
+        const size_t endZ = nz - hasZDirection;
+
+        const size_t startY = hasYDirection;
+        const size_t endY = ny - hasYDirection;
+        for (size_t k = startZ; k < endZ; k++) {
+            for (size_t j = startY; j < endY; j++) {
 				for (size_t i = 1; i < nx - 1; i++) {
 					const size_t outputIndex = index(i, j, k);
 					equation::euler::ConservedVariables flux;
@@ -222,11 +227,11 @@ namespace alsfvm { namespace numflux { namespace euler {
                         addFluxDirection<2, Flux>(i, j, k, conservedPointers, extraPointers, flux, index, cellLengths[2], flux);
                     }
 
-					outputPointers[0][outputIndex] = flux.rho;
-					outputPointers[1][outputIndex] = flux.m.x;
-					outputPointers[2][outputIndex] = flux.m.y;
-					outputPointers[3][outputIndex] = flux.m.z;
-					outputPointers[4][outputIndex] = flux.E;
+                    outputPointers[0][outputIndex] = -flux.rho;
+                    outputPointers[1][outputIndex] = -flux.m.x;
+                    outputPointers[2][outputIndex] = -flux.m.y;
+                    outputPointers[3][outputIndex] = -flux.m.z;
+                    outputPointers[4][outputIndex] = -flux.E;
 
 				}
 			}

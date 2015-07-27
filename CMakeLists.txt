@@ -1,7 +1,10 @@
 cmake_minimum_required (VERSION 2.8.11)
 project (alsvinn)
+SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 
-SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=c++11)
+# Add the user's chosen flags to the build for this directory.
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11")
+
 find_package(CUDA)
 if(CUDA_FOUND)
   set(ALSVINN_HAVE_CUDA On)

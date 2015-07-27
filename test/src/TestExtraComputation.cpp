@@ -104,6 +104,16 @@ TEST_F(TestExtraComputation, CheckConstraints) {
 	ASSERT_FALSE(cellComputer->obeysConstraints(*conservedVolume, *extraVolume));
 
 	// And fix the first one, then we should still get something false
-	conservedVolume->getScalarMemoryArea("rho")->getPointer()[8] = 2;
+    conservedVolume->getScalarMemoryArea("rho")->getPointer()[4] = 2;
 	ASSERT_FALSE(cellComputer->obeysConstraints(*conservedVolume, *extraVolume));
+
+    // check that it can be fixed again
+    extraVolume->getScalarMemoryArea("p")->getPointer()[8] = 0.4;
+    ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolume, *extraVolume));
+
+
+    // Add an inf
+    extraVolume->getScalarMemoryArea("p")->getPointer()[8] = INFINITY;
+    ASSERT_FALSE(cellComputer->obeysConstraints(*conservedVolume, *extraVolume));
+
 }

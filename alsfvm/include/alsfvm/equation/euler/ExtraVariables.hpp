@@ -27,6 +27,7 @@ namespace alsfvm { namespace equation { namespace euler {
 		rvec3 u;
     };
 
+
 } // namespace alsfvm
 
 } // namespace numflux

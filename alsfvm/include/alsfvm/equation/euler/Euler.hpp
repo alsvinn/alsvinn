@@ -2,7 +2,7 @@
 #include "alsfvm/equation/euler/ConservedVariables.hpp"
 #include "alsfvm/equation/euler/ExtraVariables.hpp"
 #include "alsfvm/equation/euler/AllVariables.hpp"
-
+#include <cmath>
 ///
 /// Gamma constant
 /// \note This will be moved into a paramter struct soon! 
@@ -92,7 +92,8 @@ namespace alsfvm {
 				static bool obeysConstraints(const ConservedVariables& u,
 					const ExtraVariables& v) 
 				{
-					return (u.rho > 0) && (v.p >= 0);
+
+                    return std::isfinite(u.rho) && (!std::isnan(u.rho)) && (u.rho > 0) && (v.p > 0);
 				}
 			};
 		}

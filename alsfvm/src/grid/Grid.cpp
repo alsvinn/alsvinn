@@ -19,7 +19,10 @@ namespace alsfvm {
 			for (size_t z = 0; z < dimensions.z; z++) {
 				for (size_t y = 0; y < dimensions.y; y++) {
 					for (size_t x = 0; x < dimensions.x; x++) {
-						rvec3 position = origin + rvec3(cellLengths.x*x, cellLengths.y*y, cellLengths.z*z) + cellLengths / 2.0;
+                        rvec3 position = origin
+                                + rvec3(cellLengths.x*x, cellLengths.y*y, cellLengths.z*z)
+                                + cellLengths / 2.0;
+
 						cellMidpoints[z*dimensions.x*dimensions.y + y*dimensions.x + x] = position;
 					}
 				}

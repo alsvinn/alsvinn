@@ -27,8 +27,8 @@ namespace alsfvm {
 			const size_t nz = in.getNumberOfZCells();
 			for (size_t k = 0; k < nz; k++) {
 				for (size_t j = 0; j < ny; j++) {
-					for (size_t i = 0; i < nz; i++) {
-						size_t index = k*nx*ny + j*ny + i;
+                    for (size_t i = 0; i < nx; i++) {
+                        size_t index = k*nx*ny + j*nx + i;
 						function(index);
 					}
 				}
@@ -217,7 +217,7 @@ namespace alsfvm {
 		for (size_t k = 0; k < nz; k++) {
 			for (size_t j = 0; j < ny; j++) {
 				for (size_t i = 0; i < nx; i++) {
-					size_t index = k*nx*ny + j*ny + i;
+                    size_t index = k*nx*ny + j*nx + i;
 					auto midPoint = midPoints[index];
 					VariableStructA a;
 					VariableStructB b;
