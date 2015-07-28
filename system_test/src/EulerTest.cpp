@@ -45,21 +45,17 @@ TEST(EulerTest, ShockTubeTest) {
 	fill_volume<ConservedVariables, ExtraVariables>(*conserved1, *extra1, grid, 
 		[](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
 
-        if (x < 0.04+0.02*0.05) {
+        if (x < 0.04) {
 			u.rho = 3.86859;
 			v.u.x = 11.2536;
 			v.p = 167.345;
 		} 
 		else {
 			real r = pow(x - 0.25, 2) + pow(y - 0.5, 2);
-            real phi = r == 0 ? 0 : (x-0.25) / sqrt(r);
-            real r_max = pow(0.13  + 0.02 * 0.5 * sin(phi) + 0.01 * 0.5 * sin(10*phi), 2);
+            real r_max = pow(0.15, 2);
 
             if (r <= r_max) {
 				u.rho = 10.0;
-                u.rho += 0.5 * 0.5;
-                u.rho += 1.0 * 0.5 * sin(4*(x-0.25));
-                u.rho += 0.5 * 0.5 * cos(8*(y-0.5));
 			}
 			else {
 				u.rho = 1.0;

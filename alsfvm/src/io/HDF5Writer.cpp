@@ -50,7 +50,7 @@ void HDF5Writer::writeGrid(hid_t object, const grid::Grid& grid) {
 	// }
 	writeString(gridGroup.hid(), "vsType", "mesh");
 	writeString(gridGroup.hid(), "vsKind", "uniform");
-	writeString(gridGroup.hid(), "vsIndexOrder", "compMinorC");
+    writeString(gridGroup.hid(), "vsIndexOrder", "compMinorF");
 
 	writeIntegers(gridGroup.hid(), "vsStartCell", { 0, 0, 0 });
 	writeIntegers(gridGroup.hid(), "vsNumCells", grid.getDimensions().toStdVector());
@@ -93,7 +93,7 @@ void HDF5Writer::writeMemory(const memory::Memory<real> &memory,
     HDF5Resource filespace(H5Screate_simple(3, dimensions, NULL), H5Sclose);
 
 
-    HDF5Resource dataset(H5Dcreate(file, name.c_str(), H5T_IEEE_F64LE,
+    HDF5Resource dataset(H5Dcreate(file, name.c_str(), H5T_IEEE_F32LE,
                                    filespace.hid(),
                   H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT), H5Dclose);
 
@@ -178,7 +178,7 @@ void HDF5Writer::writeFloats(hid_t object, const std::string &name, const std::v
     HDF5Resource attribute(H5Acreate2(object,  name.c_str(), H5T_IEEE_F32LE,
                                  dataspace.hid(), H5P_DEFAULT, H5P_DEFAULT), H5Aclose);
 
-    HDF5_SAFE_CALL(H5Awrite(attribute.hid(), H5T_NATIVE_INT, values.data()));
+    HDF5_SAFE_CALL(H5Awrite(attribute.hid(), H5T_NATIVE_FLOAT, values.data()));
 }
 
 void HDF5Writer::writeIntegers(hid_t object, const std::string &name, const std::vector<int> &values)

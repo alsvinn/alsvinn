@@ -19,7 +19,7 @@ namespace alsfvm { namespace boundary {
 		///
 		/// Applies the boundary conditions to the volumes supplied.
 		/// \param volume the volume to apply the boundary condition to
-		/// 
+        /// \param grid the active grid
 		/// \todo Better handling of corners.
 		///
 		virtual void applyBoundaryConditions(volume::Volume& volume,
