@@ -149,7 +149,7 @@ TEST(EulerTest, ShockTubeTest) {
 		i++;
 
 		if (i % 20) {
-            writer.write(*conserved1, *extra1, grid, simulator::TimestepInformation());
+           // writer.write(*conserved1, *extra1, grid, simulator::TimestepInformation());
 		}
 
 

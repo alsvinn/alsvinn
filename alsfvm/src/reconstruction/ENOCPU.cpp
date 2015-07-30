@@ -1,0 +1,181 @@
+#include "alsfvm/reconstruction/ENOCPU.hpp"
+#include "alsfvm/error/Exception.hpp"
+#include <cassert>
+#include <cmath>
+#include "alsfvm/reconstruction/ENOCoefficients.hpp"
+
+namespace alsfvm { namespace reconstruction {
+
+template<int order>
+void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
+                                          size_t direction,
+                                          size_t indicatorVariable,
+                                          volume::Volume &leftOut,
+                                          volume::Volume &rightOut)
+{
+    // We often do compute order-1.
+    static_assert(order > 0, "Can not do ENO reconstruction of order 0.");
+
+    if (direction > 2) {
+        THROW("Direction can only be 0, 1 or 2, was given: " << direction);
+    }
+    const ivec3 directionVector(order == 0, order == 1, order == 2);
+
+    // make divided differences
+    computeDividedDifferences(*inputVariables.getScalarMemoryArea(indicatorVariable),
+                              directionVector,
+                              0,
+                              *dividedDifferences[0]);
+
+    for ( size_t i = 1; i < order - 1; i++) {
+        computeDividedDifferences(*dividedDifferences[i - 1],
+                directionVector, i, *dividedDifferences[i]);
+    }
+
+    // done computing divided differences
+
+    // Now we go on to do the actual reconstruction, choosing the stencil for
+    // each point.
+    const size_t nx = inputVariables.getNumberOfXCells();
+    const size_t ny = inputVariables.getNumberOfYCells();
+    const size_t nz = inputVariables.getNumberOfZCells();
+
+    // Sanity check, we need at least ONE point in the interior.
+    assert(nx > 2*directionVector.x * order);
+    assert(ny > 2*directionVector.y * order);
+    assert(nz > 2*directionVector.z * order);
+
+    const size_t startX = directionVector.x * order;
+    const size_t startY = directionVector.y * order;
+    const size_t startZ = directionVector.z * order;
+
+    const size_t endX = nx - directionVector.x * order;
+    const size_t endY = ny - directionVector.y * order;
+    const size_t endZ = nz - directionVector.z * order;
+
+    std::array<real*, order - 1> dividedDifferencesPointers;
+
+    for (size_t i = 0; i < order - 1; i++) {
+        dividedDifferencesPointers[i] = dividedDifferences[i]->getPointer();
+    }
+
+    for (size_t var = 0; var < inputVariables.getNumberOfVariables(); var++) {
+        const real* pointerIn = inputVariables.getScalarMemoryArea(var)->getPointer();
+        real* pointerOutLeft = leftOut.getScalarMemoryArea(var)->getPointer();
+        real* pointerOutRight = rightOut.getScalarMemoryArea(var)->getPointer();
+
+        for (size_t z = startZ; z < endZ; z++) {
+            for(size_t y = startY; y < endY; y++) {
+                for(size_t x = startX; x < endX; x++) {
+
+
+                    const size_t indexRight = z*nx*ny + y * nx + x;
+                    const size_t indexLeft = (z - directionVector.z) * nx * ny
+                            + (y - directionVector.y) * ny
+                            + (x - directionVector.x);
+
+                    // First we determine the shift
+                    // We do this by looping through the levels of the divided
+                    // differences, and each time we go left, we increment the shift.
+                    int shift = 0;
+
+                    for (size_t level = 0; level < order - 1; level++) {
+                        real dividedDifferenceRight = dividedDifferencesPointers[level][indexRight];
+                        real dividedDifferenceLeft = dividedDifferencesPointers[level][indexLeft];
+
+                        if (std::abs(dividedDifferenceLeft) < std::abs(dividedDifferenceRight) ) {
+                            // Now we choose the left stencil
+                            shift++;
+                        }
+
+
+                    }
+
+                    // Now we have the stencil enabled. We need to find the correct
+                    // coefficients.
+
+                    auto coefficientsRight = ENOCoeffiecients<order>::coefficients[shift+1];
+                    auto coefficientsLeft = ENOCoeffiecients<order>::coefficients[shift];
+                    real leftValue = 0.0;
+                    real rightValue = 0.0;
+                    for(size_t j = 0; j < order; j++) {
+
+                        const size_t index = (z - (shift - j)*directionVector.z) * nx * ny
+                                + (y - (shift - j)*directionVector.y) * ny
+                                + (x - (shift - j)*directionVector.x);
+
+
+                        const real value = pointerIn[index];
+                        leftValue += coefficientsLeft[j] * value;
+                        rightValue += coefficientsRight[j] * value;
+                    }
+
+                    pointerOutLeft[indexRight] = leftValue;
+                    pointerOutRight[indexRight] = rightValue;
+
+
+                }
+            }
+        }
+    }
+}
+
+
+
+template<int order>
+size_t ENOCPU<order>::getNumberOfGhostCells()
+{
+    return order;
+}
+
+template<int order>
+void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& input,
+                                              const ivec3& direction,
+                                              size_t level,
+                                              memory::Memory<real>& output)
+{
+
+
+    const size_t nx = input.getSizeX();
+    const size_t ny = input.getSizeY();
+    const size_t nz = input.getSizeZ();
+
+    // Sanity check, we need at least ONE point in the interior.
+    assert(nx > 2*direction.x * level);
+    assert(ny > 2*direction.y * level);
+    assert(nz > 2*direction.z * level);
+
+    const size_t startX = direction.x * level;
+    const size_t startY = direction.y * level;
+    const size_t startZ = direction.z * level;
+
+    const size_t endX = nx - direction.x * level;
+    const size_t endY = ny - direction.y * level;
+    const size_t endZ = nz - direction.z * level;
+
+    const real* pointerIn = input.getPointer();
+
+    real* pointerOut = output.getPointer();
+
+    for (size_t z = startZ; z < endZ; z++) {
+        for(size_t y = startY; y < endY; y++) {
+            for(size_t x = startX; x < endX; x++) {
+                const size_t indexRight = z*nx*ny + y * nx + x;
+                const size_t indexLeft = (z - direction.z) * nx * ny
+                        + (y - direction.y) * ny
+                        + (x - direction.x);
+
+                pointerOut[indexRight] = pointerIn[indexRight] - pointerIn[indexLeft];
+
+            }
+        }
+    }
+}
+
+template class ENOCPU<1>;
+template class ENOCPU<2>;
+template class ENOCPU<3>;
+template class ENOCPU<4>;
+
+}
+}
