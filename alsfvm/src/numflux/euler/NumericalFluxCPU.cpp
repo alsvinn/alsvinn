@@ -92,15 +92,12 @@ namespace alsfvm { namespace numflux { namespace euler {
                 conservedVariables[1][indexLeft],
                 conservedVariables[2][indexLeft],
                 conservedVariables[3][indexLeft],
-                conservedVariables[4][indexLeft]);
-#if 0
-        ,
+                conservedVariables[4][indexLeft],
                 extraVariables    [0][indexLeft],
                 extraVariables    [1][indexLeft],
                 extraVariables    [2][indexLeft],
                 extraVariables    [3][indexLeft]
                 );
-#endif
 
         const size_t indexRight = index(xr, yr, zr);
         equation::euler::AllVariables right = makeVariableStruct<AllVariables>(
@@ -108,7 +105,12 @@ namespace alsfvm { namespace numflux { namespace euler {
                 conservedVariables[1][indexRight],
                 conservedVariables[2][indexRight],
                 conservedVariables[3][indexRight],
-                conservedVariables[4][indexRight]);
+                conservedVariables[4][indexRight],
+                extraVariables    [0][indexRight],
+                extraVariables    [1][indexRight],
+                extraVariables    [2][indexRight],
+                extraVariables    [3][indexRight]
+                );
 
         const size_t indexMiddle = index(x, y, z);
         equation::euler::AllVariables middle = makeVariableStruct<AllVariables>(
@@ -116,7 +118,12 @@ namespace alsfvm { namespace numflux { namespace euler {
                 conservedVariables[1][indexMiddle],
                 conservedVariables[2][indexMiddle],
                 conservedVariables[3][indexMiddle],
-                conservedVariables[4][indexMiddle]);
+                conservedVariables[4][indexMiddle],
+                extraVariables    [0][indexMiddle],
+                extraVariables    [1][indexMiddle],
+                extraVariables    [2][indexMiddle],
+                extraVariables    [3][indexMiddle]
+                );
 
 
         // F(U_j, U_r)
