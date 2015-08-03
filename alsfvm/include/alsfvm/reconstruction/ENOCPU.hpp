@@ -14,7 +14,8 @@ namespace alsfvm { namespace reconstruction {
     template<int order>
     class ENOCPU : public Reconstruction {
     public:
-        ENOCPU(std::shared_ptr<memory::MemoryFactory>& memoryFactory);
+        ENOCPU(std::shared_ptr<memory::MemoryFactory>& memoryFactory,
+               size_t nx, size_t ny, size_t nz);
         ///
         /// Performs reconstruction.
         /// \param[in] inputVariables the variables to reconstruct.

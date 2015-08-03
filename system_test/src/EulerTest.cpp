@@ -33,7 +33,7 @@ TEST(EulerTest, ShockTubeTest) {
 
 	VolumeFactory volumeFactory("euler", memoryFactory);
 
-	NumericalFluxFactory fluxFactory("euler", "HLL", "none", deviceConfiguration);
+    NumericalFluxFactory fluxFactory("euler", "HLL", "eno2", deviceConfiguration);
 	CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
 	BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
 	auto conserved1 = volumeFactory.createConservedVolume(N, N, 1);
@@ -80,6 +80,7 @@ TEST(EulerTest, ShockTubeTest) {
     size_t numberOfTimesteps = 0;
 	auto boundary = boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells());
 	while (t < T) {
+        std::cout << t << std::endl;
         numberOfTimesteps++;
 		fowardEuler.performSubstep(*conserved1, *extra1, grid.getCellLengths(), dt, *conserved2);
 		conserved1.swap(conserved2);
@@ -91,7 +92,7 @@ TEST(EulerTest, ShockTubeTest) {
             conserved1->getScalarMemoryArea(4)->getPointer()
 		};
 
-        std::array<real*, 5> extraPointers = {
+        std::array<real*, 4> extraPointers = {
             extra1->getScalarMemoryArea(0)->getPointer(),
             extra1->getScalarMemoryArea(1)->getPointer(),
             extra1->getScalarMemoryArea(2)->getPointer(),
@@ -106,7 +107,7 @@ TEST(EulerTest, ShockTubeTest) {
 		// this doubles the work of cellComputer->obeysConstraints.
         for(size_t i = 0; i < conserved1->getScalarMemoryArea(0)->getSize();i++) {
             // Check that density and pressure is positive
-            ASSERT_GT(conservedPointers[0][i], 0);
+            ASSERT_GT(conservedPointers[0][i], 0) << "Error at index "<< i;
             ASSERT_GT(extraPointers[0][i], 0);
 
             for(size_t j = 0; j < 5; j++) {
@@ -149,7 +150,7 @@ TEST(EulerTest, ShockTubeTest) {
 		i++;
 
 		if (i % 20) {
-           // writer.write(*conserved1, *extra1, grid, simulator::TimestepInformation());
+            writer.write(*conserved1, *extra1, grid, simulator::TimestepInformation());
 		}
 
 

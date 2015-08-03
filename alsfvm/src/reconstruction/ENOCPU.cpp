@@ -7,6 +7,15 @@
 namespace alsfvm { namespace reconstruction {
 
 template<int order>
+ENOCPU<order>::ENOCPU(std::shared_ptr<memory::MemoryFactory> &memoryFactory,
+                      size_t nx, size_t ny, size_t nz)
+{
+    for(size_t i = 0; i < dividedDifferences.size(); i++) {
+        dividedDifferences[i] = memoryFactory->createScalarMemory(nx, ny, nz);
+    }
+}
+
+template<int order>
 void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
                                           size_t direction,
                                           size_t indicatorVariable,
@@ -19,17 +28,17 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
     if (direction > 2) {
         THROW("Direction can only be 0, 1 or 2, was given: " << direction);
     }
-    const ivec3 directionVector(order == 0, order == 1, order == 2);
+    const ivec3 directionVector(direction == 0, direction == 1, direction == 2);
 
     // make divided differences
     computeDividedDifferences(*inputVariables.getScalarMemoryArea(indicatorVariable),
                               directionVector,
-                              0,
+                              1,
                               *dividedDifferences[0]);
 
     for ( size_t i = 1; i < order - 1; i++) {
         computeDividedDifferences(*dividedDifferences[i - 1],
-                directionVector, i, *dividedDifferences[i]);
+                directionVector, i+1, *dividedDifferences[i]);
     }
 
     // done computing divided differences
@@ -42,8 +51,8 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 
     // Sanity check, we need at least ONE point in the interior.
     assert(nx > 2*directionVector.x * order);
-    assert(ny > 2*directionVector.y * order);
-    assert(nz > 2*directionVector.z * order);
+    assert((directionVector.y == 0) || (ny > 2*directionVector.y * order));
+    assert((directionVector.z == 0) || (nz > 2*directionVector.z * order));
 
     const size_t startX = directionVector.x * order;
     const size_t startY = directionVector.y * order;
@@ -112,7 +121,8 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 
                     pointerOutLeft[indexRight] = leftValue;
                     pointerOutRight[indexRight] = rightValue;
-
+                    assert(leftValue == leftValue);
+                    assert(rightValue == rightValue);
 
                 }
             }
@@ -125,7 +135,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 template<int order>
 size_t ENOCPU<order>::getNumberOfGhostCells()
 {
-    return order;
+    return order + 1;
 }
 
 template<int order>

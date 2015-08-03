@@ -50,6 +50,12 @@ namespace alsfvm { namespace numflux { namespace euler {
 				equation::euler::Euler::computePointFlux<direction>(right, rightFlux);
 				F = (speedRight*leftFlux - speedLeft*rightFlux + speedRight*speedLeft*(right.conserved() - left.conserved())) / (speedRight - speedLeft);
 			}
+
+            assert(!std::isnan(F.rho));
+            assert(!std::isnan(F.m.x));
+            assert(!std::isnan(F.m.y));
+            assert(!std::isnan(F.m.z));
+            assert(!std::isnan(F.E));
 		}
 
 		/// 
@@ -69,8 +75,13 @@ namespace alsfvm { namespace numflux { namespace euler {
 			const real waveLeft = sqrt(left.rho);
 			const real waveRight = sqrt(right.rho);
 
+            assert(!std::isnan(waveLeft));
+            assert(!std::isnan(waveRight));
+
 			const real rho = (left.rho + right.rho) / 2;
 			const rvec3 u = (waveLeft * left.u + waveRight * right.u) / (waveLeft + waveRight);
+            assert(!std::isnan(u.x) && !std::isnan(u.y) && !std::isnan(u.y));
+            assert(std::isfinite(u.x) && std::isfinite(u.y) && std::isfinite(u.y));
 			const real p = (left.p * waveLeft + right.p * waveRight) / (waveLeft + waveRight);
 
 			const real cs = sqrt(GAMMA * p / rho);

@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/numflux/NumericalFlux.hpp"
 #include "alsfvm/grid/Grid.hpp"
+#include "alsfvm/reconstruction/Reconstruction.hpp"
 
 namespace alsfvm { namespace numflux { namespace euler { 
 
@@ -15,7 +16,9 @@ namespace alsfvm { namespace numflux { namespace euler {
     public:
 
         NumericalFluxCPU(const grid::Grid& grid,
-                         const std::shared_ptr<DeviceConfiguration>& deviceConfiguration);
+                         std::shared_ptr<reconstruction::Reconstruction>& reconstruction,
+                         std::shared_ptr<DeviceConfiguration>& deviceConfiguration
+                         );
 
         ///
         /// \brief computeFlux
@@ -37,6 +40,10 @@ namespace alsfvm { namespace numflux { namespace euler {
 		///
 		virtual size_t getNumberOfGhostCells();
 
+    private:
+        std::shared_ptr<reconstruction::Reconstruction> reconstruction;
+        std::shared_ptr<volume::Volume> left;
+        std::shared_ptr<volume::Volume> right;
     };
 
 } // namespace alsfvm

@@ -123,6 +123,11 @@ namespace alsfvm {
 			///
 			size_t getNumberOfZCells() const;
 
+            ///
+            /// \brief makeZero sets every element of the volume to zero (0).
+            ///
+            void makeZero();
+
 		private:
             const std::shared_ptr<memory::MemoryFactory> memoryFactory;
             const std::vector<std::string> variableNames;

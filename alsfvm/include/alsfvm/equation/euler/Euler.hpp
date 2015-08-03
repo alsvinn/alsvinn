@@ -95,6 +95,16 @@ namespace alsfvm {
 
                     return std::isfinite(u.rho) && (!std::isnan(u.rho)) && (u.rho > 0) && (v.p > 0);
 				}
+
+                static AllVariables makeAllVariables(real rho, real mx, real my, real mz, real E) {
+                    assert(!std::isnan(rho));
+                    assert(!std::isnan(mx));
+                    assert(!std::isnan(my));
+                    assert(!std::isnan(mz));
+                    assert(!std::isnan(E));
+                    ConservedVariables conserved(rho, mx, my, mz, E);
+                    return AllVariables(conserved, computeExtra(conserved));
+                }
 			};
 		}
 } // namespace alsfvm

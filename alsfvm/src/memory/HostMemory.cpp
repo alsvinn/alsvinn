@@ -9,7 +9,7 @@ namespace memory {
 
 template<class T>
 HostMemory<T>::HostMemory(size_t nx, size_t ny, size_t nz)
-    : Memory<T>(nx, ny, nz), data(nx*ny*nz)
+    : Memory<T>(nx, ny, nz), data(nx*ny*nz, 42)
 {
 
 }
@@ -166,7 +166,15 @@ template <class T>
 void HostMemory<T>::operator/=(real scalar) {
 	for (size_t i = 0; i < data.size(); ++i) {
 		data[i] /= scalar;
-	}
+    }
+}
+
+template <class T>
+void HostMemory<T>::makeZero()
+{
+    for (size_t i = 0; i < data.size(); ++i) {
+        data[i] = 0;
+    }
 }
 
 INSTANTIATE_MEMORY(HostMemory)

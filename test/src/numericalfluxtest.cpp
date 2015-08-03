@@ -6,6 +6,7 @@
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/equation/euler/AllVariables.hpp"
+#include "alsfvm/equation/CellComputerFactory.hpp"
 
 using namespace alsfvm::numflux;
 using namespace alsfvm;
@@ -47,18 +48,21 @@ TEST_F(NumericalFluxTest, ConsistencyTest) {
 	auto conservedVariables = volumeFactory.createConservedVolume(nx, ny, nz);
 	auto extraVariables = volumeFactory.createExtraVolume(nx, ny, nz);
 
-	for (size_t i = 0; i < conservedVariables->getNumberOfVariables(); i++) {
-		for (size_t j = 0; j < nx*ny*nz; j++) {
-			conservedVariables->getScalarMemoryArea(i)->getPointer()[j] = 1;
-		}
-	}
 
-	for (size_t i = 0; i < extraVariables->getNumberOfVariables(); i++) {
-		for (size_t j = 0; j < nx*ny*nz; j++) {
-			extraVariables->getScalarMemoryArea(i)->getPointer()[j] = 1;
-		}
-	}
+    for (size_t j = 0; j < nx*ny*nz; j++) {
+        conservedVariables->getScalarMemoryArea(0)->getPointer()[j] = 1;
+        conservedVariables->getScalarMemoryArea(1)->getPointer()[j] = 1;
+        conservedVariables->getScalarMemoryArea(2)->getPointer()[j] = 1;
+        conservedVariables->getScalarMemoryArea(3)->getPointer()[j] = 1;
+        conservedVariables->getScalarMemoryArea(4)->getPointer()[j] = 10;
+    }
 
+    equation::CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
+
+    auto computer = cellComputerFactory.createComputer();
+    computer->computeExtraVariables(*conservedVariables, *extraVariables);
+
+    ASSERT_TRUE(computer->obeysConstraints(*conservedVariables, *extraVariables));
 	auto output = volumeFactory.createConservedVolume(nx, ny, nz);
 
 	for (size_t i = 0; i < output->getNumberOfVariables(); i++) {

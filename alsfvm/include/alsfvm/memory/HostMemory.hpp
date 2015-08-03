@@ -129,6 +129,10 @@ public:
     ///
     const T& at(size_t x, size_t y=0, size_t z=0) const;
 
+    ///
+    /// \brief makeZero sets every element to zero (0)
+    ///
+    virtual void makeZero();
 
 private:
     std::vector<T> data;

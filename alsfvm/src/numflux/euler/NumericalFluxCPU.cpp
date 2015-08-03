@@ -2,148 +2,156 @@
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include <cassert>
 #include "alsfvm/numflux/numflux_util.hpp"
+#include "alsfvm/volume/VolumeFactory.hpp"
+#include "alsfvm/volume/volume_foreach.hpp"
 
 namespace alsfvm { namespace numflux { namespace euler { 
 
-    template<class T>
-    T makeVariableStruct(const real& a, const real& b, const real& c,
-                         const real& d) {
-        return T(a,b,c,d);
-    }
-
-
-    template<class T>
-    T makeVariableStruct(const real& a, const real& b, const real& c,
-                         const real& d, const real& e) {
-        return T(a,b,c,d, e);
-    }
-
-
-    template<class T>
-    T makeVariableStruct(const real& a, const real& b, const real& c,
-                         const real& d, const real& e, const real& f) {
-        return T(a,b,c,d, e, f);
-    }
-
-
-    template<class T>
-    T makeVariableStruct(const real& a, const real& b, const real& c,
-                         const real& d, const real& e, const real& f, const real& g) {
-        return T(a,b,c,d, e, f, g);
-    }
-
-
-    template<class T>
-    T makeVariableStruct(const real& a, const real& b, const real& c,
-                         const real& d, const real& e, const real& f, const real& g,
-                         const real& h) {
-        return T(a,b,c,d, e, f, g, h);
-    }
-
-    template<class T>
-    T makeVariableStruct(const real& a, const real& b, const real& c,
-                         const real& d, const real& e, const real& f, const real& g,
-                         const real& h, const real& i) {
-        return T(a,b,c,d, e, f, g, h, i);
-    }
-
-    template<class T>
-    T makeVariableStruct(const real& a, const real& b, const real& c,
-                         const real& d, const real& e, const real& f, const real& g,
-                         const real& h, const real& i, const real& j) {
-        return T(a,b,c,d, e, f, g, h, i, j);
-    }
-    ///
-    /// This will compute
-    /// \f$\mathrm{out} = \mathrm{out} + \mathrm{cellScaling} * (F(Ul, Um)-F(Um,Ur))\f$
-    ///
-    /// Note we reverse the traditional order as our integrator expects it in this way.
-    ///
-    template<int direction, class Flux>
-    void addFluxDirection(int i, int j, int k, const std::array<const real*, 5>& conservedVariables,
-                     const std::array<const real*, 4>& extraVariables, equation::euler::ConservedVariables& flux,
-                     const std::function<size_t(size_t,size_t,size_t)>& index,
-                     const real cellScaling,
-                     equation::euler::ConservedVariables& out)
+    template<class Flux, int direction>
+    void computeNetFlux(size_t indexLeft,
+                  size_t indexMiddle,
+                  size_t indexRight,
+                  const std::array<const real*, 5>& left,
+                  const std::array<const real*, 5>& right,
+                  const real& cellLength,
+                  equation::euler::ConservedVariables& out)
     {
-        using namespace equation::euler;
-        // Left indices
-        const int xl = i - (direction == 0);
-        const int yl = j - (direction == 1);
-        const int zl = k - (direction == 2);
-
-        // Middle indices
-        const int x = i;
-        const int y = j;
-        const int z = k;
-
-        // Right indices
-        const int xr = i + (direction == 0);
-        const int yr = j + (direction == 1);
-        const int zr = k + (direction == 2);
-
-
-
-        const size_t indexLeft = index(xl, yl, zl);
 
         // This needs to be done with some smart template recursion
-        equation::euler::AllVariables left = makeVariableStruct<AllVariables>(
-                conservedVariables[0][indexLeft],
-                conservedVariables[1][indexLeft],
-                conservedVariables[2][indexLeft],
-                conservedVariables[3][indexLeft],
-                conservedVariables[4][indexLeft],
-                extraVariables    [0][indexLeft],
-                extraVariables    [1][indexLeft],
-                extraVariables    [2][indexLeft],
-                extraVariables    [3][indexLeft]
+
+        // This is the value for j+1/2
+        equation::euler::AllVariables rightJpHf = equation::euler::Euler::makeAllVariables(
+                left[0][indexRight],
+                left[1][indexRight],
+                left[2][indexRight],
+                left[3][indexRight],
+                left[4][indexRight]
                 );
 
-        const size_t indexRight = index(xr, yr, zr);
-        equation::euler::AllVariables right = makeVariableStruct<AllVariables>(
-                conservedVariables[0][indexRight],
-                conservedVariables[1][indexRight],
-                conservedVariables[2][indexRight],
-                conservedVariables[3][indexRight],
-                conservedVariables[4][indexRight],
-                extraVariables    [0][indexRight],
-                extraVariables    [1][indexRight],
-                extraVariables    [2][indexRight],
-                extraVariables    [3][indexRight]
+
+        // This is the value for j+1/2
+        equation::euler::AllVariables leftJpHf = equation::euler::Euler::makeAllVariables(
+                right[0][indexMiddle],
+                right[1][indexMiddle],
+                right[2][indexMiddle],
+                right[3][indexMiddle],
+                right[4][indexMiddle]
                 );
 
-        const size_t indexMiddle = index(x, y, z);
-        equation::euler::AllVariables middle = makeVariableStruct<AllVariables>(
-                conservedVariables[0][indexMiddle],
-                conservedVariables[1][indexMiddle],
-                conservedVariables[2][indexMiddle],
-                conservedVariables[3][indexMiddle],
-                conservedVariables[4][indexMiddle],
-                extraVariables    [0][indexMiddle],
-                extraVariables    [1][indexMiddle],
-                extraVariables    [2][indexMiddle],
-                extraVariables    [3][indexMiddle]
+
+        // This is the valuefor j-1/2
+        equation::euler::AllVariables leftJmHf = equation::euler::Euler::makeAllVariables(
+                right[0][indexLeft],
+                right[1][indexLeft],
+                right[2][indexLeft],
+                right[3][indexLeft],
+                right[4][indexLeft]
                 );
+
+
+        // This is the valuefor j-1/2
+        equation::euler::AllVariables rightJmHf = equation::euler::Euler::makeAllVariables(
+                left[0][indexMiddle],
+                left[1][indexMiddle],
+                left[2][indexMiddle],
+                left[3][indexMiddle],
+                left[4][indexMiddle]
+                );
+
 
 
         // F(U_j, U_r)
         equation::euler::ConservedVariables fluxMiddleRight;
-        Flux::template computeFlux<direction>(middle, right, fluxMiddleRight);
+        Flux::template computeFlux<direction>(leftJpHf, rightJpHf, fluxMiddleRight);
 
 
         equation::euler::ConservedVariables fluxLeftMiddle;
-        Flux::template computeFlux<direction>(left, middle, fluxLeftMiddle);
+        Flux::template computeFlux<direction>(leftJmHf, rightJmHf, fluxLeftMiddle);
 
-        out = out - (1.0 / cellScaling)*(fluxLeftMiddle - fluxMiddleRight);
-
+        out = -(1.0 / cellLength)*(fluxLeftMiddle - fluxMiddleRight);
     }
 
+    template<class Flux, size_t direction>
+    void computeNetFlux(const volume::Volume& left, const volume::Volume& right,
+                        volume::Volume& out, real cellLength, size_t numberOfGhostCells) {
+        // We will automate the creation of these pointer arrays soon,
+        // for now we keep them to keep things simple.
+        std::array<const real*, 5> leftPointers = {
+            left.getScalarMemoryArea(0)->getPointer(),
+            left.getScalarMemoryArea(1)->getPointer(),
+            left.getScalarMemoryArea(2)->getPointer(),
+            left.getScalarMemoryArea(3)->getPointer(),
+            left.getScalarMemoryArea(4)->getPointer()
+        };
+
+        std::array<const real*, 5> rightPointers = {
+            right.getScalarMemoryArea(0)->getPointer(),
+            right.getScalarMemoryArea(1)->getPointer(),
+            right.getScalarMemoryArea(2)->getPointer(),
+            right.getScalarMemoryArea(3)->getPointer(),
+            right.getScalarMemoryArea(4)->getPointer()
+        };
+
+
+        std::array<real*, 5> outPointers = {
+            out.getScalarMemoryArea(0)->getPointer(),
+            out.getScalarMemoryArea(1)->getPointer(),
+            out.getScalarMemoryArea(2)->getPointer(),
+            out.getScalarMemoryArea(3)->getPointer(),
+            out.getScalarMemoryArea(4)->getPointer()
+        };
+
+        volume::for_each_internal_volume_index(out, direction,
+                                               [&](size_t leftIndex, size_t middleIndex, size_t rightIndex) {
+
+            equation::euler::ConservedVariables flux;
+            computeNetFlux<Flux, direction>(leftIndex,
+                                 middleIndex,
+                                 rightIndex,
+                                 leftPointers,
+                                 rightPointers,
+                                 cellLength,
+                                 flux);
+
+            outPointers[0][middleIndex] -= flux.rho;
+            outPointers[1][middleIndex] -= flux.m.x;
+            outPointers[2][middleIndex] -= flux.m.y;
+            outPointers[3][middleIndex] -= flux.m.z;
+            outPointers[4][middleIndex] -= flux.E;
+
+            assert(!std::isnan(flux.rho));
+            assert(!std::isnan(flux.m.x));
+            assert(!std::isnan(flux.m.y));
+            assert(!std::isnan(flux.m.z));
+            assert(!std::isnan(flux.E));
+
+
+        }, numberOfGhostCells);
+    }
+
+
     template<class Flux, size_t dimension>
-    NumericalFluxCPU<Flux, dimension>::NumericalFluxCPU(const grid::Grid &grid, const std::shared_ptr<DeviceConfiguration> &deviceConfiguration)
+    NumericalFluxCPU<Flux, dimension>::NumericalFluxCPU(const grid::Grid &grid,
+                                                        std::shared_ptr<reconstruction::Reconstruction>& reconstruction,
+                                                        std::shared_ptr<DeviceConfiguration> &deviceConfiguration)
+        : reconstruction(reconstruction)
     {
         static_assert(dimension > 0, "We only support positive dimension!");
         static_assert(dimension < 4, "We only support dimension up to 3");
 
+        std::shared_ptr<memory::MemoryFactory> memoryFactory(new memory::MemoryFactory(deviceConfiguration));
+        volume::VolumeFactory volumeFactory("euler", memoryFactory);
+
+        left = volumeFactory.createConservedVolume(grid.getDimensions().x,
+                                                   grid.getDimensions().y,
+                                                   grid.getDimensions().z);
+        left->makeZero();
+
+        right = volumeFactory.createConservedVolume(grid.getDimensions().x,
+                                                   grid.getDimensions().y,
+                                                   grid.getDimensions().z);
+
+        right->makeZero();
     }
 
     template<class Flux, size_t dimension>
@@ -156,86 +164,20 @@ namespace alsfvm { namespace numflux { namespace euler {
         static_assert(dimension > 0, "We only support positive dimension!");
         static_assert(dimension < 4, "We only support dimension up to 3");
 
-		const int nx = conservedVariables.getNumberOfXCells();
-		const int ny = conservedVariables.getNumberOfYCells();
-		const int nz = conservedVariables.getNumberOfZCells();
+        output.makeZero();
 
 
-        // We need to have this guarantee for the indexing, later we will fix this.
-        assert(conservedVariables.getNumberOfXCells() == conservedVariables.getScalarMemoryArea(0)->getExtentXInBytes()/sizeof(real));
-        assert(conservedVariables.getNumberOfYCells() == conservedVariables.getScalarMemoryArea(0)->getExtentYInBytes()/sizeof(real));
+        reconstruction->performReconstruction(conservedVariables, 0, 0, *left, *right);
+        computeNetFlux<Flux, 0>(*left, *right, output, cellLengths.x, getNumberOfGhostCells());
 
-        // Makes it easier to index
-        auto index = [nx,ny,nz](const size_t i, const size_t j, const size_t k) {
-            return k*nx*ny + j *nx + i;
-        };
-
-        // We will automate the creation of these pointer arrays soon,
-        // for now we keep them to keep things simple.
-        std::array<const real*, 5> conservedPointers = {
-            conservedVariables.getScalarMemoryArea(0)->getPointer(),
-            conservedVariables.getScalarMemoryArea(1)->getPointer(),
-            conservedVariables.getScalarMemoryArea(2)->getPointer(),
-            conservedVariables.getScalarMemoryArea(3)->getPointer(),
-            conservedVariables.getScalarMemoryArea(4)->getPointer(),
-        };
-
-
-        // We will automate the creation of these pointer arrays soon,
-        // for now we keep them to keep things simple.
-        std::array<const real*, 4> extraPointers = {
-            extraVariables.getScalarMemoryArea(0)->getPointer(),
-            extraVariables.getScalarMemoryArea(1)->getPointer(),
-            extraVariables.getScalarMemoryArea(2)->getPointer(),
-            extraVariables.getScalarMemoryArea(3)->getPointer()
-        };
-
-        // We will automate the creation of these pointer arrays soon,
-        // for now we keep them to keep things simple.
-		std::array<real*, 5> outputPointers = {
-			output.getScalarMemoryArea(0)->getPointer(),
-			output.getScalarMemoryArea(1)->getPointer(),
-			output.getScalarMemoryArea(2)->getPointer(),
-			output.getScalarMemoryArea(3)->getPointer(),
-			output.getScalarMemoryArea(4)->getPointer(),
-		};
-
-        const int hasZDirection = dimension > 2;
-        const int hasYDirection = dimension > 1;
-
-        // Notice the start and endpoints for k and j.
-        // If we have z direction, then we should only iterate on the internal
-        // cells (ie. start at 1 and end at nz -1). If we do not have z direction,
-        // then we start at 0 and end at nz.
-        const size_t startZ = hasZDirection;
-        const size_t endZ = nz - hasZDirection;
-
-        const size_t startY = hasYDirection;
-        const size_t endY = ny - hasYDirection;
-        for (size_t k = startZ; k < endZ; k++) {
-            for (size_t j = startY; j < endY; j++) {
-				for (size_t i = 1; i < nx - 1; i++) {
-					const size_t outputIndex = index(i, j, k);
-					equation::euler::ConservedVariables flux;
-
-                    addFluxDirection<0, Flux>(i, j, k, conservedPointers, extraPointers, flux, index, cellLengths[0], flux);
-
-                    if (hasYDirection) {
-                        addFluxDirection<1, Flux>(i, j, k, conservedPointers, extraPointers, flux, index, cellLengths[1], flux);
-                    }
-                    if (hasZDirection) {
-                        addFluxDirection<2, Flux>(i, j, k, conservedPointers, extraPointers, flux, index, cellLengths[2], flux);
-                    }
-
-                    outputPointers[0][outputIndex] = -flux.rho;
-                    outputPointers[1][outputIndex] = -flux.m.x;
-                    outputPointers[2][outputIndex] = -flux.m.y;
-                    outputPointers[3][outputIndex] = -flux.m.z;
-                    outputPointers[4][outputIndex] = -flux.E;
-
-				}
-			}
-		}
+        if (dimension > 1) {
+            reconstruction->performReconstruction(conservedVariables, 1, 0, *left, *right);
+            computeNetFlux<Flux, 1>(*left, *right, output, cellLengths.y, getNumberOfGhostCells());
+        }
+        if (dimension > 2) {
+            reconstruction->performReconstruction(conservedVariables, 2, 0, *left, *right);
+            computeNetFlux<Flux, 2>(*left, *right, output, cellLengths.z, getNumberOfGhostCells());
+        }
 	}
 
 	/// 
@@ -243,7 +185,7 @@ namespace alsfvm { namespace numflux { namespace euler {
 	///
     template<class Flux, size_t dimension>
     size_t NumericalFluxCPU<Flux, dimension>::getNumberOfGhostCells() {
-		return 1;
+        return reconstruction->getNumberOfGhostCells();
 
     }
 

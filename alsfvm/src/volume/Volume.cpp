@@ -137,8 +137,15 @@ namespace alsfvm {
 		/// \returns the number of cells in Z direction
 		///
 		size_t Volume::getNumberOfZCells() const {
-			return nz;
-		}
+            return nz;
+        }
+
+        void Volume::makeZero()
+        {
+            for(size_t i = 0; i < memoryAreas.size(); i++) {
+                memoryAreas[i]->makeZero();
+            }
+        }
 	}
 
 }

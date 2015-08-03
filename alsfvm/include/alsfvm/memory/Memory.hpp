@@ -154,6 +154,11 @@ namespace alsfvm {
 			/// \param scalar the scalar to divide
 			///
 			virtual void operator/=(real scalar) = 0;
+
+            ///
+            /// \brief makeZero sets every element to zero (0)
+            ///
+            virtual void makeZero() = 0;
 			
 		protected:
             const size_t nx;

@@ -230,5 +230,86 @@ namespace alsfvm {
 
 
 	}
+
+    ///
+    /// Loops through each internal (subject to direction) volume cell,
+    /// and calls the loop function with additional argument the index of the
+    /// neighbouring cells.
+    ///
+    /// An internal cell is a cell a cell with index 1<j<n"direction", where
+    /// j indexes the relevenat direction.
+    ///
+    /// Direction is given as
+    /// direction | description
+    /// ----------|------------
+    ///     0     | x direction
+    ///     1     | y direction
+    ///     2     | z direction
+    ///
+    /// Example
+    /// \code{.cpp}
+    /// for_each_internal_volume_index<0>(volume, [](size_t l, size_t m, size_t r) {
+    ///     // now l is the left index, m is the middle index and r is the right index
+    /// });
+    /// \endcode
+    template<size_t direction>
+    inline void for_each_internal_volume_index(const Volume& volume,
+                                               const std::function<void(size_t indexLeft, size_t indexMiddle, size_t indexRight)>& function,
+                                               size_t ghostLayer) {
+
+        static_assert(direction < 3, "We only support up to three dimensions.");
+        const bool zDir = direction == 2;
+        const bool yDir = direction == 1;
+        const bool xDir = direction == 0;
+
+        const size_t nx = volume.getNumberOfXCells();
+        const size_t ny = volume.getNumberOfYCells();
+        const size_t nz = volume.getNumberOfZCells();
+
+        const size_t startZ = ghostLayer*zDir;
+        const size_t startY = ghostLayer*yDir;
+        const size_t startX = ghostLayer*xDir;
+
+        const size_t endZ = nz - ghostLayer*zDir;
+        const size_t endY = ny - ghostLayer*yDir;
+        const size_t endX = nx - ghostLayer*xDir;
+
+
+
+        for (size_t z = startZ; z < endZ; z++) {
+            for(size_t y = startY; y < endY; y++) {
+                for (size_t x = startX; x < endX; x++) {
+                    const size_t index = z * nx * ny + y * nx + x;
+                    const size_t leftIndex = (z - zDir) * nx * ny
+                            + (y - yDir) * nx
+                            + (x - xDir);
+
+                    const size_t rightIndex = (z + zDir) * nx * ny
+                            + (y + yDir) * nx
+                            + (x + xDir);
+
+                    function(leftIndex, index, rightIndex);
+                }
+            }
+        }
+    }
+
+    ///
+    /// Works the same way as the templated version, but easier to use in some settings.
+    ///
+    inline void for_each_internal_volume_index(const Volume& volume, size_t direction,
+    const std::function<void(size_t indexLeft, size_t indexMiddle, size_t indexRight)>& function,
+                                               size_t ghostLayer = 1) {
+
+        if (direction == 0) {
+            for_each_internal_volume_index<0>(volume, function, ghostLayer);
+        } else if (direction == 1) {
+            for_each_internal_volume_index<1>(volume, function, ghostLayer);
+        } else if (direction == 2) {
+            for_each_internal_volume_index<2>(volume, function, ghostLayer);
+        } else {
+            THROW("We only support direction 0, 1 or 2, was given: " << direction);
+        }
+    }
 }
 }
