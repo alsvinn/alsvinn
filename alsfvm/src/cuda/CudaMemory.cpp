@@ -172,6 +172,11 @@ namespace alsfvm {
 				scalar, Memory<T>::getSize());
 		}
 
+		template<class T>
+		void CudaMemory<T>::makeZero() {
+			CUDA_SAFE_CALL(cudaMemset(getPointer(), 0, Memory<T>::getSize()*sizeof(T)));
+		}
+
 		INSTANTIATE_MEMORY(CudaMemory)
 	}
 

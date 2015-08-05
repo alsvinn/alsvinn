@@ -98,6 +98,11 @@ namespace alsfvm {
 			///
 			virtual void operator/=(real scalar);
 
+			///
+			/// Sets every component to zero
+			///
+			virtual void makeZero();
+
 		private:
 			T* memoryPointer;
 		};

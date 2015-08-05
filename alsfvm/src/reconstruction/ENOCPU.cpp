@@ -80,7 +80,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 
                     const size_t indexRight = z*nx*ny + y * nx + x;
                     const size_t indexLeft = (z - directionVector.z) * nx * ny
-                            + (y - directionVector.y) * ny
+                            + (y - directionVector.y) * nx
                             + (x - directionVector.x);
 
                     // First we determine the shift
@@ -110,7 +110,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
                     for(size_t j = 0; j < order; j++) {
 
                         const size_t index = (z - (shift - j)*directionVector.z) * nx * ny
-                                + (y - (shift - j)*directionVector.y) * ny
+                                + (y - (shift - j)*directionVector.y) * nx
                                 + (x - (shift - j)*directionVector.x);
 
 
@@ -121,8 +121,10 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 
                     pointerOutLeft[indexRight] = leftValue;
                     pointerOutRight[indexRight] = rightValue;
-                    assert(leftValue == leftValue);
-                    assert(rightValue == rightValue);
+					assert(!std::isnan(leftValue));
+					assert(!std::isnan(rightValue));
+
+					assert((var != 0 && var != 4) || (leftValue > 0 && rightValue > 0));
 
                 }
             }

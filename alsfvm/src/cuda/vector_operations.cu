@@ -75,6 +75,7 @@ namespace {
 			result[index] = a[index] - b;
 		}
 	}
+
 }
 
 // Since we use templates, we must instatiate.
@@ -99,7 +100,7 @@ namespace alsfvm {
 		template<class T>
 		void add(T* result, const T* a, const T* b, size_t size) {
 			const size_t threadCount = 1024;
-			addKernel <<<(size + threadCount - 1), threadCount >>>(result, a, b, size);
+			addKernel << <(size + threadCount - 1) / threadCount, threadCount >> >(result, a, b, size);
 		}
 
 		///
@@ -112,7 +113,7 @@ namespace alsfvm {
 		template<class T>
 		void multiply(T* result, const T* a, const T* b, size_t size) {
 			const size_t threadCount = 1024;
-			multiplyKernel <<<(size + threadCount - 1), threadCount >>>(result, a, b, size);
+			multiplyKernel << <(size + threadCount - 1) / threadCount, threadCount >> >(result, a, b, size);
 		}
 
 		///
@@ -125,7 +126,7 @@ namespace alsfvm {
 		template<class T>
 		void subtract(T* result, const T* a, const T* b, size_t size) {
 			const size_t threadCount = 1024;
-			subtractKernel <<<(size + threadCount - 1), threadCount >>>(result, a, b, size);
+			subtractKernel << <(size + threadCount - 1) / threadCount, threadCount >> >(result, a, b, size);
 		}
 		///
 		/// Divides a and b and stores the result to result
@@ -137,7 +138,7 @@ namespace alsfvm {
 		template<class T>
 		void divide(T* result, const T* a, const T* b, size_t size) {
 			const size_t threadCount = 1024;
-			divideKernel <<<(size + threadCount - 1), threadCount >>>(result, a, b, size);
+			divideKernel << <(size + threadCount - 1) / threadCount, threadCount >> >(result, a, b, size);
 		}
 
 		///
@@ -150,7 +151,7 @@ namespace alsfvm {
 		template<class T>
 		void add(T* result, const T* a, T scalar, size_t size) {
 			const size_t threadCount = 1024;
-			addKernel <<<(size + threadCount - 1), threadCount >>>(result, a, scalar, size);
+			addKernel << <(size + threadCount - 1) / threadCount, threadCount >> >(result, a, scalar, size);
 		}
 
 		///
@@ -163,7 +164,7 @@ namespace alsfvm {
 		template<class T>
 		void multiply(T* result, const T* a, T scalar, size_t size) {
 			const size_t threadCount = 1024;
-			multiplyKernel <<<(size + threadCount - 1), threadCount >>>(result, a, scalar, size);
+			multiplyKernel << <(size + threadCount - 1) / threadCount, threadCount >> >(result, a, scalar, size);
 		}
 
 		///
@@ -176,7 +177,7 @@ namespace alsfvm {
 		template<class T>
 		void subtract(T* result, const T* a, T scalar, size_t size) {
 			const size_t threadCount = 1024;
-			subtractKernel <<<(size + threadCount - 1), threadCount >>>(result, a, scalar, size);
+			subtractKernel << <(size + threadCount - 1) / threadCount, threadCount >> >(result, a, scalar, size);
 		}
 
 		///
@@ -189,7 +190,7 @@ namespace alsfvm {
 		template<class T>
 		void divide(T* result, const T* a, T scalar, size_t size) {
 			const size_t threadCount = 1024;
-			divideKernel <<<(size + threadCount - 1), threadCount >>>(result, a, scalar, size);
+			divideKernel <<<(size + threadCount - 1)/threadCount, threadCount >>>(result, a, scalar, size);
 		}
 
 		INSTANTIATE_VECTOR_OPERATION(add)

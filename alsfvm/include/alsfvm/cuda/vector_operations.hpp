@@ -94,5 +94,7 @@ namespace alsfvm {
 		///
 		template<class T>
 		void divide(T* result, const T* a, T scalar, size_t size);
+
+
 	}
 }
