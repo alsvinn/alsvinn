@@ -71,12 +71,24 @@ TEST_F(TestExtraComputation, CheckMaximumWaveSpeed) {
 		return euler::ConservedVariables(0.5, 1, 1, 1, 4.4);
 	});
 
-	cellComputer->computeExtraVariables(*conservedVolume, *extraVolume);
+    cellComputer->computeExtraVariables(*conservedVolume, *extraVolume);
+    {
+        real maxWaveSpeed = cellComputer->computeMaxWaveSpeed(*conservedVolume, *extraVolume,0);
 
-	real maxWaveSpeed = cellComputer->computeMaxWaveSpeed(*conservedVolume, *extraVolume);
+        ASSERT_EQ(maxWaveSpeed, 2 + sqrt(GAMMA * (GAMMA - 1)*(4.4 - 0.5 * 3 / 0.5) / 0.5));
+    }
 
-	ASSERT_EQ(maxWaveSpeed, 2 + sqrt(GAMMA * (GAMMA - 1)*(4.4 - 0.5 * 3 / 0.5) / 0.5));
+    {
+        real maxWaveSpeed = cellComputer->computeMaxWaveSpeed(*conservedVolume, *extraVolume, 1);
 
+        ASSERT_EQ(maxWaveSpeed, 2 + sqrt(GAMMA * (GAMMA - 1)*(4.4 - 0.5 * 3 / 0.5) / 0.5));
+    }
+
+    {
+        real maxWaveSpeed = cellComputer->computeMaxWaveSpeed(*conservedVolume, *extraVolume, 2);
+
+        ASSERT_EQ(maxWaveSpeed, 2 + sqrt(GAMMA * (GAMMA - 1)*(4.4 - 0.5 * 3 / 0.5) / 0.5));
+    }
 }
 
 

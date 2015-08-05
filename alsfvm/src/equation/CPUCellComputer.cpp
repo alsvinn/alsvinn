@@ -17,30 +17,26 @@ void CPUCellComputer<Equation>::computeExtraVariables(const volume::Volume &cons
     });
 }
 
-///
-/// Computes the maximum wavespeed across all direction
-/// \param conservedVariables the conserved variables (density, momentum, Energy for Euler)
-/// \param extraVariables the extra variables (pressure and velocity for Euler)
-/// \return the maximum wave speed (absolute value)
-///
+
 template<class Equation>
 real CPUCellComputer<Equation>::computeMaxWaveSpeed(const volume::Volume& conservedVariables,
-	const volume::Volume& extraVariables) {
+    const volume::Volume& extraVariables, size_t direction) {
 	real maxWaveSpeed = 0;
-
+    assert(direction < 3);
 	volume::for_each_cell<typename Equation::ConservedVariables,
-		typename Equation::ExtraVariables>(conservedVariables, extraVariables, [&maxWaveSpeed](const euler::ConservedVariables& conserved,
+        typename Equation::ExtraVariables>(conservedVariables, extraVariables, [&maxWaveSpeed, direction](const euler::ConservedVariables& conserved,
 		const euler::ExtraVariables& extra, size_t index) {
-
-		const real waveSpeedX = Equation::template computeWaveSpeed<0>(conserved, extra);
-		maxWaveSpeed = std::max(maxWaveSpeed, waveSpeedX);
-
-		const real waveSpeedY = Equation::template computeWaveSpeed<1>(conserved, extra);
-		maxWaveSpeed = std::max(maxWaveSpeed, waveSpeedY);
-
-		const real waveSpeedZ = Equation::template computeWaveSpeed<1>(conserved, extra);
-		maxWaveSpeed = std::max(maxWaveSpeed, waveSpeedZ);
-	});
+        if (direction == 0) {
+            const real waveSpeedX = Equation::template computeWaveSpeed<0>(conserved, extra);
+            maxWaveSpeed = std::max(maxWaveSpeed, waveSpeedX);
+        } else if(direction == 1) {
+            const real waveSpeedY = Equation::template computeWaveSpeed<1>(conserved, extra);
+            maxWaveSpeed = std::max(maxWaveSpeed, waveSpeedY);
+        }    else if(direction == 2) {
+            const real waveSpeedZ = Equation::template computeWaveSpeed<1>(conserved, extra);
+            maxWaveSpeed = std::max(maxWaveSpeed, waveSpeedZ);
+        }
+    });
 
 	return maxWaveSpeed;
 }

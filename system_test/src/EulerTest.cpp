@@ -21,8 +21,11 @@ using namespace alsfvm::equation;
 using namespace alsfvm::boundary;
 void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, ExtraVariables& v)> initialData, size_t N,
 	const std::string& reconstruction, const real T, const std::string& name) {
-	const real cfl = 0.45;
+    const real cfl = 0.9;
 
+    const size_t numberOfSaves = 10;
+
+    const real saveInterval = T / numberOfSaves;
 	Grid grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(N, N, 1));
 
 	auto deviceConfiguration = std::make_shared<DeviceConfiguration>("cpu");
@@ -49,7 +52,7 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 	auto cellComputer = cellComputerFactory.createComputer();
 
 	real t = 0;
-	real dt = cfl * grid.getCellLengths().x / cellComputer->computeMaxWaveSpeed(*conserved1, *extra1);
+
 	io::HDF5Writer writer(name);
 	writer.write(*conserved1, *extra1, grid, simulator::TimestepInformation());
 	cellComputer->computeExtraVariables(*conserved1, *extra1);
@@ -57,7 +60,17 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 	int i = 0;
 	size_t numberOfTimesteps = 0;
 	auto boundary = boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells());
-	while (t < T) {
+    size_t nsaves = 1;
+
+    while (t < T) {
+        const real waveSpeedX = cellComputer->computeMaxWaveSpeed(*conserved1, *extra1, 0);
+        const real waveSpeedY = cellComputer->computeMaxWaveSpeed(*conserved1, *extra1, 1);
+        real dt = cfl /( waveSpeedX / grid.getCellLengths().x  + waveSpeedY / grid.getCellLengths().y);
+
+        if (t + dt >=  nsaves * saveInterval) {
+            dt = nsaves * saveInterval - t;
+        }
+        t += dt;
 		numberOfTimesteps++;
 		fowardEuler.performSubstep(*conserved1, *extra1, grid.getCellLengths(), dt, *conserved2);
 		conserved1.swap(conserved2);
@@ -119,14 +132,21 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 		cellComputer->computeExtraVariables(*conserved1, *extra1);
 
 		ASSERT_TRUE(cellComputer->obeysConstraints(*conserved1, *extra1));
-		t += dt;
-		dt = cfl * grid.getCellLengths().x / cellComputer->computeMaxWaveSpeed(*conserved1, *extra1);
+
+
+
+
+
+
 		ASSERT_FALSE(std::isnan(dt));
 
 		ASSERT_GT(dt, 0);
 		i++;
 
-		if (i % 20) {
+        if (t >= nsaves * saveInterval) {
+            nsaves++;
+
+            std::cout << "saving at t " << t << " (nsaves * saveInterval = " << nsaves  * saveInterval << ")" << std::endl;
 			writer.write(*conserved1, *extra1, grid, simulator::TimestepInformation());
 		}
 
@@ -158,7 +178,7 @@ TEST(EulerTest, ShockTubeTest) {
 		}
 		u.m = u.rho * v.u;
 		u.E = v.p / (GAMMA - 1) + 0.5*u.rho*v.u.dot(v.u);
-	}, 256, "none", 0.06, "euler_shocktube");
+    }, 512, "none", 0.06, "euler_shocktube");
 }
 
 TEST(EulerTest, ShockVortex) {
@@ -192,5 +212,5 @@ TEST(EulerTest, ShockVortex) {
 		u.m = u.rho * v.u;
 		u.E = v.p / (GAMMA - 1) + 0.5*u.rho*v.u.dot(v.u);
 
-	}, 256, "eno2", 0.35, "euler_vortex");
+    }, 256, "none", 0.35, "euler_vortex");
 }

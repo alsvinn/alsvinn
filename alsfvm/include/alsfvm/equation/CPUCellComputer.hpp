@@ -14,14 +14,20 @@ namespace alsfvm { namespace equation {
         virtual void computeExtraVariables(const volume::Volume& conservedVariables,
                                            volume::Volume& extraVariables);
 
-		///
-		/// Computes the maximum wavespeed across all direction
-		/// \param conservedVariables the conserved variables (density, momentum, Energy for Euler)
-		/// \param extraVariables the extra variables (pressure and velocity for Euler)
-		/// \return the maximum wave speed (absolute value)
-		///
-		virtual real computeMaxWaveSpeed(const volume::Volume& conservedVariables,
-			const volume::Volume& extraVariables);
+        ///
+        /// Computes the maximum wavespeed
+        /// \param conservedVariables the conserved variables (density, momentum, Energy for Euler)
+        /// \param extraVariables the extra variables (pressure and velocity for Euler)
+        /// \param direction the direction to find the wave speed for
+        ///        direction | description
+        ///        ----------|------------
+        ///            0     |  x-direction
+        ///            1     |  y-direction
+        ///            2     |  z-direction
+        /// \return the maximum wave speed (absolute value)
+        ///
+        virtual real computeMaxWaveSpeed(const volume::Volume& conservedVariables,
+            const volume::Volume& extraVariables, size_t direction);
 
 		/// 
 		/// Checks if all the constraints for the equation are met
