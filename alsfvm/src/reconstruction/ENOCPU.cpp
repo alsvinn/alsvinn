@@ -121,6 +121,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
                         const real value = pointerIn[index];
                         leftValue += coefficientsLeft[j] * value;
                         rightValue += coefficientsRight[j] * value;
+
                     }
 
                     pointerOutLeft[indexRight] = leftValue;
@@ -177,7 +178,7 @@ void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& input,
             for(size_t x = startX; x < endX; x++) {
                 const size_t indexRight = z*nx*ny + y * nx + x;
                 const size_t indexLeft = (z - direction.z) * nx * ny
-                        + (y - direction.y) * ny
+                        + (y - direction.y) * nx
                         + (x - direction.x);
 
                 pointerOut[indexRight] = pointerIn[indexRight] - pointerIn[indexLeft];

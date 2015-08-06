@@ -21,8 +21,8 @@ using namespace alsfvm::equation;
 using namespace alsfvm::boundary;
 void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, ExtraVariables& v)> initialData, size_t N,
 	const std::string& reconstruction, const real T, const std::string& name) {
-    const real cfl = 0.9;
-
+    const real cfl = reconstruction== "eno2" ? 0.475 : 0.9;
+    std::cout << "using cfl = " << cfl << std::endl;
     const size_t numberOfSaves = 10;
 
     const real saveInterval = T / numberOfSaves;
@@ -47,7 +47,6 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 	auto conserved2 = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
 
 	auto extra1 = volumeFactory.createExtraVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
-	auto extra2 = volumeFactory.createExtraVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
 
 
 	fill_volume<ConservedVariables, ExtraVariables>(*conserved1, *extra1, grid,
@@ -221,5 +220,5 @@ TEST(EulerTest, ShockVortex) {
 		u.m = u.rho * v.u;
 		u.E = v.p / (GAMMA - 1) + 0.5*u.rho*v.u.dot(v.u);
 
-    }, 256, "none", 0.35, "euler_vortex");
+    }, 256, "eno2", 0.35, "euler_vortex");
 }

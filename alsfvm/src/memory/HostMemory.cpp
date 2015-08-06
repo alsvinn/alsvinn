@@ -183,7 +183,6 @@ void HostMemory<T>::copyInternalCells(size_t startX, size_t endX, size_t startY,
 {
     const size_t nx = this->nx;
     const size_t ny = this->ny;
-    const size_t nz = this->nz;
     const size_t numberOfY = endY-startY;
     const size_t numberOfX = endX-startX;
     for(size_t z = startZ; z < endZ; z++) {

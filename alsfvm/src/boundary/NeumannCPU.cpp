@@ -37,31 +37,31 @@ namespace alsfvm { namespace boundary {
 
 						// Either we start on the left (i == 0), or on the right(i==1)
 						const size_t zStart = zDir ?
-							(i == 0 ? 0 : nz - numberOfGhostCells) : 0;
+                            (i == 0 ? 0 : nz - numberOfGhostCells) : 0;
 
 						const size_t zEnd = zDir ?
-							(i == 0 ? 1 : nz - numberOfGhostCells + 1) : nz;
+                            (zStart + 1) : nz;
 
 						const size_t yStart = yDir ?
-							(i == 0 ? 0 : ny - numberOfGhostCells) : 0;
+                            (i == 0 ? 0 : ny - numberOfGhostCells) : 0;
 
 						const size_t yEnd = yDir ?
-							(i == 0 ? 1 : ny - numberOfGhostCells + 1) : ny;
+                            (yStart + 1) : ny;
 
 						const size_t xStart = xDir ?
-							(i == 0 ? 0 : nx - numberOfGhostCells) : 0;
+                            (i == 0 ? 0 : nx - numberOfGhostCells ) : 0;
 
 						const size_t xEnd = xDir ?
-							(i == 0 ? 1 : nx - numberOfGhostCells + 1) : nx;
+                            (xStart + 1) : nx;
 
 
 						// loop through surface at that boundary
 						for (int z = zStart; z < zEnd; z++) {
 							for (int y = yStart; y < yEnd; y++) {
 								for (int x = xStart; x < xEnd; x++) {
-									const size_t sourceIndex = (z + (1 - 2 * i)*zDir*numberOfGhostCells) * nx * ny
-										+ (y + (1 - 2 * i)*yDir*numberOfGhostCells)*nx
-										+ (x + (1 - 2 * i)*xDir*numberOfGhostCells);
+                                    const size_t sourceIndex = (z -i*zDir + (1 - i)*zDir*numberOfGhostCells) * nx * ny
+                                        + (y -i*yDir + (1 - i)*yDir*numberOfGhostCells)*nx
+                                        + (x -i*xDir + (1 - i)*xDir*numberOfGhostCells);
 
 									for (size_t ghostCell = 0; ghostCell < numberOfGhostCells; ghostCell++) {
 										const size_t targetIndex = (z + zDir * (ghostCell)) * nx * ny
