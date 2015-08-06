@@ -147,6 +147,13 @@ namespace alsfvm {
             return nz;
         }
 
+        void Volume::copyInternalCells(size_t memoryAreaIndex, real *output, size_t outputSize) const
+        {
+            memoryAreas[memoryAreaIndex]->copyInternalCells(numberOfXGhostCells, getTotalNumberOfXCells() - numberOfXGhostCells,
+                                           numberOfYGhostCells, getTotalNumberOfYCells() - numberOfYGhostCells,
+                                           numberOfZGhostCells, getTotalNumberOfZCells() - numberOfZGhostCells, output, outputSize);
+        }
+
         void Volume::makeZero()
         {
             for(size_t i = 0; i < memoryAreas.size(); i++) {

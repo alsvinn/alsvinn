@@ -7,6 +7,8 @@
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/equation/euler/AllVariables.hpp"
 #include "alsfvm/equation/CellComputerFactory.hpp"
+#include "alsfvm/volume/volume_foreach.hpp"
+#include "alsfvm/boundary/BoundaryFactory.hpp"
 
 using namespace alsfvm::numflux;
 using namespace alsfvm;
@@ -49,14 +51,21 @@ TEST_F(NumericalFluxTest, ConsistencyTest) {
 	auto extraVariables = volumeFactory.createExtraVolume(nx, ny, nz, 1);
 
 
-    for (size_t j = 0; j < nx*ny*nz; j++) {
-        conservedVariables->getScalarMemoryArea(0)->getPointer()[j] = 1;
-        conservedVariables->getScalarMemoryArea(1)->getPointer()[j] = 1;
-        conservedVariables->getScalarMemoryArea(2)->getPointer()[j] = 1;
-        conservedVariables->getScalarMemoryArea(3)->getPointer()[j] = 1;
-        conservedVariables->getScalarMemoryArea(4)->getPointer()[j] = 10;
-    }
+    boundary::BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
 
+    auto boundary = boundaryFactory.createBoundary(1);
+
+    volume::fill_volume<equation::euler::ConservedVariables>(*conservedVariables, grid,
+                                                             [](real x, real y, real z, equation::euler::ConservedVariables& out) {
+        out.rho = 1;
+        out.m.x = 1;
+        out.m.y = 1;
+        out.m.z = 1;
+        out.E = 10;
+
+    });
+
+    boundary->applyBoundaryConditions(*conservedVariables, grid);
     equation::CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
 
     auto computer = cellComputerFactory.createComputer();

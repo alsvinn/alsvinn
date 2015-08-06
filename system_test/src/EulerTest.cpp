@@ -61,13 +61,16 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
 	io::HDF5Writer writer(name);
 	writer.write(*conserved1, *extra1, grid, simulator::TimestepInformation());
-	cellComputer->computeExtraVariables(*conserved1, *extra1);
-	ASSERT_TRUE(cellComputer->obeysConstraints(*conserved1, *extra1));
+
+
 	int i = 0;
 	size_t numberOfTimesteps = 0;
 	auto boundary = boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells());
     size_t nsaves = 1;
 
+    boundary->applyBoundaryConditions(*conserved1, grid);
+    cellComputer->computeExtraVariables(*conserved1, *extra1);
+    ASSERT_TRUE(cellComputer->obeysConstraints(*conserved1, *extra1));
     while (t < T) {
         const real waveSpeedX = cellComputer->computeMaxWaveSpeed(*conserved1, *extra1, 0);
         const real waveSpeedY = cellComputer->computeMaxWaveSpeed(*conserved1, *extra1, 1);
@@ -184,7 +187,7 @@ TEST(EulerTest, ShockTubeTest) {
 		}
 		u.m = u.rho * v.u;
 		u.E = v.p / (GAMMA - 1) + 0.5*u.rho*v.u.dot(v.u);
-    }, 512, "none", 0.06, "euler_shocktube");
+    }, 256, "none", 0.06, "euler_shocktube");
 }
 
 TEST(EulerTest, ShockVortex) {

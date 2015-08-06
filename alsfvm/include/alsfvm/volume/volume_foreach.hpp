@@ -22,9 +22,9 @@ namespace alsfvm {
 		///
 		template<class Function>
 		inline void for_each_cell_index(const Volume& in, const Function& function) {
-			const size_t nx = in.getNumberOfXCells();
-			const size_t ny = in.getNumberOfYCells();
-			const size_t nz = in.getNumberOfZCells();
+            const size_t nx = in.getTotalNumberOfXCells();
+            const size_t ny = in.getTotalNumberOfYCells();
+            const size_t nz = in.getTotalNumberOfZCells();
 			for (size_t k = 0; k < nz; k++) {
 				for (size_t j = 0; j < ny; j++) {
                     for (size_t i = 0; i < nx; i++) {
@@ -209,16 +209,26 @@ namespace alsfvm {
 			pointersOutB[i] = outB.getScalarMemoryArea(i)->getPointer();
 		}
 
-		const size_t nx = outA.getNumberOfXCells();
-		const size_t ny = outA.getNumberOfYCells();
-		const size_t nz = outA.getNumberOfZCells();
+        const size_t nx = outA.getTotalNumberOfXCells();
+        const size_t ny = outA.getTotalNumberOfYCells();
+        const size_t nz = outA.getTotalNumberOfZCells();
+
+        const size_t nxGrid = grid.getDimensions().x;
+        const size_t nyGrid = grid.getDimensions().y;
+        const size_t nzGrid = grid.getDimensions().z;
 
 		auto& midPoints = grid.getCellMidpoints();
-		for (size_t k = 0; k < nz; k++) {
-			for (size_t j = 0; j < ny; j++) {
-				for (size_t i = 0; i < nx; i++) {
+
+        const size_t ghostX = outA.getNumberOfXGhostCells();
+        const size_t ghostY = outA.getNumberOfYGhostCells();
+        const size_t ghostZ = outA.getNumberOfZGhostCells();
+        for (size_t k = ghostZ; k < nz - ghostZ; k++) {
+            for (size_t j = ghostY; j < ny - ghostY; j++) {
+                for (size_t i = ghostX; i < nx - ghostX; i++) {
                     size_t index = k*nx*ny + j*nx + i;
-					auto midPoint = midPoints[index];
+                    size_t midpointIndex = (k - ghostZ) * nxGrid * nyGrid
+                            + (j - ghostY) * nxGrid + (i - ghostX);
+                    auto midPoint = midPoints[midpointIndex];
 					VariableStructA a;
 					VariableStructB b;
 					fillerFunction(midPoint.x, midPoint.y, midPoint.z, a, b);
@@ -230,6 +240,72 @@ namespace alsfvm {
 
 
 	}
+
+    ///
+    /// Fill the volume based on a filler function (depending on position).
+    /// Example (making a simple Riemann problem in 2D):
+    /// \code{.cpp}
+    /// fill_volume<ConservedVariables>(conserved, grid,
+    ///    [](real x, real y, real z, ConservedVariables& outConserved) {
+    ///        if ( x < 0.5) {
+    ///           outConserved.rho = 1.0;
+    ///           outConserved.m = rvec3(2,1,1);
+    ///           outConserved.E = 8;
+    ///        } else {
+    ///           outConserved.rho = 1.2;
+    ///           outConserved.m = rvec3(2,1,1);
+    ///           outConserved.E = 9;
+    ///        }
+    ///    });
+    /// \endcode
+    ///
+template<class VariableStruct>
+inline void fill_volume(Volume& out,
+    const grid::Grid& grid,
+    const std::function < void(real x, real y, real z, VariableStruct& out) > & fillerFunction) {
+
+    std::array<real*, sizeof(VariableStruct) / sizeof(real)> pointersOut;
+
+    if (pointersOut.size() != out.getNumberOfVariables()) {
+        THROW("We expected to get " << pointersOut.size() << " variables, but got " << out.getNumberOfVariables());
+    }
+
+
+
+    for (size_t i = 0; i < out.getNumberOfVariables(); i++) {
+        pointersOut[i] = out.getScalarMemoryArea(i)->getPointer();
+    }
+
+    const size_t nx = out.getTotalNumberOfXCells();
+    const size_t ny = out.getTotalNumberOfYCells();
+    const size_t nz = out.getTotalNumberOfZCells();
+
+    const size_t nxGrid = grid.getDimensions().x;
+    const size_t nyGrid = grid.getDimensions().y;
+    const size_t nzGrid = grid.getDimensions().z;
+
+    auto& midPoints = grid.getCellMidpoints();
+
+    const size_t ghostX = out.getNumberOfXGhostCells();
+    const size_t ghostY = out.getNumberOfYGhostCells();
+    const size_t ghostZ = out.getNumberOfZGhostCells();
+    for (size_t k = ghostZ; k < nz - ghostZ; k++) {
+        for (size_t j = ghostY; j < ny - ghostY; j++) {
+            for (size_t i = ghostX; i < nx - ghostX; i++) {
+                size_t index = k*nx*ny + j*nx + i;
+
+                size_t midpointIndex = (k - ghostZ) * nxGrid * nyGrid
+                        + (j - ghostY) * nxGrid + (i - ghostX);
+                auto midPoint = midPoints[midpointIndex];
+                VariableStruct a;
+                fillerFunction(midPoint.x, midPoint.y, midPoint.z, a);
+                saveVariableStruct(a, index, pointersOut);
+            }
+        }
+    }
+
+
+}
 
     ///
     /// Loops through each internal (subject to direction) volume cell,
@@ -318,8 +394,9 @@ namespace alsfvm {
 	template<size_t direction>
 	inline void for_each_internal_volume_index(const Volume& volume,
 		const std::function<void(size_t indexLeft, size_t indexMiddle, size_t indexRight)>& function) {
-		for_each_internal_volume_index(volume, function, volume.getNumberOfXGhostCells());
+        for_each_internal_volume_index<direction>(volume, function, volume.getNumberOfXGhostCells());
 	}
+
     ///
     /// Works the same way as the templated version, but easier to use in some settings.
     ///

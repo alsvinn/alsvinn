@@ -177,6 +177,27 @@ void HostMemory<T>::makeZero()
     }
 }
 
+
+template <class T>
+void HostMemory<T>::copyInternalCells(size_t startX, size_t endX, size_t startY, size_t endY, size_t startZ, size_t endZ, T *output, size_t outputSize)
+{
+    const size_t nx = this->nx;
+    const size_t ny = this->ny;
+    const size_t nz = this->nz;
+    const size_t numberOfY = endY-startY;
+    const size_t numberOfX = endX-startX;
+    for(size_t z = startZ; z < endZ; z++) {
+        for(size_t y = startY; y < endY; y++) {
+            for(size_t x = startX; x < endX; x++) {
+                size_t indexIn = z * nx * ny + y * nx + x;
+                size_t indexOut = (z-startZ) * numberOfX * numberOfY
+                      + (y - startY) * numberOfY + (x - startX);
+                output[indexOut] = data[indexIn];
+             }
+        }
+    }
+}
+
 INSTANTIATE_MEMORY(HostMemory)
 } // namespace memory
 } // namespace alsfvm

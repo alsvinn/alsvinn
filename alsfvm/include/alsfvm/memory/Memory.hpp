@@ -159,6 +159,42 @@ namespace alsfvm {
             /// \brief makeZero sets every element to zero (0)
             ///
             virtual void makeZero() = 0;
+
+            ///
+            /// \brief copyInternalCells copies the internal cells into the memory area
+            /// This is ideal for removing ghost cells before outputing the solution.
+            /// \param startX start index (inclusive) for x direction
+            /// \param endX end index (exclusive) for x direction
+            /// \param startY start index (inclusive) for y direction
+            /// \param endY end index (exclusive) for y direction
+            /// \param startZ start index (inclusive) for z direction
+            /// \param endZ end index (exclusive) for z direction
+            /// \param output the output buffer
+            /// \param outputSize must be at least the size of the written memory
+            ///
+            /// This is essentially equivalent to doing
+            /// \code{.cpp}
+            /// size_t numberOfZ = endZ-startZ;
+            /// size_t numberOfY = endY-startY;
+            /// size_t numberOfX = endX-startX;
+            ///
+            /// for(size_t z = startZ; z < endZ; z++) {
+            ///     for(size_t y = startY; y < endY; y++) {
+            ///         for(size_t x = startX; x < endX; x++) {
+            ///
+            ///             size_t indexIn = z * nx * ny + y * nx + x;
+            ///             size_t indexOut = (z-startZ) * numberOfX * numberOfY
+            ///                   + (y - startY) * numberOfY + (x - startX);
+            ///             output[indexOut] = data[indexIn];
+            ///          }
+            ///     }
+            /// }
+            /// \endcode
+            ///
+            virtual void copyInternalCells(size_t startX, size_t endX,
+                                           size_t startY, size_t endY,
+                                           size_t startZ, size_t endZ,
+                                           T* output, size_t outputSize) = 0;
 			
 		protected:
             const size_t nx;

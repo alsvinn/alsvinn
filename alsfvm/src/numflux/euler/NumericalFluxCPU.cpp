@@ -144,12 +144,14 @@ namespace alsfvm { namespace numflux { namespace euler {
 
         left = volumeFactory.createConservedVolume(grid.getDimensions().x,
                                                    grid.getDimensions().y,
-                                                   grid.getDimensions().z);
+                                                   grid.getDimensions().z,
+                                                   getNumberOfGhostCells());
         left->makeZero();
 
         right = volumeFactory.createConservedVolume(grid.getDimensions().x,
                                                    grid.getDimensions().y,
-                                                   grid.getDimensions().z);
+                                                   grid.getDimensions().z,
+                                                    getNumberOfGhostCells());
 
         right->makeZero();
     }

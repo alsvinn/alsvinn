@@ -65,11 +65,11 @@ void HDF5Writer::writeVolume(const volume::Volume &volume, hid_t file)
 {
     for(size_t i = 0; i < volume.getNumberOfVariables(); i++)
     {
-        writeMemory(*(volume.getScalarMemoryArea(i)), volume.getName(i), file);
+        writeMemory(volume, i, volume.getName(i), file);
     }
 }
 
-void HDF5Writer::writeMemory(const memory::Memory<real> &memory,
+void HDF5Writer::writeMemory(const volume::Volume& volume, size_t index,
                              const std::string& name,
                              hid_t file)
 {
@@ -86,9 +86,9 @@ void HDF5Writer::writeMemory(const memory::Memory<real> &memory,
     //     }
     //   }
     // }
-    hsize_t dimensions[] = {memory.getSizeX(),
-                            memory.getSizeY(),
-                            memory.getSizeZ()};
+    hsize_t dimensions[] = {volume.getNumberOfXCells(),
+                            volume.getNumberOfYCells(),
+                            volume.getNumberOfZCells()};
 
     HDF5Resource filespace(H5Screate_simple(3, dimensions, NULL), H5Sclose);
 
@@ -106,9 +106,9 @@ void HDF5Writer::writeMemory(const memory::Memory<real> &memory,
     // https://www.hdfgroup.org/ftp/HDF5/current/src/unpacked/c++/examples/h5tutr_subset.cpp
 
     // The number of elements we will write in each direction
-    hsize_t count[] = {memory.getSizeX(),
-                       memory.getSizeY(),
-                       memory.getSizeZ()};
+    hsize_t count[] = {volume.getNumberOfXCells(),
+                       volume.getNumberOfYCells(),
+                       volume.getNumberOfZCells()};
 
     // The offset (where we will start writing data
     hsize_t offset[] = {0, 0, 0};
@@ -127,22 +127,14 @@ void HDF5Writer::writeMemory(const memory::Memory<real> &memory,
     static_assert(std::is_same<real, double>::value, "HDF5 only supports double for now");
 
     
-	auto dataPointer = memory.getPointer();
 
-	// We will only use this is the data is on the GPU
-	std::vector<real> hostDataFromGPU; 
-	if (!memory.isOnHost()) {
 
-		// We need to copy the memory back from the GPU
-		hostDataFromGPU.resize(memory.getSize());
-		memory.copyToHost(hostDataFromGPU.data(), hostDataFromGPU.size());
-
-		dataPointer = hostDataFromGPU.data();
-	}
+    std::vector<real> data(volume.getNumberOfXCells() * volume.getNumberOfYCells() * volume.getNumberOfZCells());
+    volume.copyInternalCells(index, data.data(), data.size());
     // Then we write the data as we normally would.
     HDF5_SAFE_CALL(H5Dwrite(dataset.hid(), H5T_NATIVE_DOUBLE,
                 memspace.hid(), filespace.hid(), H5P_DEFAULT,
-				dataPointer));
+                data.data()));
 
     writeString(dataset.hid(), "vsType", "variable");
     writeString(dataset.hid(), "vsMesh", "grid");

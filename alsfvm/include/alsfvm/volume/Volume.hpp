@@ -166,6 +166,16 @@ namespace alsfvm {
 			///
 			size_t getTotalNumberOfZCells() const;
 
+            ///
+            /// Copies the contents of the given memory area into the buffer output.
+            ///
+            /// This is ideal for removing the ghost cells before output.
+            ///
+            /// \note Throws an exception if outputSize < number of cells
+            ///
+            void copyInternalCells(size_t memoryAreaIndex, real* output, size_t outputSize) const;
+
+
 		private:
             const std::shared_ptr<memory::MemoryFactory> memoryFactory;
             const std::vector<std::string> variableNames;

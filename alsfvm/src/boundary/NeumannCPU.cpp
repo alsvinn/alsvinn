@@ -10,9 +10,9 @@ namespace alsfvm { namespace boundary {
 		/// \param dimensions the number of dimensions(1,2 or 3).
 		///
 		void applyNeumann(volume::Volume& volume, const size_t dimensions, const size_t numberOfGhostCells) {
-			const int nx = volume.getNumberOfXCells();
-			const int ny = volume.getNumberOfYCells();
-			const int nz = volume.getNumberOfZCells();
+            const int nx = volume.getTotalNumberOfXCells();
+            const int ny = volume.getTotalNumberOfYCells();
+            const int nz = volume.getTotalNumberOfZCells();
 
 			if (nx < 2 * numberOfGhostCells || ((dimensions > 1) && ny < 2 * numberOfGhostCells) || ((dimensions > 2) && nz < 2 * numberOfGhostCells) ) {
 				THROW("Too few cells to apply boundary condition. We got (nx, ny, nz)=("
