@@ -177,6 +177,33 @@ namespace alsfvm {
 			CUDA_SAFE_CALL(cudaMemset(getPointer(), 0, Memory<T>::getSize()*sizeof(T)));
 		}
 
+		template<class T>
+		void CudaMemory<T>::copyInternalCells(size_t startX, size_t endX,
+			size_t startY, size_t endY,
+			size_t startZ, size_t endZ,
+			T* output, size_t outputSize) {
+			// Until we start using cudamalloc3d, we need to do this
+			// by first copying the memory to cpu, then reformatting it on cpu
+			std::vector<T> temporaryStorage(this->getSize());
+
+			copyToHost(temporaryStorage.data(), temporaryStorage.size());
+
+			const size_t nx = this->nx;
+			const size_t ny = this->ny;
+			const size_t numberOfY = endY - startY;
+			const size_t numberOfX = endX - startX;
+			for (size_t z = startZ; z < endZ; z++) {
+				for (size_t y = startY; y < endY; y++) {
+					for (size_t x = startX; x < endX; x++) {
+						size_t indexIn = z * nx * ny + y * nx + x;
+						size_t indexOut = (z - startZ) * numberOfX * numberOfY
+							+ (y - startY) * numberOfY + (x - startX);
+						output[indexOut] = temporaryStorage[indexIn];
+					}
+				}
+			}
+		}
+
 		INSTANTIATE_MEMORY(CudaMemory)
 	}
 

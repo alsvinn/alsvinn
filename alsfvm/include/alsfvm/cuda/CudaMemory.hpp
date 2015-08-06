@@ -103,6 +103,25 @@ namespace alsfvm {
 			///
 			virtual void makeZero();
 
+
+			///
+			/// \brief copyInternalCells copies the internal cells into the memory area
+			/// This is ideal for removing ghost cells before outputing the solution.
+			/// \param startX start index (inclusive) for x direction
+			/// \param endX end index (exclusive) for x direction
+			/// \param startY start index (inclusive) for y direction
+			/// \param endY end index (exclusive) for y direction
+			/// \param startZ start index (inclusive) for z direction
+			/// \param endZ end index (exclusive) for z direction
+			/// \param output the output buffer
+			/// \param outputSize must be at least the size of the written memory
+			///
+			/// This calls cudaMemcpy3d behind the scenes.
+			///
+			virtual void copyInternalCells(size_t startX, size_t endX,
+				size_t startY, size_t endY,
+				size_t startZ, size_t endZ,
+				T* output, size_t outputSize);
 		private:
 			T* memoryPointer;
 		};
