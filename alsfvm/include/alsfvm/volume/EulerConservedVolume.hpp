@@ -33,9 +33,10 @@ namespace alsfvm { namespace volume {
 		/// \param nx the number of cells in x direction
 		/// \param ny the number of cells in y direction
 		/// \param nz the number of cells in z direction
+		/// \param numberOfGhostCells the number of ghostcells to use
 		///
 		EulerConservedVolume(std::shared_ptr<memory::MemoryFactory> memoryFactory,
-			size_t nx, size_t ny, size_t nz);
+			size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells);
 
 		///
 		/// Gets the memory area representing \f$\rho\f$.

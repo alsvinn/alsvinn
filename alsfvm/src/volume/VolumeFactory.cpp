@@ -23,9 +23,9 @@ namespace alsfvm { namespace volume {
 	/// \param ny the number of cells in y direction
 	/// \param nz the number of cells in z direction
 	///
-	std::shared_ptr<Volume> VolumeFactory::createConservedVolume(size_t nx, size_t ny, size_t nz) {
+	std::shared_ptr<Volume> VolumeFactory::createConservedVolume(size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells) {
 		if (equation == "euler") {
-			return std::shared_ptr<Volume>(new EulerConservedVolume(memoryFactory, nx, ny, nz));
+			return std::shared_ptr<Volume>(new EulerConservedVolume(memoryFactory, nx, ny, nz, numberOfGhostCells));
 		}
 		else {
 			THROW("Unknown equation " << equation);
@@ -38,9 +38,9 @@ namespace alsfvm { namespace volume {
 	/// \param ny the number of cells in y direction
 	/// \param nz the number of cells in z direction
 	///
-	std::shared_ptr<Volume> VolumeFactory::createExtraVolume(size_t nx, size_t ny, size_t nz) {
+	std::shared_ptr<Volume> VolumeFactory::createExtraVolume(size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells) {
 		if (equation == "euler") {
-			return std::shared_ptr<Volume>(new EulerExtraVolume(memoryFactory, nx, ny, nz));
+			return std::shared_ptr<Volume>(new EulerExtraVolume(memoryFactory, nx, ny, nz, numberOfGhostCells));
 		}
 		else {
 			THROW("Unknown equation " << equation);

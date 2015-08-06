@@ -45,8 +45,8 @@ TEST_F(NumericalFluxTest, ConstructionTest) {
 TEST_F(NumericalFluxTest, ConsistencyTest) {
 	// This test that the flux is consistent
 	
-	auto conservedVariables = volumeFactory.createConservedVolume(nx, ny, nz);
-	auto extraVariables = volumeFactory.createExtraVolume(nx, ny, nz);
+	auto conservedVariables = volumeFactory.createConservedVolume(nx, ny, nz, 1);
+	auto extraVariables = volumeFactory.createExtraVolume(nx, ny, nz, 1);
 
 
     for (size_t j = 0; j < nx*ny*nz; j++) {
@@ -63,7 +63,7 @@ TEST_F(NumericalFluxTest, ConsistencyTest) {
     computer->computeExtraVariables(*conservedVariables, *extraVariables);
 
     ASSERT_TRUE(computer->obeysConstraints(*conservedVariables, *extraVariables));
-	auto output = volumeFactory.createConservedVolume(nx, ny, nz);
+	auto output = volumeFactory.createConservedVolume(nx, ny, nz, 1);
 
 	for (size_t i = 0; i < output->getNumberOfVariables(); i++) {
 		for (size_t j = 0; j < nx*ny*nz; j++) {

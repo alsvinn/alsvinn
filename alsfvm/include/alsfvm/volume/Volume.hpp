@@ -27,10 +27,15 @@ namespace alsfvm {
             /// \param nx the number of cells in x diretion
             /// \param ny the number of cells in y diretion
             /// \param nz the number of cells in z diretion
+			/// \param numberOfGhostCells the number of ghost cells
+			///
+			/// \note we deduce from ny and nz whether or not to added ghostcells
+			///       in that direction. Ie. if ny==1, then we do not add ghost cells in y direction
             ///
             Volume(const std::vector<std::string>& variableNames,
                    std::shared_ptr<memory::MemoryFactory> memoryFactory,
-                   size_t nx, size_t ny, size_t nz);
+                   size_t nx, size_t ny, size_t nz,
+				   size_t numberOfGhostCells = 0);
 
             // We need a virtual destructor in case we want to inherit from this
 			virtual ~Volume();
@@ -128,6 +133,39 @@ namespace alsfvm {
             ///
             void makeZero();
 
+			///
+			/// Gets the number of ghost cells in x direction
+			/// \note This is the number of ghost cells on one side.
+			///
+			size_t getNumberOfXGhostCells() const;
+
+			///
+			/// Gets the number of ghost cells in y direction
+			/// \note This is the number of ghost cells on one side.
+			///
+			size_t getNumberOfYGhostCells() const;
+
+			///
+			/// Gets the number of ghost cells in z direction
+			/// \note This is the number of ghost cells on one side.
+			///
+			size_t getNumberOfZGhostCells() const;
+
+			///
+			/// Returns the total number of cells in x direction, including ghost cells
+			///
+			size_t getTotalNumberOfXCells() const;
+
+			///
+			/// Returns the total number of cells in y direction, including ghost cells
+			///
+			size_t getTotalNumberOfYCells() const;
+
+			///
+			/// Returns the total number of cells in z direction, including ghost cells
+			///
+			size_t getTotalNumberOfZCells() const;
+
 		private:
             const std::shared_ptr<memory::MemoryFactory> memoryFactory;
             const std::vector<std::string> variableNames;
@@ -136,6 +174,11 @@ namespace alsfvm {
 			size_t nx;
 			size_t ny;
 			size_t nz;
+
+			
+			size_t numberOfXGhostCells;
+			size_t numberOfYGhostCells;
+			size_t numberOfZGhostCells;
 		};
 	}
 }

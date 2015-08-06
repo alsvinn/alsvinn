@@ -37,16 +37,22 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 	NumericalFluxFactory fluxFactory("euler", "HLL", reconstruction, deviceConfiguration);
 	CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
 	BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
-	auto conserved1 = volumeFactory.createConservedVolume(N, N, 1);
-	auto conserved2 = volumeFactory.createConservedVolume(N, N, 1);
 
-	auto extra1 = volumeFactory.createExtraVolume(N, N, 1);
-	auto extra2 = volumeFactory.createExtraVolume(N, N, 1);
+
+
+
+	auto numericalFlux = fluxFactory.createNumericalFlux(grid);
+
+	auto conserved1 = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
+	auto conserved2 = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
+
+	auto extra1 = volumeFactory.createExtraVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
+	auto extra2 = volumeFactory.createExtraVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
+
 
 	fill_volume<ConservedVariables, ExtraVariables>(*conserved1, *extra1, grid,
 		initialData);
 
-	auto numericalFlux = fluxFactory.createNumericalFlux(grid);
 	integrator::ForwardEuler fowardEuler(numericalFlux);
 
 	auto cellComputer = cellComputerFactory.createComputer();

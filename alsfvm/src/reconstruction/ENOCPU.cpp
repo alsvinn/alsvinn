@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cmath>
 #include "alsfvm/reconstruction/ENOCoefficients.hpp"
+#include "alsfvm/volume/volume_foreach.hpp"
 
 namespace alsfvm { namespace reconstruction {
 
@@ -10,8 +11,11 @@ template<int order>
 ENOCPU<order>::ENOCPU(std::shared_ptr<memory::MemoryFactory> &memoryFactory,
                       size_t nx, size_t ny, size_t nz)
 {
+	size_t ghostX = getNumberOfGhostCells();
+	size_t ghostY = ny > 1 ? getNumberOfGhostCells() : 0;
+	size_t ghostZ = nz > 1 ? getNumberOfGhostCells() : 0;
     for(size_t i = 0; i < dividedDifferences.size(); i++) {
-        dividedDifferences[i] = memoryFactory->createScalarMemory(nx, ny, nz);
+        dividedDifferences[i] = memoryFactory->createScalarMemory(nx + 2*ghostX, ny + 2*ghostY, nz + 2*ghostZ);
     }
 }
 
@@ -45,9 +49,9 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 
     // Now we go on to do the actual reconstruction, choosing the stencil for
     // each point.
-    const size_t nx = inputVariables.getNumberOfXCells();
-    const size_t ny = inputVariables.getNumberOfYCells();
-    const size_t nz = inputVariables.getNumberOfZCells();
+    const size_t nx = inputVariables.getTotalNumberOfXCells();
+    const size_t ny = inputVariables.getTotalNumberOfYCells();
+    const size_t nz = inputVariables.getTotalNumberOfZCells();
 
     // Sanity check, we need at least ONE point in the interior.
     assert(nx > 2*directionVector.x * order);
@@ -124,7 +128,6 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 					assert(!std::isnan(leftValue));
 					assert(!std::isnan(rightValue));
 
-					assert((var != 0 && var != 4) || (leftValue > 0 && rightValue > 0));
 
                 }
             }
@@ -168,7 +171,7 @@ void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& input,
     const real* pointerIn = input.getPointer();
 
     real* pointerOut = output.getPointer();
-
+	
     for (size_t z = startZ; z < endZ; z++) {
         for(size_t y = startY; y < endY; y++) {
             for(size_t x = startX; x < endX; x++) {

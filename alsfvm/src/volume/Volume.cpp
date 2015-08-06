@@ -6,11 +6,18 @@ namespace alsfvm {
 
 		Volume::Volume(const std::vector<std::string>& variableNames,
 			std::shared_ptr<memory::MemoryFactory> memoryFactory,
-			size_t nx, size_t ny, size_t nz)
-			: variableNames(variableNames), memoryFactory(memoryFactory), nx(nx), ny(ny), nz(nz)
+			size_t nx, size_t ny, size_t nz,
+			size_t numberOfGhostCells)
+			: variableNames(variableNames), memoryFactory(memoryFactory), nx(nx), ny(ny), nz(nz),
+			numberOfXGhostCells(numberOfGhostCells), 
+			numberOfYGhostCells(ny > 1 ? numberOfGhostCells : 0),
+			numberOfZGhostCells(nz > 1 ? numberOfGhostCells : 0)
 		{
             for (size_t i=0; i < variableNames.size(); i++) {
-                memoryAreas.push_back(memoryFactory->createScalarMemory(nx, ny, nz));
+                memoryAreas.push_back(memoryFactory->createScalarMemory(
+					nx + 2 * numberOfXGhostCells, 
+					ny + 2 * numberOfYGhostCells,
+					nz + 2 * numberOfZGhostCells));
             }
 		}
 
@@ -146,6 +153,51 @@ namespace alsfvm {
                 memoryAreas[i]->makeZero();
             }
         }
+
+		///
+		/// Gets the number of ghost cells in x direction
+		/// \note This is the number of ghost cells on one side.
+		///
+		size_t Volume::getNumberOfXGhostCells() const {
+			return numberOfXGhostCells;
+		}
+
+		///
+		/// Gets the number of ghost cells in y direction
+		/// \note This is the number of ghost cells on one side.
+		///
+		size_t Volume::getNumberOfYGhostCells() const {
+			return numberOfYGhostCells;
+		}
+
+		///
+		/// Gets the number of ghost cells in z direction
+		/// \note This is the number of ghost cells on one side.
+		///
+		size_t Volume::getNumberOfZGhostCells() const {
+			return numberOfZGhostCells;
+		}
+
+		///
+		/// Returns the total number of cells in x direction, including ghost cells
+		///
+		size_t Volume::getTotalNumberOfXCells() const {
+			return nx + 2 * numberOfXGhostCells;
+		}
+
+		///
+		/// Returns the total number of cells in y direction, including ghost cells
+		///
+		size_t Volume::getTotalNumberOfYCells() const {
+			return ny + 2 * numberOfYGhostCells;
+		}
+
+		///
+		/// Returns the total number of cells in z direction, including ghost cells
+		///
+		size_t Volume::getTotalNumberOfZCells() const {
+			return nz + 2 * numberOfZGhostCells;
+		}
 	}
 
 }

@@ -17,8 +17,8 @@ namespace alsfvm { namespace volume {
 	/// \param nz the number of cells in z direction
 	///
 	EulerExtraVolume::EulerExtraVolume(std::shared_ptr<memory::MemoryFactory> memoryFactory,
-		size_t nx, size_t ny, size_t nz) 
-		: Volume({ "p", "ux", "uy", "uz" }, memoryFactory, nx, ny, nz)
+		size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells)
+		: Volume({ "p", "ux", "uy", "uz" }, memoryFactory, nx, ny, nz, numberOfGhostCells)
 	{
 
 	}

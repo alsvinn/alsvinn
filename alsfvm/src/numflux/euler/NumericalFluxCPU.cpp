@@ -126,7 +126,7 @@ namespace alsfvm { namespace numflux { namespace euler {
             assert(!std::isnan(flux.E));
 
 
-        }, numberOfGhostCells);
+        });
     }
 
 
