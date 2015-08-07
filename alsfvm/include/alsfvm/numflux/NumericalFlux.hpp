@@ -19,7 +19,6 @@ namespace alsfvm {
 			///                         \frac{\Delta t}{\Delta z}\left((F(u_{i,j,k+1}, u_{i,j,k})-F(u_{i,j,k}, u_{i,j,k-1})\right)
 			/// \f]
 			/// \param[in] conservedVariables the conservedVariables to read from (eg. for Euler: \f$\rho,\; \vec{m},\; E\f$)
-			/// \param[in] extraVariables some extra variables that the equation needs (eg. for Euler: \f$p, \vec{u}\f$)
 			/// \param[in] cellLengths contains the cell length in each direction. So
 			///            \f{eqnarray*}{
 			///             \Delta x = \mathrm{cellLengths.x}\\
@@ -27,9 +26,10 @@ namespace alsfvm {
 			///             \Delta z = \mathrm{cellLengths.z}\\
 			///            \f}
 			/// \param[out] output the output to write to
+            ///
+            /// \note this will calculate the extra variables on the fly.
 			/// 
 			virtual void computeFlux(const volume::Volume& conservedVariables,
-				const volume::Volume& extraVariables,
 				const rvec3& cellLengths,
 				volume::Volume& output
 				) = 0;

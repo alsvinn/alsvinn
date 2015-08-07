@@ -21,13 +21,13 @@ namespace alsfvm { namespace integrator {
 	/// Performs one substep and stores the result to output.
 	/// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
 	///
-	void ForwardEuler::performSubstep(const volume::Volume& inputConserved, const volume::Volume& inputExtra,
+    void ForwardEuler::performSubstep(const std::vector<std::shared_ptr< volume::Volume> >& inputConserved,
 		rvec3 spatialCellSizes, real dt,
-		volume::Volume& output) {
+        volume::Volume& output, size_t substep) {
 
-		numericalFlux->computeFlux(inputConserved, inputExtra, spatialCellSizes, output);
+        numericalFlux->computeFlux(*inputConserved[0], spatialCellSizes, output);
 		output *= dt;
-		output += inputConserved;
+        output += *inputConserved[0];
 
 
 	}

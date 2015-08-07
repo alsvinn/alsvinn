@@ -81,7 +81,7 @@ TEST_F(NumericalFluxTest, ConsistencyTest) {
 	}
 	auto numericalFlux = fluxFactory.createNumericalFlux(grid);
 
-	numericalFlux->computeFlux(*conservedVariables, *extraVariables, rvec3(1, 1, 1), *output);
+    numericalFlux->computeFlux(*conservedVariables, rvec3(1, 1, 1), *output);
 
 	// Check that output is what we expect
 	// Here the flux should be consistent, so we expect that 

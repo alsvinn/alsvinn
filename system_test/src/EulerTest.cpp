@@ -6,7 +6,7 @@
 #include "alsfvm/equation/CellComputerFactory.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
-#include "alsfvm/integrator/ForwardEuler.hpp"
+#include "alsfvm/integrator/IntegratorFactory.hpp"
 #include "alsfvm/io/HDF5Writer.hpp"
 #include "alsfvm/boundary/BoundaryFactory.hpp"
 #include <array>
@@ -20,149 +20,164 @@ using namespace alsfvm::equation::euler;
 using namespace alsfvm::equation;
 using namespace alsfvm::boundary;
 void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, ExtraVariables& v)> initialData, size_t N,
-	const std::string& reconstruction, const real T, const std::string& name) {
+             const std::string& reconstruction, const real T, const std::string& name) {
     const real cfl = reconstruction== "eno2" ? 0.475 : 0.9;
     std::cout << "using cfl = " << cfl << std::endl;
+
+    const std::string integratorName = (reconstruction == "eno2" ? "rungekutta2" : "forwardeuler");
+
+
+    std::cout << "Using integrator " << integratorName << std::endl;
     const size_t numberOfSaves = 10;
 
     const real saveInterval = T / numberOfSaves;
-	Grid grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(N, N, 1));
+    Grid grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(N, N, 1));
 
-	auto deviceConfiguration = std::make_shared<DeviceConfiguration>("cpu");
+    auto deviceConfiguration = std::make_shared<DeviceConfiguration>("cpu");
 
-	auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
 
-	VolumeFactory volumeFactory("euler", memoryFactory);
+    VolumeFactory volumeFactory("euler", memoryFactory);
 
-	NumericalFluxFactory fluxFactory("euler", "HLL", reconstruction, deviceConfiguration);
-	CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
-	BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
-
-
+    NumericalFluxFactory fluxFactory("euler", "HLL", reconstruction, deviceConfiguration);
+    CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
+    BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
 
 
-	auto numericalFlux = fluxFactory.createNumericalFlux(grid);
-
-	auto conserved1 = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
-	auto conserved2 = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
-
-	auto extra1 = volumeFactory.createExtraVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
 
 
-	fill_volume<ConservedVariables, ExtraVariables>(*conserved1, *extra1, grid,
-		initialData);
+    auto numericalFlux = fluxFactory.createNumericalFlux(grid);
+    integrator::IntegratorFactory integratorFactory(integratorName);
+    auto integrator = integratorFactory.createIntegrator(numericalFlux);
 
-	integrator::ForwardEuler fowardEuler(numericalFlux);
+    std::vector<std::shared_ptr<volume::Volume> > conservedVolumes(integrator->getNumberOfSubsteps() + 1);
 
-	auto cellComputer = cellComputerFactory.createComputer();
+    for(size_t i = 0; i < conservedVolumes.size(); i++) {
+        conservedVolumes[i] = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
+    }
 
-	real t = 0;
-
-	io::HDF5Writer writer(name);
-	writer.write(*conserved1, *extra1, grid, simulator::TimestepInformation());
+    auto extra1 = volumeFactory.createExtraVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
 
 
-	int i = 0;
-	size_t numberOfTimesteps = 0;
-	auto boundary = boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells());
+    fill_volume<ConservedVariables, ExtraVariables>(*conservedVolumes[0], *extra1, grid,
+            initialData);
+
+
+    auto cellComputer = cellComputerFactory.createComputer();
+
+    real t = 0;
+
+    io::HDF5Writer writer(name);
+    writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
+
+
+    int i = 0;
+    size_t numberOfTimesteps = 0;
+    auto boundary = boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells());
     size_t nsaves = 1;
 
-    boundary->applyBoundaryConditions(*conserved1, grid);
-    cellComputer->computeExtraVariables(*conserved1, *extra1);
-    ASSERT_TRUE(cellComputer->obeysConstraints(*conserved1, *extra1));
+    boundary->applyBoundaryConditions(*conservedVolumes[0], grid);
+    cellComputer->computeExtraVariables(*conservedVolumes[0], *extra1);
+    ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolumes[0], *extra1));
+
     while (t < T) {
-        const real waveSpeedX = cellComputer->computeMaxWaveSpeed(*conserved1, *extra1, 0);
-        const real waveSpeedY = cellComputer->computeMaxWaveSpeed(*conserved1, *extra1, 1);
+
+        const real waveSpeedX = cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extra1, 0);
+        const real waveSpeedY = cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extra1, 1);
         real dt = cfl /( waveSpeedX / grid.getCellLengths().x  + waveSpeedY / grid.getCellLengths().y);
 
         if (t + dt >=  nsaves * saveInterval) {
             dt = nsaves * saveInterval - t;
         }
         t += dt;
-		numberOfTimesteps++;
-		fowardEuler.performSubstep(*conserved1, *extra1, grid.getCellLengths(), dt, *conserved2);
-		conserved1.swap(conserved2);
-		std::array<real*, 5> conservedPointers = {
-			conserved1->getScalarMemoryArea(0)->getPointer(),
-			conserved1->getScalarMemoryArea(1)->getPointer(),
-			conserved1->getScalarMemoryArea(2)->getPointer(),
-			conserved1->getScalarMemoryArea(3)->getPointer(),
-			conserved1->getScalarMemoryArea(4)->getPointer()
-		};
+        numberOfTimesteps++;
+        for(size_t substep = 0; substep < integrator->getNumberOfSubsteps(); substep++) {
+            auto conservedNext = conservedVolumes[substep + 1];
 
-		std::array<real*, 5> extraPointers = {
-			extra1->getScalarMemoryArea(0)->getPointer(),
-			extra1->getScalarMemoryArea(1)->getPointer(),
-			extra1->getScalarMemoryArea(2)->getPointer(),
-			extra1->getScalarMemoryArea(3)->getPointer()
+            integrator->performSubstep(conservedVolumes, grid.getCellLengths(), dt, *conservedNext, 0);
 
-		};
+            std::array<real*, 5> conservedPointers = {
+                conservedNext->getScalarMemoryArea(0)->getPointer(),
+                conservedNext->getScalarMemoryArea(1)->getPointer(),
+                conservedNext->getScalarMemoryArea(2)->getPointer(),
+                conservedNext->getScalarMemoryArea(3)->getPointer(),
+                conservedNext->getScalarMemoryArea(4)->getPointer()
+            };
 
-		boundary->applyBoundaryConditions(*conserved1, grid);
+            std::array<real*, 5> extraPointers = {
+                extra1->getScalarMemoryArea(0)->getPointer(),
+                extra1->getScalarMemoryArea(1)->getPointer(),
+                extra1->getScalarMemoryArea(2)->getPointer(),
+                extra1->getScalarMemoryArea(3)->getPointer()
 
+            };
 
-		// Intense error checking below. We basically check that the output is sane,
-		// this doubles the work of cellComputer->obeysConstraints.
-		for (size_t i = 0; i < conserved1->getScalarMemoryArea(0)->getSize(); i++) {
-			// Check that density and pressure is positive
-			ASSERT_GT(conservedPointers[0][i], 0);
-			ASSERT_GT(extraPointers[0][i], 0);
-
-			for (size_t j = 0; j < 5; j++) {
-				if (std::isnan(conservedPointers[j][i])) {
-					std::cout << "(conserved) nan at i = " << i;
-					std::cout << " variable " << conserved1->getName(j) << std::endl;
-				}
-				ASSERT_FALSE(std::isnan(conservedPointers[j][i]));
-
-				if (std::isinf(conservedPointers[j][i])) {
-					std::cout << "(conserved) inf at i = " << i;
-					std::cout << " variable " << conserved1->getName(j) << std::endl;
-				}
-				ASSERT_FALSE(std::isinf(conservedPointers[j][i]));
-			}
-
-			for (size_t j = 0; j < 4; j++) {
-				if (std::isnan(extraPointers[j][i])) {
-					std::cout << "(extra ) nan at i = " << i;
-					std::cout << " variable " << extra1->getName(j) << std::endl;
-				}
-				ASSERT_FALSE(std::isnan(extraPointers[j][i]));
-
-				if (std::isinf(extraPointers[j][i])) {
-					std::cout << "*( extra ) inf at i = " << i;
-					std::cout << " variable " << extra1->getName(j) << std::endl;
-				}
-				ASSERT_FALSE(std::isinf(extraPointers[j][i]));
-			}
-		}
-
-		cellComputer->computeExtraVariables(*conserved1, *extra1);
-
-		ASSERT_TRUE(cellComputer->obeysConstraints(*conserved1, *extra1));
+            boundary->applyBoundaryConditions(*conservedNext, grid);
 
 
+            // Intense error checking below. We basically check that the output is sane,
+            // this doubles the work of cellComputer->obeysConstraints.
+            for (size_t i = 0; i < conservedNext->getScalarMemoryArea(0)->getSize(); i++) {
+                // Check that density and pressure is positive
+                ASSERT_GT(conservedPointers[0][i], 0);
+                ASSERT_GT(extraPointers[0][i], 0);
+
+                for (size_t j = 0; j < 5; j++) {
+                    if (std::isnan(conservedPointers[j][i])) {
+                        std::cout << "(conserved) nan at i = " << i;
+                        std::cout << " variable " << conservedVolumes[0]->getName(j) << std::endl;
+                    }
+                    ASSERT_FALSE(std::isnan(conservedPointers[j][i]));
+
+                    if (std::isinf(conservedPointers[j][i])) {
+                        std::cout << "(conserved) inf at i = " << i;
+                        std::cout << " variable " << conservedVolumes[0]->getName(j) << std::endl;
+                    }
+                    ASSERT_FALSE(std::isinf(conservedPointers[j][i]));
+                }
+
+                for (size_t j = 0; j < 4; j++) {
+                    if (std::isnan(extraPointers[j][i])) {
+                        std::cout << "(extra ) nan at i = " << i;
+                        std::cout << " variable " << extra1->getName(j) << std::endl;
+                    }
+                    ASSERT_FALSE(std::isnan(extraPointers[j][i]));
+
+                    if (std::isinf(extraPointers[j][i])) {
+                        std::cout << "*( extra ) inf at i = " << i;
+                        std::cout << " variable " << extra1->getName(j) << std::endl;
+                    }
+                    ASSERT_FALSE(std::isinf(extraPointers[j][i]));
+                }
+            }
+
+            cellComputer->computeExtraVariables(*conservedNext, *extra1);
+
+            ASSERT_TRUE(cellComputer->obeysConstraints(*conservedNext, *extra1));
 
 
 
 
-		ASSERT_FALSE(std::isnan(dt));
+        }
 
-		ASSERT_GT(dt, 0);
-		i++;
+        conservedVolumes[0].swap(conservedVolumes.back());
+        ASSERT_FALSE(std::isnan(dt));
+
+        ASSERT_GT(dt, 0);
+        i++;
 
         if (t >= nsaves * saveInterval) {
             nsaves++;
 
             std::cout << "saving at t " << t << " (nsaves * saveInterval = " << nsaves  * saveInterval << ")" << std::endl;
-			writer.write(*conserved1, *extra1, grid, simulator::TimestepInformation());
-		}
+            writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
+        }
 
 
-	}
+    }
 
-	std::cout << "Number of timesteps used: " << numberOfTimesteps << std::endl;
-	writer.write(*conserved1, *extra1, grid, simulator::TimestepInformation());
+    std::cout << "Number of timesteps used: " << numberOfTimesteps << std::endl;
+    writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
 }
 TEST(EulerTest, ShockTubeTest) {
 	runTest([](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {

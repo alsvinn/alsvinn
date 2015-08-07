@@ -12,8 +12,7 @@ namespace {
 	public:
 		size_t getNumberOfGhostCells() { return 0; }
 
-		void computeFlux(const volume::Volume& conservedVariables,
-			const volume::Volume& extraVariables,
+        void computeFlux(const volume::Volume& conservedVariables,
 			const rvec3& cellLengths,
 			volume::Volume& output) 
 		{
@@ -39,12 +38,12 @@ TEST(ForwardEulerTest, ConvergenceTest) {
 
 	auto factory = std::make_shared<alsfvm::memory::MemoryFactory>(configuration);
 
-	alsfvm::volume::Volume volumeIn(variableNames, factory, nx, ny, nz);
-	alsfvm::volume::Volume volumeOut(variableNames, factory, nx, ny, nz);
+    std::shared_ptr<alsfvm::volume::Volume> volumeIn(new alsfvm::volume::Volume(variableNames, factory, nx, ny, nz));
+    std::shared_ptr<alsfvm::volume::Volume> volumeOut(new alsfvm::volume::Volume(variableNames, factory, nx, ny, nz));
 
 
 	// Start with u(0)=1
-	volumeIn.getScalarMemoryArea(0)->getPointer()[0] = 1;
+    volumeIn->getScalarMemoryArea(0)->getPointer()[0] = 1;
 
 	const size_t N = 100000;
 	const real dt = real(1) / real(N);
@@ -55,14 +54,14 @@ TEST(ForwardEulerTest, ConvergenceTest) {
 		// and then switch every other timstep
 		if (i % 2) {
 			// Note that we do not care about spatial resolution here
-			integrator.performSubstep(volumeOut, volumeOut, rvec3(0, 0, 0), dt, volumeIn);
+            integrator.performSubstep({volumeOut}, rvec3(0, 0, 0), dt, *volumeIn, 0);
 		}
 		else {
 			// Note that we do not care about spatial resolution here
-			integrator.performSubstep(volumeIn, volumeIn, rvec3(0, 0, 0), dt, volumeOut);
+            integrator.performSubstep({volumeIn}, rvec3(0, 0, 0), dt, *volumeOut, 0);
 		}
 
 	}
 
-	ASSERT_LT(std::abs(volumeOut.getScalarMemoryArea(0)->getPointer()[0] - std::exp(1)), 1e-4);
+    ASSERT_LT(std::abs(volumeOut->getScalarMemoryArea(0)->getPointer()[0] - std::exp(1)), 1e-4);
 }

@@ -31,9 +31,9 @@ namespace alsfvm { namespace integrator {
 		/// Performs one substep and stores the result to output.
 		/// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
 		///
-		virtual void performSubstep(const volume::Volume& inputConserved, const volume::Volume& inputExtra,
+        virtual void performSubstep(const std::vector<std::shared_ptr< volume::Volume> >& inputConserved,
 			rvec3 spatialCellSizes, real dt,
-			volume::Volume& output);
+            volume::Volume& output, size_t substep);
 
 	private:
 		std::shared_ptr<numflux::NumericalFlux> numericalFlux;
