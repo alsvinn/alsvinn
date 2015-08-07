@@ -1,3 +1,8 @@
+// The main goal of this test is to see if the different components work together
+// and that they can simulate some known test cases without causing obvious errors
+// (obvious errors being defined as nan-errors or out of bounds error wrt. to the equation,
+// ie. check if rho>0).
+
 #include <gtest/gtest.h>
 #include "alsfvm/grid/Grid.hpp"
 #include "alsfvm/memory/MemoryFactory.hpp"
@@ -21,10 +26,10 @@ using namespace alsfvm::equation;
 using namespace alsfvm::boundary;
 void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, ExtraVariables& v)> initialData, size_t N,
              const std::string& reconstruction, const real T, const std::string& name) {
-    const real cfl = reconstruction== "eno2" ? 0.475 : 0.9;
+    const real cfl = reconstruction.find("eno") != reconstruction.npos? 0.475 : 0.9;
     std::cout << "using cfl = " << cfl << std::endl;
 
-    const std::string integratorName = (reconstruction == "eno2" ? "rungekutta2" : "forwardeuler");
+    const std::string integratorName = (reconstruction.find("eno") != reconstruction.npos ? "rungekutta2" : "forwardeuler");
 
 
     std::cout << "Using integrator " << integratorName << std::endl;

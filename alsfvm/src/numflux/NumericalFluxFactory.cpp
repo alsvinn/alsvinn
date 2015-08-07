@@ -43,6 +43,16 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
             reconstructor.reset(new reconstruction::ENOCPU<2>(memoryFactory, grid.getDimensions().x,
                                                               grid.getDimensions().y,
                                                               grid.getDimensions().z));
+
+        } else if (reconstruction == "eno3") {
+            reconstructor.reset(new reconstruction::ENOCPU<3>(memoryFactory, grid.getDimensions().x,
+                                                              grid.getDimensions().y,
+                                                              grid.getDimensions().z));
+
+        } else if (reconstruction == "eno4") {
+            reconstructor.reset(new reconstruction::ENOCPU<4>(memoryFactory, grid.getDimensions().x,
+                                                              grid.getDimensions().y,
+                                                              grid.getDimensions().z));
         } else {
             THROW("Unknown reconstruction " << reconstruction);
         }

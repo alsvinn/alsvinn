@@ -181,7 +181,7 @@ void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& input,
                         + (y - direction.y) * nx
                         + (x - direction.x);
 
-                pointerOut[indexRight] = pointerIn[indexRight] - pointerIn[indexLeft];
+                pointerOut[indexLeft] = pointerIn[indexRight] - pointerIn[indexLeft];
 
             }
         }
