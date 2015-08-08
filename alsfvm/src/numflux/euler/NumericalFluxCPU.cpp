@@ -158,7 +158,6 @@ namespace alsfvm { namespace numflux { namespace euler {
 
     template<class Flux, size_t dimension>
     void NumericalFluxCPU<Flux, dimension>::computeFlux(const volume::Volume& conservedVariables,
-        const volume::Volume& extraVariables,
 		const rvec3& cellLengths,
 		volume::Volume& output
 		) 

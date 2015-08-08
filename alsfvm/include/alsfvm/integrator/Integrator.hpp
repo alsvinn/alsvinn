@@ -22,8 +22,7 @@ namespace alsfvm { namespace integrator {
 	///    for(size_t subStep = 0; subStep < numberOfSubsteps; subStep++) {
 	///        
 	///        integrator.performSubstep(buffers[subStep].conserved(), 
-	///                                  buffers[subStep].extra(),
-	///                                  buffers[(subStep+1) % numberOfSubsteps].conserved());
+    ///                                  buffers[(subStep+1) % numberOfSubsteps].conserved(), substep);
 	///        buffers[(subStep+1) % numberOfSubsteps].computeExtra();
 	///     }
 	///     t += dt;
@@ -41,11 +40,19 @@ namespace alsfvm { namespace integrator {
 
 		///
 		/// Performs one substep and stores the result to output.
+        ///
+        /// \param inputConserved should have the output from the previous invocations
+        ///        in this substep, if this is the first invocation, then this will have one element,
+        ///        second timestep 2 elements, etc.
+        /// \param spatialCellSizes should be the cell size in each direction
+        /// \param dt is the timestep
+        /// \param substep is the currently computed substep, starting at 0.
+        /// \param output where to write the output
 		/// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
 		///
-		virtual void performSubstep(const volume::Volume& inputConserved, const volume::Volume& inputExtra, 
+        virtual void performSubstep(const std::vector<std::shared_ptr< volume::Volume> >& inputConserved,
 			rvec3 spatialCellSizes, real dt,
-			volume::Volume& output) = 0;
+            volume::Volume& output, size_t substep) = 0;
 
     };
 
