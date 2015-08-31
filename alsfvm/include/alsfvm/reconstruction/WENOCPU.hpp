@@ -39,7 +39,9 @@ namespace alsfvm { namespace reconstruction {
 		///        for this computation
 		/// \return order.
 		///
-		virtual size_t getNumberOfGhostCells();
+        virtual size_t getNumberOfGhostCells() {
+            return order + 1;
+        }
     };
 } // namespace alsfvm
 } // namespace reconstruction

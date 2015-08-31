@@ -3,6 +3,7 @@
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include "alsfvm/reconstruction/NoReconstruction.hpp"
 #include "alsfvm/reconstruction/ENOCPU.hpp"
+#include "alsfvm/reconstruction/WENOCPU.hpp"
 #include "alsfvm/error/Exception.hpp"
 #include <iostream>
 
@@ -53,6 +54,13 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
             reconstructor.reset(new reconstruction::ENOCPU<4>(memoryFactory, grid.getDimensions().x,
                                                               grid.getDimensions().y,
                                                               grid.getDimensions().z));
+
+        } else if (reconstruction == "weno2") {
+            reconstructor.reset(new reconstruction::WENOCPU<2>());
+
+        } else if (reconstruction == "weno3") {
+            reconstructor.reset(new reconstruction::WENOCPU<3>());
+
         } else {
             THROW("Unknown reconstruction " << reconstruction);
         }

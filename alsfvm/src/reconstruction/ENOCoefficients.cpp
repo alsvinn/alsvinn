@@ -1,4 +1,5 @@
 #include "alsfvm/reconstruction/ENOCoefficients.hpp"
+#include "alsfvm/reconstruction/ENOCoefficients.hpp"
 
 namespace alsfvm { namespace reconstruction {
 
@@ -20,9 +21,10 @@ namespace alsfvm { namespace reconstruction {
     template<>
     real ENOCoeffiecients<3>::coefficients[][3] =
     {
-        {3.0/2.0, -1.0/2.0},
-        {1.0/2.0, 1.0/2.0},
-        {-1.0/2.0, 3.0/2.0}
+        {11.0/6.0, -7.0/6.0, 1.0/3.0},
+        {1.0/3.0, 5.0/6.0, -1.0/6.0},
+        {-1.0/6.0, 5.0/6.0, 1.0/3.0},
+        {1.0/3.0, -7.0/6.0, 11.0/6.0}
     };
 
     template<>

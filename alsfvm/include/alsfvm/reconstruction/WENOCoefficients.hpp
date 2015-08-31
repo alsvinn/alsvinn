@@ -1,11 +1,14 @@
 #pragma once
 #include "alsfvm/types.hpp"
 #include <array>
+#include <cmath>
+#include <limits>
 namespace alsfvm { namespace reconstruction { 
 
 	template<int k>
     class WENOCoefficients {
     public:
+        static const real epsilon;
 		static real coefficients[];
 
 		template<size_t index>
@@ -34,13 +37,13 @@ namespace alsfvm { namespace reconstruction {
 	template<size_t index>
 	real WENOCoefficients<3>::computeBeta(const std::array<real, 5>& V) {
 		if (index == 0) {
-			return  13.0 / 12.0 * pow(V[2] - 2 * V[3] + V[4], 2) + 1 / 4.0*pow(3 * V[2] - 4 * V[3] + V[4], 2);
+            return  13.0 / 12.0 * std::pow(V[2] - 2 * V[3] + V[4], 2) + 1 / 4.0*std::pow(3 * V[2] - 4 * V[3] + V[4], 2);
 		}
 		else if (index == 1) {
-			return  13.0 / 12.0 * pow(V[1] - 2 * V[2] + V[3], 2) + 1 / 4.0*pow(V[1] -  V[3], 2);
+            return  13.0 / 12.0 * std::pow(V[1] - 2 * V[2] + V[3], 2) + 1 / 4.0*std::pow(V[1] -  V[3], 2);
 		}
 		else if (index == 2) {
-			return  13.0 / 12.0 * pow(V[0] - 2 * V[1] + V[2], 2) + 1 / 4.0*pow(V[0] - 4 * V[1] + 3*V[2], 2);
+            return  13.0 / 12.0 * std::pow(V[0] - 2 * V[1] + V[2], 2) + 1 / 4.0*std::pow(V[0] - 4 * V[1] + 3*V[2], 2);
 		}
 		static_assert(index < 3, "Only up to index 1 for order 2 in WENO");
 		return 0;
