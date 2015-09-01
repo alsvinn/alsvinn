@@ -25,8 +25,11 @@ namespace alsfvm { namespace integrator {
 		rvec3 spatialCellSizes, real dt,
         volume::Volume& output, size_t substep) {
 
-        numericalFlux->computeFlux(*inputConserved[0], spatialCellSizes, output);
-		output *= dt;
+        rvec3 cellScaling(dt/spatialCellSizes.x,
+                          dt/spatialCellSizes.y,
+                          dt/spatialCellSizes.z);
+
+        numericalFlux->computeFlux(*inputConserved[0], cellScaling, output);
         output += *inputConserved[0];
 
 

@@ -16,7 +16,7 @@ namespace {
 			const rvec3& cellLengths,
 			volume::Volume& output) 
 		{
-			output.getScalarMemoryArea(0)->getPointer()[0] = conservedVariables.getScalarMemoryArea(0)->getPointer()[0];
+            output.getScalarMemoryArea(0)->getPointer()[0] = cellLengths.x * conservedVariables.getScalarMemoryArea(0)->getPointer()[0];
 		}
 	};
 }
@@ -54,11 +54,11 @@ TEST(ForwardEulerTest, ConvergenceTest) {
 		// and then switch every other timstep
 		if (i % 2) {
 			// Note that we do not care about spatial resolution here
-            integrator.performSubstep({volumeOut}, rvec3(0, 0, 0), dt, *volumeIn, 0);
+            integrator.performSubstep({volumeOut}, rvec3(1, 1, 1), dt, *volumeIn, 0);
 		}
 		else {
 			// Note that we do not care about spatial resolution here
-            integrator.performSubstep({volumeIn}, rvec3(0, 0, 0), dt, *volumeOut, 0);
+            integrator.performSubstep({volumeIn}, rvec3(1, 1, 1), dt, *volumeOut, 0);
 		}
 
 	}

@@ -111,7 +111,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
                     auto coefficientsLeft = ENOCoeffiecients<order>::coefficients[shift];
                     real leftValue = 0.0;
                     real rightValue = 0.0;
-                    for(size_t j = 0; j < order; j++) {
+                    for(int j = 0; j < order; j++) {
 
                         const size_t index = (z - (shift - j)*directionVector.z) * nx * ny
                                 + (y - (shift - j)*directionVector.y) * nx

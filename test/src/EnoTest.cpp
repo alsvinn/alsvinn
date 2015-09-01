@@ -209,3 +209,69 @@ TEST(EnoTest, ReconstructionSimple) {
     ASSERT_EQ(-1.0/2.0, left->getScalarMemoryArea("rho")->getPointer()[2]);
 
 }
+
+TEST(EnoTest, ReconstructionSimpleReverse) {
+    const size_t nx = 10, ny = 1, nz = 1;
+
+    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
+    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+
+    VolumeFactory volumeFactory("euler", memoryFactory);
+    ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    for_each_cell_index(*conserved, [&] (size_t index) {
+        // fill some dummy data
+        conserved->getScalarMemoryArea("rho")->getPointer()[index] = 1;
+        conserved->getScalarMemoryArea("mx")->getPointer()[index] = 1;
+        conserved->getScalarMemoryArea("my")->getPointer()[index] = 1;
+        conserved->getScalarMemoryArea("mz")->getPointer()[index] = 1;
+        conserved->getScalarMemoryArea("E")->getPointer()[index] = 10;
+
+    });
+
+    // This is the main ingredient:
+    conserved->getScalarMemoryArea("rho")->getPointer()[1] = 1;
+    conserved->getScalarMemoryArea("rho")->getPointer()[2] = 0;
+    conserved->getScalarMemoryArea("rho")->getPointer()[3] = 2;
+
+    enoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
+
+    ASSERT_EQ(-1.0/2.0, right->getScalarMemoryArea("rho")->getPointer()[2]);
+    ASSERT_EQ(1.0/2.0, left->getScalarMemoryArea("rho")->getPointer()[2]);
+
+}
+
+TEST(EnoTest, ReconstructionSimpleReverseYDirection) {
+    const size_t nx = 10, ny = 10, nz = 1;
+
+    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
+    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+
+    VolumeFactory volumeFactory("euler", memoryFactory);
+    ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    for_each_cell_index(*conserved, [&] (size_t index) {
+        // fill some dummy data
+        conserved->getScalarMemoryArea("rho")->getPointer()[index] = 1;
+        conserved->getScalarMemoryArea("mx")->getPointer()[index] = 1;
+        conserved->getScalarMemoryArea("my")->getPointer()[index] = 1;
+        conserved->getScalarMemoryArea("mz")->getPointer()[index] = 1;
+        conserved->getScalarMemoryArea("E")->getPointer()[index] = 10;
+
+    });
+
+    const size_t totalNx = nx + 2 * enoCPU.getNumberOfGhostCells();
+    // This is the main ingredient:
+    conserved->getScalarMemoryArea("rho")->getPointer()[3+1 * totalNx] = 1;
+    conserved->getScalarMemoryArea("rho")->getPointer()[3+2 * totalNx] = 0;
+    conserved->getScalarMemoryArea("rho")->getPointer()[3+3 * totalNx] = 2;
+    enoCPU.performReconstruction(*conserved, 1, 0, *left, *right);
+
+    ASSERT_EQ(-1.0/2.0, right->getScalarMemoryArea("rho")->getPointer()[3+2 * totalNx]);
+    ASSERT_EQ(1.0/2.0, left->getScalarMemoryArea("rho")->getPointer()[3 + 2 * totalNx]);
+
+}

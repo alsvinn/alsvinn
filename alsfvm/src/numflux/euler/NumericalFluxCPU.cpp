@@ -68,7 +68,7 @@ namespace alsfvm { namespace numflux { namespace euler {
         equation::euler::ConservedVariables fluxLeftMiddle;
         Flux::template computeFlux<direction>(leftJmHf, rightJmHf, fluxLeftMiddle);
 
-        out = -(1.0 / cellLength)*(fluxLeftMiddle - fluxMiddleRight);
+        out = cellLength*(fluxLeftMiddle - fluxMiddleRight);
     }
 
     template<class Flux, size_t direction>
@@ -113,11 +113,11 @@ namespace alsfvm { namespace numflux { namespace euler {
                                  cellLength,
                                  flux);
 
-            outPointers[0][middleIndex] -= flux.rho;
-            outPointers[1][middleIndex] -= flux.m.x;
-            outPointers[2][middleIndex] -= flux.m.y;
-            outPointers[3][middleIndex] -= flux.m.z;
-            outPointers[4][middleIndex] -= flux.E;
+            outPointers[0][middleIndex] += flux.rho;
+            outPointers[1][middleIndex] += flux.m.x;
+            outPointers[2][middleIndex] += flux.m.y;
+            outPointers[3][middleIndex] += flux.m.z;
+            outPointers[4][middleIndex] += flux.E;
 
             assert(!std::isnan(flux.rho));
             assert(!std::isnan(flux.m.x));

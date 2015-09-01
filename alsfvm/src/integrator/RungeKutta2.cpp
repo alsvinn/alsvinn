@@ -34,15 +34,17 @@ void RungeKutta2::performSubstep(const std::vector<std::shared_ptr< volume::Volu
     volume::Volume& output, size_t substep) {
     // We compute U + dt * F(U)
 
-
+    rvec3 cellScaling(dt/spatialCellSizes.x,
+                      dt/spatialCellSizes.y,
+                      dt/spatialCellSizes.z);
     // Compute F(U)
-    numericalFlux->computeFlux(*inputConserved[substep], spatialCellSizes, output);
-    output *= dt;
+
+    numericalFlux->computeFlux(*inputConserved[substep], cellScaling, output);
     output += *inputConserved[substep];
 
     if (substep == 1) {
         // 0.5 * (U+U')
-        output += *inputConserved[1];
+        output += *inputConserved[0];
         output *= 0.5;
     }
 }

@@ -86,7 +86,6 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolumes[0], *extra1));
 
     while (t < T) {
-
         const real waveSpeedX = cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extra1, 0);
         const real waveSpeedY = cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extra1, 1);
         real dt = cfl /( waveSpeedX / grid.getCellLengths().x  + waveSpeedY / grid.getCellLengths().y);
@@ -206,7 +205,7 @@ TEST(EulerTest, ShockTubeTest) {
 		}
 		u.m = u.rho * v.u;
 		u.E = v.p / (GAMMA - 1) + 0.5*u.rho*v.u.dot(v.u);
-    }, 256, "none", 0.06, "euler_shocktube");
+    }, 128, "none", 0.06, "euler_shocktube");
 }
 
 TEST(EulerTest, ShockVortex) {
@@ -240,5 +239,5 @@ TEST(EulerTest, ShockVortex) {
 		u.m = u.rho * v.u;
 		u.E = v.p / (GAMMA - 1) + 0.5*u.rho*v.u.dot(v.u);
 
-    }, 256, "eno2", 0.35, "euler_vortex");
+    }, 512, "none", 3.5, "euler_vortex");
 }

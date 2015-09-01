@@ -162,7 +162,6 @@ void WENOCPU<order>::performReconstruction(const volume::Volume& inputVariables,
                     }
 
                     pointersOutLeft[var][indexRight] = leftWenoValue;
-                    pointersOutLeft[var][indexRight] = leftWenoValue;
                     pointersOutRight[var][indexRight] = rightWenoValue;
 
                 }

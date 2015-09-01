@@ -25,8 +25,6 @@ namespace alsfvm { namespace numflux { namespace euler {
         /// \param conservedVariables
         /// \param cellLengths
         /// \param output
-        /// \todo This needs to fix the way it computes the flux (adds another minus that must be fixed)
-        ///       (It computes correctly, it is maybe just a bit unclear what it does)
         ///
         virtual void computeFlux(const volume::Volume& conservedVariables,
 			const rvec3& cellLengths,
