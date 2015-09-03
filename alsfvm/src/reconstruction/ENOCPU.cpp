@@ -58,13 +58,13 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
     assert((directionVector.y == 0) || (ny > 2*directionVector.y * order));
     assert((directionVector.z == 0) || (nz > 2*directionVector.z * order));
 
-    const size_t startX = directionVector.x * order;
-    const size_t startY = directionVector.y * order;
-    const size_t startZ = directionVector.z * order;
+    const size_t startX = directionVector.x * (order - 1);
+    const size_t startY = directionVector.y * (order - 1);
+    const size_t startZ = directionVector.z * (order - 1);
 
-    const size_t endX = nx - directionVector.x * order;
-    const size_t endY = ny - directionVector.y * order;
-    const size_t endZ = nz - directionVector.z * order;
+    const size_t endX = nx - directionVector.x * (order - 1);
+    const size_t endY = ny - directionVector.y * (order - 1);
+    const size_t endZ = nz - directionVector.z * (order - 1);
 
     std::array<real*, order - 1> dividedDifferencesPointers;
 
@@ -141,7 +141,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 template<int order>
 size_t ENOCPU<order>::getNumberOfGhostCells()
 {
-    return order + 1;
+    return order;
 }
 
 template<int order>

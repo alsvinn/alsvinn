@@ -34,7 +34,45 @@ namespace alsfvm { namespace boundary {
 						const bool zDir = d == 2;
 						const bool yDir = d == 1;
 						const bool xDir = d == 0;
+                        // Either we start on the left (i == 0), or on the right(i==1)
+                        const size_t zStart = zDir ?
+                            (i == 0 ? numberOfGhostCells : nz - numberOfGhostCells - 1) : 0;
 
+                        const size_t zEnd = zDir ?
+                            (zStart + 1) : nz;
+
+                        const size_t yStart = yDir ?
+                            (i == 0 ? numberOfGhostCells : ny - numberOfGhostCells - 1) : 0;
+
+                        const size_t yEnd = yDir ?
+                            (yStart + 1) : ny;
+
+                        const size_t xStart = xDir ?
+                            (i == 0 ? numberOfGhostCells : nx - numberOfGhostCells - 1) : 0;
+
+                        const size_t xEnd = xDir ?
+                            (xStart + 1) : nx;
+
+                        for (int z = zStart; z < zEnd; z++) {
+                            for (int y = yStart; y < yEnd; y++) {
+                                for (int x = xStart; x < xEnd; x++) {
+                                    for (size_t ghostCell = 0; ghostCell < numberOfGhostCells; ghostCell++) {
+                                        const size_t sourceIndex =
+                                              (z + zDir * ((1-2*i)*ghostCell)) * nx * ny
+                                            + (y + yDir * ((1-2*i)*ghostCell)) * nx
+                                            + (x + xDir * ((1-2*i)*ghostCell));
+
+                                        const size_t targetIndex =
+                                              (z + (2* i - 1) * zDir * (ghostCell + 1)) * nx * ny
+                                            + (y + (2* i - 1) * yDir * (ghostCell + 1)) * nx
+                                            + (x + (2* i - 1) * xDir * (ghostCell + 1));
+                                        pointer[targetIndex] = pointer[sourceIndex];
+                                    }
+                                }
+                            }
+                        }
+
+#if 0
 						// Either we start on the left (i == 0), or on the right(i==1)
 						const size_t zStart = zDir ?
                             (i == 0 ? 0 : nz - numberOfGhostCells) : 0;
@@ -59,19 +97,24 @@ namespace alsfvm { namespace boundary {
 						for (int z = zStart; z < zEnd; z++) {
 							for (int y = yStart; y < yEnd; y++) {
 								for (int x = xStart; x < xEnd; x++) {
-                                    const size_t sourceIndex = (z -i*zDir + (1 - i)*zDir*numberOfGhostCells) * nx * ny
-                                        + (y -i*yDir + (1 - i)*yDir*numberOfGhostCells)*nx
-                                        + (x -i*xDir + (1 - i)*xDir*numberOfGhostCells);
+
 
 									for (size_t ghostCell = 0; ghostCell < numberOfGhostCells; ghostCell++) {
-										const size_t targetIndex = (z + zDir * (ghostCell)) * nx * ny
-											+ (y + yDir * ( ghostCell))*nx
-											+ (x + xDir * ( ghostCell));
+                                        const size_t sourceIndex =
+                                              (z + zDir * (-i - i * ghostCell + (1 - i) * (numberOfGhostCells + ghostCell))) * nx * ny
+                                            + (y + yDir * (-i - i * ghostCell + (1 - i) * (numberOfGhostCells + ghostCell))) * nx
+                                            + (x + xDir * (-i - i * ghostCell + (1 - i) * (numberOfGhostCells + ghostCell)));
+
+                                        const size_t targetIndex =
+                                              (z + zDir * (ghostCell)) * nx * ny
+                                            + (y + yDir * (ghostCell)) * nx
+                                            + (x + xDir * (ghostCell));
 										pointer[targetIndex] = pointer[sourceIndex];
 									}
 								}
 							}
 						}
+#endif
 
 					}
 				}
