@@ -4,7 +4,7 @@
 #include <cmath>
 #include "alsfvm/reconstruction/ENOCoefficients.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
-
+#include <iostream>
 namespace alsfvm { namespace reconstruction {
 
 template<int order>
@@ -16,6 +16,7 @@ ENOCPU<order>::ENOCPU(std::shared_ptr<memory::MemoryFactory> &memoryFactory,
 	size_t ghostZ = nz > 1 ? getNumberOfGhostCells() : 0;
     for(size_t i = 0; i < dividedDifferences.size(); i++) {
         dividedDifferences[i] = memoryFactory->createScalarMemory(nx + 2*ghostX, ny + 2*ghostY, nz + 2*ghostZ);
+        dividedDifferences[i]->makeZero();
     }
 }
 

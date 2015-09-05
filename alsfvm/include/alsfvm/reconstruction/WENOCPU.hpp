@@ -40,7 +40,7 @@ namespace alsfvm { namespace reconstruction {
 		/// \return order.
 		///
         virtual size_t getNumberOfGhostCells() {
-            return order + 1;
+            return order;
         }
     };
 } // namespace alsfvm

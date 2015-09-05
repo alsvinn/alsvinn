@@ -42,8 +42,8 @@ TEST(GridTest, MidPointTest2D) {
 
             const size_t index = y*30 + x;
 
-            ASSERT_EQ(midpointX, midPoints[index].x);
-            ASSERT_EQ(midpointY, midPoints[index].y);
+            ASSERT_NEAR(midpointX, midPoints[index].x, 1e-8);
+            ASSERT_NEAR(midpointY, midPoints[index].y, 1e-8);
         }
     }
 }

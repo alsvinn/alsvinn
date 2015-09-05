@@ -72,49 +72,6 @@ namespace alsfvm { namespace boundary {
                             }
                         }
 
-#if 0
-						// Either we start on the left (i == 0), or on the right(i==1)
-						const size_t zStart = zDir ?
-                            (i == 0 ? 0 : nz - numberOfGhostCells) : 0;
-
-						const size_t zEnd = zDir ?
-                            (zStart + 1) : nz;
-
-						const size_t yStart = yDir ?
-                            (i == 0 ? 0 : ny - numberOfGhostCells) : 0;
-
-						const size_t yEnd = yDir ?
-                            (yStart + 1) : ny;
-
-						const size_t xStart = xDir ?
-                            (i == 0 ? 0 : nx - numberOfGhostCells ) : 0;
-
-						const size_t xEnd = xDir ?
-                            (xStart + 1) : nx;
-
-
-						// loop through surface at that boundary
-						for (int z = zStart; z < zEnd; z++) {
-							for (int y = yStart; y < yEnd; y++) {
-								for (int x = xStart; x < xEnd; x++) {
-
-
-									for (size_t ghostCell = 0; ghostCell < numberOfGhostCells; ghostCell++) {
-                                        const size_t sourceIndex =
-                                              (z + zDir * (-i - i * ghostCell + (1 - i) * (numberOfGhostCells + ghostCell))) * nx * ny
-                                            + (y + yDir * (-i - i * ghostCell + (1 - i) * (numberOfGhostCells + ghostCell))) * nx
-                                            + (x + xDir * (-i - i * ghostCell + (1 - i) * (numberOfGhostCells + ghostCell)));
-
-                                        const size_t targetIndex =
-                                              (z + zDir * (ghostCell)) * nx * ny
-                                            + (y + yDir * (ghostCell)) * nx
-                                            + (x + xDir * (ghostCell));
-										pointer[targetIndex] = pointer[sourceIndex];
-									}
-								}
-							}
-						}
-#endif
 
 					}
 				}

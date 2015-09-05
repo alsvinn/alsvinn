@@ -82,13 +82,13 @@ void WENOCPU<order>::performReconstruction(const volume::Volume& inputVariables,
     assert((directionVector.y == 0) || (ny > 2 * directionVector.y * order));
     assert((directionVector.z == 0) || (nz > 2 * directionVector.z * order));
 
-    const size_t startX = directionVector.x * order;
-    const size_t startY = directionVector.y * order;
-    const size_t startZ = directionVector.z * order;
+    const size_t startX = directionVector.x * (order - 1);
+    const size_t startY = directionVector.y * (order - 1);
+    const size_t startZ = directionVector.z * (order - 1);
 
-    const size_t endX = nx - directionVector.x * order;
-    const size_t endY = ny - directionVector.y * order;
-    const size_t endZ = nz - directionVector.z * order;
+    const size_t endX = nx - directionVector.x * (order - 1);
+    const size_t endY = ny - directionVector.y * (order - 1);
+    const size_t endZ = nz - directionVector.z * (order - 1);
 
 
 
@@ -115,12 +115,12 @@ void WENOCPU<order>::performReconstruction(const volume::Volume& inputVariables,
 
                 // First we need to find alpha and beta.
                 std::array<real, 2*order - 1> stencil;
-                for (int i = -order; i < order; i++) {
+                for (int i = -order+1; i < order; i++) {
                     const size_t index = (z + i * directionVector.z) * nx * ny
                             + (y + i*directionVector.y) * nx
                             + (x + i*directionVector.x);
 
-                    stencil[i+order] = pointerInWeight[index];
+                    stencil[i+order-1] = pointerInWeight[index];
                 }
 
                 std::array<real, order> alphaRight;

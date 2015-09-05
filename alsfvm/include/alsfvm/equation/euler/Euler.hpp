@@ -77,7 +77,7 @@ namespace alsfvm {
 					static_assert(direction >= 0, "Direction can not be negative");
 					static_assert(direction < 3, "We only support dimension up to and inclusive 3");
 
-					return fabs(v.u[direction]) + sqrt(GAMMA * v.p / u.rho);
+                    return std::abs(v.u[direction]) + std::sqrt(GAMMA * v.p / u.rho);
 				}
 
 				/// 

@@ -15,6 +15,14 @@ namespace alsfvm {
 	enum Types {
 		REAL
 	};
+
+    ///
+    /// Computes the square of x
+    /// \returns x*x
+    ///
+    inline real square(const real& x) {
+        return x * x;
+    }
 }
 
 namespace std {
