@@ -3,7 +3,9 @@
 #include <cstdlib>
 #include <memory>
 #include "alsfvm/vec.hpp"
+#ifdef ALSVINN_USE_QUADMATH
 #include <quadmath.h>
+#endif
 namespace alsfvm {
     typedef double real;
 	typedef vec3<real> rvec3;
@@ -25,6 +27,7 @@ namespace alsfvm {
     }
 }
 
+#ifdef ALSVINN_USE_QUADMATH
 namespace std {
     inline __float128 abs(const __float128& x) {
         return fabsq(x);
@@ -56,3 +59,4 @@ namespace std {
 
 
 }
+#endif
