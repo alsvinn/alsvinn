@@ -530,3 +530,22 @@ TEST(HostMemoryTest, 2DArrayTest) {
         }
     }
 }
+
+TEST(HostMemoryTest, ViewTest) {
+    size_t nx=16;
+    size_t ny=8;
+    size_t nz=4;
+
+    alsfvm::memory::HostMemory<alsfvm::real> memory(nx, ny, nz);
+
+    auto view = memory.getView();
+
+    view.at(1,2,3) = 4;
+
+    const auto& constMemory = memory;
+
+    auto constView = constMemory.getView();
+
+    ASSERT_EQ(4, view.at(1,2,3));
+    ASSERT_EQ(4, constView.at(1,2,3));
+}

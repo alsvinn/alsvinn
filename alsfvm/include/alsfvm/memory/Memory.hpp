@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/types.hpp"
 #include "alsfvm/memory/MemoryBase.hpp"
+#include "alsfvm/memory/View.hpp"
 namespace alsfvm {
 	namespace memory {
 		///
@@ -195,6 +196,19 @@ namespace alsfvm {
                                            size_t startY, size_t endY,
                                            size_t startZ, size_t endZ,
                                            T* output, size_t outputSize) = 0;
+
+            ///
+            /// \brief getView gets the view to the memory
+            /// \return the view
+            ///
+            View<T> getView();
+
+
+            ///
+            /// \brief getView gets the view to the memory (const version)
+            /// \return the view
+            ///
+            View<const T> getView() const;
 			
 		protected:
             const size_t nx;

@@ -45,6 +45,18 @@ namespace alsfvm {
             return ny*sizeof(T);
         }
 
+        template<class T>
+        View<T> Memory<T>::getView()
+        {
+            return View<T>(getPointer(), nx, ny, nz, getExtentXInBytes(), getExtentYInBytes());
+        }
+
+        template<class T>
+        View<const T> Memory<T>::getView() const
+        {
+            return View<const T>(getPointer(), nx, ny, nz, getExtentXInBytes(), getExtentYInBytes());
+        }
+
         INSTANTIATE_MEMORY(Memory)
 	}
 }
