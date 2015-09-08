@@ -11,6 +11,7 @@
 namespace alsfvm {
 	namespace volume {
 
+
 		///
 		/// Loops through all possible cell indexes in a cache optimal manner.
 		/// Example:
@@ -19,21 +20,61 @@ namespace alsfvm {
 		///     std::cout << "index = " << index;
 		/// }):
 		/// \endcode
+        /// \param in the volume to loop over
+        /// \param function the function to call
+        /// \param offsetStart the triple deciding the starting index
+        /// \param offsetEnd the offset for end (must be non-negative!)
 		///
 		template<class Function>
-		inline void for_each_cell_index(const Volume& in, const Function& function) {
-            const size_t nx = in.getTotalNumberOfXCells();
-            const size_t ny = in.getTotalNumberOfYCells();
-            const size_t nz = in.getTotalNumberOfZCells();
-			for (size_t k = 0; k < nz; k++) {
-				for (size_t j = 0; j < ny; j++) {
-                    for (size_t i = 0; i < nx; i++) {
+        inline void for_each_cell_index(const Volume& in, const Function& function, ivec3 offsetStart={0,0,0},
+                 ivec3 offsetEnd = {0,0,0}) {
+            const size_t nx = in.getTotalNumberOfXCells() + offsetEnd[0];
+            const size_t ny = in.getTotalNumberOfYCells() + offsetEnd[1];
+            const size_t nz = in.getTotalNumberOfZCells() + offsetEnd[2];
+            for (size_t k = offsetStart[2]; k < nz; k++) {
+                for (size_t j = offsetStart[1]; j < ny; j++) {
+                    for (size_t i = offsetStart[0]; i < nx; i++) {
                         size_t index = k*nx*ny + j*nx + i;
 						function(index);
 					}
 				}
 			}
 		}
+
+        ///
+        /// Loops through all possible cell indexes in a cache optimal manner.
+        /// \param in the volume to loop over
+        /// \param function the function to call
+        /// \param offsetStart the triple deciding the starting index
+        /// \param offsetEnd the offset for end (must be non-negative!)
+        ///
+        template<size_t direction>
+        inline void for_each_cell_index_with_neighbours(const Volume& in,
+                                                        const std::function<void(size_t leftIndex, size_t middleIndex, size_t rightIndex)>& function,
+                                                        ivec3 offsetStart={0,0,0},
+                 ivec3 offsetEnd = {0,0,0}) {
+            static_assert(direction < 3, "Direction can be either 0, 1 or 2");
+            const bool xDir = direction == 0;
+            const bool yDir = direction == 1;
+            const bool zDir = direction == 2;
+
+            const auto view = in.getScalarMemoryArea(0)->getView();
+
+            const size_t nx = in.getTotalNumberOfXCells() - offsetEnd[0];
+            const size_t ny = in.getTotalNumberOfYCells() - offsetEnd[1];
+            const size_t nz = in.getTotalNumberOfZCells() - offsetEnd[2];
+            for (size_t z = offsetStart[2]; z < nz; z++) {
+                for (size_t y = offsetStart[1]; y < ny; y++) {
+                    for (size_t x = offsetStart[0]; x < nx; x++) {
+                        const size_t index = view.index(x, y, z);
+                        const size_t leftIndex = view.index(x - xDir, y - yDir, z - zDir);
+
+                        const size_t rightIndex = view.index(x + xDir, y + yDir, z + zDir);
+                        function(leftIndex, index, rightIndex);
+                    }
+                }
+            }
+        }
 
 
 		template<class VariableStruct>

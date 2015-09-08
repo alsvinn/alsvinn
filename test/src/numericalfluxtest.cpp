@@ -91,9 +91,10 @@ TEST_F(NumericalFluxTest, ConsistencyTest) {
 		for (size_t k = 1; k < nz - 1; k++) {
 			for (size_t j = 1; j < ny - 1; j++) {
 				for (size_t i = 1; i < nx - 1; i++) {
-					const size_t index = k*nx*ny + j * nx + i;
 
-					ASSERT_EQ(0, output->getScalarMemoryArea(n)->getPointer()[index]);
+
+                    ASSERT_EQ(0, output->getScalarMemoryArea(n)->getView().at(i, j, k))
+                            << "Consistency check failed at (" << i << ", " << j << ", " << k << ")";
 				}
 			}
 

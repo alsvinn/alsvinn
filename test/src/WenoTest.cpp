@@ -216,8 +216,8 @@ TEST(WenoTest, ReconstructionSimple) {
     const real omega0Tilde = alpha0Tilde / alphaTildeSum;
     const real omega1Tilde = alpha1Tilde / alphaTildeSum;
 
-    ASSERT_EQ(omega0 * right1 + omega1 * right2, right->getScalarMemoryArea("rho")->getPointer()[2]);
-    ASSERT_EQ(omega0Tilde * left1 + omega1Tilde * left2, left->getScalarMemoryArea("rho")->getPointer()[2]);
+    ASSERT_NEAR(omega0 * right1 + omega1 * right2, right->getScalarMemoryArea("rho")->getPointer()[2], 1e-8);
+    ASSERT_NEAR(omega0Tilde * left1 + omega1Tilde * left2, left->getScalarMemoryArea("rho")->getPointer()[2], 1e-8);
 
 }
 
@@ -279,8 +279,8 @@ TEST(WenoTest, ReconstructionSimpleYDirection) {
     const real omega0Tilde = alpha0Tilde / alphaTildeSum;
     const real omega1Tilde = alpha1Tilde / alphaTildeSum;
 
-    ASSERT_EQ(omega0 * right1 + omega1 * right2, right->getScalarMemoryArea("rho")->getPointer()[3+2*totalNx]);
-    ASSERT_EQ(omega0Tilde * left1 + omega1Tilde * left2, left->getScalarMemoryArea("rho")->getPointer()[3+2*totalNx]);
+    ASSERT_NEAR(omega0 * right1 + omega1 * right2, right->getScalarMemoryArea("rho")->getPointer()[3+2*totalNx], 1e-8);
+    ASSERT_NEAR(omega0Tilde * left1 + omega1Tilde * left2, left->getScalarMemoryArea("rho")->getPointer()[3+2*totalNx], 1e-8);
 
 }
 

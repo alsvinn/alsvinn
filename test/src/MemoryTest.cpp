@@ -549,3 +549,45 @@ TEST(HostMemoryTest, ViewTest) {
     ASSERT_EQ(4, view.at(1,2,3));
     ASSERT_EQ(4, constView.at(1,2,3));
 }
+
+TEST(HostMemoryTest, ViewIndexTest) {
+    size_t nx=16;
+    size_t ny=8;
+    size_t nz=4;
+
+    alsfvm::memory::HostMemory<alsfvm::real> memory(nx, ny, nz);
+
+    auto view = memory.getView();
+
+    for(size_t z = 0; z < nz; ++z) {
+        for(size_t y = 0; y < ny; ++y) {
+            for(size_t x = 0; x < nx; ++x) {
+                size_t index = z * nx * ny + y * nx + x;
+                ASSERT_EQ(index, view.index(x, y, z))
+                        << "Wrong index at (" << x << ", " << y << ", " << z << ")";
+            }
+        }
+    }
+}
+
+TEST(HostMemoryTest, ViewIndexTest2D) {
+    size_t nx=16;
+    size_t ny=8;
+    size_t nz=1;
+
+    alsfvm::memory::HostMemory<alsfvm::real> memory(nx, ny, nz);
+
+    auto view = memory.getView();
+
+    for(size_t z = 0; z < nz; z++) {
+        for(size_t y = 0; y < ny; y++) {
+            for(size_t x = 0; x < nx; ++x) {
+                size_t index = z * nx * ny + y * nx + x;
+                ASSERT_EQ(index, view.index(x, y, z))
+                        << "Wrong index at (" << x << ", " << y << ", " << z << ")";
+            }
+        }
+    }
+}
+
+
