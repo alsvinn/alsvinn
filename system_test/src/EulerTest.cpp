@@ -15,6 +15,10 @@
 #include "alsfvm/io/HDF5Writer.hpp"
 #include "alsfvm/boundary/BoundaryFactory.hpp"
 #include <array>
+#include "alsfvm/reconstruction/ENOCPU.hpp"
+#include "alsfvm/reconstruction/WENOCPU.hpp"
+#include <limits>
+#include <iomanip>
 
 using namespace alsfvm;
 using namespace alsfvm::grid;
@@ -62,6 +66,7 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     }
 
     auto extra1 = volumeFactory.createExtraVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
+    auto extra2 = volumeFactory.createExtraVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
 
 
     fill_volume<ConservedVariables, ExtraVariables>(*conservedVolumes[0], *extra1, grid,
@@ -85,14 +90,67 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extra1);
     ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolumes[0], *extra1));
 
+    auto left = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
+
+    left->makeZero();
+    right->makeZero();
+    alsfvm::reconstruction::ENOCPU<2> eno(memoryFactory, N, N, 1);
+    alsfvm::reconstruction::WENOCPU<2> weno;
+
+    eno.performReconstruction(*conservedVolumes[0], 1, 0, *left, *right);
+    writer.write(*left, *extra1, grid, simulator::TimestepInformation());
+    writer.write(*right, *extra1, grid, simulator::TimestepInformation());
+    auto fluxOutput = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
+
+    writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
+
+
     while (t < T) {
+
+
+
+#if 1
         const real waveSpeedX = cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extra1, 0);
         const real waveSpeedY = cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extra1, 1);
+#else
+        eno.performReconstruction(*conservedVolumes[0], 0, 0, *left, *right);
+        cellComputer->computeExtraVariables(*left, *extra1);
+        real waveSpeedX = cellComputer->computeMaxWaveSpeed(*left, *extra1, 0);
+        real waveSpeedY = cellComputer->computeMaxWaveSpeed(*left, *extra1, 1);
+
+        cellComputer->computeExtraVariables(*right, *extra1);
+        waveSpeedX = std::max(waveSpeedX, cellComputer->computeMaxWaveSpeed(*right, *extra1, 0));
+        waveSpeedY = std::max(waveSpeedY, cellComputer->computeMaxWaveSpeed(*right, *extra1, 1));
+
+
+        eno.performReconstruction(*conservedVolumes[0], 1, 0, *left, *right);
+        cellComputer->computeExtraVariables(*left, *extra1);
+        waveSpeedX = std::max(waveSpeedX, cellComputer->computeMaxWaveSpeed(*left, *extra1, 0));
+        waveSpeedY = std::max(waveSpeedY, cellComputer->computeMaxWaveSpeed(*left, *extra1, 1));
+
+        cellComputer->computeExtraVariables(*right, *extra1);
+        waveSpeedX = std::max(waveSpeedX, cellComputer->computeMaxWaveSpeed(*right, *extra1, 0));
+        waveSpeedY = std::max(waveSpeedY, cellComputer->computeMaxWaveSpeed(*right, *extra1, 1));
+
+#endif
+
         real dt = cfl /( waveSpeedX / grid.getCellLengths().x  + waveSpeedY / grid.getCellLengths().y);
 
         if (t + dt >=  nsaves * saveInterval) {
             dt = nsaves * saveInterval - t;
         }
+        if (t==0) {
+            boundary->applyBoundaryConditions(*conservedVolumes[0], grid);
+            std::cout << std::setprecision(std::numeric_limits<long double>::digits10 + 1)<< "dt/dx = "  << dt/(grid.getCellLengths().x) << std::endl;
+            std::cout << "dt = " << dt << std::endl;
+            std::cout << "dx = " << grid.getCellLengths().x << std::endl;
+            std::cout << "dy = " << grid.getCellLengths().y << std::endl;
+            numericalFlux->computeFlux(*conservedVolumes[0], rvec3(dt/(1.0/N), dt/(1.0/N), dt/(1.0/N)), *fluxOutput);
+            writer.write(*fluxOutput, *extra1, grid, simulator::TimestepInformation());
+        }
+
+
         t += dt;
         numberOfTimesteps++;
         for(size_t substep = 0; substep < integrator->getNumberOfSubsteps(); substep++) {
@@ -108,7 +166,7 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
                 conservedNext->getScalarMemoryArea(4)->getPointer()
             };
 
-            std::array<real*, 5> extraPointers = {
+            std::array<real*, 4> extraPointers = {
                 extra1->getScalarMemoryArea(0)->getPointer(),
                 extra1->getScalarMemoryArea(1)->getPointer(),
                 extra1->getScalarMemoryArea(2)->getPointer(),
@@ -118,6 +176,8 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
             boundary->applyBoundaryConditions(*conservedNext, grid);
 
+#if 0
+            cellComputer->computeExtraVariables(*conservedNext, *extra1);
 
             // Intense error checking below. We basically check that the output is sane,
             // this doubles the work of cellComputer->obeysConstraints.
@@ -155,10 +215,10 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
                 }
             }
 
-            cellComputer->computeExtraVariables(*conservedNext, *extra1);
+
 
             ASSERT_TRUE(cellComputer->obeysConstraints(*conservedNext, *extra1));
-
+#endif
 
 
 
@@ -209,7 +269,7 @@ TEST(EulerTest, ShockTubeTest) {
 }
 
 TEST(EulerTest, ShockVortex) {
-	runTest([](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
+    runTest([](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
 		real epsilon = 0.3, r_c = 0.05, alpha = 0.204, x_c = 0.25, y_c = 0.5, M = 1.1;
 
 		// shock part
@@ -239,5 +299,5 @@ TEST(EulerTest, ShockVortex) {
 		u.m = u.rho * v.u;
 		u.E = v.p / (GAMMA - 1) + 0.5*u.rho*v.u.dot(v.u);
 
-    }, 512, "none", 3.5, "euler_vortex");
+    }, 256, "none", 0.35, "euler_vortex");
 }

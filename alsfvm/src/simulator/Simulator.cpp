@@ -10,13 +10,17 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
                      boundary::BoundaryFactory &boundaryFactory,
                      numflux::NumericalFluxFactory &numericalFluxFactory,
                      equation::CellComputerFactory &cellComputerFactory,
-                     std::shared_ptr<memory::MemoryFactory>& memoryFactory)
+                     std::shared_ptr<memory::MemoryFactory>& memoryFactory,
+                     std::shared_ptr<init::InitialData>& initialData,
+                     real endTime)
     : cflNumber(simulatorParameters.getCFLNumber()),
       grid(grid),
       numericalFlux(numericalFluxFactory.createNumericalFlux(*grid)),
       integrator(integratorFactory.createIntegrator(numericalFlux)),
       boundary(boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells())),
-      cellComputer(cellComputerFactory.createComputer())
+      cellComputer(cellComputerFactory.createComputer()),
+      initialData(initialData),
+      endTime(endTime)
 {
     const size_t nx = grid->getDimensions().x;
     const size_t ny = grid->getDimensions().y;
@@ -30,6 +34,20 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
 
     extraVolume = volumeFactory.createExtraVolume(nx, ny, nz,
                                                   numericalFlux->getNumberOfGhostCells());
+
+    auto primitiveVolume = volumeFactory.createPrimitiveVolume(nx, ny, nz,
+                                                               numericalFlux->getNumberOfGhostCells());
+
+    initialData->setInitialData(*conservedVolumes[0], *extraVolume, *primitiveVolume, *cellComputer, *grid);
+
+    boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
+    cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
+
+}
+
+bool Simulator::atEnd()
+{
+    return timestepInformation.getCurrentTime() >= endTime;
 }
 
 void Simulator::performStep()
@@ -42,6 +60,16 @@ void Simulator::performStep()
 void Simulator::addWriter(std::shared_ptr<io::Writer> &writer)
 {
     writers.push_back(writer);
+}
+
+real Simulator::getCurrentTime() const
+{
+    return timestepInformation.getCurrentTime();
+}
+
+real Simulator::getEndTime() const
+{
+    return endTime;
 }
 
 void Simulator::callWriters()
@@ -90,10 +118,12 @@ void Simulator::incrementSolution()
     for (size_t substep = 0; substep < integrator->getNumberOfSubsteps(); ++substep) {
         auto& conservedNext = conservedVolumes[substep + 1];
         integrator->performSubstep(conservedVolumes, grid->getCellLengths(), dt, *conservedNext, 0);
+        boundary->applyBoundaryConditions(*conservedNext, *grid);
     }
     conservedVolumes[0].swap(conservedVolumes.back());
 
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
+    timestepInformation.incrementTime(dt);
 }
 
 }

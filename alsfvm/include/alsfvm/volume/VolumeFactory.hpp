@@ -40,6 +40,16 @@ namespace alsfvm { namespace volume {
 		///
 		std::shared_ptr<Volume> createExtraVolume(size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells = 0);
 
+        ///
+        /// \brief createPrimitiveVolume creates the primitive volume for the equation,
+        /// The primitive volume is often handy for stating initial data for instance.
+        /// \param nx the number of cells in x direction
+        /// \param ny the number of cells in y direction
+        /// \param nz the number of cells in z direction
+        /// \param numberOfGhostCells the number of ghostcells to use in each direction
+        ///
+        std::shared_ptr<Volume> createPrimitiveVolume(size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells = 0);
+
 	private:
 		std::string equation;
 		std::shared_ptr<alsfvm::memory::MemoryFactory> memoryFactory;

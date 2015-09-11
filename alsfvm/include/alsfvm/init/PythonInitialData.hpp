@@ -1,6 +1,6 @@
 #pragma once
 #include "alsfvm/init/InitialData.hpp"
-
+#include  "alsfvm/equation/CellComputer.hpp"
 namespace alsfvm { namespace init { 
 
 ///
@@ -15,25 +15,40 @@ namespace alsfvm { namespace init {
         ///
         /// The programString should be in the following format:
         /// \code{.py}
-        /// def initialData(x, y, z, resultValue):
-        ///     resultValue.rho = ...
-        ///     resultValue.u = ...
-        ///     resultValue.p = ...
+        ///  # coordinates are stored in the variables x, y and z
+        ///  rho = ...
+        ///  u.x = ...
+        ///  u.y = ...
+        ///  u.z = ...
+        ///  p = ...
         /// \endcode
+        ///
         ///
         /// The momentum (m) and energy will be computed automatically.
         ///
         PythonInitialData(const std::string& programString);
 
+
         ///
         /// \brief setInitialData sets the initial data
         /// \param conservedVolume conserved volume to fill
         /// \param extraVolume the extra volume
+        /// \param cellComputer an instance of the cell computer for the equation
+        /// \param primitiveVolume an instance of the primtive volume for the equation
         /// \param grid underlying grid.
+        /// \note All volumes need to have the correct size. All volumes will at the
+        /// end be written to.
+        /// \note This is not an efficient implementation, so it should really only
+        /// be used for initial data!
         ///
         virtual void setInitialData(volume::Volume& conservedVolume,
                             volume::Volume& extraVolume,
+                            volume::Volume& primitiveVolume,
+                            equation::CellComputer& cellComputer,
                             grid::Grid& grid);
+
+    private:
+        std::string programString;
 
     };
 } // namespace alsfvm

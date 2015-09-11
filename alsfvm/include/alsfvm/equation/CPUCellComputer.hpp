@@ -37,6 +37,17 @@ namespace alsfvm { namespace equation {
 		///
 		virtual bool obeysConstraints(const volume::Volume& conservedVariables,
 			const volume::Volume& extraVariables);
+
+        ///
+        /// \brief computeFromPrimitive computes the conserved and extra variables based
+        ///                             on the primtive variables
+        /// \param[in] primtiveVariables the primitive variables to use
+        /// \param[out] conservedVariables the conserved variables.
+        /// \param[out] extraVariables the extra variables.
+        ///
+        virtual void computeFromPrimitive(const volume::Volume& primtiveVariables,
+                                         volume::Volume& conservedVariables,
+                                         volume::Volume& extraVariables);
     };
 } // namespace alsfvm
 } // namespace equation

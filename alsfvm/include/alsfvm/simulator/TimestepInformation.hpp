@@ -26,7 +26,7 @@ public:
     size_t getNumberOfStepsPerformed() const;
 
 private:
-    size_t currentTime;
+    real currentTime;
     size_t numberOfStepsPerformed;
 };
 

@@ -5,7 +5,7 @@ namespace alsfvm { namespace simulator {
 
     class SimulatorParameters {
     public:
-
+        void setCFLNumber(real cfl);
         real getCFLNumber() const;
 
     private:

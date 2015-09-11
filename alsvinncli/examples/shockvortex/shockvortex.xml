@@ -1,0 +1,24 @@
+<fvm>
+  <name>riemann</name>
+  <platform>cpu</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>1 1 0</upperCorner>
+    <dimension>256 256 1</dimension>
+  </grid>
+  <boundary>neumann</boundary>
+  <flux>HLL</flux>
+  <endTime>0.35</endTime>
+  <equation>euler</equation>
+  <reconstruction>none</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
+  <initialData>
+    <python>shockvortex.py</python>
+  </initialData>
+  <writer>
+    <type>hdf5</type>
+    <basename>riemann</basename>
+    <numberOfSaves>10</numberOfSaves>
+  </writer>
+</fvm>

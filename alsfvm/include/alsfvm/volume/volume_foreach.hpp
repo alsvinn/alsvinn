@@ -283,6 +283,45 @@ namespace alsfvm {
 	}
 
     ///
+    /// Loops through each cell midpoint, and call function
+    /// with the coordinates and the corresponding index in the volume.
+    ///
+    inline void for_each_midpoint(const Volume& volume,
+                                  const grid::Grid& grid,
+                                  const std::function < void(real x, real y, real z, size_t index) > & function) {
+
+        const size_t nx = volume.getTotalNumberOfXCells();
+        const size_t ny = volume.getTotalNumberOfYCells();
+        const size_t nz = volume.getTotalNumberOfZCells();
+
+        const size_t nxGrid = grid.getDimensions().x;
+        const size_t nyGrid = grid.getDimensions().y;
+        const size_t nzGrid = grid.getDimensions().z;
+
+        auto& midPoints = grid.getCellMidpoints();
+
+        const size_t ghostX = volume.getNumberOfXGhostCells();
+        const size_t ghostY = volume.getNumberOfYGhostCells();
+        const size_t ghostZ = volume.getNumberOfZGhostCells();
+
+        for (size_t k = ghostZ; k < nz - ghostZ; k++) {
+            for (size_t j = ghostY; j < ny - ghostY; j++) {
+                for (size_t i = ghostX; i < nx - ghostX; i++) {
+                    size_t index = k*nx*ny + j*nx + i;
+
+                    size_t midpointIndex = (k - ghostZ) * nxGrid * nyGrid
+                            + (j - ghostY) * nxGrid + (i - ghostX);
+                    auto midPoint = midPoints[midpointIndex];
+
+                    function(midPoint.x, midPoint.y, midPoint.z, index);
+                }
+            }
+        }
+
+
+    }
+
+    ///
     /// Fill the volume based on a filler function (depending on position).
     /// Example (making a simple Riemann problem in 2D):
     /// \code{.cpp}
@@ -317,36 +356,16 @@ inline void fill_volume(Volume& out,
         pointersOut[i] = out.getScalarMemoryArea(i)->getPointer();
     }
 
-    const size_t nx = out.getTotalNumberOfXCells();
-    const size_t ny = out.getTotalNumberOfYCells();
-    const size_t nz = out.getTotalNumberOfZCells();
-
-    const size_t nxGrid = grid.getDimensions().x;
-    const size_t nyGrid = grid.getDimensions().y;
-    const size_t nzGrid = grid.getDimensions().z;
-
-    auto& midPoints = grid.getCellMidpoints();
-
-    const size_t ghostX = out.getNumberOfXGhostCells();
-    const size_t ghostY = out.getNumberOfYGhostCells();
-    const size_t ghostZ = out.getNumberOfZGhostCells();
-    for (size_t k = ghostZ; k < nz - ghostZ; k++) {
-        for (size_t j = ghostY; j < ny - ghostY; j++) {
-            for (size_t i = ghostX; i < nx - ghostX; i++) {
-                size_t index = k*nx*ny + j*nx + i;
-
-                size_t midpointIndex = (k - ghostZ) * nxGrid * nyGrid
-                        + (j - ghostY) * nxGrid + (i - ghostX);
-                auto midPoint = midPoints[midpointIndex];
-                VariableStruct a;
-                fillerFunction(midPoint.x, midPoint.y, midPoint.z, a);
-                saveVariableStruct(a, index, pointersOut);
-            }
-        }
-    }
+    for_each_midpoint(out, grid, [&](real x, real y, real z, size_t index) {
+        VariableStruct a;
+        fillerFunction(x, y, z, a);
+        saveVariableStruct(a, index, pointersOut);
+    });
 
 
 }
+
+
 
     ///
     /// Loops through each internal (subject to direction) volume cell,

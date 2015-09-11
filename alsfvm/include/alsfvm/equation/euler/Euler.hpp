@@ -2,7 +2,9 @@
 #include "alsfvm/equation/euler/ConservedVariables.hpp"
 #include "alsfvm/equation/euler/ExtraVariables.hpp"
 #include "alsfvm/equation/euler/AllVariables.hpp"
+#include "alsfvm/equation/euler/PrimitiveVariables.hpp"
 #include <cmath>
+
 ///
 /// Gamma constant
 /// \note This will be moved into a paramter struct soon! 
@@ -18,7 +20,7 @@ namespace alsfvm {
 			public:
 				typedef euler::ConservedVariables ConservedVariables;
 				typedef euler::ExtraVariables ExtraVariables;
-
+                typedef euler::PrimitiveVariables PrimitiveVariables;
 				///
 				/// Computes the point flux. 
 				///
@@ -67,6 +69,40 @@ namespace alsfvm {
                     return v;
                 }
 
+                ///
+                /// \brief computes the extra variables from the primitive ones
+                ///
+                /// \param primitiveVariables the primtive variables
+                /// \return the computed all variables
+                /// \note This implementation is not made for speed! Should only be
+                /// used sparsely (eg. for initialization).
+                ///
+                static ExtraVariables computeExtra(const PrimitiveVariables& primitiveVariables) {
+                    return ExtraVariables(primitiveVariables.p,
+                                          primitiveVariables.u.x,
+                                          primitiveVariables.u.y,
+                                          primitiveVariables.u.z
+                                          );
+                }
+
+                ///
+                /// \brief computes the extra variables from the primitive ones
+                ///
+                /// \param primitiveVariables the primtive variables
+                /// \return the computed all variables
+                /// \note This implementation is not made for speed! Should only be
+                /// used sparsely (eg. for initialization).
+                ///
+                static ConservedVariables computeConserved(const PrimitiveVariables& primitiveVariables) {
+                    const rvec3 m = primitiveVariables.rho * primitiveVariables.u;
+
+                    const real E =
+                            primitiveVariables.p / (GAMMA - 1)
+                            + 0.5*primitiveVariables.rho*primitiveVariables.u.dot(primitiveVariables.u);
+
+                    return ConservedVariables(primitiveVariables.rho, m.x, m.y, m.z, E);
+                }
+
 				///
 				/// Computes the wave speed in the given direction
 				/// (absolute value of wave speed)
@@ -105,6 +141,8 @@ namespace alsfvm {
                     ConservedVariables conserved(rho, mx, my, mz, E);
                     return AllVariables(conserved, computeExtra(conserved));
                 }
+
+
 			};
 		}
 } // namespace alsfvm

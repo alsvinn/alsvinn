@@ -2,6 +2,7 @@
 #include "alsfvm/error/Exception.hpp"
 #include "alsfvm/volume/EulerConservedVolume.hpp"
 #include "alsfvm/volume/EulerExtraVolume.hpp"
+#include "alsfvm/volume/EulerPrimitiveVolume.hpp"
 
 namespace alsfvm { namespace volume { 
 	/// 
@@ -44,7 +45,17 @@ namespace alsfvm { namespace volume {
 		}
 		else {
 			THROW("Unknown equation " << equation);
-		}
-	}
+        }
+    }
+
+    std::shared_ptr<Volume> VolumeFactory::createPrimitiveVolume(size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells)
+    {
+        if (equation == "euler") {
+            return std::shared_ptr<Volume>(new EulerPrimitiveVolume(memoryFactory, nx, ny, nz, numberOfGhostCells));
+        }
+        else {
+            THROW("Unknown equation " << equation);
+        }
+    }
 }
 }

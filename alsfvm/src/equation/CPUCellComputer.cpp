@@ -79,7 +79,32 @@ bool CPUCellComputer<Equation>::obeysConstraints(const volume::Volume& conserved
 		}
 	});
 
-	return obeys;
+    return obeys;
+}
+
+template<class Equation>
+void CPUCellComputer<Equation>::computeFromPrimitive(const volume::Volume &primitiveVariables,
+                                                     volume::Volume &conservedVariables,
+                                                     volume::Volume &extraVariables)
+{
+    volume::transform_volume<typename Equation::PrimitiveVariables,
+            typename Equation::ExtraVariables>(
+                primitiveVariables, extraVariables,
+                             [](const typename Equation::PrimitiveVariables& in)
+                                -> typename Equation::ExtraVariables
+    {
+        return Equation::computeExtra(in);
+    });
+
+
+    volume::transform_volume<typename Equation::PrimitiveVariables,
+            typename Equation::ConservedVariables>(
+                primitiveVariables, conservedVariables,
+                             [](const typename Equation::PrimitiveVariables& in)
+                                -> typename Equation::ConservedVariables
+    {
+        return Equation::computeConserved(in);
+    });
 }
 
 template class CPUCellComputer<euler::Euler>;
