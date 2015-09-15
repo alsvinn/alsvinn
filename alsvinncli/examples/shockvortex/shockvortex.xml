@@ -1,16 +1,18 @@
 <fvm>
-  <name>riemann</name>
+  <name>
+    riemann
+  </name>
   <platform>cpu</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>256 256 1</dimension>
+    <dimension>512 512 1</dimension>
   </grid>
   <boundary>neumann</boundary>
-  <flux>HLL</flux>
+  <flux>HLL3</flux>
   <endTime>0.35</endTime>
   <equation>euler</equation>
-  <reconstruction>none</reconstruction>
+  <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>
   <initialData>

@@ -11,6 +11,8 @@ namespace alsfvm {
 
     typedef double real;
 
+
+
 	typedef vec3<real> rvec3;
 	typedef vec3<int> ivec3;
 

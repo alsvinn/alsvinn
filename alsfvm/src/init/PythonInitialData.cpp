@@ -67,7 +67,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     }
 
     addIndent(programString, functionStringStream);
-L
+
     // Add code to store the variables:
     for(size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
         // We set them to None, that way we can check at the end if they are checked.
@@ -75,16 +75,16 @@ L
         addIndent(std::string("output['") + name + "'] = " + name, functionStringStream);
     }
 
-L
+
     PyRun_String(functionStringStream.str().c_str(),
                  Py_file_input, globalNamespace, localNamespace.object);
 
-L
+
     if (PyErr_Occurred()) {
         PyErr_Print();
         THROW("Error in python script.");
     }
-L
+
 
     PythonObjectHolder initialValueFunction(PyObject_GetAttrString(moduleLocal, "initial_data"));
     if ( PyErr_Occurred()) {
@@ -92,12 +92,12 @@ L
         THROW("Python error occured");
     }
 
-L
+
     // loop through the map and set the initial values
     volume::for_each_midpoint(primitiveVolume, grid,
                               [&](real x, real y, real z, size_t index) {
 
-L
+
         PyObject* outputMap(PyDict_New());
 
         PyObject* xObject(PyFloat_FromDouble(x));
@@ -111,14 +111,14 @@ L
         PyTuple_SetItem(argumentTuple.object, 1, yObject);
         PyTuple_SetItem(argumentTuple.object, 2, zObject);
         PyTuple_SetItem(argumentTuple.object, 3, outputMap);
-L
+
         if ( PyErr_Occurred()) {
             PyErr_Print();
             THROW("Python error occured");
         }
         PyObject_CallObject(initialValueFunction.object,
                                                argumentTuple.object);
-L
+
         // Loop through each variable and set it in the primitive variables:
         for(size_t var = 0; var <  primitiveVolume.getNumberOfVariables(); ++var) {
             const auto& name = primitiveVolume.getName(var);
@@ -126,7 +126,7 @@ L
             const double value = PyFloat_AsDouble(floatObject);
             primitiveVolume.getScalarMemoryArea(var)->getPointer()[index] = value;
         }
-L
+
     });
 
 

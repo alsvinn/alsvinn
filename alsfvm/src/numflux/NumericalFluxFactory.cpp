@@ -1,6 +1,7 @@
 #include "alsfvm/numflux/NumericalFluxFactory.hpp"
 #include "alsfvm/numflux/euler/NumericalFluxCPU.hpp"
 #include "alsfvm/numflux/euler/HLL.hpp"
+#include "alsfvm/numflux/euler/HLL3.hpp"
 #include "alsfvm/reconstruction/NoReconstruction.hpp"
 #include "alsfvm/reconstruction/ENOCPU.hpp"
 #include "alsfvm/reconstruction/WENOCPU.hpp"
@@ -79,6 +80,21 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
                           << " for equation " << equation << " platform " << platform << " and fluxname " << fluxname );
                 }
 
+            } else if (fluxname =="HLL3") {
+                if (fluxname == "HLL3") {
+
+                    if (grid.getActiveDimension() == 3) {
+                        return NumericalFluxPtr(new euler::NumericalFluxCPU<euler::HLL3, 3>(grid, reconstructor, deviceConfiguration));
+                    } else if(grid.getActiveDimension() == 2) {
+                        return NumericalFluxPtr(new euler::NumericalFluxCPU<euler::HLL3, 2>(grid, reconstructor, deviceConfiguration));
+                    } else if(grid.getActiveDimension() == 1) {
+                        return NumericalFluxPtr(new euler::NumericalFluxCPU<euler::HLL3, 1>(grid, reconstructor, deviceConfiguration));
+                    } else {
+                        THROW("Unsupported dimension " << grid.getActiveDimension()
+                              << " for equation " << equation << " platform " << platform << " and fluxname " << fluxname );
+                    }
+
+                }
             } else {
                 THROW("Unknown flux " << fluxname);
             }

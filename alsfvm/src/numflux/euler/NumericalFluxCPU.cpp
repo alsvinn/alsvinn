@@ -1,5 +1,6 @@
 #include "alsfvm/numflux/euler/NumericalFluxCPU.hpp"
 #include "alsfvm/numflux/euler/HLL.hpp"
+#include "alsfvm/numflux/euler/HLL3.hpp"
 #include <cassert>
 #include "alsfvm/numflux/numflux_util.hpp"
 #include "alsfvm/volume/VolumeFactory.hpp"
@@ -214,6 +215,10 @@ namespace alsfvm { namespace numflux { namespace euler {
     template class NumericalFluxCPU<HLL, 1>;
     template class NumericalFluxCPU<HLL, 2>;
     template class NumericalFluxCPU<HLL, 3>;
+
+    template class NumericalFluxCPU<HLL3, 1>;
+    template class NumericalFluxCPU<HLL3, 2>;
+    template class NumericalFluxCPU<HLL3, 3>;
 }
 }
 }
