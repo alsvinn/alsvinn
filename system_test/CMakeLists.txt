@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 2.8.8)
 
 # We need the thread package for GTest
 FIND_PACKAGE(Threads REQUIRED)

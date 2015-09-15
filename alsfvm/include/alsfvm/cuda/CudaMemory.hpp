@@ -53,25 +53,25 @@ namespace alsfvm {
 			/// Adds the other memory area to this one
 			/// \param other the memory area to add from
 			///
-			virtual void operator+=(const Memory<T>& other);
+		        virtual void operator+=(const memory::Memory<T>& other);
 
 			///
 			/// Mutliplies the other memory area to this one
 			/// \param other the memory area to multiply from
 			///
-			virtual void operator*=(const Memory<T>& other);
+        		virtual void operator*=(const memory::Memory<T>& other);
 
 			///
 			/// Subtracts the other memory area to this one
 			/// \param other the memory area to subtract from
 			///
-			virtual void operator-=(const Memory<T>& other);
+                        virtual void operator-=(const memory::Memory<T>& other);
 
 			///
 			/// Divides the other memory area to this one
 			/// \param other the memory area to divide from
 			///
-			virtual void operator/=(const Memory<T>& other);
+		        virtual void operator/=(const memory::Memory<T>& other);
 
 
 			///

@@ -1,5 +1,5 @@
 #pragma once
-
+#include "alsfvm/types.hpp"
 namespace alsfvm {
 	namespace cuda {
 

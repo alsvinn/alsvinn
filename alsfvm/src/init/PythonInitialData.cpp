@@ -3,23 +3,13 @@
 #include <iostream>
 #include <sstream>
 #include "alsfvm/volume/volume_foreach.hpp"
-
-
+#include "alsfvm/python/PythonInterpreter.hpp"
+#define L std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+using namespace alsfvm::python;
 namespace alsfvm { namespace init {
 
 namespace {
-    // Utility struct to act as a smart pointer
-    struct PythonObjectHolder {
-        PythonObjectHolder(PyObject* object)
-            : object(object)
-        {}
 
-        ~PythonObjectHolder() {
-            Py_DECREF(object);
-        }
-
-        PyObject* object;
-    };
 
     // Adds indent to each line, eg transfer
     // "a\nb\n" to
@@ -46,15 +36,15 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
                                        grid::Grid& grid)
 {
 
-    Py_Initialize();
+    auto& interpreter = PythonInterpreter::getInstance();
 
     // We need to add namespaces for the function to live in, this way
     // we can actually reference later.
 
-    PythonObjectHolder moduleGlobal(PyImport_AddModule("__main__"));
-    PythonObjectHolder globalNamespace(PyModule_GetDict(moduleGlobal.object));
-    PythonObjectHolder moduleLocal(PyImport_AddModule("alsfvm"));
-    PythonObjectHolder localNamespace(PyModule_GetDict(moduleLocal.object));
+
+    auto globalNamespace = interpreter.getGlobalNamespace();
+    PyObject* moduleLocal(PyImport_AddModule("alsfvm"));
+    PythonObjectHolder localNamespace(PyModule_GetDict(moduleLocal));
     if (PyErr_Occurred()) {
         PyErr_Print();
         THROW("Error in python script.");
@@ -77,7 +67,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     }
 
     addIndent(programString, functionStringStream);
-
+L
     // Add code to store the variables:
     for(size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
         // We set them to None, that way we can check at the end if they are checked.
@@ -85,29 +75,29 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
         addIndent(std::string("output['") + name + "'] = " + name, functionStringStream);
     }
 
-
+L
     PyRun_String(functionStringStream.str().c_str(),
-                 Py_file_input, globalNamespace.object, localNamespace.object);
+                 Py_file_input, globalNamespace, localNamespace.object);
 
-
+L
     if (PyErr_Occurred()) {
         PyErr_Print();
         THROW("Error in python script.");
     }
+L
 
-
-    PythonObjectHolder initialValueFunction(PyObject_GetAttrString(moduleLocal.object, "initial_data"));
+    PythonObjectHolder initialValueFunction(PyObject_GetAttrString(moduleLocal, "initial_data"));
     if ( PyErr_Occurred()) {
         PyErr_Print();
         THROW("Python error occured");
     }
 
-
+L
     // loop through the map and set the initial values
     volume::for_each_midpoint(primitiveVolume, grid,
                               [&](real x, real y, real z, size_t index) {
 
-
+L
         PyObject* outputMap(PyDict_New());
 
         PyObject* xObject(PyFloat_FromDouble(x));
@@ -121,14 +111,14 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
         PyTuple_SetItem(argumentTuple.object, 1, yObject);
         PyTuple_SetItem(argumentTuple.object, 2, zObject);
         PyTuple_SetItem(argumentTuple.object, 3, outputMap);
-
+L
         if ( PyErr_Occurred()) {
             PyErr_Print();
             THROW("Python error occured");
         }
         PyObject_CallObject(initialValueFunction.object,
                                                argumentTuple.object);
-
+L
         // Loop through each variable and set it in the primitive variables:
         for(size_t var = 0; var <  primitiveVolume.getNumberOfVariables(); ++var) {
             const auto& name = primitiveVolume.getName(var);
@@ -136,7 +126,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
             const double value = PyFloat_AsDouble(floatObject);
             primitiveVolume.getScalarMemoryArea(var)->getPointer()[index] = value;
         }
-
+L
     });
 
 
@@ -148,7 +138,6 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
 
     cellComputer.computeFromPrimitive(primitiveVolume, conservedVolume, extraVolume);
 
-    Py_Finalize();
 }
 
 

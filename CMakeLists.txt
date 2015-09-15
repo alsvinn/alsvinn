@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 2.8.8)
 project (alsvinn)
 SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 
@@ -6,6 +6,7 @@ SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11")
 
 find_package(CUDA)
+
 
 # Python dependency could be made optional eventually, but for now it's
 # the only way of specify initial data

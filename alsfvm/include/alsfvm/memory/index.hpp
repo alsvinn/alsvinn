@@ -70,7 +70,7 @@ template<class T>
 inline  T& dataAt(T* pointer, size_t ix, size_t iy, size_t iz, size_t nx,
                 size_t ny)
 {
-    return *dataAtRaw((const char*)pointer, ix*sizeof(T), iy*sizeof(T), iz*sizeof(T),
+    return *dataAtRaw((char*)pointer, ix*sizeof(T), iy*sizeof(T), iz*sizeof(T),
                       nx, ny);
 }
 

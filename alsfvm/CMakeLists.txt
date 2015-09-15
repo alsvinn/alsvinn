@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 2.8.8)
 
 MACRO(set_source_groups  folder_name directory source_files)
 	foreach(f ${source_files})

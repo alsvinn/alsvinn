@@ -7,7 +7,7 @@
 #include "alsfvm/memory/memory_utils.hpp"
 #include "alsfvm/cuda/vector_operations.hpp"
 #include "alsfvm/error/Exception.hpp"
-
+using namespace alsfvm::memory;
 namespace alsfvm {
 	namespace cuda {
 
