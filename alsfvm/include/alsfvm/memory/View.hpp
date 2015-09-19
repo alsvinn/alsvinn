@@ -27,7 +27,7 @@ public:
     /// \param extentXInBytes the extent in X direction (used for indexing)
     /// \param extentYInBytes the extent in Y direction (used for indexing)
     ///
-    View(T* pointer,
+    __device__ __host__ View(T* pointer,
          size_t nx,
          size_t ny,
          size_t nz,
@@ -46,7 +46,7 @@ public:
     /// \param z the z coordinate
     /// \return the reference to the element at the given location.
     ///
-    T& at(size_t x, size_t y, size_t z) {
+	__device__ __host__  T& at(size_t x, size_t y, size_t z) {
         assert(x < nx);
         assert(y < ny);
         assert(z < nz);
@@ -60,7 +60,7 @@ public:
     /// \param z the z coordinate
     /// \return the reference to the element at the given location.
     ///
-    const T& at(size_t x, size_t y, size_t z) const {
+	__device__ __host__  const T& at(size_t x, size_t y, size_t z) const {
         assert(x < nx);
         assert(y < ny);
         assert(z < nz);
@@ -72,7 +72,7 @@ public:
     /// \param index
     /// \return
     ///
-    T& at(size_t index) {
+	__device__ __host__  T& at(size_t index) {
         return pointer[index];
     }
 
@@ -81,7 +81,7 @@ public:
     /// \param index
     /// \return
     ///
-    const T& at(size_t index) const {
+	__device__ __host__  const T& at(size_t index) const {
         return pointer[index];
     }
 
@@ -93,9 +93,21 @@ public:
     /// \param z the z coordinate
     /// \return the linear index
     ///
-    size_t index(size_t x, size_t y, size_t z) const {
+	__device__ __host__ size_t index(size_t x, size_t y, size_t z) const {
         return z * nx * ny + y * nx + x ;
     }
+
+	__device__ __host__ size_t getNumberOfXCells() const {
+		return nx;
+	}
+
+	__device__ __host__ size_t getNumberOfYCells() const {
+		return ny;
+	}
+
+	__device__ __host__ size_t getNumberOfZCells() const {
+		return nz;
+	}
 
 private:
     T* pointer;

@@ -6,7 +6,7 @@ namespace boundary {
 
 class Neumann {
 public:
-    static void applyBoundary(alsfvm::memory::View<real>& memoryArea,
+	__device__ __host__ static void applyBoundary(alsfvm::memory::View<real>& memoryArea,
                        size_t x, size_t y, size_t z, size_t boundaryCell,
 					   bool top, bool xDir, bool yDir, bool zDir)
     {
