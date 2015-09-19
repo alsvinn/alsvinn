@@ -144,6 +144,7 @@ real SimulatorSetup::readCFLNumber(const SimulatorSetup::ptree &configuration)
         if (reconstruction == "none") {
             return 0.9;
         } else {
+            std::cout << "correct" << std::endl;
             return 0.475;
         }
     } else {

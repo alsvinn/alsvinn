@@ -6,21 +6,21 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>512 512 1</dimension>
+    <dimension>256 256 1</dimension>
   </grid>
   <boundary>neumann</boundary>
   <flux>HLL3</flux>
   <endTime>0.35</endTime>
   <equation>euler</equation>
   <reconstruction>weno2</reconstruction>
-  <cfl>auto</cfl>
+  <cfl>0.4</cfl>
   <integrator>auto</integrator>
   <initialData>
     <python>shockvortex.py</python>
   </initialData>
   <writer>
     <type>hdf5</type>
-    <basename>riemann</basename>
+    <basename>shockvortex</basename>
     <numberOfSaves>10</numberOfSaves>
   </writer>
 </fvm>
