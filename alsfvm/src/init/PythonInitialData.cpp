@@ -58,7 +58,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     std::stringstream functionStringStream;
 
     functionStringStream << "def initial_data(x, y, z, output):\n";
-    addIndent("from numpy import *", functionStringStream);
+    addIndent("from math import *", functionStringStream);
 
     // Now we need to add the variables we need to write:
     for(size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
@@ -97,7 +97,10 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     volume::for_each_midpoint(primitiveVolume, grid,
                               [&](real x, real y, real z, size_t index) {
 
-
+		if (PyErr_Occurred()) {
+			PyErr_Print();
+			THROW("Python error occured");
+		}
         PyObject* outputMap(PyDict_New());
 
         PyObject* xObject(PyFloat_FromDouble(x));
@@ -118,7 +121,10 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
         }
         PyObject_CallObject(initialValueFunction.object,
                                                argumentTuple.object);
-
+		if (PyErr_Occurred()) {
+			PyErr_Print();
+			THROW("Python error occured");
+		}
         // Loop through each variable and set it in the primitive variables:
         for(size_t var = 0; var <  primitiveVolume.getNumberOfVariables(); ++var) {
             const auto& name = primitiveVolume.getName(var);
@@ -126,7 +132,10 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
             const double value = PyFloat_AsDouble(floatObject);
             primitiveVolume.getScalarMemoryArea(var)->getPointer()[index] = value;
         }
-
+		if (PyErr_Occurred()) {
+			PyErr_Print();
+			THROW("Python error occured");
+		}
     });
 
 
