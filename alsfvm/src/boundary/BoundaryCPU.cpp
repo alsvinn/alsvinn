@@ -1,6 +1,7 @@
-#include "alsfvm/boundary/NeumannCPU.hpp"
+#include "alsfvm/boundary/BoundaryCPU.hpp"
 #include "alsfvm/error/Exception.hpp"
 #include <cassert>
+#include "alsfvm/boundary/Neumann.hpp"
 
 namespace alsfvm { namespace boundary { 
 	namespace {
@@ -9,6 +10,7 @@ namespace alsfvm { namespace boundary {
 		/// \param volume the volume to apply neumann boundary conditions to
 		/// \param dimensions the number of dimensions(1,2 or 3).
 		///
+		template<class BoundaryConditions>
 		void applyNeumann(volume::Volume& volume, const size_t dimensions, const size_t numberOfGhostCells) {
             const int nx = volume.getTotalNumberOfXCells();
             const int ny = volume.getTotalNumberOfYCells();
@@ -26,7 +28,7 @@ namespace alsfvm { namespace boundary {
 
 			// loop through variables
 			for (int var = 0; var < volume.getNumberOfVariables(); var++) {
-				real* pointer = volume.getScalarMemoryArea(var)->getPointer();
+				auto view = volume.getScalarMemoryArea(var)->getView();
 				// loop through dimensions
 				for (int d = 0; d < dimensions; d++) {
 					// i=0 represents bottom, i=1 represents top
@@ -56,18 +58,9 @@ namespace alsfvm { namespace boundary {
                         for (int z = zStart; z < zEnd; z++) {
                             for (int y = yStart; y < yEnd; y++) {
                                 for (int x = xStart; x < xEnd; x++) {
-                                    for (size_t ghostCell = 0; ghostCell < numberOfGhostCells; ghostCell++) {
-                                        const size_t sourceIndex =
-                                              (z + zDir * ((1-2*i)*ghostCell)) * nx * ny
-                                            + (y + yDir * ((1-2*i)*ghostCell)) * nx
-                                            + (x + xDir * ((1-2*i)*ghostCell));
-
-                                        const size_t targetIndex =
-                                              (z + (2* i - 1) * zDir * (ghostCell + 1)) * nx * ny
-                                            + (y + (2* i - 1) * yDir * (ghostCell + 1)) * nx
-                                            + (x + (2* i - 1) * xDir * (ghostCell + 1));
-                                        pointer[targetIndex] = pointer[sourceIndex];
-                                    }
+									for (size_t ghostCell = 1; ghostCell <= numberOfGhostCells; ghostCell++) {
+										BoundaryConditions::applyBoundary(view, x, y, z, ghostCell, i == 1, xDir, yDir, zDir);
+									}
                                 }
                             }
                         }
@@ -79,16 +72,20 @@ namespace alsfvm { namespace boundary {
 		}
 	}
 
-	NeumannCPU::NeumannCPU(size_t numberOfGhostCells)
+	template<class BoundaryConditions>
+	BoundaryCPU<BoundaryConditions>::BoundaryCPU(size_t numberOfGhostCells)
 		: numberOfGhostCells(numberOfGhostCells) 
 	{
 		// empty
 	}
 
-	void NeumannCPU::applyBoundaryConditions(volume::Volume& volume, const grid::Grid& grid)
+	template<class BoundaryConditions>
+	void BoundaryCPU<BoundaryConditions>::applyBoundaryConditions(volume::Volume& volume, const grid::Grid& grid)
 	{
-		applyNeumann(volume, grid.getActiveDimension(), numberOfGhostCells);
+		applyNeumann<BoundaryConditions>(volume, grid.getActiveDimension(), numberOfGhostCells);
 
 	}
+
+	template class BoundaryCPU < Neumann > ;
 }
 }

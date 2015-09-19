@@ -1,6 +1,8 @@
 #include "alsfvm/boundary/BoundaryFactory.hpp"
 #include "alsfvm/error/Exception.hpp"
-#include "alsfvm/boundary/NeumannCPU.hpp"
+#include "alsfvm/boundary/BoundaryCPU.hpp"
+#include "alsfvm/boundary/Neumann.hpp"
+
 namespace alsfvm { namespace boundary { 
 	///
 	/// Instantiates the boundary factory
@@ -26,7 +28,7 @@ namespace alsfvm { namespace boundary {
 	std::shared_ptr<Boundary> BoundaryFactory::createBoundary(size_t ghostCellSize) {
 		if (deviceConfiguration->getPlatform() == "cpu") {
 			if (name == "neumann") {
-				return std::shared_ptr<Boundary>(new NeumannCPU(ghostCellSize));
+				return std::shared_ptr<Boundary>(new BoundaryCPU<Neumann>(ghostCellSize));
 			}
 			else {
 				THROW("Unknown boundary type " << name);

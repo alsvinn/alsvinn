@@ -2,14 +2,15 @@
 #include "alsfvm/boundary/Boundary.hpp"
 namespace alsfvm { namespace boundary { 
 
-    class NeumannCPU : public Boundary {
+	template<class BoundaryConditions>
+    class BoundaryCPU : public Boundary {
     public:
 
 		///
 		/// Constructs a new instance
 		/// \param numberOfGhostCells the number of ghost cells on each side to use.
 		///
-		NeumannCPU(size_t numberOfGhostCells);
+		BoundaryCPU(size_t numberOfGhostCells);
 
 		///
 		/// Applies the neumann boundary to the volumes supplied.
