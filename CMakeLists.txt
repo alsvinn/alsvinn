@@ -12,13 +12,17 @@ else()
     set(CUDA_FOUND OFF)
 endif()
 
+IF(WIN32)
+  ADD_DEFINITIONS( -DBOOST_ALL_NO_LIB )
+ENDIF()
+
 
 # Python dependency could be made optional eventually, but for now it's
 # the only way of specify initial data
 find_package(PythonLibs REQUIRED)
 
-# We need boost for the property tree, it's used for reading. Only using
-# header-only stuff
+# We try to limit use of boost, but we also want to avoid having to 
+# reprogram everything.
 find_package(Boost REQUIRED COMPONENTS filesystem system)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 if(CUDA_FOUND)
