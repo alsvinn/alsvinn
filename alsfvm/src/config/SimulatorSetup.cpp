@@ -97,7 +97,9 @@ std::shared_ptr<simulator::Simulator>
                          *cellComputerFactory,
                          memoryFactory,
                          initialData,
-                         endTime);
+                         endTime,
+						 deviceConfiguration,
+						 equation);
 
     simulator->addWriter(writer);
 

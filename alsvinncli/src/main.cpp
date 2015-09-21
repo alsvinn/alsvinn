@@ -1,32 +1,38 @@
 #include <alsfvm/config/SimulatorSetup.hpp>
 #include <cmath>
 int main(int argc, char** argv) {
+	try {
+		if (argc != 2) {
+			std::cout << "Usage:\n\t" << argv[0] << " <inputfile.xml>" << std::endl;
+			return EXIT_FAILURE;
+		}
 
-    if (argc != 2) {
-        std::cout << "Usage:\n\t" << argv[0] << " <inputfile.xml>" << std::endl;
-        return EXIT_FAILURE;
-    }
+		std::string inputfile = argv[1];
 
-    std::string inputfile = argv[1];
+		alsfvm::config::SimulatorSetup setup;
 
-    alsfvm::config::SimulatorSetup setup;
+		auto simulator = setup.readSetupFromFile(inputfile);
 
-    auto simulator = setup.readSetupFromFile(inputfile);
+		std::cout << "Running simulator... " << std::endl;
+		std::cout << std::endl << std::endl;
+		std::cout << std::numeric_limits<long double>::digits10 + 1;
 
-    std::cout << "Running simulator... " << std::endl;
-    std::cout << std::endl << std::endl;
-    std::cout << std::numeric_limits<long double>::digits10 + 1;
+		simulator->callWriters();
+		while (!simulator->atEnd()) {
 
-    simulator->callWriters();
-    while(!simulator->atEnd()) {
+			simulator->performStep();
+			std::cout << "\rPercent done: " << std::round(100.0 * simulator->getCurrentTime() / simulator->getEndTime()) << std::flush;
 
-        simulator->performStep();
-        std::cout << "\rPercent done: " << std::round(100.0 * simulator->getCurrentTime() / simulator->getEndTime())  << std::flush;
-
-    }
+		}
 
 
-    std::cout << std::endl << std::endl;
-    std::cout << "Simulation finished!" << std::endl;
+		std::cout << std::endl << std::endl;
+		std::cout << "Simulation finished!" << std::endl;
+	}
+	catch (std::runtime_error& e) {
+		std::cerr << "Error!" << std::endl;
+		std::cerr << e.what() << std::endl;
+		return EXIT_FAILURE;
+	}
     return EXIT_SUCCESS;
 }

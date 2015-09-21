@@ -205,6 +205,18 @@ namespace alsfvm {
 		size_t Volume::getTotalNumberOfZCells() const {
 			return nz + 2 * numberOfZGhostCells;
 		}
+
+
+		/// 
+		/// Copies the whole volume to the other volume
+		///
+		void Volume::copyTo(volume::Volume& other) const {
+			std::vector<real> temporaryStorage(getScalarMemoryArea(0)->getSize());
+			for (size_t var = 0; var < getNumberOfVariables(); ++var) {
+				getScalarMemoryArea(var)->copyToHost(temporaryStorage.data(), temporaryStorage.size());
+				other.getScalarMemoryArea(var)->copyFromHost(temporaryStorage.data(), temporaryStorage.size());
+			}
+		}
 	}
 
 }

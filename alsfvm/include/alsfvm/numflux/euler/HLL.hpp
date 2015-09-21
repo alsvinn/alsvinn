@@ -24,7 +24,7 @@ namespace alsfvm { namespace numflux { namespace euler {
 		/// \todo Document this better
 		///
 		template<int direction>
-		inline static void computeFlux(const equation::euler::AllVariables& left,
+		__device__ __host__ inline static void computeFlux(const equation::euler::AllVariables& left,
 			const equation::euler::AllVariables& right, equation::euler::ConservedVariables& F)
 		{
 
@@ -61,7 +61,7 @@ namespace alsfvm { namespace numflux { namespace euler {
 		/// \todo Document this better
 		///
 		template<int direction>
-		inline static void computeHLLSpeeds(const equation::euler::AllVariables& left,
+		__device__ __host__ inline static void computeHLLSpeeds(const equation::euler::AllVariables& left,
 			const equation::euler::AllVariables& right, real& speedLeft, real& speedRight) {
 
 			static_assert(direction < 3, "We only support three dimensions.");

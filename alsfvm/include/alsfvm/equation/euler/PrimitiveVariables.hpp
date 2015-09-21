@@ -9,13 +9,13 @@ namespace alsfvm { namespace equation { namespace euler {
 ///
 class PrimitiveVariables {
 public:
-    PrimitiveVariables()
+	__device__ __host__ PrimitiveVariables()
         :rho(0), u(0, 0, 0), p(0)
     {
          // empty
     }
 
-    PrimitiveVariables(real rho, real ux, real uy, real uz, real p)
+	__device__ __host__ PrimitiveVariables(real rho, real ux, real uy, real uz, real p)
         : rho(rho), u(ux, uy, uz), p(p)
     {
         // empty

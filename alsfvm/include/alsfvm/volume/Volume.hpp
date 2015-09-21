@@ -175,6 +175,11 @@ namespace alsfvm {
             ///
             void copyInternalCells(size_t memoryAreaIndex, real* output, size_t outputSize) const;
 
+			/// 
+			/// Copies the whole volume to the other volume
+			///
+			void copyTo(volume::Volume& other) const;
+
 
 		private:
             const std::shared_ptr<memory::MemoryFactory> memoryFactory;

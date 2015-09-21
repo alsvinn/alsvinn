@@ -4,6 +4,9 @@
 #include "alsfvm/equation/euler/AllVariables.hpp"
 #include "alsfvm/equation/euler/PrimitiveVariables.hpp"
 #include <cmath>
+#include "alsfvm/equation/euler/Views.hpp"
+#include "alsfvm/volume/Volume.hpp"
+#include "alsfvm/equation/euler/ViewsExtra.hpp"
 
 ///
 /// Gamma constant
@@ -21,6 +24,87 @@ namespace alsfvm {
 				typedef euler::ConservedVariables ConservedVariables;
 				typedef euler::ExtraVariables ExtraVariables;
                 typedef euler::PrimitiveVariables PrimitiveVariables;
+				typedef euler::AllVariables AllVariables;
+				///
+				/// Defaults to "euler".
+				///
+				static const std::string name;
+
+				///
+				/// Gives the number of conserved variables used (5)
+				///
+				static const size_t  numberOfConservedVariables = 5;
+
+				typedef equation::euler::Views<volume::Volume, memory::View<real> > Views;
+				typedef equation::euler::Views<const volume::Volume, const memory::View<const real> > ConstViews;
+
+				typedef equation::euler::ViewsExtra<volume::Volume, memory::View<real> > ViewsExtra;
+				typedef equation::euler::ViewsExtra<const volume::Volume, const memory::View<const real> > ConstViewsExtra;
+
+
+				///
+				/// Fetches and computes the all variables from memory
+				///
+				__device__ __host__ static AllVariables fetchAllVariables(ConstViews& views, size_t index) {
+					return makeAllVariables(views.rho.at(index),
+						views.mx.at(index), 
+						views.my.at(index), 
+						views.mz.at(index), 
+						views.E.at(index));
+				}
+				
+				__device__ __host__ static ConservedVariables fetchConservedVariables(ConstViews& views, size_t index) {
+					return ConservedVariables(views.rho.at(index),
+						views.mx.at(index),
+						views.my.at(index),
+						views.mz.at(index),
+						views.E.at(index));
+				}
+
+				__device__ __host__ static ExtraVariables fetchExtraVariables(ConstViewsExtra& views, size_t index) {
+					return ExtraVariables(views.p.at(index),
+						views.ux.at(index),
+						views.uy.at(index),
+						views.uz.at(index));
+				}
+
+				///
+				/// Writes the ConservedVariable struct back to memory
+				///
+				__device__ __host__ static void setViewAt(Views& output, size_t index, const ConservedVariables& input) {
+					output.rho.at(index) = input.rho;
+					output.mx.at(index) = input.m.x;
+					output.my.at(index) = input.m.y;
+					output.mz.at(index) = input.m.z;
+					output.E.at(index) = input.E;
+
+				}
+
+				///
+				/// Writes the ExtraVariable struct back to memory
+				///
+				__device__ __host__ static void setExtraViewAt(ViewsExtra& output, size_t index, const ExtraVariables& input) {
+					output.p.at(index) = input.p;
+					output.ux.at(index) = input.u.x;
+					output.uy.at(index) = input.u.y;
+					output.uz.at(index) = input.u.z;
+
+				}
+
+				///
+				/// Adds the conserved variables to the view at the given index
+				/// 
+				/// Basically sets output[index] += input
+				///
+				__device__ __host__ static void addToViewAt(Views& output, size_t index, const ConservedVariables& input) {
+					output.rho.at(index) += input.rho;
+					output.mx.at(index) += input.m.x;
+					output.my.at(index) += input.m.y;
+					output.mz.at(index) += input.m.z;
+					output.E.at(index) += input.E;
+
+				}
+
 				///
 				/// Computes the point flux. 
 				///
@@ -43,7 +127,7 @@ namespace alsfvm {
 				///
 
 				template<size_t direction>
-				static void computePointFlux(const AllVariables& u, ConservedVariables& F) {
+				__device__ __host__ static void computePointFlux(const AllVariables& u, ConservedVariables& F) {
 					static_assert(direction < 3, "We only support up to three dimensions");
 
 					F.rho = u.m[direction];
@@ -61,7 +145,7 @@ namespace alsfvm {
 				/// and
 				/// \f[p = (1-\gamma)(E-\frac{1}{2\rho}m^2)\f]
 				///
-                static ExtraVariables computeExtra(const ConservedVariables& u) {
+				__device__ __host__ static ExtraVariables computeExtra(const ConservedVariables& u) {
                     ExtraVariables v;
                     real ie = u.E - 0.5*u.m.dot(u.m)/u.rho;
                     v.u = u.m / u.rho;
@@ -77,7 +161,7 @@ namespace alsfvm {
                 /// \note This implementation is not made for speed! Should only be
                 /// used sparsely (eg. for initialization).
                 ///
-                static ExtraVariables computeExtra(const PrimitiveVariables& primitiveVariables) {
+				__device__ __host__ static ExtraVariables computeExtra(const PrimitiveVariables& primitiveVariables) {
                     return ExtraVariables(primitiveVariables.p,
                                           primitiveVariables.u.x,
                                           primitiveVariables.u.y,
@@ -93,7 +177,7 @@ namespace alsfvm {
                 /// \note This implementation is not made for speed! Should only be
                 /// used sparsely (eg. for initialization).
                 ///
-                static ConservedVariables computeConserved(const PrimitiveVariables& primitiveVariables) {
+				__device__ __host__ static ConservedVariables computeConserved(const PrimitiveVariables& primitiveVariables) {
                     const rvec3 m = primitiveVariables.rho * primitiveVariables.u;
 
                     const real E =
@@ -108,7 +192,7 @@ namespace alsfvm {
 				/// (absolute value of wave speed)
 				///
 				template<int direction>
-				static real computeWaveSpeed(const ConservedVariables& u,
+				__device__ __host__ static real computeWaveSpeed(const ConservedVariables& u,
 					const ExtraVariables& v) {
 					static_assert(direction >= 0, "Direction can not be negative");
 					static_assert(direction < 3, "We only support dimension up to and inclusive 3");
@@ -125,14 +209,14 @@ namespace alsfvm {
 				/// 
 				/// \returns true if the inequalities are fulfilled, false otherwise
 				///
-				static bool obeysConstraints(const ConservedVariables& u,
+				__device__ __host__ static bool obeysConstraints(const ConservedVariables& u,
 					const ExtraVariables& v) 
 				{
 
-                    return std::isfinite(u.rho) && (!std::isnan(u.rho)) && (u.rho > 0) && (v.p > 0);
+                    return u.rho < INFINITY && (u.rho == u.rho) && (u.rho > 0) && (v.p > 0);
 				}
 
-                static AllVariables makeAllVariables(real rho, real mx, real my, real mz, real E) {
+				__device__ __host__ static AllVariables makeAllVariables(real rho, real mx, real my, real mz, real E) {
                     assert(!std::isnan(rho));
                     assert(!std::isnan(mx));
                     assert(!std::isnan(my));

@@ -11,18 +11,18 @@ namespace alsfvm {
 		T y;
 		T z;
 
-		vec3() 
+		__device__ __host__ vec3()
 			: x(0), y(0), z(0)
 		{
 
 		}
-		vec3(T x, T y, T z) 
+		__device__ __host__ vec3(T x, T y, T z)
 		: x(x), y(y), z(z)
 		{
 			// Empty
 		}
 
-		bool operator==(const vec3& other) const {
+		__device__ __host__ bool operator==(const vec3& other) const {
 			return other.x == x && other.y == y && other.z == z;
 		}
 
@@ -38,14 +38,14 @@ namespace alsfvm {
 		/// Converts the vector to the other type
 		///
 		template<class S>
-		vec3<S> convert() {
+		__device__ __host__ vec3<S> convert() {
 			return vec3<S>(S(x), S(y), S(z));
 		}
 
 		///
 		/// Returns the i-th component of the vector.
 		///
-		const T& operator[](size_t i) const {
+		__device__ __host__ const T& operator[](size_t i) const {
 			// Note: We only store three numbers in this struct, hence this is safe
 			return ((T*)this)[i];
 		}
@@ -53,7 +53,7 @@ namespace alsfvm {
 		///
 		/// Returns the i-th component of the vector.
 		///
-		T& operator[](size_t i) {
+		__device__ __host__ T& operator[](size_t i) {
 			// Note: We only store three numbers in this struct, hence this is safe
 			return ((T*)this)[i];
 		}
@@ -61,7 +61,7 @@ namespace alsfvm {
         ///
         /// Computes the dot (scalar) product
         ///
-        T dot(const vec3<T>& other) const {
+		__device__ __host__ T dot(const vec3<T>& other) const {
             return x*other.x + y*other.y + z*other.z;
         }
 	};
@@ -72,7 +72,7 @@ namespace alsfvm {
 	/// \f[(a_0/b_0, a_1/b_1, a_2/b_2)\f]
 	///
 	template<class T>
-	inline vec3<T> operator/(const vec3<T>& a, const vec3<T>& b) {
+	__device__ __host__ inline vec3<T> operator/(const vec3<T>& a, const vec3<T>& b) {
 		return vec3<T>(a.x / b.x, a.y / b.y, a.z / b.z);
 	}
 
@@ -81,7 +81,7 @@ namespace alsfvm {
 	/// \note Creates a new vector instance
 	///
 	template<class T>
-	inline vec3<T> operator*(T scalar, const vec3<T>& a) {
+	__device__ __host__ inline vec3<T> operator*(T scalar, const vec3<T>& a) {
 		return vec3<T>(a.x*scalar, a.y*scalar, a.z*scalar);
 	}
 
@@ -90,7 +90,7 @@ namespace alsfvm {
 	/// \note Creates a new vector instance
 	///
 	template<class T>
-	inline vec3<T> operator-(const vec3<T>& a, const vec3<T>& b) {
+	__device__ __host__ inline vec3<T> operator-(const vec3<T>& a, const vec3<T>& b) {
 		return vec3<T>(a.x - b.x, a.y - b.y, a.z - b.z);
 	}
 
@@ -99,7 +99,7 @@ namespace alsfvm {
 	/// \note Creates a new vector instance
 	///
 	template<class T>
-	inline vec3<T> operator/(const vec3<T>& a,T scalar) {
+	__device__ __host__ inline vec3<T> operator/(const vec3<T>& a, T scalar) {
 		return vec3<T>(a.x/scalar, a.y/scalar, a.z/scalar);
 	}
 
@@ -108,7 +108,7 @@ namespace alsfvm {
 	/// \note Creates a new vector instance.
 	///
 	template<class T>
-	inline vec3<T> operator+(const vec3<T>& a, const vec3<T>& b) {
+	__device__ __host__ inline vec3<T> operator+(const vec3<T>& a, const vec3<T>& b) {
 		return vec3<T>(a.x+b.x, a.y + b.y,  a.z + b.z);
 	}
 }

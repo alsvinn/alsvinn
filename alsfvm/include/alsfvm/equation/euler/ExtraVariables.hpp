@@ -10,13 +10,13 @@ namespace alsfvm { namespace equation { namespace euler {
 	///
     class ExtraVariables {
     public:
-		ExtraVariables(real p, real ux, real uy, real uz)
+		__device__ __host__ ExtraVariables(real p, real ux, real uy, real uz)
 			: p(p), u(ux, uy, uz)
 		{
 
 		}
 
-		ExtraVariables()
+		__device__ __host__ ExtraVariables()
 			: p(0), u(0, 0, 0)
 		{
 

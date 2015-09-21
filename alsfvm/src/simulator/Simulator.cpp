@@ -1,5 +1,6 @@
 #include "alsfvm/simulator/Simulator.hpp"
 #include "alsfvm/error/Exception.hpp"
+#include <iostream>
 
 namespace alsfvm { namespace simulator {
 
@@ -12,7 +13,9 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
                      equation::CellComputerFactory &cellComputerFactory,
                      std::shared_ptr<memory::MemoryFactory>& memoryFactory,
                      std::shared_ptr<init::InitialData>& initialData,
-                     real endTime)
+                     real endTime,
+					 std::shared_ptr<DeviceConfiguration>& deviceConfiguration,
+					 std::string& equationName)
     : cflNumber(simulatorParameters.getCFLNumber()),
       grid(grid),
       numericalFlux(numericalFluxFactory.createNumericalFlux(*grid)),
@@ -35,10 +38,35 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
     extraVolume = volumeFactory.createExtraVolume(nx, ny, nz,
                                                   numericalFlux->getNumberOfGhostCells());
 
-    auto primitiveVolume = volumeFactory.createPrimitiveVolume(nx, ny, nz,
-                                                               numericalFlux->getNumberOfGhostCells());
+   
+	// We need to do some extra stuff for the GPU
+	// Here we will create the volumes on the CPU, initialize the data on the 
+	// cpu, then copy it to the GPU
+	if (deviceConfiguration->getPlatform() == "cuda") {
+		auto deviceConfigurationCPU = std::make_shared<DeviceConfiguration>("cpu");
+		auto memoryFactoryCPU = std::make_shared<memory::MemoryFactory>(deviceConfigurationCPU);
+		volume::VolumeFactory volumeFactoryCPU(equationName, memoryFactoryCPU);
+		auto primitiveVolume = volumeFactoryCPU.createPrimitiveVolume(nx, ny, nz,
+			numericalFlux->getNumberOfGhostCells());
+		auto conservedVolumeCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz,
+			numericalFlux->getNumberOfGhostCells());
+		auto extraVolumeCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz,
+			numericalFlux->getNumberOfGhostCells());
 
-    initialData->setInitialData(*conservedVolumes[0], *extraVolume, *primitiveVolume, *cellComputer, *grid);
+		equation::CellComputerFactory cellComputerFactoryCPU(deviceConfigurationCPU->getPlatform(), equationName, deviceConfigurationCPU);
+		auto cellComputerCPU = cellComputerFactoryCPU.createComputer();
+		initialData->setInitialData(*conservedVolumeCPU, *extraVolumeCPU, *primitiveVolume, *cellComputerCPU, *grid);
+		
+		conservedVolumeCPU->copyTo(*conservedVolumes[0]);
+		extraVolumeCPU->copyTo(*extraVolume);
+		
+	}
+	else {
+		auto primitiveVolume = volumeFactory.createPrimitiveVolume(nx, ny, nz,
+			numericalFlux->getNumberOfGhostCells());
+		initialData->setInitialData(*conservedVolumes[0], *extraVolume, *primitiveVolume, *cellComputer, *grid);
+	}
+    
 
     boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
@@ -86,10 +114,10 @@ real Simulator::computeTimestep()
 {
     const size_t dimension = grid->getActiveDimension();
     real waveSpeedTotal = 0;
-
     for (size_t direction = 0; direction < dimension; ++direction) {
         const real waveSpeed =
                 cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extraVolume, direction);
+			
         const real cellLength = grid->getCellLengths()[direction];
         waveSpeedTotal += waveSpeed / cellLength;
     }

@@ -38,7 +38,9 @@ namespace alsfvm { namespace simulator {
                   equation::CellComputerFactory& cellComputerFactory,
                   std::shared_ptr<memory::MemoryFactory>& memoryFactory,
                   std::shared_ptr<init::InitialData>& initialData,
-                  real endTime);
+				  real endTime,
+				  std::shared_ptr<DeviceConfiguration>& deviceConfiguration,
+				  std::string& equationName);
 
 
 

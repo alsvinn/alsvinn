@@ -25,7 +25,7 @@ public:
     /// \todo Document this better
     ///
     template<int direction>
-    inline static void computeFlux(const equation::euler::AllVariables& left,
+	__device__ __host__ inline static void computeFlux(const equation::euler::AllVariables& left,
                                    const equation::euler::AllVariables& right, equation::euler::ConservedVariables& F)
     {
 
@@ -89,7 +89,7 @@ public:
     /// \todo Document this better
     ///
     template<int direction>
-    inline static void computeHLLSpeeds(const equation::euler::AllVariables& left,
+	__device__ __host__ inline static void computeHLLSpeeds(const equation::euler::AllVariables& left,
                                         const equation::euler::AllVariables& right, real& speedLeft, real& speedRight, real& cs) {
 
         const real waveLeft = sqrt(left.rho);

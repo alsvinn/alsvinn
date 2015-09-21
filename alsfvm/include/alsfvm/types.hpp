@@ -3,20 +3,21 @@
 #include <cctype>
 #include <cstdlib>
 #include <memory>
-#include "alsfvm/vec.hpp"
-#ifdef ALSVINN_USE_QUADMATH
-#include <quadmath.h>
-#endif
-
 // For CUDA we need special flags for the functions, 
 // for normal build, we just need to define these flags as empty.
-#ifdef ALSVINN_HAS_CUDA
-#include <cuda.h>
+#ifdef ALSVINN_HAVE_CUDA
 #include <cuda_runtime.h>
 #else 
 #define __device__ 
 #define __host__
 #endif
+
+#include "alsfvm/vec.hpp"
+#ifdef ALSVINN_USE_QUADMATH
+#include <quadmath.h>
+#endif
+
+
 namespace alsfvm {
 
     typedef double real;

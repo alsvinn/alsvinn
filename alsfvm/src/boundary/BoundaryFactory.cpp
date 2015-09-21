@@ -2,6 +2,7 @@
 #include "alsfvm/error/Exception.hpp"
 #include "alsfvm/boundary/BoundaryCPU.hpp"
 #include "alsfvm/boundary/Neumann.hpp"
+#include "alsfvm/boundary/BoundaryCUDA.hpp"
 
 namespace alsfvm { namespace boundary { 
 	///
@@ -29,6 +30,14 @@ namespace alsfvm { namespace boundary {
 		if (deviceConfiguration->getPlatform() == "cpu") {
 			if (name == "neumann") {
 				return std::shared_ptr<Boundary>(new BoundaryCPU<Neumann>(ghostCellSize));
+			}
+			else {
+				THROW("Unknown boundary type " << name);
+			}
+		}
+		else if (deviceConfiguration->getPlatform() == "cuda") {
+			if (name == "neumann") {
+				return std::shared_ptr<Boundary>(new BoundaryCUDA<Neumann>(ghostCellSize));
 			}
 			else {
 				THROW("Unknown boundary type " << name);

@@ -14,9 +14,9 @@ public:
         memoryArea.at(x - sign * boundaryCell * xDir,
                       y - sign * boundaryCell * yDir,
                       z - sign * boundaryCell * zDir )
-                = memoryArea.at(x + sign * boundaryCell * xDir,
-                                y + sign * boundaryCell * yDir,
-                                z + sign * boundaryCell * zDir);
+                = memoryArea.at(x + sign * (boundaryCell - 1)* xDir,
+                                y + sign * (boundaryCell - 1)* yDir,
+                                z + sign * (boundaryCell - 1)* zDir);
     }
 
 };

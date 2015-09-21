@@ -2,18 +2,18 @@
   <name>
     riemann
   </name>
-  <platform>cpu</platform>
+  <platform>cuda</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>256 256 1</dimension>
+    <dimension>64 64 1</dimension>
   </grid>
   <boundary>neumann</boundary>
   <flux>HLL3</flux>
   <endTime>0.35</endTime>
   <equation>euler</equation>
-  <reconstruction>eno2</reconstruction>
-  <cfl>0.4</cfl>
+  <reconstruction>none</reconstruction>
+  <cfl>auto</cfl>
   <integrator>auto</integrator>
   <initialData>
     <python>shockvortex.py</python>

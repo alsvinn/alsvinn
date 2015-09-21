@@ -1,21 +1,6 @@
 cmake_minimum_required (VERSION 2.8.8)
 
-MACRO(set_source_groups  folder_name directory source_files)
-	foreach(f ${source_files})
-		# Get the path of the file relative to ${DIRECTORY},
-		# then alter it (not compulsory)
 
-		file(RELATIVE_PATH SRCGR ${directory} ${f})
-		set(SRCGR "${folder_name}/${SRCGR}")
-		
-		# Extract the folder, ie remove the filename part
-		string(REGEX REPLACE "(.*)(/[^/]*)$" "\\1" SRCGR ${SRCGR})
-
-		# Source_group expects \\ (double antislash), not / (slash)
-		string(REPLACE / \\ SRCGR ${SRCGR})
-		source_group("${SRCGR}" FILES ${f})
-	endforeach()
-ENDMACRO(set_source_groups)
 
 
 FILE(GLOB_RECURSE SRC src/*.cpp)

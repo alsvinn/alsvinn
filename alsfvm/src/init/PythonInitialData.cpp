@@ -1,5 +1,11 @@
 #include "alsfvm/init/PythonInitialData.hpp"
+#ifdef _DEBUG
+#undef _DEBUG
 #include <Python.h>
+#define _DEBUG
+#else
+#include <Python.h>
+#endif
 #include <iostream>
 #include <sstream>
 #include "alsfvm/volume/volume_foreach.hpp"
@@ -92,7 +98,6 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
         THROW("Python error occured");
     }
 
-
     // loop through the map and set the initial values
     volume::for_each_midpoint(primitiveVolume, grid,
                               [&](real x, real y, real z, size_t index) {
@@ -144,9 +149,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
         THROW("Error in python script.");
     }
 
-
     cellComputer.computeFromPrimitive(primitiveVolume, conservedVolume, extraVolume);
-
 }
 
 

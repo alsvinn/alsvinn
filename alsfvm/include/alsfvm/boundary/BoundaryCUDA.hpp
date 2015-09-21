@@ -3,7 +3,7 @@
 namespace alsfvm { namespace boundary { 
 
 	template<class BoundaryConditions>
-    class BoundaryCUDA {
+    class BoundaryCUDA : public Boundary {
     public:
 
 		///

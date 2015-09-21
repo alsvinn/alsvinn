@@ -1,4 +1,5 @@
 #include "alsfvm/boundary/BoundaryCUDA.hpp"
+#include "alsfvm/boundary/Neumann.hpp"
 #include "cuda.h"
 
 
@@ -6,19 +7,26 @@ namespace alsfvm { namespace boundary {
 
 	namespace {
 		template<class BoundaryConditions, bool top, bool xDir, bool yDir, bool zDir>
-		__global__ void applyBoundaryConditionsDevice(memory::View<real>& memoryArea, 
-			const size_t numberOfXCells, const size_t numberOfYCells, const size_t numberOfZCells, const size_t numberOfGhostCells) {
-			const size_t x = threadIdx.x + blockDim.x * blockIdx.x + xDir;
-			const size_t y = threadIdx.y + blockDim.y * blockIdx.y + yDir;
-			const size_t z = threadIdx.z + blockDim.z * blockIdx.z + zDir;
+		__global__ void applyBoundaryConditionsDevice(memory::View<real> memoryArea, 
+			const size_t numberOfXCells, const size_t numberOfYCells, const size_t numberOfZCells, 
+			const size_t internalNumberOfXCells, const size_t internalNumberOfYCells, const size_t internalNumberOfZCells, const size_t numberOfGhostCells) {
+			
+			const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
 
-
-
-			if (x > numberOfXCells || y > numberOfYCells || z > numberOfZCells) {
+			if (index > numberOfXCells * numberOfYCells * numberOfZCells) {
 				return;
 			}
+
+			// We have
+			// index = z * nx * ny + y * nx + x;
+			const size_t xInternalFormat = xDir ? 0 : index % numberOfXCells;
+			const size_t yInternalFormat = yDir ? 0 : (index / numberOfXCells) % numberOfYCells;
+			const size_t zInternalFormat = zDir ? 0 : min((index) / (numberOfXCells * numberOfYCells), numberOfZCells - 1);
 			
 
+			const size_t x = xInternalFormat + xDir * (numberOfGhostCells + internalNumberOfXCells * top);
+			const size_t y = yInternalFormat + yDir * (numberOfGhostCells + internalNumberOfYCells * top);
+			const size_t z = zInternalFormat + zDir * (numberOfGhostCells + internalNumberOfZCells * top);
 			for (size_t ghostCell = 1; ghostCell <= numberOfGhostCells; ++ghostCell) {
 				BoundaryConditions::applyBoundary(memoryArea, x, y, z, ghostCell, top, xDir, yDir, zDir);
 			}
@@ -26,18 +34,24 @@ namespace alsfvm { namespace boundary {
 
 		template<class BoundaryConditions, bool top, bool xDir, bool yDir, bool zDir>
 		void applyBoundaryConditions(memory::View<real>& memoryArea, const size_t numberOfGhostCells) {
-			const size_t numberOfXCells = memoryArea.getNumberOfXCells() - 2 * xDir;
-			const size_t numberOfYCells = memoryArea.getNumberOfYCells() - 2 * xDir;
-			const size_t numberOfZCells = memoryArea.getNumberOfZCells() - 2 * xDir;
-			const bool hasYDir = numberOfYCells > 1;
-			const bool hasZDir = numberOfZCells > 1;
-			const size_t blockSize = 1024;
-			dim3 blockDim(blockSize, hasYDir ? 1 : blockSize, hasZDir ? 1 : blockSize);
-			dim3 gridDim((numberOfXCells + blockSize - 1) / blockDim.x,
-				(numberOfYCells + blockSize - 1) / blockDim.y,
-				(numberOfZCells + blockSize - 1) / blockDim.z);
+			const size_t numberOfXCells = xDir ? 1 : memoryArea.getNumberOfXCells();
+			const size_t numberOfYCells = yDir ? 1 : memoryArea.getNumberOfYCells();
+			const size_t numberOfZCells = zDir ? 1 : memoryArea.getNumberOfZCells();
 
-			applyBoundaryConditions<BoundaryConditions, top, xDir, yDir, zDir>(memoryArea, numberOfXCells, numberOfYCells, numberOfZCells, numberOfGhostCells);
+			const size_t internalNumberOfXCells = memoryArea.getNumberOfXCells() - 2 * numberOfGhostCells - 1;
+			const size_t internalNumberOfYCells = memoryArea.getNumberOfYCells() - 2 * numberOfGhostCells - 1;
+			const size_t internalNumberOfZCells = memoryArea.getNumberOfZCells() - 2 * numberOfGhostCells - 1;
+			
+			const size_t blockSize = 1024;
+			const size_t size = numberOfXCells * numberOfYCells * numberOfZCells;
+
+			applyBoundaryConditionsDevice<BoundaryConditions, top, xDir, yDir, zDir>
+				<<<(size + blockSize - 1)/blockSize, blockSize>>>
+				(memoryArea, numberOfXCells, numberOfYCells, numberOfZCells, 
+				internalNumberOfXCells, 
+				internalNumberOfYCells,
+				internalNumberOfZCells, 
+				numberOfGhostCells);
 
 		}
 
@@ -85,5 +99,7 @@ namespace alsfvm { namespace boundary {
 			callApplyBoundaryConditions<BoundaryConditions>(memoryArea, numberOfGhostCells);
 		}
 	}
+
+	template class BoundaryCUDA < Neumann > ;
 }
 }

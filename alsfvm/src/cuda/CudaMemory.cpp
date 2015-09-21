@@ -16,6 +16,7 @@ namespace alsfvm {
 			: memory::Memory<T>(nx, ny, nz) 
 		{
 			CUDA_SAFE_CALL(cudaMalloc(&memoryPointer, nx*ny*nz*sizeof(T)));
+			CUDA_SAFE_CALL(cudaMemset(memoryPointer, 0, nx*ny*nz*sizeof(T)));
 		}
 
 		// Note: Virtual distructor since we will inherit
