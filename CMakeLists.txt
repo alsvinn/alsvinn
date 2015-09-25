@@ -46,7 +46,7 @@ find_package(PythonLibs REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem system)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 if(CUDA_FOUND)
-	
+	list(APPEND CUDA_NVCC_FLAGS -gencode=arch=compute_52,code="compute_52,sm_52" -Xptxas -v )
   list(APPEND CUDA_NVCC_FLAGS_DEBUG -G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0)
   set(ALSVINN_HAVE_CUDA On)
   add_definitions(-DALSVINN_HAVE_CUDA)

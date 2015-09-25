@@ -10,15 +10,6 @@ namespace alsfvm { namespace equation { namespace euler {
 		__device__ __host__ AllVariables(real rho, real mx, real my, real mz, real E, real p, real ux, real uy, real uz) :
 			ConservedVariables(rho, mx, my, mz, E), ExtraVariables(p, ux, uy, uz)
 		{
-            assert(!std::isnan(rho));
-            assert(!std::isnan(mx));
-            assert(!std::isnan(my));
-            assert(!std::isnan(mz));
-            assert(!std::isnan(E));
-            assert(!std::isnan(p));
-            assert(!std::isnan(ux));
-            assert(!std::isnan(uy));
-            assert(!std::isnan(uz));
 		}
 
 		__device__ __host__ const ConservedVariables& conserved() const {
@@ -28,15 +19,6 @@ namespace alsfvm { namespace equation { namespace euler {
 		__device__ __host__ AllVariables(const ConservedVariables& conserved, const ExtraVariables& extra)
             : ConservedVariables(conserved), ExtraVariables(extra)
         {
-            assert(!std::isnan(rho));
-            assert(!std::isnan(m.x));
-            assert(!std::isnan(m.y));
-            assert(!std::isnan(m.z));
-            assert(!std::isnan(E));
-            assert(!std::isnan(p));
-            assert(!std::isnan(u.x));
-            assert(!std::isnan(u.y));
-            assert(!std::isnan(u.z));
         }
 		
     };

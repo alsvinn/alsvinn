@@ -45,7 +45,6 @@ namespace alsfvm { namespace numflux { namespace euler {
 			}
 			else {
                 equation::euler::ConservedVariables leftFlux, rightFlux;
-
 				equation::euler::Euler::computePointFlux<direction>(left, leftFlux);
 				equation::euler::Euler::computePointFlux<direction>(right, rightFlux);
 				F = (speedRight*leftFlux - speedLeft*rightFlux + speedRight*speedLeft*(right.conserved() - left.conserved())) / (speedRight - speedLeft);
@@ -66,18 +65,18 @@ namespace alsfvm { namespace numflux { namespace euler {
 
 			static_assert(direction < 3, "We only support three dimensions.");
 
-            const real waveLeft = std::sqrt(left.rho);
-            const real waveRight = std::sqrt(right.rho);
+            const real waveLeft = sqrt(left.rho);
+            const real waveRight = sqrt(right.rho);
 
 			const real rho = (left.rho + right.rho) / 2;
 			const rvec3 u = (waveLeft * left.u + waveRight * right.u) / (waveLeft + waveRight);
 
 			const real p = (left.p * waveLeft + right.p * waveRight) / (waveLeft + waveRight);
 
-            const real cs = std::sqrt(GAMMA * p / rho);
+            const real cs = sqrt(GAMMA * p / rho);
 
-            speedLeft = std::min(left.u[direction] - std::sqrt(GAMMA * left.p / left.rho), u[direction] - cs);
-            speedRight = std::max(right.u[direction] + std::sqrt(GAMMA * right.p / right.rho), u[direction] + cs);
+            speedLeft = fmin(left.u[direction] - sqrt(GAMMA * left.p / left.rho), u[direction] - cs);
+            speedRight = fmax(right.u[direction] + sqrt(GAMMA * right.p / right.rho), u[direction] + cs);
 
 		}
     };

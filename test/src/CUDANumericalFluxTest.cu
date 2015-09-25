@@ -23,6 +23,7 @@ public:
 	std::shared_ptr<DeviceConfiguration> deviceConfiguration;
 	std::shared_ptr<DeviceConfiguration> deviceConfigurationCPU;
 	NumericalFluxFactory fluxFactory;
+	NumericalFluxFactory fluxFactoryCPU;
 	grid::Grid grid;
 	std::shared_ptr<memory::MemoryFactory> memoryFactory;
 	std::shared_ptr<memory::MemoryFactory> memoryFactoryCPU;
@@ -37,6 +38,7 @@ public:
 		deviceConfiguration(new DeviceConfiguration("cuda")),
 		deviceConfigurationCPU(new DeviceConfiguration("cpu")),
 		fluxFactory(equation, flux, reconstruction, deviceConfiguration),
+		fluxFactoryCPU(equation, flux, reconstruction, deviceConfigurationCPU),
 		grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(10, 10, 1)),
 		memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
 		memoryFactoryCPU(new memory::MemoryFactory(deviceConfigurationCPU)),
@@ -83,7 +85,8 @@ TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
 	ASSERT_TRUE(computer->obeysConstraints(*conservedVariables, *extraVariables));
 	auto output = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-	std::cout << __LINE__ << std::endl;
+	
+	
 	for (size_t i = 0; i < output->getNumberOfVariables(); i++) {
 		std::vector<real> hostOutput(output->getScalarMemoryArea(i)->getSize(), 44);
 		output->getScalarMemoryArea(i)->copyFromHost(hostOutput.data(), hostOutput.size());
@@ -91,15 +94,13 @@ TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
 	auto numericalFlux = fluxFactory.createNumericalFlux(grid);
 	ASSERT_EQ(1, numericalFlux->getNumberOfGhostCells());
-	auto outputCPU = volumeFactory.createConservedVolume(nx, ny, nz, 1);
+	auto outputCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, 1);
 	output->copyTo(*outputCPU);
 	for (size_t n = 0; n < output->getNumberOfVariables(); n++) {
 
-		for (size_t k = 1; k < nz - 1; k++) {
+		for (size_t k = 0; k < nz; k++) {
 			for (size_t j = 1; j < ny - 1; j++) {
 				for (size_t i = 1; i < nx - 1; i++) {
-
-
 					ASSERT_EQ(44, outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k))
 						<< "Initial data failed at. (" << i << ", " << j << ", " << k << ")";
 				}
@@ -110,18 +111,132 @@ TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
 
 	numericalFlux->computeFlux(*conservedVariables, rvec3(1, 1, 1), *output);
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
+	CUDA_SAFE_CALL(cudaGetLastError());
 	// Check that output is what we expect
 	// Here the flux should be consistent, so we expect that 
 	// the difference f(U,Ur)-f(Ul,U) should be zero everywhere.
 	output->copyTo(*outputCPU);
+
 	for (size_t n = 0; n < output->getNumberOfVariables(); n++) {
 
-		for (size_t k = 1; k < nz - 1; k++) {
+		for (size_t k = 0; k < nz; k++) {
 			for (size_t j = 1; j < ny - 1; j++) {
 				for (size_t i = 1; i < nx - 1; i++) {
 
-
+					if (0 != outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k)) {
+						std::cout << "Consistency check failed at (" << i << ", " << j << ", " << k << ")" << std::endl;
+					}
 					ASSERT_EQ(0, outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k))
+						<< "Consistency check failed at (" << i << ", " << j << ", " << k << ")";
+				}
+			}
+
+		}
+	}
+
+}
+
+TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
+	// This test that the flux is consistent
+
+	auto conservedVariables = volumeFactory.createConservedVolume(nx, ny, nz, 1);
+	auto extraVariables = volumeFactory.createExtraVolume(nx, ny, nz, 1);
+
+
+	boundary::BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
+
+	auto boundary = boundaryFactory.createBoundary(1);
+
+	boundary::BoundaryFactory boundaryFactoryCPU("neumann", deviceConfigurationCPU);
+
+	auto boundaryCPU = boundaryFactoryCPU.createBoundary(1);
+	auto conservedVariablesCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, 1);
+	auto extraVariablesCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz, 1);
+	// We set every other var to 1,1,1,10 and 2,2,2,2,40.
+	int switchCounter = 0;
+	volume::fill_volume<equation::euler::ConservedVariables>(*conservedVariablesCPU, grid,
+		[&switchCounter](real x, real y, real z, equation::euler::ConservedVariables& out) {
+		
+		if (switchCounter++ % 2) {
+			out.rho = 1;
+			out.m.x = 1;
+			out.m.y = 1;
+			out.m.z = 1;
+			out.E = 10;
+		}
+		else {
+			out.rho = 2;
+			out.m.x = 2;
+			out.m.y = 2;
+			out.m.z = 2;
+			out.E = 40;
+		}
+	});
+	boundaryCPU->applyBoundaryConditions(*conservedVariablesCPU, grid);
+
+	conservedVariablesCPU->copyTo(*conservedVariables);
+	boundary->applyBoundaryConditions(*conservedVariables, grid);
+	CUDA_SAFE_CALL(cudaDeviceSynchronize());
+	equation::CellComputerFactory cellComputerFactory("cuda", "euler", deviceConfiguration);
+
+	
+	auto output = volumeFactory.createConservedVolume(nx, ny, nz, 1);
+	auto outputCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, 1);
+	// Set default values
+	for (size_t i = 0; i < output->getNumberOfVariables(); i++) {
+		std::vector<real> hostOutput(output->getScalarMemoryArea(i)->getSize(), 44);
+		output->getScalarMemoryArea(i)->copyFromHost(hostOutput.data(), hostOutput.size());
+		outputCPU->getScalarMemoryArea(i)->copyFromHost(hostOutput.data(), hostOutput.size());
+	}
+	CUDA_SAFE_CALL(cudaDeviceSynchronize());
+	auto numericalFlux = fluxFactory.createNumericalFlux(grid);
+	auto numericalFluxCPU = fluxFactoryCPU.createNumericalFlux(grid);
+	ASSERT_EQ(1, numericalFlux->getNumberOfGhostCells());
+	ASSERT_EQ(1, numericalFluxCPU->getNumberOfGhostCells());
+	auto outputCPUfromGPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, 1);
+	output->copyTo(*outputCPUfromGPU);
+	for (size_t n = 0; n < output->getNumberOfVariables(); n++) {
+
+		for (size_t k = 0; k < nz; k++) {
+			for (size_t j = 1; j < ny - 1; j++) {
+				for (size_t i = 1; i < nx - 1; i++) {
+					ASSERT_EQ(44, outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k))
+						<< "Initial data failed at. (" << i << ", " << j << ", " << k << ")";
+					ASSERT_EQ(44, outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k))
+						<< "Initial data failed at. (" << i << ", " << j << ", " << k << ")";
+				}
+			}
+
+		}
+	}
+
+	numericalFlux->computeFlux(*conservedVariables, rvec3(1, 1, 1), *output);
+	numericalFluxCPU->computeFlux(*conservedVariablesCPU, rvec3(1, 1, 1), *outputCPU);
+	CUDA_SAFE_CALL(cudaDeviceSynchronize());
+	CUDA_SAFE_CALL(cudaGetLastError());
+	// Check that output is what we expect
+	// Here the flux should be consistent, so we expect that 
+	// the difference f(U,Ur)-f(Ul,U) should be zero everywhere.
+	output->copyTo(*outputCPUfromGPU);
+
+	for (size_t n = 0; n < output->getNumberOfVariables(); n++) {
+
+		for (size_t k = 0; k < nz; k++) {
+			for (size_t j = 2; j < ny - 1; j++) {
+				for (size_t i = 2; i < nx - 1; i++) {
+
+					if (outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k) !=
+						outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k)) {
+						for (size_t var = 0; var < output->getNumberOfVariables(); ++var) {
+							std::cout << "CPU(" <<outputCPU->getName(var) << ") = " << outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k) << std::endl;
+							std::cout << "GPU(" << outputCPU->getName(var) << ") = " << outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k) << std::endl;
+						}
+						std::cout << "Consistency check failed at (" << i << ", " << j << ", " << k << ")" << std::endl;
+
+					}
+					
+					ASSERT_EQ(outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k),
+						outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k))
 						<< "Consistency check failed at (" << i << ", " << j << ", " << k << ")";
 				}
 			}

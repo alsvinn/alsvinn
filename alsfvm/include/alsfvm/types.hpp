@@ -7,7 +7,10 @@
 // for normal build, we just need to define these flags as empty.
 #ifdef ALSVINN_HAVE_CUDA
 #include <cuda_runtime.h>
+#include <cuda.h>
+#include <math.h>
 #else 
+
 #define __device__ 
 #define __host__
 #endif

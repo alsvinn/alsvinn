@@ -3,7 +3,7 @@
 #include "alsfvm/equation/euler/ExtraVariables.hpp"
 #include "alsfvm/equation/euler/AllVariables.hpp"
 #include "alsfvm/equation/euler/PrimitiveVariables.hpp"
-#include <cmath>
+
 #include "alsfvm/equation/euler/Views.hpp"
 #include "alsfvm/volume/Volume.hpp"
 #include "alsfvm/equation/euler/ViewsExtra.hpp"
@@ -197,7 +197,7 @@ namespace alsfvm {
 					static_assert(direction >= 0, "Direction can not be negative");
 					static_assert(direction < 3, "We only support dimension up to and inclusive 3");
 
-                    return std::abs(v.u[direction]) + std::sqrt(GAMMA * v.p / u.rho);
+                    return abs(v.u[direction]) +sqrt(GAMMA * v.p / u.rho);
 				}
 
 				/// 
@@ -217,11 +217,7 @@ namespace alsfvm {
 				}
 
 				__device__ __host__ static AllVariables makeAllVariables(real rho, real mx, real my, real mz, real E) {
-                    assert(!std::isnan(rho));
-                    assert(!std::isnan(mx));
-                    assert(!std::isnan(my));
-                    assert(!std::isnan(mz));
-                    assert(!std::isnan(E));
+
                     ConservedVariables conserved(rho, mx, my, mz, E);
                     return AllVariables(conserved, computeExtra(conserved));
                 }

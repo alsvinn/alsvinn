@@ -15,8 +15,8 @@ namespace alsfvm { namespace equation { namespace euler {
 		{
 			 // empty
 		}
-		__device__ __host__ ConservedVariables(real rho, real mx, real my, real mz, real E)
-			: rho(rho), m(mx, my, mz), E(E)
+		__device__ __host__ ConservedVariables(real rho_, real mx, real my, real mz, real E_)
+			: rho(rho_), m(mx, my, mz), E(E_)
 		{
 			// empty
 		}

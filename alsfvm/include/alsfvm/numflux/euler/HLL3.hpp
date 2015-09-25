@@ -33,9 +33,7 @@ public:
         real speedLeft;
         real speedRight;
         real cs;
-
         equation::euler::ConservedVariables fluxLeft, fluxRight;
-
 
         computeHLLSpeeds<direction>(left, right, speedLeft, speedRight, cs);
         equation::euler::Euler::computePointFlux<direction>(left, fluxLeft);
@@ -103,13 +101,13 @@ public:
         const real cfLeft = sqrt( GAMMA*left.p/left.rho );
 
         // calculate extended fast speed cf at the right boundary
-        const real cfRight = std::sqrt( GAMMA*right.p/right.rho );
+        const real cfRight = sqrt( GAMMA*right.p/right.rho );
 
-        const real correct = 0.5*std::max(real(0),left.u[direction]-right.u[direction]);
+        const real correct = 0.5*fmax(real(0),left.u[direction]-right.u[direction]);
 
         cs = sqrt(GAMMA * p / rho);
-        speedLeft = std::min(left.u[direction] + correct - cfLeft, u[direction] - cs);
-        speedRight = std::max(right.u[direction] - correct + cfRight, u[direction] + cs);
+        speedLeft = fmin(left.u[direction] + correct - cfLeft, u[direction] - cs);
+        speedRight = fmax(right.u[direction] - correct + cfRight, u[direction] + cs);
 
     }
 };
