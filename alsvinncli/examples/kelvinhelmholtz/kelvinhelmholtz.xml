@@ -1,0 +1,26 @@
+<fvm>
+  <name>
+    kh
+  </name>
+  <platform>cuda</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>1 1 0</upperCorner>
+    <dimension>1024 1024 1</dimension>
+  </grid>
+  <boundary>periodic</boundary>
+  <flux>HLL3</flux>
+  <endTime>.2</endTime>
+  <equation>euler</equation>
+  <reconstruction>none</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
+  <initialData>
+    <python>kelvinhelmholtz.py</python>
+  </initialData>
+  <writer>
+    <type>hdf5</type>
+    <basename>kh</basename>
+    <numberOfSaves>10</numberOfSaves>
+  </writer>
+</fvm>
