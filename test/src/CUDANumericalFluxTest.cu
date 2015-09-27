@@ -123,10 +123,8 @@ TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
 			for (size_t j = 1; j < ny - 1; j++) {
 				for (size_t i = 1; i < nx - 1; i++) {
 
-					if (0 != outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k)) {
-						std::cout << "Consistency check failed at (" << i << ", " << j << ", " << k << ")" << std::endl;
-					}
-					ASSERT_EQ(0, outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k))
+					
+					ASSERT_NEAR(0, outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k), 1e-30)
 						<< "Consistency check failed at (" << i << ", " << j << ", " << k << ")";
 				}
 			}
@@ -195,15 +193,33 @@ TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
 	ASSERT_EQ(1, numericalFluxCPU->getNumberOfGhostCells());
 	auto outputCPUfromGPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, 1);
 	output->copyTo(*outputCPUfromGPU);
+
+
 	for (size_t n = 0; n < output->getNumberOfVariables(); n++) {
 
+		// Check that the output has been properly reset before we run
 		for (size_t k = 0; k < nz; k++) {
 			for (size_t j = 1; j < ny - 1; j++) {
 				for (size_t i = 1; i < nx - 1; i++) {
+					
 					ASSERT_EQ(44, outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k))
 						<< "Initial data failed at. (" << i << ", " << j << ", " << k << ")";
 					ASSERT_EQ(44, outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k))
 						<< "Initial data failed at. (" << i << ", " << j << ", " << k << ")";
+				}
+			}
+
+		}
+
+		std::vector<real> fromGPU(conservedVariablesCPU->getScalarMemoryArea(0)->getSize());
+
+		// Check that we start with the same data
+		conservedVariables->getScalarMemoryArea(n)->copyToHost(fromGPU.data(), fromGPU.size());
+		for (size_t k = 0; k < nz; k++) {
+			for (size_t j = 0; j < ny; j++) {
+				for (size_t i = 0; i < nx; i++) {
+					auto view = conservedVariablesCPU->getScalarMemoryArea(n)->getView();
+					ASSERT_EQ(fromGPU[view.index(i, j, k)], view.at(i, j, k));
 				}
 			}
 
@@ -225,8 +241,8 @@ TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
 			for (size_t j = 2; j < ny - 1; j++) {
 				for (size_t i = 2; i < nx - 1; i++) {
 
-					if (outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k) !=
-						outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k)) {
+					if (std::abs(outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k) -
+						outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k)) > 1e-8) {
 						for (size_t var = 0; var < output->getNumberOfVariables(); ++var) {
 							std::cout << "CPU(" <<outputCPU->getName(var) << ") = " << outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k) << std::endl;
 							std::cout << "GPU(" << outputCPU->getName(var) << ") = " << outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k) << std::endl;
@@ -235,8 +251,8 @@ TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
 
 					}
 					
-					ASSERT_EQ(outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k),
-						outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k))
+					ASSERT_NEAR(outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k),
+						outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k), 1e-8)
 						<< "Consistency check failed at (" << i << ", " << j << ", " << k << ")";
 				}
 			}

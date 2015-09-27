@@ -7,7 +7,7 @@ namespace boundary {
 class Neumann {
 public:
 	__device__ __host__ static void applyBoundary(alsfvm::memory::View<real>& memoryArea,
-                       size_t x, size_t y, size_t z, size_t boundaryCell,
+		size_t x, size_t y, size_t z, size_t boundaryCell, size_t numberOfGhostCells,
 					   bool top, bool xDir, bool yDir, bool zDir)
     {
         const int sign = top ? -1 : 1;

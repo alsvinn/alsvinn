@@ -45,6 +45,7 @@ namespace alsfvm { namespace numflux {
 		std::shared_ptr<reconstruction::Reconstruction> reconstruction;
 		std::shared_ptr<volume::Volume> left;
 		std::shared_ptr<volume::Volume> right;
+		std::shared_ptr<volume::Volume> fluxOutput;
     };
 } // namespace alsfvm
 } // namespace numflux

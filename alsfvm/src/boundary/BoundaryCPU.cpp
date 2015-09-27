@@ -2,6 +2,7 @@
 #include "alsfvm/error/Exception.hpp"
 #include <cassert>
 #include "alsfvm/boundary/Neumann.hpp"
+#include "alsfvm/boundary/Periodic.hpp"
 
 namespace alsfvm { namespace boundary { 
 	namespace {
@@ -59,7 +60,7 @@ namespace alsfvm { namespace boundary {
                             for (int y = yStart; y < yEnd; y++) {
                                 for (int x = xStart; x < xEnd; x++) {
 									for (size_t ghostCell = 1; ghostCell <= numberOfGhostCells; ghostCell++) {
-										BoundaryConditions::applyBoundary(view, x, y, z, ghostCell, i == 1, xDir, yDir, zDir);
+										BoundaryConditions::applyBoundary(view, x, y, z, numberOfGhostCells, ghostCell, i == 1, xDir, yDir, zDir);
 									}
                                 }
                             }
@@ -87,5 +88,6 @@ namespace alsfvm { namespace boundary {
 	}
 
 	template class BoundaryCPU < Neumann > ;
+	template class BoundaryCPU < Periodic >;
 }
 }

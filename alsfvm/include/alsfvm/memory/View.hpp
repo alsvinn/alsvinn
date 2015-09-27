@@ -109,11 +109,12 @@ public:
 		return nz;
 	}
 
+	const size_t nx;
+	const size_t ny;
+	const size_t nz;
 private:
     T* pointer;
-    size_t nx;
-    size_t ny;
-    size_t nz;
+    
     size_t extentXInBytes;
     size_t extentYInBytes;
 

@@ -1,5 +1,6 @@
 #include "alsfvm/boundary/BoundaryCUDA.hpp"
 #include "alsfvm/boundary/Neumann.hpp"
+#include "alsfvm/boundary/Periodic.hpp"
 #include "cuda.h"
 
 
@@ -12,7 +13,7 @@ namespace alsfvm { namespace boundary {
 			const size_t internalNumberOfXCells, const size_t internalNumberOfYCells, const size_t internalNumberOfZCells, const size_t numberOfGhostCells) {
 			
 			const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
-
+			
 			if (index > numberOfXCells * numberOfYCells * numberOfZCells) {
 				return;
 			}
@@ -28,7 +29,7 @@ namespace alsfvm { namespace boundary {
 			const size_t y = yInternalFormat + yDir * (numberOfGhostCells + internalNumberOfYCells * top);
 			const size_t z = zInternalFormat + zDir * (numberOfGhostCells + internalNumberOfZCells * top);
 			for (size_t ghostCell = 1; ghostCell <= numberOfGhostCells; ++ghostCell) {
-				BoundaryConditions::applyBoundary(memoryArea, x, y, z, ghostCell, top, xDir, yDir, zDir);
+				BoundaryConditions::applyBoundary(memoryArea, x, y, z, ghostCell, numberOfGhostCells, top, xDir, yDir, zDir);
 			}
 		}
 
@@ -101,5 +102,6 @@ namespace alsfvm { namespace boundary {
 	}
 
 	template class BoundaryCUDA < Neumann > ;
+	template class BoundaryCUDA < Periodic >;
 }
 }
