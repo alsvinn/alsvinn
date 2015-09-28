@@ -1,5 +1,7 @@
 #pragma once
 #include "alsfvm/types.hpp"
+#include <cassert>
+
 namespace alsfvm {
 	namespace equation {
 		namespace euler {

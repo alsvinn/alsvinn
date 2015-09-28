@@ -1,6 +1,8 @@
 #include "alsfvm/numflux/NumericalFluxFactory.hpp"
 #include "alsfvm/numflux/euler/NumericalFluxCPU.hpp"
+#ifdef ALSVINN_HAVE_CUDA
 #include "alsfvm/numflux/NumericalFluxCUDA.hpp"
+#endif
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include "alsfvm/numflux/euler/HLL3.hpp"
 #include "alsfvm/reconstruction/NoReconstruction.hpp"
@@ -117,6 +119,7 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
 			THROW("Unknown equation " << equation);
 		}
 	}
+#ifdef ALSVINN_HAVE_CUDA
 	else if (platform == "cuda") {
 		if (equation == "euler") {
 			if (fluxname == "HLL") {
@@ -162,7 +165,9 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
 		else {
 			THROW("Unknown equation " << equation);
 		}
-    } else {
+    }
+#endif
+    else {
         THROW("Unknown platform " << platform);
     }
 

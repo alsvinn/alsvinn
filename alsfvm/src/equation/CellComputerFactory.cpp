@@ -2,7 +2,9 @@
 #include "alsfvm/error/Exception.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/equation/CPUCellComputer.hpp"
+#ifdef ALSVINN_HAVE_CUDA
 #include "alsfvm/equation/CUDACellComputer.hpp"
+#endif
 
 namespace alsfvm { namespace equation {
 
@@ -22,7 +24,9 @@ std::shared_ptr<CellComputer> CellComputerFactory::createComputer()
         } else {
             THROW("Unknown equation " << equation);
         }
-	} if (platform == "cuda") {
+    }
+#ifdef ALSVINN_HAVE_CUDA
+    if (platform == "cuda") {
 		if (equation == "euler") {
 			return std::shared_ptr<CellComputer>(new CUDACellComputer<euler::Euler>());
 		}
@@ -30,6 +34,7 @@ std::shared_ptr<CellComputer> CellComputerFactory::createComputer()
 			THROW("Unknown equation " << equation);
 		}
 	}
+#endif
 	else {
         THROW("Unknown platform " << platform);
     }

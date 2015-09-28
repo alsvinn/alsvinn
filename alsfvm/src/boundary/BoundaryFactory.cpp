@@ -3,7 +3,9 @@
 #include "alsfvm/boundary/BoundaryCPU.hpp"
 #include "alsfvm/boundary/Neumann.hpp"
 #include "alsfvm/boundary/Periodic.hpp"
+#ifdef ALSVINN_HAVE_CUDA
 #include "alsfvm/boundary/BoundaryCUDA.hpp"
+#endif
 
 namespace alsfvm { namespace boundary { 
 	///
@@ -38,6 +40,8 @@ namespace alsfvm { namespace boundary {
 				THROW("Unknown boundary type " << name);
 			}
 		}
+
+#ifdef ALSVINN_HAVE_CUDA
 		else if (deviceConfiguration->getPlatform() == "cuda") {
 			if (name == "neumann") {
 				return std::shared_ptr<Boundary>(new BoundaryCUDA<Neumann>(ghostCellSize));
@@ -49,6 +53,7 @@ namespace alsfvm { namespace boundary {
 				THROW("Unknown boundary type " << name);
 			}
 		}
+#endif
 		else {
 			THROW("Unknown platform " << deviceConfiguration->getPlatform());
 		}
