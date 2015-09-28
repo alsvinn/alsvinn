@@ -3,7 +3,7 @@
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include "alsfvm/numflux/euler/HLL3.hpp"
-#include <array>
+
 #include <iostream>
 #include "alsfvm/cuda/cuda_utils.hpp"
 
