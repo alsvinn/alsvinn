@@ -10,17 +10,17 @@ namespace alsfvm { namespace equation {
 
 CellComputerFactory::CellComputerFactory(const std::string &platform,
                                          const std::string &equation,
-										 std::shared_ptr<DeviceConfiguration>& deviceConfiguration)
+										 boost::shared_ptr<DeviceConfiguration>& deviceConfiguration)
     : platform(platform), equation(equation)
 {
     // empty
 }
 
-std::shared_ptr<CellComputer> CellComputerFactory::createComputer()
+boost::shared_ptr<CellComputer> CellComputerFactory::createComputer()
 {
     if (platform == "cpu") {
         if (equation == "euler") {
-            return std::shared_ptr<CellComputer>(new CPUCellComputer<euler::Euler>());
+            return boost::shared_ptr<CellComputer>(new CPUCellComputer<euler::Euler>());
         } else {
             THROW("Unknown equation " << equation);
         }
@@ -28,7 +28,7 @@ std::shared_ptr<CellComputer> CellComputerFactory::createComputer()
 #ifdef ALSVINN_HAVE_CUDA
     if (platform == "cuda") {
 		if (equation == "euler") {
-			return std::shared_ptr<CellComputer>(new CUDACellComputer<euler::Euler>());
+			return boost::shared_ptr<CellComputer>(new CUDACellComputer<euler::Euler>());
 		}
 		else {
 			THROW("Unknown equation " << equation);

@@ -25,7 +25,7 @@ namespace alsfvm { namespace numflux {
 NumericalFluxFactory::NumericalFluxFactory(const std::string& equation,
                                            const std::string& fluxname,
                                            const std::string& reconstruction,
-                                           std::shared_ptr<DeviceConfiguration>& deviceConfiguration)
+                                           boost::shared_ptr<DeviceConfiguration>& deviceConfiguration)
     : equation(equation), fluxname(fluxname), reconstruction(reconstruction),
       deviceConfiguration(deviceConfiguration)
 {
@@ -37,10 +37,10 @@ NumericalFluxFactory::NumericalFluxFactory(const std::string& equation,
 ///
 NumericalFluxFactory::NumericalFluxPtr
 NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
-    auto memoryFactory = std::make_shared<memory::MemoryFactory>(deviceConfiguration);
+    auto memoryFactory = boost::make_shared<memory::MemoryFactory>(deviceConfiguration);
     // First we must do a lot of error checking
     auto& platform = deviceConfiguration->getPlatform();
-	std::shared_ptr<reconstruction::Reconstruction> reconstructor;
+	boost::shared_ptr<reconstruction::Reconstruction> reconstructor;
 	if (reconstruction == "none") {
 		reconstructor.reset(new reconstruction::NoReconstruction);
 	}

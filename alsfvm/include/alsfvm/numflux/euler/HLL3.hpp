@@ -48,7 +48,7 @@ public:
         real aa = udr*right.rho - udl*left.rho;
         real sm = (right.m[direction]*udr - left.m[direction]*udl + pressureRight - pressureLeft) / aa;
 
-        auto us = ( fluxRight.m - fluxLeft.m - speedRight*right.m + speedLeft*left.m ) / aa;
+        rvec3 us = ( fluxRight.m - fluxLeft.m - speedRight*right.m + speedLeft*left.m ) / aa;
         us[direction] = sm;
 
         if (speedLeft == 0) {

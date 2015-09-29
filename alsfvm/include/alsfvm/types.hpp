@@ -3,6 +3,8 @@
 #include <cctype>
 #include <cstdlib>
 #include <memory>
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 // For CUDA we need special flags for the functions, 
 // for normal build, we just need to define these flags as empty.
 #ifdef ALSVINN_HAVE_CUDA
@@ -13,6 +15,11 @@
 
 #define __device__ 
 #define __host__
+#endif
+
+#if __cplusplus <= 199711L
+#include <cassert>
+#define static_assert(x, y) assert(x)
 #endif
 
 #include "alsfvm/vec.hpp"

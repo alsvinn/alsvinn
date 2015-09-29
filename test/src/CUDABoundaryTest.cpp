@@ -13,9 +13,9 @@ public:
 	const size_t nz;
 
 	std::string equation;
-	std::shared_ptr<DeviceConfiguration> deviceConfiguration;
+	boost::shared_ptr<DeviceConfiguration> deviceConfiguration;
 	grid::Grid grid;
-	std::shared_ptr<memory::MemoryFactory> memoryFactory;
+	boost::shared_ptr<memory::MemoryFactory> memoryFactory;
 	volume::VolumeFactory volumeFactory;
 	boundary::BoundaryFactory boundaryFactory;
 

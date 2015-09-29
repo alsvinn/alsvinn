@@ -42,9 +42,9 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     const real saveInterval = T / numberOfSaves;
     Grid grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(N, N, 1));
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>("cpu");
+    auto deviceConfiguration = boost::make_shared<DeviceConfiguration>("cpu");
 
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
 
@@ -59,7 +59,7 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     integrator::IntegratorFactory integratorFactory(integratorName);
     auto integrator = integratorFactory.createIntegrator(numericalFlux);
 
-    std::vector<std::shared_ptr<volume::Volume> > conservedVolumes(integrator->getNumberOfSubsteps() + 1);
+    std::vector<boost::shared_ptr<volume::Volume> > conservedVolumes(integrator->getNumberOfSubsteps() + 1);
 
     for(size_t i = 0; i < conservedVolumes.size(); i++) {
         conservedVolumes[i] = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());

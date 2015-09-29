@@ -25,7 +25,7 @@ namespace alsfvm {
 		__device__ __host__ bool operator==(const vec3& other) const {
 			return other.x == x && other.y == y && other.z == z;
 		}
-
+#if __cplusplus > 199711L
 		///
 		/// Converts the vector to an std::vector<T>
 		/// output is {x, y, z}
@@ -33,7 +33,7 @@ namespace alsfvm {
 		std::vector<T> toStdVector() {
 			return std::vector<T>({ x, y, z });
 		}
-
+#endif
 		/// 
 		/// Converts the vector to the other type
 		///

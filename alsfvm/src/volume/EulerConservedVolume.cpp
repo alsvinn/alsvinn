@@ -17,7 +17,7 @@ namespace alsfvm {
 		/// \param ny the number of cells in y direction
 		/// \param nz the number of cells in z direction
 		///
-		EulerConservedVolume::EulerConservedVolume(std::shared_ptr<memory::MemoryFactory> memoryFactory,
+		EulerConservedVolume::EulerConservedVolume(boost::shared_ptr<memory::MemoryFactory> memoryFactory,
 			size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells)
 			: Volume({ "rho", "mx", "my", "mz", "E" }, memoryFactory, nx, ny, nz, numberOfGhostCells)
 		{

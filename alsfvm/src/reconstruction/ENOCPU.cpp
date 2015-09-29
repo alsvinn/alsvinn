@@ -8,7 +8,7 @@
 namespace alsfvm { namespace reconstruction {
 
 template<int order>
-ENOCPU<order>::ENOCPU(std::shared_ptr<memory::MemoryFactory> &memoryFactory,
+ENOCPU<order>::ENOCPU(boost::shared_ptr<memory::MemoryFactory> &memoryFactory,
                       size_t nx, size_t ny, size_t nz)
 {
 	size_t ghostX = getNumberOfGhostCells();

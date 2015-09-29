@@ -2,7 +2,7 @@
 #include <iostream>
 namespace alsfvm { namespace io {
 
-FixedIntervalWriter::FixedIntervalWriter(std::shared_ptr<Writer> &writer,
+FixedIntervalWriter::FixedIntervalWriter(boost::shared_ptr<Writer> &writer,
                                          real timeInterval, real endTime)
     : writer(writer), timeInterval(timeInterval), endTime(endTime), numberSaved(0)
 {
