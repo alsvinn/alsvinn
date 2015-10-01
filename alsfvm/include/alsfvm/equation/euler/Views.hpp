@@ -45,6 +45,28 @@ namespace alsfvm { namespace equation { namespace euler {
 			assert(false);
 		}
 
+
+		__device__ __host__ ViewType& get(size_t variableIndex) {
+			switch (variableIndex) {
+			case 0:
+				return rho;
+				break;
+			case 1:
+				return mx;
+				break;
+			case 2:
+				return my;
+				break;
+			case 3:
+				return mz;
+				break;
+			case 4:
+				return E;
+				break;
+			}
+			// If we reach this far, something has gone wrong
+			assert(false);
+		}
 		__device__ __host__ size_t index(size_t x, size_t y, size_t z) const {
 			return rho.index(x, y, z);
 		}
