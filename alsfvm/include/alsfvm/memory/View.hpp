@@ -33,7 +33,7 @@ public:
          size_t nz,
          size_t extentXInBytes,
          size_t extentYInBytes)
-        : pointer(pointer), nx(nx), ny(ny), nz(nz), extentXInBytes(extentXInBytes),
+        : nx(nx), ny(ny), nz(nz), pointer(pointer), extentXInBytes(extentXInBytes),
           extentYInBytes(extentYInBytes)
     {
         // empty

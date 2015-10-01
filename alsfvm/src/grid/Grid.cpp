@@ -16,9 +16,9 @@ namespace alsfvm {
 			// Create the cell midpoints
 			cellMidpoints.resize(dimensions.x*dimensions.y*dimensions.z);
 			
-			for (size_t z = 0; z < dimensions.z; z++) {
-				for (size_t y = 0; y < dimensions.y; y++) {
-					for (size_t x = 0; x < dimensions.x; x++) {
+            for (int z = 0; z < dimensions.z; z++) {
+                for (int y = 0; y < dimensions.y; y++) {
+                    for (int x = 0; x < dimensions.x; x++) {
                         rvec3 position = origin
                                 + rvec3(cellLengths.x*x, cellLengths.y*y, cellLengths.z*z)
                                 + cellLengths / real(2.0);

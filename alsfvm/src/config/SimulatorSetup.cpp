@@ -165,6 +165,7 @@ std::string SimulatorSetup::readIntegrator(const SimulatorSetup::ptree &configur
             return "rungekutta2";
         }
     }
+    return integratorString;
 }
 
 boost::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(const SimulatorSetup::ptree &configuration)

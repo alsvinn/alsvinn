@@ -16,13 +16,13 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
                      real endTime,
 					 boost::shared_ptr<DeviceConfiguration>& deviceConfiguration,
 					 std::string& equationName)
-    : cflNumber(simulatorParameters.getCFLNumber()),
-      grid(grid),
+    :      grid(grid),
       numericalFlux(numericalFluxFactory.createNumericalFlux(*grid)),
       integrator(integratorFactory.createIntegrator(numericalFlux)),
       boundary(boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells())),
       cellComputer(cellComputerFactory.createComputer()),
       initialData(initialData),
+      cflNumber(simulatorParameters.getCFLNumber()),
       endTime(endTime)
 {
     const size_t nx = grid->getDimensions().x;

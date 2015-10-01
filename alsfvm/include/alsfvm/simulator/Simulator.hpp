@@ -25,10 +25,26 @@ namespace alsfvm { namespace simulator {
 /// while (!simulator.atEnd()) {
 ///    simulator.performStep();
 /// }
+/// \endcode
 
 ///
     class Simulator {
     public:
+        ///
+        /// \brief Simulator
+        /// \param simulatorParameters
+        /// \param grid
+        /// \param volumeFactory
+        /// \param integratorFactory
+        /// \param boundaryFactory
+        /// \param numericalFluxFactory
+        /// \param cellComputerFactory
+        /// \param memoryFactory
+        /// \param initialData
+        /// \param endTime
+        /// \param deviceConfiguration
+        /// \param equationName
+        ///
         Simulator(const SimulatorParameters& simulatorParameters,
                   boost::shared_ptr<grid::Grid> & grid,
                   volume::VolumeFactory& volumeFactory,
@@ -44,12 +60,35 @@ namespace alsfvm { namespace simulator {
 
 
 
+        ///
+        /// \return true if the simulation is finished, false otherwise.
+        ///
         bool atEnd();
+
+        ///
+        /// Performs one timestep
+        ///
         void performStep();
+
+        ///
+        /// Calls the writers.
+        ///
         void callWriters();
+
+        ///
+        /// \brief addWriter adds a writer, this will be called every time callWriter is called
+        /// \param writer
+        ///
         void addWriter(boost::shared_ptr<io::Writer>& writer);
+
+        ///
+        /// \return the current simulation time.
+        ///
         real getCurrentTime() const;
 
+        ///
+        /// \return the end time of the simulation.
+        ///
         real getEndTime() const;
 
     private:

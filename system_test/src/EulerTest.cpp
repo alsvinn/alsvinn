@@ -108,32 +108,8 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
     while (t < T) {
 
-
-
-#if 1
         const real waveSpeedX = cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extra1, 0);
         const real waveSpeedY = cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extra1, 1);
-#else
-        eno.performReconstruction(*conservedVolumes[0], 0, 0, *left, *right);
-        cellComputer->computeExtraVariables(*left, *extra1);
-        real waveSpeedX = cellComputer->computeMaxWaveSpeed(*left, *extra1, 0);
-        real waveSpeedY = cellComputer->computeMaxWaveSpeed(*left, *extra1, 1);
-
-        cellComputer->computeExtraVariables(*right, *extra1);
-        waveSpeedX = std::max(waveSpeedX, cellComputer->computeMaxWaveSpeed(*right, *extra1, 0));
-        waveSpeedY = std::max(waveSpeedY, cellComputer->computeMaxWaveSpeed(*right, *extra1, 1));
-
-
-        eno.performReconstruction(*conservedVolumes[0], 1, 0, *left, *right);
-        cellComputer->computeExtraVariables(*left, *extra1);
-        waveSpeedX = std::max(waveSpeedX, cellComputer->computeMaxWaveSpeed(*left, *extra1, 0));
-        waveSpeedY = std::max(waveSpeedY, cellComputer->computeMaxWaveSpeed(*left, *extra1, 1));
-
-        cellComputer->computeExtraVariables(*right, *extra1);
-        waveSpeedX = std::max(waveSpeedX, cellComputer->computeMaxWaveSpeed(*right, *extra1, 0));
-        waveSpeedY = std::max(waveSpeedY, cellComputer->computeMaxWaveSpeed(*right, *extra1, 1));
-
-#endif
 
         real dt = cfl /( waveSpeedX / grid.getCellLengths().x  + waveSpeedY / grid.getCellLengths().y);
 
@@ -176,7 +152,6 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
             boundary->applyBoundaryConditions(*conservedNext, grid);
 
-#if 0
             cellComputer->computeExtraVariables(*conservedNext, *extra1);
 
             // Intense error checking below. We basically check that the output is sane,
@@ -218,7 +193,6 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
 
             ASSERT_TRUE(cellComputer->obeysConstraints(*conservedNext, *extra1));
-#endif
 
 
 
@@ -270,7 +244,7 @@ TEST(EulerTest, ShockTubeTest) {
 
 TEST(EulerTest, ShockVortex) {
     runTest([](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
-		real epsilon = 0.3, r_c = 0.05, alpha = 0.204, x_c = 0.25, y_c = 0.5, M = 1.1;
+        real epsilon = 0.3, r_c = 0.05, alpha = 0.204, x_c = 0.25, y_c = 0.5;
 
 		// shock part
 		if (x < 0.5) {
@@ -299,5 +273,5 @@ TEST(EulerTest, ShockVortex) {
 		u.m = u.rho * v.u;
 		u.E = v.p / (GAMMA - 1) + 0.5*u.rho*v.u.dot(v.u);
 
-    }, 256, "none", 0.35, "euler_vortex");
+    }, 256, "eno2", 0.35, "euler_vortex");
 }

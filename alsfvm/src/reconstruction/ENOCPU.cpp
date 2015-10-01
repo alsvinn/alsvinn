@@ -55,9 +55,9 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
     const size_t nz = inputVariables.getTotalNumberOfZCells();
 
     // Sanity check, we need at least ONE point in the interior.
-    assert(nx > 2*directionVector.x * order);
-    assert((directionVector.y == 0) || (ny > 2*directionVector.y * order));
-    assert((directionVector.z == 0) || (nz > 2*directionVector.z * order));
+    assert(int(nx) > 2*directionVector.x * order);
+    assert((directionVector.y == 0u) || (int(ny) > 2*directionVector.y * order));
+    assert((directionVector.z == 0u) || (int(nz) > 2*directionVector.z * order));
 
     const size_t startX = directionVector.x * (order - 1);
     const size_t startY = directionVector.y * (order - 1);

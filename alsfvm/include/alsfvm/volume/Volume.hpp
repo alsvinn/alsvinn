@@ -181,9 +181,10 @@ namespace alsfvm {
 			void copyTo(volume::Volume& other) const;
 
 
-		private:
-            const boost::shared_ptr<memory::MemoryFactory> memoryFactory;
+        private:
             const std::vector<std::string> variableNames;
+            const boost::shared_ptr<memory::MemoryFactory> memoryFactory;
+
             std::vector<boost::shared_ptr<memory::Memory<real> > >
                 memoryAreas;
 			size_t nx;
