@@ -198,8 +198,8 @@ TEST(WenoTest, ReconstructionSimple) {
     const real d0 = 2.0/3.0;
     const real d1 = 1.0/3.0;
 
-    const real beta0 = 4.0;
-    const real beta1 = 1.0;
+    const real beta0 = 1.0;
+    const real beta1 = 4.0;
 
     const real alpha0 = d0 / pow(beta0 + epsilon, 2);
     const real alpha1 = d1 / pow(beta1 + epsilon, 2);
@@ -261,8 +261,8 @@ TEST(WenoTest, ReconstructionSimpleYDirection) {
     const real d0 = 2.0/3.0;
     const real d1 = 1.0/3.0;
 
-    const real beta0 = 4.0;
-    const real beta1 = 1.0;
+    const real beta0 = 1.0;
+    const real beta1 = 4.0;
 
     const real alpha0 = d0 / pow(beta0 + epsilon, 2);
     const real alpha1 = d1 / pow(beta1 + epsilon, 2);
