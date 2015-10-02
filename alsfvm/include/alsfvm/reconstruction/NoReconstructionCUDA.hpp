@@ -1,15 +1,12 @@
 #pragma once
 #include "alsfvm/reconstruction/Reconstruction.hpp"
-
 namespace alsfvm { namespace reconstruction { 
 
-	template<class Equation, size_t order>
-    class WENOCUDA : public Reconstruction {
+    class NoReconstructionCUDA : public Reconstruction {
     public:
-		WENOCUDA();
-
+	
 		///
-		/// Performs reconstruction.
+		/// Copies the data to the other arrays. Does no reconstruction.
 		/// \param[in] inputVariables the variables to reconstruct.
 		/// \param[in] direction the direction:
 		/// direction | explanation
@@ -34,14 +31,9 @@ namespace alsfvm { namespace reconstruction {
 			volume::Volume& leftOut,
 			volume::Volume& rightOut);
 
-		///
-		/// \brief getNumberOfGhostCells returns the number of ghost cells we need
-		///        for this computation
-		/// \return order.
-		///
-		virtual size_t getNumberOfGhostCells() {
-			return order;
-		}
+		size_t getNumberOfGhostCells();
+
+
     };
 } // namespace alsfvm
 } // namespace reconstruction

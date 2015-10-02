@@ -1,14 +1,67 @@
 #include "alsfvm/reconstruction/WENOCUDA.hpp"
+#include "alsfvm/reconstruction/WENOCoefficients.hpp"
+#include "alsfvm/reconstruction/ENOCoefficients.hpp"
 #include <boost/array.hpp>
-#define NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER 5
-__constant__ alsfvm::real enoCoefficients[NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER * 4];
+#include "alsfvm/cuda/cuda_utils.hpp"
+#include "alsfvm/equation/euler/Euler.hpp"
+
+#define NUMBER_OF_ENO_LEVELS 5
+#define NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER 5*5
+#define NUMBER_OF_WENO_LEVELS 4
+#define NUMBER_OF_WENO_COEFFICIENTS_PER_ORDER 5
+
+__constant__ alsfvm::real enoCoefficients[NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER * NUMBER_OF_ENO_LEVELS];
+__constant__ alsfvm::real wenoCoefficients[NUMBER_OF_WENO_COEFFICIENTS_PER_ORDER * NUMBER_OF_WENO_LEVELS];
 
 namespace alsfvm { namespace reconstruction {
 	namespace {
-		template<size_t order, class Equation, bool xDir, bool yDir, bool zDir>
+		template<int order>
+		__device__ real wenoCoefficient(int i) {
+			return wenoCoefficients[NUMBER_OF_WENO_COEFFICIENTS_PER_ORDER * order + i];
+		}
+
+		template<int order, int i>
+		struct Alpha {
+			template<class S, class T>
+			static  __device__ void computeAlpha(S& stencil,
+				real& sumLeft, real& sumRight,
+				T& left,
+				T& right);
+		};
+
+		template<int order>
+		struct Alpha <order,  -1 > {
+			template<class S, class T>
+			static  __device__ void computeAlpha(S& stencil,
+				real& sumLeft, real& sumRight,
+				T& left,
+				T& right) {
+				// empty
+			}
+		};
+		template<int order, int i>
+		template<class S, class T>
+		 __device__ void Alpha<order, i>::computeAlpha (
+			S& stencil,
+			real& sumLeft, real& sumRight,
+			T& left,
+			T& right)
+		{
+			const real epsilon = ALSFVM_WENO_EPSILON;
+			const real beta = WENOCoefficients<order>::template computeBeta<i>(stencil);
+			right[i] = wenoCoefficient<order>(i) / std::pow(beta + epsilon, 2);
+			sumRight += right[i];
+
+			left[i] = wenoCoefficient<order>(order - 1 - i) / std::pow(beta + epsilon, 2);
+			sumLeft += left[i];
+
+			Alpha<order, i - 1>::computeAlpha(stencil, sumLeft, sumRight, left, right);
+		}
+
+		template<size_t order, class Equation, size_t dimension, bool xDir, bool yDir, bool zDir>
 		__global__ void wenoDevice(typename Equation::ConstViews input,
 			typename Equation::Views left, typename Equation::Views right,
-			real* pointerInWeight,
+			const real* pointerInWeight,
 			size_t numberOfXCells, size_t numberOfYCells, size_t numberOfZCells) {
 
 			const size_t index = threadIdx.x + blockDim.x * blockIdx.x;
@@ -18,18 +71,20 @@ namespace alsfvm { namespace reconstruction {
 			const size_t yInternalFormat = (index / numberOfXCells) % numberOfYCells;
 			const size_t zInternalFormat = (index) / (numberOfXCells * numberOfYCells);
 
-			const size_t x = xInternalFormat + order;
-			const size_t y = yInternalFormat + (dimension > 1) * (order);
-			const size_t z = zInternalFormat + (dimension > 2) * (order);
+			const size_t x = xInternalFormat + 2 * (order - 1) * xDir;
+			const size_t y = yInternalFormat + 2 * (order - 1) * yDir;
+			const size_t z = zInternalFormat + 2 * (order - 1) * zDir;
+
+			const size_t indexOut = left.index(x, y, z);
 
 			// First we need to find alpha and beta.
 			real stencil[2 * order - 1];
-			for (int i = -order; i < order - 1; i++) {
-				const size_t index = input.index((z + i * zDir) ,
+			for (int i = -order + 1; i < order; i++) {
+				const size_t index = input.index((x + i * xDir) ,
 					(y + i*yDir),
-					(x + i*zDir));
+					(z + i*zDir));
 
-				stencil[i + order] = pointerInWeight[index];
+				stencil[i + order - 1] = pointerInWeight[index];
 			}
 
 			real alphaRight[order];
@@ -37,7 +92,7 @@ namespace alsfvm { namespace reconstruction {
 			real alphaRightSum = 0.0;
 			real alphaLeftSum = 0.0;
 
-			computeAlpha<int(order) - 1, int(order)>(stencil,
+			Alpha<int(order), int(order) - 1>::computeAlpha(stencil,
 				alphaLeftSum,
 				alphaRightSum,
 				alphaLeft,
@@ -45,7 +100,7 @@ namespace alsfvm { namespace reconstruction {
 
 			real* coefficients = enoCoefficients + NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER * (order - 2);
 
-			for (int var = 0; var < Equation::numberOfConservedVariables; var++) {
+			for (int var = 0; var < Equation::getNumberOfConservedVariables(); var++) {
 				real leftWenoValue = 0.0;
 				real rightWenoValue = 0.0;
 				// Loop through all stencils (shift = r)
@@ -57,12 +112,12 @@ namespace alsfvm { namespace reconstruction {
 					real rightValue = 0.0;
 					for (size_t j = 0; j < order; j++) {
 
-						const size_t index = left.index( (z - (shift - j)*directionVector.z),
-							(y - (shift - j)*directionVector.y),
-							(x - (shift - j)*directionVector.x));
+						const size_t inputIndex = left.index( (x - (shift - j)*xDir),
+							(y - (shift - j)*yDir),
+							(z - (shift - j)*zDir));
 
 
-						const real value = input.get(var).at(index);
+						const real value = input.get(var).at(inputIndex);
 						leftValue += coefficientsLeft[j] * value;
 						rightValue += coefficientsRight[j] * value;
 					}
@@ -70,14 +125,70 @@ namespace alsfvm { namespace reconstruction {
 					rightWenoValue += rightValue * alphaRight[shift] / alphaRightSum;
 				}
 
-				left.get(var).at(indexRight) = leftWenoValue;
-				right.get(var).at(indexRight) = rightWenoValue;
+				left.get(var).at(indexOut) = leftWenoValue;
+				right.get(var).at(indexOut) = rightWenoValue;
 
 			}
 
 
 		}
+
+		template<class Equation, size_t order, size_t dimension, bool xDir, bool yDir, bool zDir >
+		void callReconstructionDevice(const volume::Volume& inputVariables,
+			size_t direction,
+			size_t indicatorVariable,
+			volume::Volume& leftOut,
+			volume::Volume& rightOut) {
+
+			const size_t numberOfXCells = leftOut.getTotalNumberOfXCells() - 2 * (order - 1) * xDir;
+			const size_t numberOfYCells = leftOut.getTotalNumberOfYCells() - 2 * (order - 1) * yDir;
+			const size_t numberOfZCells = leftOut.getTotalNumberOfZCells() - 2 * (order - 1) * zDir;
+
+			const size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
+
+
+			const size_t blockSize = 512;
+			const size_t gridSize = (totalSize + blockSize - 1) / blockSize;
+
+
+
+			typename Equation::Views viewLeft(leftOut);
+			typename Equation::Views viewRight(rightOut);
+			typename Equation::ConstViews viewInput(inputVariables);
+
+			wenoDevice<order, Equation, dimension, xDir, yDir, zDir> << <gridSize, blockSize >> >(viewInput,
+				viewLeft, viewRight, inputVariables.getScalarMemoryArea(indicatorVariable)->getPointer(),
+				numberOfXCells, numberOfYCells, numberOfZCells);
+
+		}
+
+		template<size_t dimension, class Equation, size_t order>
+		void performReconstructionDevice(const volume::Volume& inputVariables,
+			size_t direction,
+			size_t indicatorVariable,
+			volume::Volume& leftOut,
+			volume::Volume& rightOut) {
+			assert(direction < 3);
+			switch (direction) {
+			case 0:
+				callReconstructionDevice<Equation, order, dimension, 1, 0, 0>(inputVariables, direction, indicatorVariable, leftOut, rightOut);
+				break;
+
+			case 1:
+				callReconstructionDevice<Equation, order, dimension, 0, 1, 0>(inputVariables, direction, indicatorVariable, leftOut, rightOut);
+				break;
+
+			case 2:
+				callReconstructionDevice<Equation, order, dimension, 0, 0, 1>(inputVariables, direction, indicatorVariable, leftOut, rightOut);
+				break;
+			}
+
+		}
+
 	}
+
+
+
 	///
 	/// Performs reconstruction.
 	/// \param[in] inputVariables the variables to reconstruct.
@@ -98,17 +209,52 @@ namespace alsfvm { namespace reconstruction {
 	/// \param[out] rightOut at the end, will contain the right interpolated values
 	///                     for all grid cells in the interior.
 	///
-	template<size_t order>
-	void WENOCUDA<order>::performReconstruction(const volume::Volume& inputVariables,
+	template<class Equation, size_t order>
+	void WENOCUDA<Equation, order>::performReconstruction(const volume::Volume& inputVariables,
 		size_t direction,
 		size_t indicatorVariable,
 		volume::Volume& leftOut,
 		volume::Volume& rightOut) 
 	{
+		size_t dimension = 1 + (leftOut.getNumberOfYCells() > 1) + (leftOut.getNumberOfZCells() > 1);
 
+		switch (dimension) {
+		case 1:
+			performReconstructionDevice<1, Equation, order>(inputVariables, direction, indicatorVariable, leftOut, rightOut);
+			break;
+		case 2:
+			performReconstructionDevice<2, Equation, order>(inputVariables, direction, indicatorVariable, leftOut, rightOut);
+			break;
+		case 3:
+			performReconstructionDevice<3, Equation, order>(inputVariables, direction, indicatorVariable, leftOut, rightOut);
+			break;
+		}
 
 	}
 
+	template<class Equation, size_t order>
+	WENOCUDA<Equation, order>::WENOCUDA() {
+		std::vector<real> enoCoefficientsHost(NUMBER_OF_ENO_LEVELS * NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER, 0);
+		for (size_t shift = 0; shift < order + 1; ++shift) {
+			for (size_t i = 0; i < order; ++i) {
+				enoCoefficientsHost[order * NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER + shift + i] = ENOCoeffiecients<order>::coefficients[shift][i];
+			}
+		}
+
+		CUDA_SAFE_CALL(cudaMemcpyToSymbol(enoCoefficients, enoCoefficientsHost.data(), enoCoefficientsHost.size() * sizeof(real)));
+
+
+		std::vector<real> wenoCoefficientsHost(NUMBER_OF_WENO_LEVELS * NUMBER_OF_WENO_COEFFICIENTS_PER_ORDER, 0);
+		for (size_t i = 0; i < order; ++i) {
+				wenoCoefficientsHost[order * NUMBER_OF_WENO_COEFFICIENTS_PER_ORDER + i] = WENOCoefficients<order>::coefficients[i];
+		}
+
+		CUDA_SAFE_CALL(cudaMemcpyToSymbol(wenoCoefficients, wenoCoefficientsHost.data(), wenoCoefficientsHost.size() * sizeof(real)));
+
+	}
+
+	template class WENOCUDA < equation::euler::Euler, 2 > ;
+	template class WENOCUDA < equation::euler::Euler, 3 >;
 
 }
 }
