@@ -13,7 +13,7 @@ namespace alsfvm { namespace reconstruction {
     real ENOCoeffiecients<2>::coefficients[][2] =
     {
         {3.0/2.0, -1.0/2.0},
-        {1.0/2.0, 1.0/2.0},
+        {1.0/2.0,  1.0/2.0},
         {-1.0/2.0, 3.0/2.0}
     };
 

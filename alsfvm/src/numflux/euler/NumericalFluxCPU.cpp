@@ -41,41 +41,12 @@ namespace alsfvm { namespace numflux { namespace euler {
                 );
 
 
-#if 0
-        // This is the valuefor j-1/2
-        equation::euler::AllVariables leftJmHf = equation::euler::Euler::makeAllVariables(
-                right[0][indexLeft],
-                right[1][indexLeft],
-                right[2][indexLeft],
-                right[3][indexLeft],
-                right[4][indexLeft]
-                );
 
-
-        // This is the valuefor j-1/2
-        equation::euler::AllVariables rightJmHf = equation::euler::Euler::makeAllVariables(
-                left[0][indexMiddle],
-                left[1][indexMiddle],
-                left[2][indexMiddle],
-                left[3][indexMiddle],
-                left[4][indexMiddle]
-                );
-#endif
-
-
-
-        // F(U_j, U_r)
+        // F(U_l, U_r)
         equation::euler::ConservedVariables fluxMiddleRight;
         Flux::template computeFlux<direction>(leftJpHf, rightJpHf, fluxMiddleRight);
-#if 0
 
-        equation::euler::ConservedVariables fluxLeftMiddle;
-        Flux::template computeFlux<direction>(leftJmHf, rightJmHf, fluxLeftMiddle);
-
-        out = cellLength*(fluxLeftMiddle) - cellLength*(fluxMiddleRight);
-#else
         out = cellLength*(fluxMiddleRight);
-#endif
     }
 
     template<class Flux, size_t direction>
