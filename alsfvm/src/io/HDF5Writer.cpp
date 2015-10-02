@@ -124,13 +124,15 @@ void HDF5Writer::writeMemory(const volume::Volume& volume, size_t index,
 
 
     // Here we only support double writing at the moment
-    static_assert(std::is_same<real, double>::value, "HDF5 only supports double for now");
+    //static_assert(std::is_same<real, double>::value, "HDF5 only supports double for now");
 
     
 
 
-    std::vector<real> data(volume.getNumberOfXCells() * volume.getNumberOfYCells() * volume.getNumberOfZCells());
-    volume.copyInternalCells(index, data.data(), data.size());
+    std::vector<real> dataTmp(volume.getNumberOfXCells() * volume.getNumberOfYCells() * volume.getNumberOfZCells());
+    volume.copyInternalCells(index, dataTmp.data(), dataTmp.size());
+	std::vector<double> data(volume.getNumberOfXCells() * volume.getNumberOfYCells() * volume.getNumberOfZCells());
+	std::copy(dataTmp.begin(), dataTmp.end(), data.begin());
     // Then we write the data as we normally would.
     HDF5_SAFE_CALL(H5Dwrite(dataset.hid(), H5T_NATIVE_DOUBLE,
                 memspace.hid(), filespace.hid(), H5P_DEFAULT,

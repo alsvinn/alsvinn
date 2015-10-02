@@ -2,7 +2,7 @@
 GAMMA=5.0/3.0
 import random
 # instability
-perturbation = 0
+perturbation = 0.001 * sin(100*2*pi*x)
 if y < 0.25 + perturbation or y > 0.75 + perturbation:
     rho = 1
     ux = 0.5

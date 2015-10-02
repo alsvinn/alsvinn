@@ -2,7 +2,7 @@
 
 namespace alsfvm { namespace reconstruction { 
     template<>
-    const real WENOCoefficients<2>::epsilon = 1e-8;
+    const real WENOCoefficients<2>::epsilon = ALSFVM_WENO_EPSILON;
 
 
     template<>

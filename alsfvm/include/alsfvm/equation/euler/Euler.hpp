@@ -35,6 +35,10 @@ namespace alsfvm {
 				///
 				static const size_t  numberOfConservedVariables = 5;
 
+				__device__ __host__ static size_t getNumberOfConservedVariables() {
+					return 5;
+				}
+
 				typedef equation::euler::Views<volume::Volume, memory::View<real> > Views;
 				typedef equation::euler::Views<const volume::Volume, const memory::View<const real> > ConstViews;
 

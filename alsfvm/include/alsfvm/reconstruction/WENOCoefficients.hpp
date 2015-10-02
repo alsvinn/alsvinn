@@ -3,6 +3,7 @@
 #include <array>
 #include <cmath>
 #include <limits>
+#define ALSFVM_WENO_EPSILON 1e-8
 namespace alsfvm { namespace reconstruction { 
 
 	template<int k>
@@ -11,15 +12,15 @@ namespace alsfvm { namespace reconstruction {
         static const real epsilon;
 		static real coefficients[];
 
-		template<size_t index>
-		static real computeBeta(const std::array<real, 2 * k - 1>& stencil);
+		template<size_t index, class T>
+		__device__ __host__ static real computeBeta(const T& stencil);
 
 		
     };
 
 	template<>
-	template<size_t index>
-	 real WENOCoefficients<2>::computeBeta(const std::array<real, 3>& V) {
+	template<size_t index, class T>
+	__device__ __host__  real WENOCoefficients<2>::computeBeta(const T& V) {
 		if (index == 0) {
 			real beta = V[2] - V[1];
 			return beta*beta;
@@ -34,8 +35,8 @@ namespace alsfvm { namespace reconstruction {
 	}
 
 	template<>
-	template<size_t index>
-	real WENOCoefficients<3>::computeBeta(const std::array<real, 5>& V) {
+	template<size_t index, class T>
+	__device__ __host__ real WENOCoefficients<3>::computeBeta(const T& V) {
 		if (index == 0) {
             return  13.0 / 12.0 * std::pow(V[2] - 2 * V[3] + V[4], 2) + 1 / 4.0*std::pow(3 * V[2] - 4 * V[3] + V[4], 2);
 		}
@@ -48,6 +49,8 @@ namespace alsfvm { namespace reconstruction {
 		static_assert(index < 3, "Only up to index 1 for order 2 in WENO");
 		return 0;
 	}
+
+
 
 
 
