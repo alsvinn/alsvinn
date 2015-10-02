@@ -1,6 +1,6 @@
 #pragma once
 #include "alsfvm/types.hpp"
-#include <array>
+
 #include <cmath>
 #include <limits>
 #define ALSFVM_WENO_EPSILON 1e-8

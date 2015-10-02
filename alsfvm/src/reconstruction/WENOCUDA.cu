@@ -26,7 +26,19 @@ namespace alsfvm { namespace reconstruction {
 			static  __device__ void computeAlpha(S& stencil,
 				real& sumLeft, real& sumRight,
 				T& left,
-				T& right);
+							     T& right) {
+
+			  const real epsilon = ALSFVM_WENO_EPSILON;
+			  const real beta = WENOCoefficients<order>::template computeBeta<i>(stencil);
+			  right[i] = wenoCoefficient<order>(i) / std::pow(beta + epsilon, 2);
+			  sumRight += right[i];
+
+			  left[i] = wenoCoefficient<order>(order - 1 - i) / std::pow(beta + epsilon, 2);
+			  sumLeft += left[i];
+
+			  Alpha<order, i - 1>::computeAlpha(stencil, sumLeft, sumRight, left, right);
+
+			}
 		};
 
 		template<int order>
@@ -39,24 +51,7 @@ namespace alsfvm { namespace reconstruction {
 				// empty
 			}
 		};
-		template<int order, int i>
-		template<class S, class T>
-		 __device__ void Alpha<order, i>::computeAlpha (
-			S& stencil,
-			real& sumLeft, real& sumRight,
-			T& left,
-			T& right)
-		{
-			const real epsilon = ALSFVM_WENO_EPSILON;
-			const real beta = WENOCoefficients<order>::template computeBeta<i>(stencil);
-			right[i] = wenoCoefficient<order>(i) / std::pow(beta + epsilon, 2);
-			sumRight += right[i];
 
-			left[i] = wenoCoefficient<order>(order - 1 - i) / std::pow(beta + epsilon, 2);
-			sumLeft += left[i];
-
-			Alpha<order, i - 1>::computeAlpha(stencil, sumLeft, sumRight, left, right);
-		}
 
 		template<size_t order, class Equation, size_t dimension, bool xDir, bool yDir, bool zDir>
 		__global__ void wenoDevice(typename Equation::ConstViews input,
@@ -71,20 +66,23 @@ namespace alsfvm { namespace reconstruction {
 			const size_t yInternalFormat = (index / numberOfXCells) % numberOfYCells;
 			const size_t zInternalFormat = (index) / (numberOfXCells * numberOfYCells);
 
-			const size_t x = xInternalFormat + 2 * (order - 1) * xDir;
-			const size_t y = yInternalFormat + 2 * (order - 1) * yDir;
-			const size_t z = zInternalFormat + 2 * (order - 1) * zDir;
+			if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells || zInternalFormat >= numberOfZCells) {
+			  return;
+			}
+			const size_t x = xInternalFormat + (order - 1) * xDir;
+			const size_t y = yInternalFormat + (order - 1) * yDir;
+			const size_t z = zInternalFormat + (order - 1) * zDir;
 
 			const size_t indexOut = left.index(x, y, z);
 
 			// First we need to find alpha and beta.
 			real stencil[2 * order - 1];
 			for (int i = -order + 1; i < order; i++) {
-				const size_t index = input.index((x + i * xDir) ,
+				const size_t indexIn = input.index((x + i * xDir) ,
 					(y + i*yDir),
 					(z + i*zDir));
 
-				stencil[i + order - 1] = pointerInWeight[index];
+				stencil[i + order - 1] = pointerInWeight[indexIn];
 			}
 
 			real alphaRight[order];
@@ -98,7 +96,7 @@ namespace alsfvm { namespace reconstruction {
 				alphaLeft,
 				alphaRight);
 
-			real* coefficients = enoCoefficients + NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER * (order - 2);
+			real* coefficients = enoCoefficients + NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER * (order);
 
 			for (int var = 0; var < Equation::getNumberOfConservedVariables(); var++) {
 				real leftWenoValue = 0.0;
@@ -106,8 +104,8 @@ namespace alsfvm { namespace reconstruction {
 				// Loop through all stencils (shift = r)
 				for (int shift = 0; shift < order; shift++) {
 
-					real* coefficientsRight = coefficients + shift + 1;
-					real* coefficientsLeft = coefficients + shift;
+				        real* coefficientsRight = coefficients + (shift + 1) * order;
+					real* coefficientsLeft = coefficients + shift * order;
 					real leftValue = 0.0;
 					real rightValue = 0.0;
 					for (size_t j = 0; j < order; j++) {
@@ -147,7 +145,7 @@ namespace alsfvm { namespace reconstruction {
 			const size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
 
 
-			const size_t blockSize = 512;
+			const size_t blockSize = 128;
 			const size_t gridSize = (totalSize + blockSize - 1) / blockSize;
 
 
@@ -237,7 +235,7 @@ namespace alsfvm { namespace reconstruction {
 		std::vector<real> enoCoefficientsHost(NUMBER_OF_ENO_LEVELS * NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER, 0);
 		for (size_t shift = 0; shift < order + 1; ++shift) {
 			for (size_t i = 0; i < order; ++i) {
-				enoCoefficientsHost[order * NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER + shift + i] = ENOCoeffiecients<order>::coefficients[shift][i];
+			  enoCoefficientsHost[order * NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER + shift*order + i] = ENOCoeffiecients<order>::coefficients[shift][i];
 			}
 		}
 
