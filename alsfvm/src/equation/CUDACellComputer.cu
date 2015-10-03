@@ -1,7 +1,7 @@
 #include "alsfvm/equation/CUDACellComputer.hpp"
 #include "alsfvm/equation/CPUCellComputer.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
-#include "alsfvm/volume/volume_foreach.hpp"
+
 #include "alsfvm/cuda/cuda_utils.hpp"
 #include <thrust/device_vector.h>
 #include <thrust/reduce.h>
@@ -21,8 +21,8 @@ namespace alsfvm {
 				if (index >= size) {
 					return;
 				}
-				auto conservedStruct = Equation::fetchConservedVariables(conservedIn, index);
-				auto extraStruct = Equation::computeExtra(conservedStruct);
+				typename Equation::ConservedVariables conservedStruct = Equation::fetchConservedVariables(conservedIn, index);
+				typename Equation::ExtraVariables extraStruct = Equation::computeExtra(conservedStruct);
 				Equation::setExtraViewAt(extra, index, extraStruct);
 			}
 

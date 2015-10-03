@@ -48,7 +48,7 @@ namespace {
 
     }
 }
-std::shared_ptr<simulator::Simulator>
+boost::shared_ptr<simulator::Simulator>
     SimulatorSetup::readSetupFromFile(const std::string &filename)
 {
     basePath = boost::filesystem::path(filename).parent_path().string();
@@ -72,15 +72,15 @@ std::shared_ptr<simulator::Simulator>
     auto writer = createWriter(configuration);
 
     auto platform = readPlatform(configuration);
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>(platform);
+    auto deviceConfiguration = boost::make_shared<DeviceConfiguration>(platform);
 
-    auto memoryFactory = std::make_shared<memory::MemoryFactory>(deviceConfiguration);
-    auto volumeFactory = std::make_shared<volume::VolumeFactory>(equation, memoryFactory);
-    auto boundaryFactory = std::make_shared<boundary::BoundaryFactory>(boundary, deviceConfiguration);
-    auto numericalFluxFactory = std::make_shared<numflux::NumericalFluxFactory>(equation, fluxname, reconstruction, deviceConfiguration);
-    auto integratorFactory = std::make_shared<integrator::IntegratorFactory>(integrator);
+    auto memoryFactory = boost::make_shared<memory::MemoryFactory>(deviceConfiguration);
+    auto volumeFactory = boost::make_shared<volume::VolumeFactory>(equation, memoryFactory);
+    auto boundaryFactory = boost::make_shared<boundary::BoundaryFactory>(boundary, deviceConfiguration);
+    auto numericalFluxFactory = boost::make_shared<numflux::NumericalFluxFactory>(equation, fluxname, reconstruction, deviceConfiguration);
+    auto integratorFactory = boost::make_shared<integrator::IntegratorFactory>(integrator);
 
-    auto cellComputerFactory = std::make_shared<equation::CellComputerFactory>(platform, equation, deviceConfiguration);
+    auto cellComputerFactory = boost::make_shared<equation::CellComputerFactory>(platform, equation, deviceConfiguration);
 
 
 
@@ -88,7 +88,7 @@ std::shared_ptr<simulator::Simulator>
     simulator::SimulatorParameters parameters;
     parameters.setCFLNumber(cfl);
 
-    auto simulator = std::make_shared<simulator::Simulator>(parameters,
+    auto simulator = boost::make_shared<simulator::Simulator>(parameters,
                          grid,
                          *volumeFactory,
                          *integratorFactory,
@@ -106,7 +106,7 @@ std::shared_ptr<simulator::Simulator>
     return simulator;
 }
 
-std::shared_ptr<grid::Grid> SimulatorSetup::createGrid(const SimulatorSetup::ptree &configuration)
+boost::shared_ptr<grid::Grid> SimulatorSetup::createGrid(const SimulatorSetup::ptree &configuration)
 {
     const ptree& gridNode =  configuration.get_child("fvm.grid");
 
@@ -119,7 +119,7 @@ std::shared_ptr<grid::Grid> SimulatorSetup::createGrid(const SimulatorSetup::ptr
     auto upperCorner = parseVector<real>(upperCornerString);
     auto dimension = parseVector<int>(dimensionString);
 
-    return std::make_shared<grid::Grid>(lowerCorner, upperCorner, dimension);
+    return boost::make_shared<grid::Grid>(lowerCorner, upperCorner, dimension);
 }
 
 real SimulatorSetup::readEndTime(const SimulatorSetup::ptree &configuration)
@@ -165,9 +165,10 @@ std::string SimulatorSetup::readIntegrator(const SimulatorSetup::ptree &configur
             return "rungekutta2";
         }
     }
+    return integratorString;
 }
 
-std::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(const SimulatorSetup::ptree &configuration)
+boost::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(const SimulatorSetup::ptree &configuration)
 {
     auto initialDataNode = configuration.get_child("fvm.initialData");
 
@@ -183,17 +184,17 @@ std::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(const Simul
                          std::istreambuf_iterator<char>());
 
 
-        return std::shared_ptr<init::InitialData>(new init::PythonInitialData(pythonProgram));
+        return boost::shared_ptr<init::InitialData>(new init::PythonInitialData(pythonProgram));
     }
 
     THROW("Unknown initial data.");
 }
 
-std::shared_ptr<io::Writer> SimulatorSetup::createWriter(const SimulatorSetup::ptree &configuration)
+boost::shared_ptr<io::Writer> SimulatorSetup::createWriter(const SimulatorSetup::ptree &configuration)
 {
     std::string type = configuration.get<std::string>("fvm.writer.type");
     std::string basename = configuration.get<std::string>("fvm.writer.basename");
-    std::shared_ptr<io::Writer> baseWriter;
+    boost::shared_ptr<io::Writer> baseWriter;
     if (type == "hdf5") {
         baseWriter.reset(new io::HDF5Writer(basename));
     } else {
@@ -205,7 +206,7 @@ std::shared_ptr<io::Writer> SimulatorSetup::createWriter(const SimulatorSetup::p
         size_t numberOfSaves = writerNode.get<size_t>("numberOfSaves");
         real endTime = readEndTime(configuration);
         real timeInterval = endTime / numberOfSaves;
-        return std::shared_ptr<io::Writer>(new io::FixedIntervalWriter(baseWriter, timeInterval, endTime));
+        return boost::shared_ptr<io::Writer>(new io::FixedIntervalWriter(baseWriter, timeInterval, endTime));
     }
     return baseWriter;
 }

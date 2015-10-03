@@ -14,10 +14,10 @@ using namespace alsfvm::init;
 
 TEST(PythonInitialDataTest, AnswerToEverything) {
 
-    std::shared_ptr<DeviceConfiguration> deviceConfiguration(new DeviceConfiguration);
+    boost::shared_ptr<DeviceConfiguration> deviceConfiguration(new DeviceConfiguration);
     equation::CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
     auto cellComputer = cellComputerFactory.createComputer();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
     volume::VolumeFactory volumeFactory("euler", memoryFactory);
     size_t nx = 10;
     size_t ny = 10;
@@ -51,10 +51,10 @@ TEST(PythonInitialDataTest, AnswerToEverything) {
 
 TEST(PythonInitialDataTest, RiemannProblem) {
 
-    std::shared_ptr<DeviceConfiguration> deviceConfiguration(new DeviceConfiguration);
+    boost::shared_ptr<DeviceConfiguration> deviceConfiguration(new DeviceConfiguration);
     equation::CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
     auto cellComputer = cellComputerFactory.createComputer();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
     volume::VolumeFactory volumeFactory("euler", memoryFactory);
     size_t nx = 10;
     size_t ny = 10;

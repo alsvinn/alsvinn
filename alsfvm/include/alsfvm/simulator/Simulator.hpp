@@ -25,31 +25,70 @@ namespace alsfvm { namespace simulator {
 /// while (!simulator.atEnd()) {
 ///    simulator.performStep();
 /// }
+/// \endcode
 
 ///
     class Simulator {
     public:
+        ///
+        /// \brief Simulator
+        /// \param simulatorParameters
+        /// \param grid
+        /// \param volumeFactory
+        /// \param integratorFactory
+        /// \param boundaryFactory
+        /// \param numericalFluxFactory
+        /// \param cellComputerFactory
+        /// \param memoryFactory
+        /// \param initialData
+        /// \param endTime
+        /// \param deviceConfiguration
+        /// \param equationName
+        ///
         Simulator(const SimulatorParameters& simulatorParameters,
-                  std::shared_ptr<grid::Grid> & grid,
+                  boost::shared_ptr<grid::Grid> & grid,
                   volume::VolumeFactory& volumeFactory,
                   integrator::IntegratorFactory& integratorFactory,
                   boundary::BoundaryFactory& boundaryFactory,
                   numflux::NumericalFluxFactory& numericalFluxFactory,
                   equation::CellComputerFactory& cellComputerFactory,
-                  std::shared_ptr<memory::MemoryFactory>& memoryFactory,
-                  std::shared_ptr<init::InitialData>& initialData,
+                  boost::shared_ptr<memory::MemoryFactory>& memoryFactory,
+                  boost::shared_ptr<init::InitialData>& initialData,
 				  real endTime,
-				  std::shared_ptr<DeviceConfiguration>& deviceConfiguration,
+				  boost::shared_ptr<DeviceConfiguration>& deviceConfiguration,
 				  std::string& equationName);
 
 
 
+        ///
+        /// \return true if the simulation is finished, false otherwise.
+        ///
         bool atEnd();
+
+        ///
+        /// Performs one timestep
+        ///
         void performStep();
+
+        ///
+        /// Calls the writers.
+        ///
         void callWriters();
-        void addWriter(std::shared_ptr<io::Writer>& writer);
+
+        ///
+        /// \brief addWriter adds a writer, this will be called every time callWriter is called
+        /// \param writer
+        ///
+        void addWriter(boost::shared_ptr<io::Writer>& writer);
+
+        ///
+        /// \return the current simulation time.
+        ///
         real getCurrentTime() const;
 
+        ///
+        /// \return the end time of the simulation.
+        ///
         real getEndTime() const;
 
     private:
@@ -59,17 +98,17 @@ namespace alsfvm { namespace simulator {
         void incrementSolution();
 
         TimestepInformation timestepInformation;
-        std::shared_ptr<grid::Grid> grid;
-        std::shared_ptr<numflux::NumericalFlux> numericalFlux;
-        std::shared_ptr<integrator::Integrator> integrator;
-        std::shared_ptr<boundary::Boundary> boundary;
-        std::vector<std::shared_ptr<volume::Volume> > conservedVolumes;
-        std::shared_ptr<volume::Volume> extraVolume;
-        std::shared_ptr<equation::CellComputer> cellComputer;
+        boost::shared_ptr<grid::Grid> grid;
+        boost::shared_ptr<numflux::NumericalFlux> numericalFlux;
+        boost::shared_ptr<integrator::Integrator> integrator;
+        boost::shared_ptr<boundary::Boundary> boundary;
+        std::vector<boost::shared_ptr<volume::Volume> > conservedVolumes;
+        boost::shared_ptr<volume::Volume> extraVolume;
+        boost::shared_ptr<equation::CellComputer> cellComputer;
 
 
-        std::vector<std::shared_ptr<io::Writer> > writers;
-        std::shared_ptr<init::InitialData> initialData;
+        std::vector<boost::shared_ptr<io::Writer> > writers;
+        boost::shared_ptr<init::InitialData> initialData;
 
         const real cflNumber;
         const real endTime;

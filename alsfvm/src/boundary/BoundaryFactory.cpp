@@ -3,7 +3,9 @@
 #include "alsfvm/boundary/BoundaryCPU.hpp"
 #include "alsfvm/boundary/Neumann.hpp"
 #include "alsfvm/boundary/Periodic.hpp"
+#ifdef ALSVINN_HAVE_CUDA
 #include "alsfvm/boundary/BoundaryCUDA.hpp"
+#endif
 
 namespace alsfvm { namespace boundary { 
 	///
@@ -17,7 +19,7 @@ namespace alsfvm { namespace boundary {
 	/// \param deviceConfiguration the device configuration
 	///
 	BoundaryFactory::BoundaryFactory(const std::string& name,
-		std::shared_ptr<DeviceConfiguration>& deviceConfiguration)
+		boost::shared_ptr<DeviceConfiguration>& deviceConfiguration)
 		: name(name), deviceConfiguration(deviceConfiguration)
 	{
 
@@ -27,28 +29,31 @@ namespace alsfvm { namespace boundary {
 	/// Creates the new boundary
 	/// \param ghostCellSize the number of ghost cell to use on each side.
 	/// 
-	std::shared_ptr<Boundary> BoundaryFactory::createBoundary(size_t ghostCellSize) {
+	boost::shared_ptr<Boundary> BoundaryFactory::createBoundary(size_t ghostCellSize) {
 		if (deviceConfiguration->getPlatform() == "cpu") {
 			if (name == "neumann") {
-				return std::shared_ptr<Boundary>(new BoundaryCPU<Neumann>(ghostCellSize));
+				return boost::shared_ptr<Boundary>(new BoundaryCPU<Neumann>(ghostCellSize));
 			} else if (name == "periodic") {
-				return std::shared_ptr<Boundary>(new BoundaryCPU<Periodic>(ghostCellSize));
+				return boost::shared_ptr<Boundary>(new BoundaryCPU<Periodic>(ghostCellSize));
 			}
 			else {
 				THROW("Unknown boundary type " << name);
 			}
 		}
+
+#ifdef ALSVINN_HAVE_CUDA
 		else if (deviceConfiguration->getPlatform() == "cuda") {
 			if (name == "neumann") {
-				return std::shared_ptr<Boundary>(new BoundaryCUDA<Neumann>(ghostCellSize));
+				return boost::shared_ptr<Boundary>(new BoundaryCUDA<Neumann>(ghostCellSize));
 			}
 			else if (name == "periodic") {
-				return std::shared_ptr<Boundary>(new BoundaryCUDA<Periodic>(ghostCellSize));
+				return boost::shared_ptr<Boundary>(new BoundaryCUDA<Periodic>(ghostCellSize));
 			}
 			else {
 				THROW("Unknown boundary type " << name);
 			}
 		}
+#endif
 		else {
 			THROW("Unknown platform " << deviceConfiguration->getPlatform());
 		}

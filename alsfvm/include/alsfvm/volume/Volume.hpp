@@ -33,7 +33,7 @@ namespace alsfvm {
 			///       in that direction. Ie. if ny==1, then we do not add ghost cells in y direction
             ///
             Volume(const std::vector<std::string>& variableNames,
-                   std::shared_ptr<memory::MemoryFactory> memoryFactory,
+                   boost::shared_ptr<memory::MemoryFactory> memoryFactory,
                    size_t nx, size_t ny, size_t nz,
 				   size_t numberOfGhostCells = 0);
 
@@ -53,7 +53,7 @@ namespace alsfvm {
             ///
             /// \return the MemoryArea for the given index
             ///
-            std::shared_ptr<memory::Memory<real> >&
+            boost::shared_ptr<memory::Memory<real> >&
                 getScalarMemoryArea(size_t index);
 
             ///
@@ -63,7 +63,7 @@ namespace alsfvm {
             ///
             /// \return the MemoryArea for the given index
             ///
-            std::shared_ptr<const memory::Memory<real> >
+            boost::shared_ptr<const memory::Memory<real> >
                 getScalarMemoryArea(size_t index) const;
 
 			///
@@ -73,7 +73,7 @@ namespace alsfvm {
             /// \note Equivalent to calling
             ///     getScalarMemoryArea(getIndexFromName(name))
 			///
-			std::shared_ptr<memory::Memory<real> >&
+			boost::shared_ptr<memory::Memory<real> >&
 				getScalarMemoryArea(const std::string& name);
 
             ///
@@ -83,7 +83,7 @@ namespace alsfvm {
             /// \note Equivalent to calling
             ///     getScalarMemoryArea(getIndexFromName(name))
             ///
-            std::shared_ptr<const memory::Memory<real> >
+            boost::shared_ptr<const memory::Memory<real> >
                 getScalarMemoryArea(const std::string& name) const;
 
 
@@ -181,10 +181,11 @@ namespace alsfvm {
 			void copyTo(volume::Volume& other) const;
 
 
-		private:
-            const std::shared_ptr<memory::MemoryFactory> memoryFactory;
+        private:
             const std::vector<std::string> variableNames;
-            std::vector<std::shared_ptr<memory::Memory<real> > >
+            const boost::shared_ptr<memory::MemoryFactory> memoryFactory;
+
+            std::vector<boost::shared_ptr<memory::Memory<real> > >
                 memoryAreas;
 			size_t nx;
 			size_t ny;

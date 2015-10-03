@@ -13,13 +13,13 @@ namespace memory {
 		///
 		/// The base memory pointer
 		///
-		typedef std::shared_ptr < MemoryBase > MemoryPtr;
+		typedef boost::shared_ptr < MemoryBase > MemoryPtr;
 	
 
 		/// 
 		/// \param deviceConfiguration the deviceConfiguration to use (this is mostly only relevant for GPU, on CPU it can be empty)
 		///
-        MemoryFactory(std::shared_ptr<DeviceConfiguration>& deviceConfiguration);
+        MemoryFactory(boost::shared_ptr<DeviceConfiguration>& deviceConfiguration);
 
 		///
 		/// Creates scalar memory of the given size
@@ -29,10 +29,10 @@ namespace memory {
         /// \note nx, ny, nz is in number of reals
 		/// \returns the pointer to the newly created memory area.
 		///
-        std::shared_ptr<Memory<real> > createScalarMemory(size_t nx, size_t ny, size_t nz);
+        boost::shared_ptr<Memory<real> > createScalarMemory(size_t nx, size_t ny, size_t nz);
 	private:
 
-		std::shared_ptr<DeviceConfiguration> deviceConfiguration;
+		boost::shared_ptr<DeviceConfiguration> deviceConfiguration;
     };
 }
 }

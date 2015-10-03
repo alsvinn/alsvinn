@@ -1,6 +1,8 @@
 #include "alsfvm/numflux/NumericalFluxFactory.hpp"
 #include "alsfvm/numflux/euler/NumericalFluxCPU.hpp"
+#ifdef ALSVINN_HAVE_CUDA
 #include "alsfvm/numflux/NumericalFluxCUDA.hpp"
+#endif
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include "alsfvm/numflux/euler/HLL3.hpp"
 #include "alsfvm/reconstruction/NoReconstruction.hpp"
@@ -23,7 +25,7 @@ namespace alsfvm { namespace numflux {
 NumericalFluxFactory::NumericalFluxFactory(const std::string& equation,
                                            const std::string& fluxname,
                                            const std::string& reconstruction,
-                                           std::shared_ptr<DeviceConfiguration>& deviceConfiguration)
+                                           boost::shared_ptr<DeviceConfiguration>& deviceConfiguration)
     : equation(equation), fluxname(fluxname), reconstruction(reconstruction),
       deviceConfiguration(deviceConfiguration)
 {
@@ -35,10 +37,10 @@ NumericalFluxFactory::NumericalFluxFactory(const std::string& equation,
 ///
 NumericalFluxFactory::NumericalFluxPtr
 NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
-    auto memoryFactory = std::make_shared<memory::MemoryFactory>(deviceConfiguration);
+    auto memoryFactory = boost::make_shared<memory::MemoryFactory>(deviceConfiguration);
     // First we must do a lot of error checking
     auto& platform = deviceConfiguration->getPlatform();
-	std::shared_ptr<reconstruction::Reconstruction> reconstructor;
+	boost::shared_ptr<reconstruction::Reconstruction> reconstructor;
 	if (reconstruction == "none") {
 		reconstructor.reset(new reconstruction::NoReconstruction);
 	}
@@ -117,6 +119,7 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
 			THROW("Unknown equation " << equation);
 		}
 	}
+#ifdef ALSVINN_HAVE_CUDA
 	else if (platform == "cuda") {
 		if (equation == "euler") {
 			if (fluxname == "HLL") {
@@ -162,7 +165,9 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
 		else {
 			THROW("Unknown equation " << equation);
 		}
-    } else {
+    }
+#endif
+    else {
         THROW("Unknown platform " << platform);
     }
 

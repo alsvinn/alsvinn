@@ -14,16 +14,16 @@ using namespace alsfvm::volume;
 
 class TestExtraComputation : public ::testing::Test {
 public:
-    std::shared_ptr<DeviceConfiguration> deviceConfiguration;
+    boost::shared_ptr<DeviceConfiguration> deviceConfiguration;
     const std::string equation;
     const std::string platform;
     const size_t nx;
     const size_t ny;
     const size_t nz;
-    std::shared_ptr<MemoryFactory> memoryFactory;
+    boost::shared_ptr<MemoryFactory> memoryFactory;
     VolumeFactory volumeFactory;
-    std::shared_ptr<Volume> conservedVolume;
-    std::shared_ptr<Volume> extraVolume;
+    boost::shared_ptr<Volume> conservedVolume;
+    boost::shared_ptr<Volume> extraVolume;
     CellComputerFactory cellComputerFactory;
     TestExtraComputation()
         : deviceConfiguration(new DeviceConfiguration("cpu")),

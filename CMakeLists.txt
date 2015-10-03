@@ -22,7 +22,7 @@ SET(ALSVINN_USE_CUDA OFF CACHE BOOL "Build with CUDA")
 SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
 # Add the user's chosen flags to the build for this directory.
 if (NOT WIN32)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment")
 endif()
 
 
@@ -46,7 +46,8 @@ find_package(PythonLibs REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem system chrono)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 if(CUDA_FOUND)
-	list(APPEND CUDA_NVCC_FLAGS -gencode=arch=compute_52,code="compute_52,sm_52" -Xptxas -v )
+  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+  #list(APPEND CUDA_NVCC_FLAGS -gencode=arch=compute_52,code="compute_52,sm_52" -Xptxas -v )
   list(APPEND CUDA_NVCC_FLAGS_DEBUG -G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0)
   set(ALSVINN_HAVE_CUDA On)
   add_definitions(-DALSVINN_HAVE_CUDA)

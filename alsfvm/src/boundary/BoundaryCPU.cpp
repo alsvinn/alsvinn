@@ -12,10 +12,10 @@ namespace alsfvm { namespace boundary {
 		/// \param dimensions the number of dimensions(1,2 or 3).
 		///
 		template<class BoundaryConditions>
-		void applyNeumann(volume::Volume& volume, const size_t dimensions, const size_t numberOfGhostCells) {
-            const int nx = volume.getTotalNumberOfXCells();
-            const int ny = volume.getTotalNumberOfYCells();
-            const int nz = volume.getTotalNumberOfZCells();
+        void applyBoundary(volume::Volume& volume, const size_t dimensions, const size_t numberOfGhostCells) {
+            const size_t nx = volume.getTotalNumberOfXCells();
+            const size_t ny = volume.getTotalNumberOfYCells();
+            const size_t nz = volume.getTotalNumberOfZCells();
 
 			if (nx < 2 * numberOfGhostCells || ((dimensions > 1) && ny < 2 * numberOfGhostCells) || ((dimensions > 2) && nz < 2 * numberOfGhostCells) ) {
 				THROW("Too few cells to apply boundary condition. We got (nx, ny, nz)=("
@@ -28,10 +28,10 @@ namespace alsfvm { namespace boundary {
 			assert(ny*sizeof(real) == volume.getScalarMemoryArea(0)->getExtentYInBytes());
 
 			// loop through variables
-			for (int var = 0; var < volume.getNumberOfVariables(); var++) {
+            for (size_t var = 0; var < volume.getNumberOfVariables(); var++) {
 				auto view = volume.getScalarMemoryArea(var)->getView();
 				// loop through dimensions
-				for (int d = 0; d < dimensions; d++) {
+                for (size_t d = 0; d < dimensions; d++) {
 					// i=0 represents bottom, i=1 represents top
 					for (int i = 0; i < 2; i++) {
 						const bool zDir = d == 2;
@@ -56,11 +56,11 @@ namespace alsfvm { namespace boundary {
                         const size_t xEnd = xDir ?
                             (xStart + 1) : nx;
 
-                        for (int z = zStart; z < zEnd; z++) {
-                            for (int y = yStart; y < yEnd; y++) {
-                                for (int x = xStart; x < xEnd; x++) {
+                        for (size_t z = zStart; z < zEnd; z++) {
+                            for (size_t y = yStart; y < yEnd; y++) {
+                                for (size_t x = xStart; x < xEnd; x++) {
 									for (size_t ghostCell = 1; ghostCell <= numberOfGhostCells; ghostCell++) {
-										BoundaryConditions::applyBoundary(view, x, y, z, numberOfGhostCells, ghostCell, i == 1, xDir, yDir, zDir);
+                                        BoundaryConditions::applyBoundary(view, x, y, z, ghostCell, numberOfGhostCells, i == 1, xDir, yDir, zDir);
 									}
                                 }
                             }
@@ -83,7 +83,7 @@ namespace alsfvm { namespace boundary {
 	template<class BoundaryConditions>
 	void BoundaryCPU<BoundaryConditions>::applyBoundaryConditions(volume::Volume& volume, const grid::Grid& grid)
 	{
-		applyNeumann<BoundaryConditions>(volume, grid.getActiveDimension(), numberOfGhostCells);
+        applyBoundary<BoundaryConditions>(volume, grid.getActiveDimension(), numberOfGhostCells);
 
 	}
 

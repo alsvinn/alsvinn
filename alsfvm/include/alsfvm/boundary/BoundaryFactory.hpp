@@ -17,17 +17,17 @@ namespace alsfvm { namespace boundary {
 		/// \param deviceConfiguration the device configuration
 		///
 		BoundaryFactory(const std::string& name,
-			std::shared_ptr<DeviceConfiguration>& deviceConfiguration);
+			boost::shared_ptr<DeviceConfiguration>& deviceConfiguration);
 
 		/// 
 		/// Creates the new boundary
 		/// \param ghostCellSize the number of ghost cell to use on each side.
 		/// 
-		std::shared_ptr<Boundary> createBoundary(size_t ghostCellSize);
+		boost::shared_ptr<Boundary> createBoundary(size_t ghostCellSize);
 
 	private:
 		std::string name;
-		std::shared_ptr<DeviceConfiguration> deviceConfiguration;
+		boost::shared_ptr<DeviceConfiguration> deviceConfiguration;
     };
 } // namespace alsfvm
 } // namespace boundary

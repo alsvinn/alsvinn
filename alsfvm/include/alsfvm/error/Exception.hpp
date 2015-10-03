@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <exception>
+#include <stdexcept>
 #include <boost/current_function.hpp>
 
 /// 

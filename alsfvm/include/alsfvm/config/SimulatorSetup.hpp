@@ -9,18 +9,18 @@ namespace alsfvm { namespace config {
     class SimulatorSetup {
     public:
         typedef boost::property_tree::ptree ptree;
-        std::shared_ptr<simulator::Simulator>
+        boost::shared_ptr<simulator::Simulator>
             readSetupFromFile(const std::string& filename);
 
     protected:
-        std::shared_ptr<grid::Grid> createGrid(const ptree& configuration);
+        boost::shared_ptr<grid::Grid> createGrid(const ptree& configuration);
         real readEndTime(const ptree& configuration);
         std::string readEquation(const ptree& configuration);
         std::string readReconstruciton(const ptree& configuration);
         real readCFLNumber(const ptree& configuration);
         std::string readIntegrator(const ptree& configuration);
-        std::shared_ptr<init::InitialData> createInitialData(const ptree& configuration);
-        std::shared_ptr<io::Writer> createWriter(const ptree& configuration);
+        boost::shared_ptr<init::InitialData> createInitialData(const ptree& configuration);
+        boost::shared_ptr<io::Writer> createWriter(const ptree& configuration);
         std::string readPlatform(const ptree& configuration);
         std::string readBoundary(const ptree& configuration);
 

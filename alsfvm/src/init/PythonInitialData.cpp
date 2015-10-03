@@ -1,4 +1,5 @@
 #include "alsfvm/init/PythonInitialData.hpp"
+
 #ifdef _DEBUG
 #undef _DEBUG
 #include <Python.h>
@@ -6,6 +7,7 @@
 #else
 #include <Python.h>
 #endif
+
 #include <iostream>
 #include <sstream>
 #include "alsfvm/volume/volume_foreach.hpp"

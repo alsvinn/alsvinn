@@ -18,13 +18,13 @@ namespace alsfvm { namespace equation {
         ///
         CellComputerFactory(const std::string& platform,
                             const std::string& equation,
-							std::shared_ptr<DeviceConfiguration>& deviceConfiguration);
+							boost::shared_ptr<DeviceConfiguration>& deviceConfiguration);
 
         ///
         /// \brief createComputer creates a new cell computer
         /// \return an instance of the cell computer.
         ///
-        std::shared_ptr<CellComputer> createComputer();
+        boost::shared_ptr<CellComputer> createComputer();
 
     private:
         const std::string platform;

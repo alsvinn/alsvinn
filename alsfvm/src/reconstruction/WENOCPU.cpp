@@ -78,9 +78,9 @@ void WENOCPU<order>::performReconstruction(const volume::Volume& inputVariables,
     const size_t nz = inputVariables.getTotalNumberOfZCells();
 
     // Sanity check, we need at least ONE point in the interior.
-    assert(nx > 2 * directionVector.x * order);
-    assert((directionVector.y == 0) || (ny > 2 * directionVector.y * order));
-    assert((directionVector.z == 0) || (nz > 2 * directionVector.z * order));
+    assert(int(nx) > 2 * directionVector.x * order);
+    assert((directionVector.y == 0) || (int(ny) > 2 * directionVector.y * order));
+    assert((directionVector.z == 0) || (int(nz) > 2 * directionVector.z * order));
 
     const size_t startX = directionVector.x * (order - 1);
     const size_t startY = directionVector.y * (order - 1);
@@ -136,7 +136,7 @@ void WENOCPU<order>::performReconstruction(const volume::Volume& inputVariables,
                                                          alphaLeft,
                                                          alphaRight);
 
-                for(int var = 0; var < numberOfVariables; var++) {
+                for(size_t var = 0; var < numberOfVariables; var++) {
                     real leftWenoValue = 0.0;
                     real rightWenoValue = 0.0;
                     // Loop through all stencils (shift = r)
@@ -146,7 +146,7 @@ void WENOCPU<order>::performReconstruction(const volume::Volume& inputVariables,
                         auto coefficientsLeft = ENOCoeffiecients<order>::coefficients[shift];
                         real leftValue = 0.0;
                         real rightValue = 0.0;
-                        for (size_t j = 0; j < order; j++) {
+                        for (int j = 0; j < order; j++) {
 
                             const size_t index = (z - (shift - j)*directionVector.z) * nx * ny
                                     + (y - (shift - j)*directionVector.y) * nx

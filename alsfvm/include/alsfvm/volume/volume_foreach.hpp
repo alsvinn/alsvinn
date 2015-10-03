@@ -256,7 +256,6 @@ namespace alsfvm {
 
         const size_t nxGrid = grid.getDimensions().x;
         const size_t nyGrid = grid.getDimensions().y;
-        const size_t nzGrid = grid.getDimensions().z;
 
 		auto& midPoints = grid.getCellMidpoints();
 
@@ -296,7 +295,6 @@ namespace alsfvm {
 
         const size_t nxGrid = grid.getDimensions().x;
         const size_t nyGrid = grid.getDimensions().y;
-        const size_t nzGrid = grid.getDimensions().z;
 
         auto& midPoints = grid.getCellMidpoints();
 

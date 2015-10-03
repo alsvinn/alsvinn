@@ -19,10 +19,10 @@ public:
     std::string equation;
     std::string flux;
     std::string reconstruction;
-    std::shared_ptr<DeviceConfiguration> deviceConfiguration;
+    boost::shared_ptr<DeviceConfiguration> deviceConfiguration;
     NumericalFluxFactory fluxFactory;
     grid::Grid grid;
-	std::shared_ptr<memory::MemoryFactory> memoryFactory;
+	boost::shared_ptr<memory::MemoryFactory> memoryFactory;
 	volume::VolumeFactory volumeFactory;
 	const size_t nx;
 	const size_t ny;

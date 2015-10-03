@@ -15,8 +15,8 @@ using namespace alsfvm::grid;
 TEST(WenoTest, ConstantZeroTestSecondOrder) {
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = boost::make_shared<DeviceConfiguration>();
+    auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
     WENOCPU<2> wenoCPU;
@@ -49,8 +49,8 @@ TEST(WenoTest, ConstantZeroTestSecondOrder) {
 TEST(WenoTest, ConstantZeroTestThirdOrder) {
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = boost::make_shared<DeviceConfiguration>();
+    auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
     WENOCPU<3> wenoCPU;
@@ -84,8 +84,8 @@ TEST(WenoTest, ConstantOneTestSecondOrder) {
 
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = boost::make_shared<DeviceConfiguration>();
+    auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
     WENOCPU<2> wenoCPU;
@@ -124,8 +124,8 @@ TEST(WenoTest, ConstantOneTestThirdOrder) {
 
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = boost::make_shared<DeviceConfiguration>();
+    auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
     WENOCPU<3> wenoCPU;
@@ -163,8 +163,8 @@ TEST(WenoTest, ConstantOneTestThirdOrder) {
 TEST(WenoTest, ReconstructionSimple) {
     const size_t nx = 10, ny = 1, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = boost::make_shared<DeviceConfiguration>();
+    auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
     WENOCPU<2> wenoCPU;
@@ -198,8 +198,8 @@ TEST(WenoTest, ReconstructionSimple) {
     const real d0 = 2.0/3.0;
     const real d1 = 1.0/3.0;
 
-    const real beta0 = 4.0;
-    const real beta1 = 1.0;
+    const real beta0 = 1.0;
+    const real beta1 = 4.0;
 
     const real alpha0 = d0 / pow(beta0 + epsilon, 2);
     const real alpha1 = d1 / pow(beta1 + epsilon, 2);
@@ -225,8 +225,8 @@ TEST(WenoTest, ReconstructionSimple) {
 TEST(WenoTest, ReconstructionSimpleYDirection) {
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = boost::make_shared<DeviceConfiguration>();
+    auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
     WENOCPU<2> wenoCPU;
@@ -261,8 +261,8 @@ TEST(WenoTest, ReconstructionSimpleYDirection) {
     const real d0 = 2.0/3.0;
     const real d1 = 1.0/3.0;
 
-    const real beta0 = 4.0;
-    const real beta1 = 1.0;
+    const real beta0 = 1.0;
+    const real beta1 = 4.0;
 
     const real alpha0 = d0 / pow(beta0 + epsilon, 2);
     const real alpha1 = d1 / pow(beta1 + epsilon, 2);
