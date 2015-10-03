@@ -1,0 +1,26 @@
+<fvm>
+  <name>
+    shocktube
+  </name>
+  <platform>cpu</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>2 0 0</upperCorner>
+    <dimension>2048 1 1</dimension>
+  </grid>
+  <boundary>neumann</boundary>
+  <flux>HLL3</flux>
+  <endTime>0.5</endTime>
+  <equation>euler</equation>
+  <reconstruction>none</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
+  <initialData>
+    <python>sodshocktube.py</python>
+  </initialData>
+  <writer>
+    <type>hdf5</type>
+    <basename>sodtube</basename>
+    <numberOfSaves>10</numberOfSaves>
+  </writer>
+</fvm>
