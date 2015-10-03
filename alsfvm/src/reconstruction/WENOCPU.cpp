@@ -108,7 +108,7 @@ void WENOCPU<order>::performReconstruction(const volume::Volume& inputVariables,
     for (size_t z = startZ; z < endZ; z++) {
         for (size_t y = startY; y < endY; y++) {
             for (size_t x = startX; x < endX; x++) {
-                const size_t indexRight = z*nx*ny + y * nx + x;
+                const size_t outIndex = z*nx*ny + y * nx + x;
 
 
 
@@ -157,12 +157,12 @@ void WENOCPU<order>::performReconstruction(const volume::Volume& inputVariables,
                             leftValue += coefficientsLeft[j] * value;
                             rightValue += coefficientsRight[j] * value;
                         }
-                        leftWenoValue += leftValue * alphaLeft[shift] / alphaLeftSum;
-                        rightWenoValue += rightValue * alphaRight[shift] / alphaRightSum;
+                        leftWenoValue += leftValue * (alphaLeft[shift] / alphaLeftSum);
+                        rightWenoValue += rightValue * (alphaRight[shift] / alphaRightSum);
                     }
 
-                    pointersOutLeft[var][indexRight] = leftWenoValue;
-                    pointersOutRight[var][indexRight] = rightWenoValue;
+                    pointersOutLeft[var][outIndex] = leftWenoValue;
+                    pointersOutRight[var][outIndex] = rightWenoValue;
 
                 }
             }
