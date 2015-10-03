@@ -147,14 +147,14 @@ namespace alsfvm { namespace numflux {
 
 	template<class Flux, class Equation, size_t dimension>
 	NumericalFluxCUDA<Flux, Equation, dimension>::NumericalFluxCUDA(const grid::Grid &grid,
-		boost::shared_ptr<reconstruction::Reconstruction>& reconstruction,
-		boost::shared_ptr<DeviceConfiguration> &deviceConfiguration)
+		alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
+		alsfvm::shared_ptr<DeviceConfiguration> &deviceConfiguration)
 		: reconstruction(reconstruction)
 	{
 		static_assert(dimension > 0, "We only support positive dimension!");
 		static_assert(dimension < 4, "We only support dimension up to 3");
 
-		boost::shared_ptr<memory::MemoryFactory> memoryFactory(new memory::MemoryFactory(deviceConfiguration));
+		alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory(new memory::MemoryFactory(deviceConfiguration));
 		volume::VolumeFactory volumeFactory(Equation::name, memoryFactory);
 
 		left = volumeFactory.createConservedVolume(grid.getDimensions().x,

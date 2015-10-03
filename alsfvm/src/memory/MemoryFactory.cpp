@@ -11,7 +11,7 @@ namespace alsfvm {
 		/// 
 		/// \param deviceConfiguration the deviceConfiguration to use (this is mostly only relevant for GPU, on CPU it can be empty)
 		///
-		MemoryFactory::MemoryFactory(boost::shared_ptr<DeviceConfiguration>& deviceConfiguration)
+		MemoryFactory::MemoryFactory(alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration)
 			: deviceConfiguration(deviceConfiguration)
 		{
 		}
@@ -24,14 +24,14 @@ namespace alsfvm {
         /// \note nx, ny, nz is in number of reals
 		/// \returns the pointer to the newly created memory area.
 		///
-        boost::shared_ptr<Memory<real> >
+        alsfvm::shared_ptr<Memory<real> >
             MemoryFactory::createScalarMemory(size_t nx, size_t ny, size_t nz) {
             if (deviceConfiguration->getPlatform() == "cpu") {
-                return boost::shared_ptr<Memory<real> >(new HostMemory<real>(nx, ny, nz));
+                return alsfvm::shared_ptr<Memory<real> >(new HostMemory<real>(nx, ny, nz));
             }
 			else if (deviceConfiguration->getPlatform() == "cuda") {
 #ifdef ALSVINN_HAVE_CUDA
-                return boost::shared_ptr<Memory<real> >(new cuda::CudaMemory<real>(nx,ny, nz));
+                return alsfvm::shared_ptr<Memory<real> >(new cuda::CudaMemory<real>(nx,ny, nz));
 #else
                 THROW("CUDA is not enabled for this build");
 #endif

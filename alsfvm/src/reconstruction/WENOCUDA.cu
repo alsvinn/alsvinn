@@ -1,7 +1,6 @@
 #include "alsfvm/reconstruction/WENOCUDA.hpp"
 #include "alsfvm/reconstruction/WENOCoefficients.hpp"
 #include "alsfvm/reconstruction/ENOCoefficients.hpp"
-#include <boost/array.hpp>
 #include "alsfvm/cuda/cuda_utils.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
 

@@ -9,8 +9,8 @@ namespace alsfvm { namespace numflux {
     class NumericalFluxCUDA : public NumericalFlux  {
     public:
 		NumericalFluxCUDA(const grid::Grid& grid,
-			boost::shared_ptr<reconstruction::Reconstruction>& reconstruction,
-			boost::shared_ptr<DeviceConfiguration>& deviceConfiguration
+			alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
+			alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration
 			);
 
 		/// 
@@ -42,10 +42,10 @@ namespace alsfvm { namespace numflux {
 		///
 		virtual size_t getNumberOfGhostCells();
 	private:
-		boost::shared_ptr<reconstruction::Reconstruction> reconstruction;
-		boost::shared_ptr<volume::Volume> left;
-		boost::shared_ptr<volume::Volume> right;
-		boost::shared_ptr<volume::Volume> fluxOutput;
+		alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction;
+		alsfvm::shared_ptr<volume::Volume> left;
+		alsfvm::shared_ptr<volume::Volume> right;
+		alsfvm::shared_ptr<volume::Volume> fluxOutput;
     };
 } // namespace alsfvm
 } // namespace numflux

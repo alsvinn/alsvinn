@@ -46,16 +46,16 @@ namespace alsfvm { namespace simulator {
         /// \param equationName
         ///
         Simulator(const SimulatorParameters& simulatorParameters,
-                  boost::shared_ptr<grid::Grid> & grid,
+                  alsfvm::shared_ptr<grid::Grid> & grid,
                   volume::VolumeFactory& volumeFactory,
                   integrator::IntegratorFactory& integratorFactory,
                   boundary::BoundaryFactory& boundaryFactory,
                   numflux::NumericalFluxFactory& numericalFluxFactory,
                   equation::CellComputerFactory& cellComputerFactory,
-                  boost::shared_ptr<memory::MemoryFactory>& memoryFactory,
-                  boost::shared_ptr<init::InitialData>& initialData,
+                  alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+                  alsfvm::shared_ptr<init::InitialData>& initialData,
 				  real endTime,
-				  boost::shared_ptr<DeviceConfiguration>& deviceConfiguration,
+				  alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
 				  std::string& equationName);
 
 
@@ -79,7 +79,7 @@ namespace alsfvm { namespace simulator {
         /// \brief addWriter adds a writer, this will be called every time callWriter is called
         /// \param writer
         ///
-        void addWriter(boost::shared_ptr<io::Writer>& writer);
+        void addWriter(alsfvm::shared_ptr<io::Writer>& writer);
 
         ///
         /// \return the current simulation time.
@@ -98,17 +98,17 @@ namespace alsfvm { namespace simulator {
         void incrementSolution();
 
         TimestepInformation timestepInformation;
-        boost::shared_ptr<grid::Grid> grid;
-        boost::shared_ptr<numflux::NumericalFlux> numericalFlux;
-        boost::shared_ptr<integrator::Integrator> integrator;
-        boost::shared_ptr<boundary::Boundary> boundary;
-        std::vector<boost::shared_ptr<volume::Volume> > conservedVolumes;
-        boost::shared_ptr<volume::Volume> extraVolume;
-        boost::shared_ptr<equation::CellComputer> cellComputer;
+        alsfvm::shared_ptr<grid::Grid> grid;
+        alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;
+        alsfvm::shared_ptr<integrator::Integrator> integrator;
+        alsfvm::shared_ptr<boundary::Boundary> boundary;
+        std::vector<alsfvm::shared_ptr<volume::Volume> > conservedVolumes;
+        alsfvm::shared_ptr<volume::Volume> extraVolume;
+        alsfvm::shared_ptr<equation::CellComputer> cellComputer;
 
 
-        std::vector<boost::shared_ptr<io::Writer> > writers;
-        boost::shared_ptr<init::InitialData> initialData;
+        std::vector<alsfvm::shared_ptr<io::Writer> > writers;
+        alsfvm::shared_ptr<init::InitialData> initialData;
 
         const real cflNumber;
         const real endTime;

@@ -19,7 +19,7 @@ public:
     /// \param timeInterval the time interval (will save for every time n*timeInterval)
     /// \param endTime the final time for the simulation.
     ///
-    FixedIntervalWriter(boost::shared_ptr<Writer>& writer, real timeInterval, real endTime);
+    FixedIntervalWriter(alsfvm::shared_ptr<Writer>& writer, real timeInterval, real endTime);
 
     virtual ~FixedIntervalWriter() {}
     ///
@@ -35,7 +35,7 @@ public:
                        const simulator::TimestepInformation& timestepInformation);
 
 private:
-    boost::shared_ptr<Writer> writer;
+    alsfvm::shared_ptr<Writer> writer;
     const real timeInterval;
     const real endTime;
     size_t numberSaved;

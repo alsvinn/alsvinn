@@ -15,8 +15,8 @@ using namespace alsfvm::grid;
 TEST(CUDAWenoTest, ConstantZeroTestSecondOrder) {
 	const size_t nx = 10, ny = 10, nz = 1;
 
-	auto deviceConfiguration = boost::make_shared<DeviceConfiguration>("cuda");
-	auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
+	auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>("cuda");
+	auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
 	VolumeFactory volumeFactory("euler", memoryFactory);
 	WENOCUDA<equation::euler::Euler, 2> wenoCUDA;
@@ -32,8 +32,8 @@ TEST(CUDAWenoTest, ConstantZeroTestSecondOrder) {
 	wenoCUDA.performReconstruction(*conserved, 0, 0, *left, *right);
 
 
-	auto deviceConfigurationCPU = boost::make_shared<DeviceConfiguration>("cpu");
-	auto memoryFactoryCPU = boost::make_shared<MemoryFactory>(deviceConfigurationCPU);
+	auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
+	auto memoryFactoryCPU = alsfvm::make_shared<MemoryFactory>(deviceConfigurationCPU);
 
 	VolumeFactory volumeFactoryCPU("euler", memoryFactoryCPU);
 	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
@@ -59,8 +59,8 @@ TEST(CUDAWenoTest, ConstantZeroTestSecondOrder) {
 TEST(CUDAWenoTest, ConstantZeroTestThirdOrder) {
 	const size_t nx = 10, ny = 10, nz = 1;
 
-	auto deviceConfiguration = boost::make_shared<DeviceConfiguration>("cuda");
-	auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
+	auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>("cuda");
+	auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
 	VolumeFactory volumeFactory("euler", memoryFactory);
 	WENOCUDA<equation::euler::Euler, 3> wenoCUDA;
@@ -75,8 +75,8 @@ TEST(CUDAWenoTest, ConstantZeroTestThirdOrder) {
 
 	wenoCUDA.performReconstruction(*conserved, 0, 0, *left, *right);
 
-	auto deviceConfigurationCPU = boost::make_shared<DeviceConfiguration>("cpu");
-	auto memoryFactoryCPU = boost::make_shared<MemoryFactory>(deviceConfigurationCPU);
+	auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
+	auto memoryFactoryCPU = alsfvm::make_shared<MemoryFactory>(deviceConfigurationCPU);
 
 	VolumeFactory volumeFactoryCPU("euler", memoryFactoryCPU);
 	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
@@ -103,16 +103,16 @@ TEST(CUDAWenoTest, ConstantZeroTestThirdOrder) {
 TEST(CUDAWenoTest, ConstantOneTestSecondOrder) {
 	WENOCUDA<equation::euler::Euler, 2> wenoCUDA;
 	const size_t nx = 10, ny = 10, nz = 1;
-	auto deviceConfigurationCPU = boost::make_shared<DeviceConfiguration>("cpu");
-	auto memoryFactoryCPU = boost::make_shared<MemoryFactory>(deviceConfigurationCPU);
+	auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
+	auto memoryFactoryCPU = alsfvm::make_shared<MemoryFactory>(deviceConfigurationCPU);
 
 	VolumeFactory volumeFactoryCPU("euler", memoryFactoryCPU);
 	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
 	auto leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
 	auto conservedCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
 
-	auto deviceConfiguration = boost::make_shared<DeviceConfiguration>("cuda");
-	auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
+	auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>("cuda");
+	auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
 	VolumeFactory volumeFactory("euler", memoryFactory);
 
@@ -155,16 +155,16 @@ TEST(CUDAWenoTest, ConstantOneTestSecondOrder) {
 TEST(CUDAWenoTest, ConstantOneTestThirdOrder) {
 	WENOCUDA<equation::euler::Euler, 3> wenoCUDA;
 	const size_t nx = 10, ny = 10, nz = 1;
-	auto deviceConfigurationCPU = boost::make_shared<DeviceConfiguration>("cpu");
-	auto memoryFactoryCPU = boost::make_shared<MemoryFactory>(deviceConfigurationCPU);
+	auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
+	auto memoryFactoryCPU = alsfvm::make_shared<MemoryFactory>(deviceConfigurationCPU);
 
 	VolumeFactory volumeFactoryCPU("euler", memoryFactoryCPU);
 	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
 	auto leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
 	auto conservedCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
 
-	auto deviceConfiguration = boost::make_shared<DeviceConfiguration>("cuda");
-	auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
+	auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>("cuda");
+	auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
 	VolumeFactory volumeFactory("euler", memoryFactory);
 
@@ -207,8 +207,8 @@ TEST(CUDAWenoTest, ConstantOneTestThirdOrder) {
 TEST(CUDAWenoTest, ReconstructionSimple) {
 	const size_t nx = 10, ny = 1, nz = 1;
 
-	auto deviceConfiguration = boost::make_shared<DeviceConfiguration>("cuda");
-	auto memoryFactory = boost::make_shared<MemoryFactory>(deviceConfiguration);
+	auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>("cuda");
+	auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
 	VolumeFactory volumeFactory("euler", memoryFactory);
 	WENOCUDA<equation::euler::Euler, 2> wenoCUDA;
@@ -216,8 +216,8 @@ TEST(CUDAWenoTest, ReconstructionSimple) {
 	auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
 	auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
 
-	auto deviceConfigurationCPU = boost::make_shared<DeviceConfiguration>("cpu");
-	auto memoryFactoryCPU = boost::make_shared<MemoryFactory>(deviceConfigurationCPU);
+	auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
+	auto memoryFactoryCPU = alsfvm::make_shared<MemoryFactory>(deviceConfigurationCPU);
 
 	VolumeFactory volumeFactoryCPU("euler", memoryFactoryCPU);
 	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());

@@ -14,7 +14,7 @@ namespace alsfvm { namespace reconstruction {
     template<int order>
     class ENOCPU : public Reconstruction {
     public:
-        ENOCPU(boost::shared_ptr<memory::MemoryFactory>& memoryFactory,
+        ENOCPU(alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
                size_t nx, size_t ny, size_t nz);
         ///
         /// Performs reconstruction.
@@ -57,7 +57,7 @@ namespace alsfvm { namespace reconstruction {
 
         // For each level l, this will contain the divided differences for that
         // level.
-        std::array<boost::shared_ptr<memory::Memory<real> >, order - 1> dividedDifferences;
+        std::array<alsfvm::shared_ptr<memory::Memory<real> >, order - 1> dividedDifferences;
     };
 
 

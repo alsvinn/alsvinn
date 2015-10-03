@@ -25,7 +25,7 @@ namespace alsfvm { namespace integrator {
 	/// 
     class RungeKutta2 : public Integrator {
     public:
-        RungeKutta2(boost::shared_ptr<numflux::NumericalFlux> numericalFlux);
+        RungeKutta2(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux);
 
 
         ///
@@ -48,12 +48,12 @@ namespace alsfvm { namespace integrator {
         /// \param substep the substep currently being computed.
         /// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
         ///
-        virtual void performSubstep(const std::vector<boost::shared_ptr< volume::Volume> >& inputConserved,
+        virtual void performSubstep(const std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
             rvec3 spatialCellSizes, real dt,
             volume::Volume& output, size_t substep);
 
     private:
-        boost::shared_ptr<numflux::NumericalFlux> numericalFlux;
+        alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;
 
     };
 } // namespace alsfvm

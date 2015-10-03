@@ -25,6 +25,12 @@ if (NOT WIN32)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment")
 endif()
 
+IF(WIN32) 
+	# This is apparently needed for Visual Studio 2013, could be 
+	# fixed on 2013, but cuda doesn't work there...
+	ADD_DEFINITIONS(-DBOOST_NO_CXX11_ALLOCATOR)
+ENDIF()
+
 
 if (ALSVINN_USE_CUDA)
     find_package(CUDA REQUIRED)
@@ -46,7 +52,12 @@ find_package(PythonLibs REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem system chrono)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 if(CUDA_FOUND)
-  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+	
+  IF(NOT WIN32)
+	#Mostly only relevant for older versions of CUDA on Linux/Mac OS X, 
+	# Basically, we do not want to use std=c++11 on CUDA
+	  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+  ENDIF()
   #list(APPEND CUDA_NVCC_FLAGS -gencode=arch=compute_52,code="compute_52,sm_52" -Xptxas -v )
   list(APPEND CUDA_NVCC_FLAGS_DEBUG -G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0)
   set(ALSVINN_HAVE_CUDA On)

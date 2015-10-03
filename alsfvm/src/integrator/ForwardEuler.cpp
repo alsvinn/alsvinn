@@ -2,7 +2,7 @@
 
 namespace alsfvm { namespace integrator {
 
-	ForwardEuler::ForwardEuler(boost::shared_ptr<numflux::NumericalFlux> numericalFlux) 
+	ForwardEuler::ForwardEuler(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux) 
 	: numericalFlux(numericalFlux) 
 	{
 		// Empty
@@ -21,7 +21,7 @@ namespace alsfvm { namespace integrator {
 	/// Performs one substep and stores the result to output.
 	/// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
 	///
-    void ForwardEuler::performSubstep(const std::vector<boost::shared_ptr< volume::Volume> >& inputConserved,
+    void ForwardEuler::performSubstep(const std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
 		rvec3 spatialCellSizes, real dt,
         volume::Volume& output, size_t substep) {
 

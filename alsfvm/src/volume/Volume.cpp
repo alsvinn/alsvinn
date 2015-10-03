@@ -5,7 +5,7 @@ namespace alsfvm {
 	namespace volume {
 
 		Volume::Volume(const std::vector<std::string>& variableNames,
-			boost::shared_ptr<memory::MemoryFactory> memoryFactory,
+			alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory,
 			size_t nx, size_t ny, size_t nz,
 			size_t numberOfGhostCells)
 			: variableNames(variableNames), memoryFactory(memoryFactory), nx(nx), ny(ny), nz(nz),
@@ -38,7 +38,7 @@ namespace alsfvm {
 		///
 		/// \return the MemoryArea for the given index
 		///
-		boost::shared_ptr<memory::Memory<real> >&
+		alsfvm::shared_ptr<memory::Memory<real> >&
 			Volume::getScalarMemoryArea(size_t index) {
 			return memoryAreas[index];
 		}
@@ -50,7 +50,7 @@ namespace alsfvm {
         ///
         /// \return the MemoryArea for the given index
         ///
-        boost::shared_ptr<const memory::Memory<real> >
+        alsfvm::shared_ptr<const memory::Memory<real> >
             Volume::getScalarMemoryArea(size_t index) const {
             return memoryAreas[index];
         }
@@ -61,7 +61,7 @@ namespace alsfvm {
 		/// \return the MemoryArea for the given name
 		/// \note Equivalent to calling getScalarMemoryArea(getIndexFromName(name))
 		///
-		boost::shared_ptr<memory::Memory<real> >&
+		alsfvm::shared_ptr<memory::Memory<real> >&
 			Volume::getScalarMemoryArea(const std::string& name) {
 			return getScalarMemoryArea(getIndexFromName(name));
 		}
@@ -72,7 +72,7 @@ namespace alsfvm {
         /// \return the MemoryArea for the given name
         /// \note Equivalent to calling getScalarMemoryArea(getIndexFromName(name))
         ///
-        boost::shared_ptr<const memory::Memory<real> >
+        alsfvm::shared_ptr<const memory::Memory<real> >
             Volume::getScalarMemoryArea(const std::string& name) const {
             return getScalarMemoryArea(getIndexFromName(name));
         }

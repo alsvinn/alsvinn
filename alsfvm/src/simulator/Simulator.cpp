@@ -5,16 +5,16 @@
 namespace alsfvm { namespace simulator {
 
 Simulator::Simulator(const SimulatorParameters& simulatorParameters,
-                     boost::shared_ptr<grid::Grid> & grid,
+                     alsfvm::shared_ptr<grid::Grid> & grid,
                      volume::VolumeFactory &volumeFactory,
                      integrator::IntegratorFactory &integratorFactory,
                      boundary::BoundaryFactory &boundaryFactory,
                      numflux::NumericalFluxFactory &numericalFluxFactory,
                      equation::CellComputerFactory &cellComputerFactory,
-                     boost::shared_ptr<memory::MemoryFactory>& memoryFactory,
-                     boost::shared_ptr<init::InitialData>& initialData,
+                     alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+                     alsfvm::shared_ptr<init::InitialData>& initialData,
                      real endTime,
-					 boost::shared_ptr<DeviceConfiguration>& deviceConfiguration,
+					 alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
 					 std::string& equationName)
     :      grid(grid),
       numericalFlux(numericalFluxFactory.createNumericalFlux(*grid)),
@@ -43,8 +43,8 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
 	// Here we will create the volumes on the CPU, initialize the data on the 
 	// cpu, then copy it to the GPU
 	if (deviceConfiguration->getPlatform() == "cuda") {
-		auto deviceConfigurationCPU = boost::make_shared<DeviceConfiguration>("cpu");
-		auto memoryFactoryCPU = boost::make_shared<memory::MemoryFactory>(deviceConfigurationCPU);
+		auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
+		auto memoryFactoryCPU = alsfvm::make_shared<memory::MemoryFactory>(deviceConfigurationCPU);
 		volume::VolumeFactory volumeFactoryCPU(equationName, memoryFactoryCPU);
 		auto primitiveVolume = volumeFactoryCPU.createPrimitiveVolume(nx, ny, nz,
 			numericalFlux->getNumberOfGhostCells());
@@ -85,7 +85,7 @@ void Simulator::performStep()
     callWriters();
 }
 
-void Simulator::addWriter(boost::shared_ptr<io::Writer> &writer)
+void Simulator::addWriter(alsfvm::shared_ptr<io::Writer> &writer)
 {
     writers.push_back(writer);
 }

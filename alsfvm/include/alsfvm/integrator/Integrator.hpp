@@ -50,7 +50,7 @@ namespace alsfvm { namespace integrator {
         /// \param output where to write the output
 		/// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
 		///
-        virtual void performSubstep(const std::vector<boost::shared_ptr< volume::Volume> >& inputConserved,
+        virtual void performSubstep(const std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
 			rvec3 spatialCellSizes, real dt,
             volume::Volume& output, size_t substep) = 0;
 

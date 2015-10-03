@@ -11,7 +11,7 @@ namespace alsfvm { namespace volume {
 	/// \param memoryFactory the memory factory to use
 	///
 	VolumeFactory::VolumeFactory(const std::string& equation,
-		boost::shared_ptr<memory::MemoryFactory>& memoryFactory) 
+		alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory) 
 		: equation(equation), memoryFactory(memoryFactory)
 	{
 
@@ -24,9 +24,9 @@ namespace alsfvm { namespace volume {
 	/// \param ny the number of cells in y direction
 	/// \param nz the number of cells in z direction
 	///
-	boost::shared_ptr<Volume> VolumeFactory::createConservedVolume(size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells) {
+	alsfvm::shared_ptr<Volume> VolumeFactory::createConservedVolume(size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells) {
 		if (equation == "euler") {
-			return boost::shared_ptr<Volume>(new EulerConservedVolume(memoryFactory, nx, ny, nz, numberOfGhostCells));
+			return alsfvm::shared_ptr<Volume>(new EulerConservedVolume(memoryFactory, nx, ny, nz, numberOfGhostCells));
 		}
 		else {
 			THROW("Unknown equation " << equation);
@@ -39,19 +39,19 @@ namespace alsfvm { namespace volume {
 	/// \param ny the number of cells in y direction
 	/// \param nz the number of cells in z direction
 	///
-	boost::shared_ptr<Volume> VolumeFactory::createExtraVolume(size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells) {
+	alsfvm::shared_ptr<Volume> VolumeFactory::createExtraVolume(size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells) {
 		if (equation == "euler") {
-			return boost::shared_ptr<Volume>(new EulerExtraVolume(memoryFactory, nx, ny, nz, numberOfGhostCells));
+			return alsfvm::shared_ptr<Volume>(new EulerExtraVolume(memoryFactory, nx, ny, nz, numberOfGhostCells));
 		}
 		else {
 			THROW("Unknown equation " << equation);
         }
     }
 
-    boost::shared_ptr<Volume> VolumeFactory::createPrimitiveVolume(size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells)
+    alsfvm::shared_ptr<Volume> VolumeFactory::createPrimitiveVolume(size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells)
     {
         if (equation == "euler") {
-            return boost::shared_ptr<Volume>(new EulerPrimitiveVolume(memoryFactory, nx, ny, nz, numberOfGhostCells));
+            return alsfvm::shared_ptr<Volume>(new EulerPrimitiveVolume(memoryFactory, nx, ny, nz, numberOfGhostCells));
         }
         else {
             THROW("Unknown equation " << equation);

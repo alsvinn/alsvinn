@@ -16,8 +16,8 @@ namespace alsfvm { namespace numflux { namespace euler {
     public:
 
         NumericalFluxCPU(const grid::Grid& grid,
-                         boost::shared_ptr<reconstruction::Reconstruction>& reconstruction,
-                         boost::shared_ptr<DeviceConfiguration>& deviceConfiguration
+                         alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
+                         alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration
                          );
 
         ///
@@ -37,9 +37,9 @@ namespace alsfvm { namespace numflux { namespace euler {
 		virtual size_t getNumberOfGhostCells();
 
     private:
-        boost::shared_ptr<reconstruction::Reconstruction> reconstruction;
-        boost::shared_ptr<volume::Volume> left;
-        boost::shared_ptr<volume::Volume> right;
+        alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction;
+        alsfvm::shared_ptr<volume::Volume> left;
+        alsfvm::shared_ptr<volume::Volume> right;
     };
 
 } // namespace alsfvm

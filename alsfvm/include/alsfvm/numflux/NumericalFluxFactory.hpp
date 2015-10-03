@@ -12,7 +12,7 @@ namespace alsfvm { namespace numflux {
         ///
         /// The numerical flux pointer
         ///
-        typedef boost::shared_ptr < NumericalFlux > NumericalFluxPtr;
+        typedef alsfvm::shared_ptr < NumericalFlux > NumericalFluxPtr;
 
         ///
         /// \param equation the name of the equation (eg. Euler)
@@ -24,7 +24,7 @@ namespace alsfvm { namespace numflux {
         NumericalFluxFactory(const std::string& equation,
                       const std::string& fluxname,
                       const std::string& reconstruction,
-                      boost::shared_ptr<DeviceConfiguration>& deviceConfiguration);
+                      alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration);
 
         ///
         /// Creates the numerical flux
@@ -35,7 +35,7 @@ namespace alsfvm { namespace numflux {
         std::string equation;
         std::string fluxname;
         std::string reconstruction;
-        boost::shared_ptr<DeviceConfiguration> deviceConfiguration;
+        alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
     };
 } // namespace alsfvm
 } // namespace numflux

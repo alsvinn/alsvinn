@@ -26,7 +26,7 @@ TEST(ForwardEulerTest, ConvergenceTest) {
 	// du/dt = u
 	// u(0)=  1
 	// we will get an approximation to exp(1) at u(1)
-	boost::shared_ptr<NumericalFlux> flux(new ODENumericalFlux);
+	alsfvm::shared_ptr<NumericalFlux> flux(new ODENumericalFlux);
 
 	std::vector<std::string> variableNames = { "u" };
 
@@ -34,12 +34,12 @@ TEST(ForwardEulerTest, ConvergenceTest) {
 	const size_t ny = 1;
 	const size_t nz = 1;
 
-	auto configuration = boost::make_shared<alsfvm::DeviceConfiguration>("cpu");
+	auto configuration = alsfvm::make_shared<alsfvm::DeviceConfiguration>("cpu");
 
-	auto factory = boost::make_shared<alsfvm::memory::MemoryFactory>(configuration);
+	auto factory = alsfvm::make_shared<alsfvm::memory::MemoryFactory>(configuration);
 
-    boost::shared_ptr<alsfvm::volume::Volume> volumeIn(new alsfvm::volume::Volume(variableNames, factory, nx, ny, nz));
-    boost::shared_ptr<alsfvm::volume::Volume> volumeOut(new alsfvm::volume::Volume(variableNames, factory, nx, ny, nz));
+    alsfvm::shared_ptr<alsfvm::volume::Volume> volumeIn(new alsfvm::volume::Volume(variableNames, factory, nx, ny, nz));
+    alsfvm::shared_ptr<alsfvm::volume::Volume> volumeOut(new alsfvm::volume::Volume(variableNames, factory, nx, ny, nz));
 
 
 	// Start with u(0)=1
