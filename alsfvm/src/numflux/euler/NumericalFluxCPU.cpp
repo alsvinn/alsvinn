@@ -5,6 +5,7 @@
 #include "alsfvm/numflux/numflux_util.hpp"
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
+#include <fstream>
 
 namespace alsfvm { namespace numflux { namespace euler { 
 
@@ -172,6 +173,7 @@ namespace alsfvm { namespace numflux { namespace euler {
             reconstruction->performReconstruction(conservedVariables, 2, 0, *left, *right);
             computeNetFlux<Flux, 2>(*left, *right, output, cellLengths.z, getNumberOfGhostCells());
         }
+
 	}
 
 	/// 

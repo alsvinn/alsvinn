@@ -3,7 +3,7 @@
 namespace alsfvm { namespace integrator {
 
 
-RungeKutta3::RungeKutta3(boost::shared_ptr<numflux::NumericalFlux> numericalFlux)
+RungeKutta3::RungeKutta3(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux)
     : numericalFlux(numericalFlux)
 {
 
@@ -31,7 +31,7 @@ size_t RungeKutta3::getNumberOfSubsteps() const {
 /// \param output where to write the output
 /// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
 ///
-void RungeKutta3::performSubstep(const std::vector<boost::shared_ptr< volume::Volume> >& inputConserved,
+void RungeKutta3::performSubstep(const std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
     rvec3 spatialCellSizes, real dt,
     volume::Volume& output, size_t substep) {
     // We compute U + dt * F(U)

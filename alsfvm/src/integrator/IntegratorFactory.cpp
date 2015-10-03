@@ -19,7 +19,7 @@ alsfvm::shared_ptr<Integrator> IntegratorFactory::createIntegrator(alsfvm::share
     } else if (integratorName == "rungekutta2") {
         return alsfvm::shared_ptr<Integrator>(new RungeKutta2(numericalFlux));
     } else if (integratorName == "rungekutta3") {
-        return boost::shared_ptr<Integrator>(new RungeKutta3(numericalFlux));
+        return alsfvm::shared_ptr<Integrator>(new RungeKutta3(numericalFlux));
     } else {
         THROW("Unknown integrator " << integratorName);
     }

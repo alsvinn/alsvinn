@@ -10,10 +10,10 @@ using namespace alsfvm::volume;
 using namespace alsfvm::boundary;
 
 struct BoundaryTest : public ::testing::Test {
-    boost::shared_ptr<DeviceConfiguration> deviceConfiguration;
-    boost::shared_ptr<MemoryFactory> memoryFactory;
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+	alsfvm::shared_ptr<MemoryFactory> memoryFactory;
     std::string equation = "euler";
-    boost::shared_ptr<VolumeFactory> volumeFactory;
+	alsfvm::shared_ptr<VolumeFactory> volumeFactory;
     size_t nx = 10, ny=11, nz=12;
     size_t ghostCells = 2;
     rvec3 lowerCorner = rvec3(0,0,0);
@@ -21,7 +21,7 @@ struct BoundaryTest : public ::testing::Test {
     ivec3 dimensions = ivec3(nx, ny, nz);
 
     grid::Grid grid;
-    boost::shared_ptr<BoundaryFactory> boundaryFactory;
+	alsfvm::shared_ptr<BoundaryFactory> boundaryFactory;
     BoundaryTest()
         : deviceConfiguration(new DeviceConfiguration("cpu")),
           memoryFactory(new MemoryFactory(deviceConfiguration)),

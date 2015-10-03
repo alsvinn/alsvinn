@@ -12,9 +12,9 @@
   <flux>HLL</flux>
   <endTime>0.5</endTime>
   <equation>euler</equation>
-  <reconstruction>eno2</reconstruction>
+  <reconstruction>none</reconstruction>
   <cfl>auto</cfl>
-  <integrator>rungekutta3</integrator>
+  <integrator>auto</integrator>
   <initialData>
     <python>sodshocktube.py</python>
   </initialData>
