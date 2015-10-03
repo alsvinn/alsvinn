@@ -1,20 +1,20 @@
 <fvm>
   <name>
-    shocktube
+    sodtube
   </name>
   <platform>cpu</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>2 0 0</upperCorner>
-    <dimension>2048 1 1</dimension>
+    <dimension>128 1 1</dimension>
   </grid>
   <boundary>neumann</boundary>
-  <flux>HLL3</flux>
+  <flux>HLL</flux>
   <endTime>0.5</endTime>
   <equation>euler</equation>
-  <reconstruction>none</reconstruction>
+  <reconstruction>eno2</reconstruction>
   <cfl>auto</cfl>
-  <integrator>auto</integrator>
+  <integrator>rungekutta3</integrator>
   <initialData>
     <python>sodshocktube.py</python>
   </initialData>
