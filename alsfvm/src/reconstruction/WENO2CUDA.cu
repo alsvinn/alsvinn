@@ -164,7 +164,6 @@ namespace alsfvm {
 		}
 
 		template class WENO2CUDA < equation::euler::Euler>;
-		template class WENO2CUDA < equation::euler::Euler>;
 
 	}
 }
