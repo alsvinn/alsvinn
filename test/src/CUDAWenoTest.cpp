@@ -244,7 +244,7 @@ TEST(CUDAWenoTest, ReconstructionSimple) {
 
 
 	wenoCUDA.performReconstruction(*conserved, 0, 0, *left, *right);
-
+	cudaDeviceSynchronize();
 	const real epsilon = WENOCoefficients<2>::epsilon;
 	const real right1 = 0.5;
 	const real right2 = -1;

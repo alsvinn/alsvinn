@@ -7,6 +7,8 @@
 #include "alsfvm/numflux/euler/HLL3.hpp"
 #include "alsfvm/reconstruction/NoReconstruction.hpp"
 #include "alsfvm/reconstruction/ENOCPU.hpp"
+#include "alsfvm/reconstruction/WENOCUDA.hpp"
+#include "alsfvm/reconstruction/NoReconstructionCUDA.hpp"
 #include "alsfvm/reconstruction/WENOCPU.hpp"
 #include "alsfvm/error/Exception.hpp"
 #include <iostream>
@@ -41,37 +43,77 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
     // First we must do a lot of error checking
     auto& platform = deviceConfiguration->getPlatform();
 	alsfvm::shared_ptr<reconstruction::Reconstruction> reconstructor;
-	if (reconstruction == "none") {
-		reconstructor.reset(new reconstruction::NoReconstruction);
-	}
-	else if (reconstruction == "eno2") {
-		reconstructor.reset(new reconstruction::ENOCPU<2>(memoryFactory, grid.getDimensions().x,
-			grid.getDimensions().y,
-			grid.getDimensions().z));
+	if (platform == "cpu") {
+		if (reconstruction == "none") {
+			reconstructor.reset(new reconstruction::NoReconstruction);
+		}
+		else if (reconstruction == "eno2") {
+			reconstructor.reset(new reconstruction::ENOCPU<2>(memoryFactory, grid.getDimensions().x,
+				grid.getDimensions().y,
+				grid.getDimensions().z));
 
-	}
-	else if (reconstruction == "eno3") {
-		reconstructor.reset(new reconstruction::ENOCPU<3>(memoryFactory, grid.getDimensions().x,
-			grid.getDimensions().y,
-			grid.getDimensions().z));
+		}
+		else if (reconstruction == "eno3") {
+			reconstructor.reset(new reconstruction::ENOCPU<3>(memoryFactory, grid.getDimensions().x,
+				grid.getDimensions().y,
+				grid.getDimensions().z));
 
-	}
-	else if (reconstruction == "eno4") {
-		reconstructor.reset(new reconstruction::ENOCPU<4>(memoryFactory, grid.getDimensions().x,
-			grid.getDimensions().y,
-			grid.getDimensions().z));
+		}
+		else if (reconstruction == "eno4") {
+			reconstructor.reset(new reconstruction::ENOCPU<4>(memoryFactory, grid.getDimensions().x,
+				grid.getDimensions().y,
+				grid.getDimensions().z));
 
-	}
-	else if (reconstruction == "weno2") {
-		reconstructor.reset(new reconstruction::WENOCPU<2>());
+		}
+		else if (reconstruction == "weno2") {
+			reconstructor.reset(new reconstruction::WENOCPU<2>());
 
-	}
-	else if (reconstruction == "weno3") {
-		reconstructor.reset(new reconstruction::WENOCPU<3>());
+		}
+		else if (reconstruction == "weno3") {
+			reconstructor.reset(new reconstruction::WENOCPU<3>());
 
+		}
+		else {
+			THROW("Unknown reconstruction " << reconstruction);
+		}
 	}
-	else {
-		THROW("Unknown reconstruction " << reconstruction);
+	else if (platform == "cuda") {
+		if (reconstruction == "none") {
+			reconstructor.reset(new reconstruction::NoReconstructionCUDA);
+		}
+		else if (reconstruction == "eno2") {
+			THROW("eno2 not supported on CUDA at the moment.")
+
+		}
+		else if (reconstruction == "eno3") {
+			THROW("eno3 not supported on CUDA at the moment.")
+
+		}
+		else if (reconstruction == "eno4") {
+			THROW("eno4 not supported on CUDA at the moment.")
+		}
+		else if (reconstruction == "weno2") {
+			if (equation == "euler") {
+				reconstructor.reset(new reconstruction::WENOCUDA<equation::euler::Euler, 2>());
+			}
+			else {
+				THROW("We do not support WENOCUDA for equation " << equation);
+			}
+
+		}
+		else if (reconstruction == "weno3") {
+			if (equation == "euler") {
+				reconstructor.reset(new reconstruction::WENOCUDA<equation::euler::Euler, 3>());
+			}
+			else {
+				THROW("We do not support WENOCUDA for equation " << equation);
+			}
+
+		}
+		else {
+			THROW("Unknown reconstruction " << reconstruction);
+		}
+		
 	}
 	if (platform == "cpu") {
 		if (equation == "euler") {

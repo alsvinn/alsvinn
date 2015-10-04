@@ -29,10 +29,10 @@ namespace alsfvm { namespace reconstruction {
 
 			  const real epsilon = ALSFVM_WENO_EPSILON;
 			  const real beta = WENOCoefficients<order>::template computeBeta<i>(stencil);
-			  right[i] = wenoCoefficient<order>(i) / std::pow(beta + epsilon, 2);
+			  right[i] = wenoCoefficient<order>(i) / pow(beta + epsilon, 2);
 			  sumRight += right[i];
 
-			  left[i] = wenoCoefficient<order>(order - 1 - i) / std::pow(beta + epsilon, 2);
+			  left[i] = wenoCoefficient<order>(order - 1 - i) / pow(beta + epsilon, 2);
 			  sumLeft += left[i];
 
 			  Alpha<order, i - 1>::computeAlpha(stencil, sumLeft, sumRight, left, right);
@@ -95,7 +95,7 @@ namespace alsfvm { namespace reconstruction {
 				alphaLeft,
 				alphaRight);
 
-			real* coefficients = enoCoefficients + NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER * (order);
+			const real* coefficients = enoCoefficients + NUMBER_OF_ENO_COEFFICIENTS_PER_ORDER * (order);
 
 			for (int var = 0; var < Equation::getNumberOfConservedVariables(); var++) {
 				real leftWenoValue = 0.0;
@@ -103,8 +103,8 @@ namespace alsfvm { namespace reconstruction {
 				// Loop through all stencils (shift = r)
 				for (int shift = 0; shift < order; shift++) {
 
-				        real* coefficientsRight = coefficients + (shift + 1) * order;
-					real* coefficientsLeft = coefficients + shift * order;
+				    const real* coefficientsRight = coefficients + (shift + 1) * order;
+					const real* coefficientsLeft = coefficients + shift * order;
 					real leftValue = 0.0;
 					real rightValue = 0.0;
 					for (size_t j = 0; j < order; j++) {
@@ -144,7 +144,7 @@ namespace alsfvm { namespace reconstruction {
 			const size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
 
 
-			const size_t blockSize = 128;
+			const size_t blockSize = 512;
 			const size_t gridSize = (totalSize + blockSize - 1) / blockSize;
 
 

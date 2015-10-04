@@ -134,15 +134,19 @@ namespace alsfvm { namespace numflux {
 		}
 
 		template<class Flux, class Equation, size_t dimension>
-		void callComputeFlux(const volume::Volume& left, const volume::Volume& right, volume::Volume& output, volume::Volume& temporaryOutput, size_t numberOfGhostCells, rvec3& waveSpeeds) {
+		void callComputeFlux(const volume::Volume& conservedVariables, volume::Volume& left, volume::Volume& right, volume::Volume& output, volume::Volume& temporaryOutput, size_t numberOfGhostCells, rvec3& waveSpeeds,
+			reconstruction::Reconstruction& reconstruction) {
+			reconstruction.performReconstruction(conservedVariables, 0, 0, left, right);
 			computeFlux<Flux, Equation, dimension, 1, 0, 0, 0>(left, right, temporaryOutput, numberOfGhostCells, waveSpeeds.x);
 			combineFlux<Equation, dimension, 1, 0, 0, 0>(temporaryOutput, output, numberOfGhostCells);
 
 			if (dimension > 1) {
+				reconstruction.performReconstruction(conservedVariables, 1, 0, left, right);
 				computeFlux<Flux, Equation, dimension, 0, 1, 0, 1>(left, right, temporaryOutput, numberOfGhostCells, waveSpeeds.y);
 				combineFlux<Equation, dimension, 0, 1, 0, 1>(temporaryOutput, output, numberOfGhostCells);
 			} 
 			if (dimension > 2) {
+				reconstruction.performReconstruction(conservedVariables, 2, 0, left, right);
 				computeFlux<Flux, Equation, dimension, 0, 0, 1, 2>(left, right, temporaryOutput, numberOfGhostCells, waveSpeeds.z);
 				combineFlux<Equation, dimension, 0, 0, 1, 2>(temporaryOutput, output, numberOfGhostCells);
 			}
@@ -194,7 +198,7 @@ namespace alsfvm { namespace numflux {
 
 		output.makeZero();
 
-		callComputeFlux<Flux, Equation, dimension>(conservedVariables, conservedVariables, output, *fluxOutput, getNumberOfGhostCells(), waveSpeeds);
+		callComputeFlux<Flux, Equation, dimension>(conservedVariables, *left, *right, output, *fluxOutput, getNumberOfGhostCells(), waveSpeeds, *reconstruction);
 	}
 
 	/// 
