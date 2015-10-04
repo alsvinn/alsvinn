@@ -25,7 +25,7 @@ public:
     /// \todo Document this better
     ///
     template<int direction>
-	__device__ __host__ inline static void computeFlux(const equation::euler::AllVariables& left,
+	__device__ __host__ inline static real computeFlux(const equation::euler::AllVariables& left,
                                    const equation::euler::AllVariables& right, equation::euler::ConservedVariables& F)
     {
 
@@ -75,6 +75,8 @@ public:
             middle.E = (udr*right.E + pressureRight*right.u[direction] - p*sm) / (sm-speedRight);
             F = fluxRight + speedRight*(middle-right.conserved());
         }
+
+		return fmax(abs(speedLeft), abs(speedRight));
     }
 
     ///

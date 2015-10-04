@@ -90,49 +90,14 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extra1);
     ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolumes[0], *extra1));
 
-    auto left = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
-
-    left->makeZero();
-    right->makeZero();
-    alsfvm::reconstruction::ENOCPU<2> eno(memoryFactory, N, N, 1);
-    alsfvm::reconstruction::WENOCPU<2> weno;
-
-    eno.performReconstruction(*conservedVolumes[0], 1, 0, *left, *right);
-    writer.write(*left, *extra1, grid, simulator::TimestepInformation());
-    writer.write(*right, *extra1, grid, simulator::TimestepInformation());
-    auto fluxOutput = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
-
     writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
-
-
     while (t < T) {
-
-        const real waveSpeedX = cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extra1, 0);
-        const real waveSpeedY = cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extra1, 1);
-
-        real dt = cfl /( waveSpeedX / grid.getCellLengths().x  + waveSpeedY / grid.getCellLengths().y);
-
-        if (t + dt >=  nsaves * saveInterval) {
-            dt = nsaves * saveInterval - t;
-        }
-        if (t==0) {
-            boundary->applyBoundaryConditions(*conservedVolumes[0], grid);
-            std::cout << std::setprecision(std::numeric_limits<long double>::digits10 + 1)<< "dt/dx = "  << dt/(grid.getCellLengths().x) << std::endl;
-            std::cout << "dt = " << dt << std::endl;
-            std::cout << "dx = " << grid.getCellLengths().x << std::endl;
-            std::cout << "dy = " << grid.getCellLengths().y << std::endl;
-            numericalFlux->computeFlux(*conservedVolumes[0], rvec3(dt/(1.0/N), dt/(1.0/N), dt/(1.0/N)), *fluxOutput);
-            writer.write(*fluxOutput, *extra1, grid, simulator::TimestepInformation());
-        }
-
-
-        t += dt;
+		real dt = 0;
         numberOfTimesteps++;
         for(size_t substep = 0; substep < integrator->getNumberOfSubsteps(); substep++) {
             auto conservedNext = conservedVolumes[substep + 1];
 
-            integrator->performSubstep(conservedVolumes, grid.getCellLengths(), dt, *conservedNext, 0);
+            dt = integrator->performSubstep(conservedVolumes, grid.getCellLengths(), dt, cfl, *conservedNext, substep);
 
             std::array<real*, 5> conservedPointers = {
                 conservedNext->getScalarMemoryArea(0)->getPointer(),

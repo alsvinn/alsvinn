@@ -24,7 +24,7 @@ namespace alsfvm { namespace numflux { namespace euler {
 		/// \todo Document this better
 		///
 		template<int direction>
-		__device__ __host__ inline static void computeFlux(const equation::euler::AllVariables& left,
+		__device__ __host__ inline static real computeFlux(const equation::euler::AllVariables& left,
 			const equation::euler::AllVariables& right, equation::euler::ConservedVariables& F)
 		{
 
@@ -49,6 +49,8 @@ namespace alsfvm { namespace numflux { namespace euler {
 				equation::euler::Euler::computePointFlux<direction>(right, rightFlux);
 				F = (speedRight*leftFlux - speedLeft*rightFlux + speedRight*speedLeft*(right.conserved() - left.conserved())) / (speedRight - speedLeft);
 			}
+
+			return fmax(abs(speedLeft), abs(speedRight));
 		}
 
 		/// 

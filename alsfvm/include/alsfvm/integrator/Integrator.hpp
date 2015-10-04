@@ -48,11 +48,21 @@ namespace alsfvm { namespace integrator {
         /// \param dt is the timestep
         /// \param substep is the currently computed substep, starting at 0.
         /// \param output where to write the output
+		/// \param cfl the cfl number to use.
 		/// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
+		/// \returns the newly computed timestep (each integrator may choose to change the timestep)
 		///
-        virtual void performSubstep(const std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
-			rvec3 spatialCellSizes, real dt,
+        virtual real performSubstep(const std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
+			rvec3 spatialCellSizes, real dt, real cfl, 
             volume::Volume& output, size_t substep) = 0;
+
+		///
+		/// Computes the timestep (dt).
+		/// \param[in] waveSpeeds the wave speeds in each direction
+		/// \param[in] cellLengths the cell lengths in each direction
+		/// \param[in] cfl the CFL number
+		///
+		real computeTimestep(const rvec3& waveSpeeds, const rvec3& cellLengths, real cfl) const;
 
     };
 

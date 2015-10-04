@@ -19,21 +19,22 @@ namespace alsfvm {
 			///                         \frac{\Delta t}{\Delta z}\left((F(u_{i,j,k+1}, u_{i,j,k})-F(u_{i,j,k}, u_{i,j,k-1})\right)
 			/// \f]
 			/// \param[in] conservedVariables the conservedVariables to read from (eg. for Euler: \f$\rho,\; \vec{m},\; E\f$)
-            /// \param[in] cellScaling contains the cell length in each direction. So
+			/// \param[in] cellLengths contains the cell length in each direction. So
 			///            \f{eqnarray*}{
-            ///             \Delta t/\Delta x = \mathrm{cellLengths.x}\\
-            ///             \Delta t/\Delta y = \mathrm{cellLengths.y}\\
-            ///             \Delta t/\Delta z = \mathrm{cellLengths.z}\\
+			///             \Delta x = \mathrm{cellLengths.x}\\
+			///             \Delta y = \mathrm{cellLengths.y}\\
+			///             \Delta z = \mathrm{cellLengths.z}\\
 			///            \f}
+			/// \param[out] waveSpeed the maximum wave speed in each direction
+			/// \param[in] computeWaveSpeed should we compute the wave speeds?
 			/// \param[out] output the output to write to
-            ///
-            /// \note this will calculate the extra variables on the fly.
+			///
+			/// \note this will calculate the extra variables on the fly.
 			/// 
 			virtual void computeFlux(const volume::Volume& conservedVariables,
-                const rvec3& cellScaling,
+				rvec3& waveSpeed, bool computeWaveSpeed,
 				volume::Volume& output
 				) = 0;
-
 			/// 
 			/// \returns the number of ghost cells this specific flux requires
 			///

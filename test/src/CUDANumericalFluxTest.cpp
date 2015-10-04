@@ -109,7 +109,8 @@ TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
 		}
 	}
 
-	numericalFlux->computeFlux(*conservedVariables, rvec3(1, 1, 1), *output);
+	rvec3 waveSpeeds(0, 0, 0);
+	numericalFlux->computeFlux(*conservedVariables, waveSpeeds, true, *output);
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
 	CUDA_SAFE_CALL(cudaGetLastError());
 	// Check that output is what we expect
@@ -225,9 +226,13 @@ TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
 
 		}
 	}
-
-	numericalFlux->computeFlux(*conservedVariables, rvec3(1, 1, 1), *output);
-	numericalFluxCPU->computeFlux(*conservedVariablesCPU, rvec3(1, 1, 1), *outputCPU);
+	rvec3 waveSpeedsGPU(0, 0, 0);
+	numericalFlux->computeFlux(*conservedVariables, waveSpeedsGPU, true, *output);
+	rvec3 waveSpeedsCPU(0, 0, 0);
+	numericalFluxCPU->computeFlux(*conservedVariablesCPU, waveSpeedsCPU, true, *outputCPU);
+	ASSERT_EQ(waveSpeedsGPU.x, waveSpeedsCPU.x);
+	ASSERT_EQ(waveSpeedsGPU.y, waveSpeedsCPU.y);
+	ASSERT_EQ(waveSpeedsGPU.z, waveSpeedsCPU.z);
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
 	CUDA_SAFE_CALL(cudaGetLastError());
 	// Check that output is what we expect

@@ -10,12 +10,11 @@
 namespace alsfvm { namespace numflux { namespace euler { 
 
     template<class Flux, int direction>
-    void computeNetFlux(size_t leftIndex,
+    real computeNetFlux(size_t leftIndex,
                   size_t middleIndex,
                   size_t rightIndex,
                   const std::array<memory::View<const real>, 5>& left,
                   const std::array<memory::View<const real>, 5>& right,
-                  const real& cellLength,
                   equation::euler::ConservedVariables& out)
     {
 
@@ -45,14 +44,15 @@ namespace alsfvm { namespace numflux { namespace euler {
 
         // F(U_l, U_r)
         equation::euler::ConservedVariables fluxMiddleRight;
-        Flux::template computeFlux<direction>(leftJpHf, rightJpHf, fluxMiddleRight);
+        real waveSpeed = Flux::template computeFlux<direction>(leftJpHf, rightJpHf, fluxMiddleRight);
 
-        out = cellLength*(fluxMiddleRight);
+        out = fluxMiddleRight;
+		return waveSpeed;
     }
 
     template<class Flux, size_t direction>
     void computeNetFlux(const volume::Volume& left, const volume::Volume& right,
-                        volume::Volume& out, real cellLength, size_t numberOfGhostCells) {
+                        volume::Volume& out, real& waveSpeed, size_t numberOfGhostCells) {
         // We will automate the creation of these pointer arrays soon,
         // for now we keep them to keep things simple.
         std::array<memory::View<const real>, 5> leftViews = {
@@ -86,14 +86,14 @@ namespace alsfvm { namespace numflux { namespace euler {
                              [&](size_t leftIndex, size_t middleIndex, size_t rightIndex) {
 
             equation::euler::ConservedVariables flux;
-            computeNetFlux<Flux, direction>(
+            const real waveSpeedLocal = computeNetFlux<Flux, direction>(
                                  leftIndex,
                                  middleIndex,
                                  rightIndex,
                                  leftViews,
                                  rightViews,
-                                 cellLength,
                                  flux);
+			waveSpeed = std::max(waveSpeed, waveSpeedLocal);
 
             outViews[0].at(middleIndex) -= flux.rho;
             outViews[1].at(middleIndex) -= flux.m.x;
@@ -150,8 +150,8 @@ namespace alsfvm { namespace numflux { namespace euler {
     }
 
     template<class Flux, size_t dimension>
-    void NumericalFluxCPU<Flux, dimension>::computeFlux(const volume::Volume& conservedVariables,
-		const rvec3& cellLengths,
+	void NumericalFluxCPU<Flux, dimension>::computeFlux(const volume::Volume& conservedVariables,
+		rvec3& waveSpeed, bool computeWaveSpeed,
 		volume::Volume& output
 		) 
 	{
@@ -161,17 +161,17 @@ namespace alsfvm { namespace numflux { namespace euler {
         output.makeZero();
 
         reconstruction->performReconstruction(conservedVariables, 0, 0, *left, *right);
-        computeNetFlux<Flux, 0>(*left, *right, output, cellLengths.x, getNumberOfGhostCells());
+        computeNetFlux<Flux, 0>(*left, *right, output, waveSpeed.x, getNumberOfGhostCells());
 
         if (dimension > 1) {
             reconstruction->performReconstruction(conservedVariables, 1, 0, *left, *right);
-            computeNetFlux<Flux, 1>(*left, *right, output, cellLengths.y, getNumberOfGhostCells());
+			computeNetFlux<Flux, 1>(*left, *right, output, waveSpeed.y, getNumberOfGhostCells());
         }
 
 
         if (dimension > 2) {
             reconstruction->performReconstruction(conservedVariables, 2, 0, *left, *right);
-            computeNetFlux<Flux, 2>(*left, *right, output, cellLengths.z, getNumberOfGhostCells());
+			computeNetFlux<Flux, 2>(*left, *right, output, waveSpeed.z, getNumberOfGhostCells());
         }
 
 	}

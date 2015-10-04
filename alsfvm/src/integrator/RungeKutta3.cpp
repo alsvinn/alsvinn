@@ -31,17 +31,25 @@ size_t RungeKutta3::getNumberOfSubsteps() const {
 /// \param output where to write the output
 /// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
 ///
-void RungeKutta3::performSubstep(const std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
-    rvec3 spatialCellSizes, real dt,
-    volume::Volume& output, size_t substep) {
+real RungeKutta3::performSubstep(const std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
+	rvec3 spatialCellSizes, real dt, real cfl,
+	volume::Volume& output, size_t substep) {
     // We compute U + dt * F(U)
 
-    rvec3 cellScaling(dt/spatialCellSizes.x,
-                      dt/spatialCellSizes.y,
-                      dt/spatialCellSizes.z);
-    // Compute F(U)
 
-    numericalFlux->computeFlux(*inputConserved[substep], cellScaling, output);
+    // Compute F(U)
+	rvec3 waveSpeeds(0, 0, 0);
+    numericalFlux->computeFlux(*inputConserved[substep], waveSpeeds, true, output);
+
+	if (substep == 0) {
+		dt = computeTimestep(waveSpeeds, spatialCellSizes, cfl);
+	}
+
+	rvec3 cellScaling(dt / spatialCellSizes.x,
+		dt / spatialCellSizes.y,
+		dt / spatialCellSizes.z);
+
+	output *= cellScaling.x;
     output += *inputConserved[substep];
 
 
@@ -55,6 +63,8 @@ void RungeKutta3::performSubstep(const std::vector<alsfvm::shared_ptr< volume::V
         output += *inputConserved[0];
         output *= 1./3.;
     }
+
+	return dt;
 }
 }
 }

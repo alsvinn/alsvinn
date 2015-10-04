@@ -12,7 +12,7 @@
   <flux>HLL</flux>
   <endTime>0.5</endTime>
   <equation>euler</equation>
-  <reconstruction>none</reconstruction>
+  <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>
   <initialData>

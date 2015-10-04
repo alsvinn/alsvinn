@@ -142,10 +142,10 @@ void Simulator::checkConstraints()
 
 void Simulator::incrementSolution()
 {
-    const real dt = computeTimestep();
+	real dt = 0;
     for (size_t substep = 0; substep < integrator->getNumberOfSubsteps(); ++substep) {
         auto& conservedNext = conservedVolumes[substep + 1];
-        integrator->performSubstep(conservedVolumes, grid->getCellLengths(), dt, *conservedNext, 0);
+        dt = integrator->performSubstep(conservedVolumes, grid->getCellLengths(), dt, cflNumber, *conservedNext, substep);
         boundary->applyBoundaryConditions(*conservedNext, *grid);
     }
     conservedVolumes[0].swap(conservedVolumes.back());

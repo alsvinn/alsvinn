@@ -10,13 +10,16 @@ namespace {
 	// Represents the system du/dt = u;
 	class ODENumericalFlux : public NumericalFlux {
 	public:
+		real dt;
+		ODENumericalFlux(real dt) : dt(dt) {}
 		size_t getNumberOfGhostCells() { return 0; }
 
         void computeFlux(const volume::Volume& conservedVariables,
-			const rvec3& cellLengths,
+			rvec3& waveSpeeds, bool computeWaveSpeeds, 
 			volume::Volume& output) 
 		{
-            output.getScalarMemoryArea(0)->getPointer()[0] = cellLengths.x * conservedVariables.getScalarMemoryArea(0)->getPointer()[0];
+            output.getScalarMemoryArea(0)->getPointer()[0] = dt * conservedVariables.getScalarMemoryArea(0)->getPointer()[0];
+			waveSpeeds = rvec3(1, 0, 0);
 		}
 	};
 }
@@ -26,7 +29,7 @@ TEST(ForwardEulerTest, ConvergenceTest) {
 	// du/dt = u
 	// u(0)=  1
 	// we will get an approximation to exp(1) at u(1)
-	alsfvm::shared_ptr<NumericalFlux> flux(new ODENumericalFlux);
+
 
 	std::vector<std::string> variableNames = { "u" };
 
@@ -47,6 +50,7 @@ TEST(ForwardEulerTest, ConvergenceTest) {
 
 	const size_t N = 100000;
 	const real dt = real(1) / real(N);
+	alsfvm::shared_ptr<NumericalFlux> flux(new ODENumericalFlux(dt));
 	ForwardEuler integrator(flux);
 	for (size_t i = 0; i < N; i++) {
 		// First timestep we use input as input and output as output, 
@@ -54,14 +58,14 @@ TEST(ForwardEulerTest, ConvergenceTest) {
 		// and then switch every other timstep
 		if (i % 2) {
 			// Note that we do not care about spatial resolution here
-            integrator.performSubstep({volumeOut}, rvec3(1, 1, 1), dt, *volumeIn, 0);
+            integrator.performSubstep({volumeOut}, rvec3(1, 1, 1), dt, 1, *volumeIn, 0);
 		}
 		else {
 			// Note that we do not care about spatial resolution here
-            integrator.performSubstep({volumeIn}, rvec3(1, 1, 1), dt, *volumeOut, 0);
+            integrator.performSubstep({volumeIn}, rvec3(1, 1, 1), dt, 1, *volumeOut, 0);
 		}
 
 	}
 
-    ASSERT_LT(std::abs(volumeOut->getScalarMemoryArea(0)->getPointer()[0] - std::exp(1)), 1e-4);
+    ASSERT_NEAR(volumeOut->getScalarMemoryArea(0)->getPointer()[0], std::exp(1), 1e-4);
 }

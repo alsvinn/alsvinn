@@ -9,11 +9,11 @@
     <dimension>256 256 1</dimension>
   </grid>
   <boundary>neumann</boundary>
-  <flux>HLL</flux>
+  <flux>HLL3</flux>
   <endTime>0.35</endTime>
   <equation>euler</equation>
-  <reconstruction>none</reconstruction>
-  <cfl>0.45</cfl>
+  <reconstruction>eno2</reconstruction>
+  <cfl>auto</cfl>
   <integrator>auto</integrator>
   <initialData>
     <python>shockvortex.py</python>
