@@ -8,6 +8,7 @@
 #include "alsfvm/reconstruction/NoReconstruction.hpp"
 #include "alsfvm/reconstruction/ENOCPU.hpp"
 #include "alsfvm/reconstruction/WENOCUDA.hpp"
+#include "alsfvm/reconstruction/WENO2CUDA.hpp"
 #include "alsfvm/reconstruction/NoReconstructionCUDA.hpp"
 #include "alsfvm/reconstruction/WENOCPU.hpp"
 #include "alsfvm/error/Exception.hpp"
@@ -94,7 +95,7 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
 		}
 		else if (reconstruction == "weno2") {
 			if (equation == "euler") {
-				reconstructor.reset(new reconstruction::WENOCUDA<equation::euler::Euler, 2>());
+				reconstructor.reset(new reconstruction::WENO2CUDA<equation::euler::Euler>());
 			}
 			else {
 				THROW("We do not support WENOCUDA for equation " << equation);

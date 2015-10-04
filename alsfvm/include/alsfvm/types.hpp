@@ -67,7 +67,7 @@ namespace alsfvm {
     /// Computes the square of x
     /// \returns x*x
     ///
-    inline real square(const real& x) {
+    inline __host__ __device__ real square(const real& x) {
         return x * x;
     }
 }
