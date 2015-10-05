@@ -2,15 +2,15 @@
   <name>
     riemann
   </name>
-  <platform>cuda</platform>
+  <platform>cpu</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>1024 1024 1</dimension>
+    <dimension>128 128 1</dimension>
   </grid>
   <boundary>neumann</boundary>
   <flux>HLL3</flux>
-  <endTime>0.35</endTime>
+  <endTime>0.00035</endTime>
   <equation>euler</equation>
   <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
