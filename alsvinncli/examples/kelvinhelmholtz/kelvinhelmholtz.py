@@ -2,9 +2,10 @@
 GAMMA=5.0/3.0
 import random
 # instability
+
 if has_random_variables:
 	N = len(a1)
-	perturbation = 0.01
+	perturbation = 0.1
 	perturbation_upper = perturbation*sum([a1[i]*cos(2*pi*i*(x+b1[i])) for i in range(len(a1))])/N
 	perturbation_lower = perturbation*sum([a2[i]*cos(2*pi*i*(x+b2[i])) for i in range(len(a2))])/N
 else:

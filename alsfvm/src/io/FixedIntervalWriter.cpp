@@ -1,5 +1,6 @@
 #include "alsfvm/io/FixedIntervalWriter.hpp"
 #include <iostream>
+#include <cmath>
 namespace alsfvm { namespace io {
 
 FixedIntervalWriter::FixedIntervalWriter(alsfvm::shared_ptr<Writer> &writer,
@@ -17,6 +18,12 @@ void FixedIntervalWriter::write(const volume::Volume &conservedVariables, const 
         numberSaved++;
     }
 
+}
+
+real FixedIntervalWriter::adjustTimestep(real dt, const simulator::TimestepInformation &timestepInformation) const
+{
+    const real nextSaveTime = (numberSaved + 1) * timeInterval;
+    return std::min(dt, nextSaveTime - timestepInformation.getCurrentTime());
 }
 
 }

@@ -91,13 +91,14 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolumes[0], *extra1));
 
     writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
+    simulator::TimestepInformation timestepInformation;
     while (t < T) {
 		real dt = 0;
         numberOfTimesteps++;
         for(size_t substep = 0; substep < integrator->getNumberOfSubsteps(); substep++) {
             auto conservedNext = conservedVolumes[substep + 1];
 
-            dt = integrator->performSubstep(conservedVolumes, grid.getCellLengths(), dt, cfl, *conservedNext, substep);
+            dt = integrator->performSubstep(conservedVolumes, grid.getCellLengths(), dt, cfl, *conservedNext, substep, timestepInformation);
 
             std::array<real*, 5> conservedPointers = {
                 conservedNext->getScalarMemoryArea(0)->getPointer(),
@@ -175,6 +176,8 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
             std::cout << "saving at t " << t << " (nsaves * saveInterval = " << nsaves  * saveInterval << ")" << std::endl;
             writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
         }
+
+        timestepInformation.incrementTime(dt);
 
 
     }

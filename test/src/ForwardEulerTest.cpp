@@ -58,11 +58,11 @@ TEST(ForwardEulerTest, ConvergenceTest) {
 		// and then switch every other timstep
 		if (i % 2) {
 			// Note that we do not care about spatial resolution here
-            integrator.performSubstep({volumeOut}, rvec3(1, 1, 1), dt, 1, *volumeIn, 0);
+            integrator.performSubstep({volumeOut}, rvec3(1, 1, 1), dt, 1, *volumeIn, 0, simulator::TimestepInformation());
 		}
 		else {
 			// Note that we do not care about spatial resolution here
-            integrator.performSubstep({volumeIn}, rvec3(1, 1, 1), dt, 1, *volumeOut, 0);
+            integrator.performSubstep({volumeIn}, rvec3(1, 1, 1), dt, 1, *volumeOut, 0, simulator::TimestepInformation());
 		}
 
 	}

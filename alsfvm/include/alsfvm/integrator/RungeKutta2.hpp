@@ -52,7 +52,8 @@ namespace alsfvm { namespace integrator {
 		///
 		virtual real performSubstep(const std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
 			rvec3 spatialCellSizes, real dt, real cfl,
-			volume::Volume& output, size_t substep);
+            volume::Volume& output, size_t substep,
+            const simulator::TimestepInformation& timestepInformation);
 
     private:
         alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;

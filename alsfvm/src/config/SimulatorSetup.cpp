@@ -103,6 +103,11 @@ alsfvm::shared_ptr<simulator::Simulator>
 
     simulator->addWriter(writer);
 
+    auto timestepAdjuster = alsfvm::dynamic_pointer_cast<integrator::TimestepAdjuster>(writer);
+    if (timestepAdjuster) {
+        simulator->addTimestepAdjuster(timestepAdjuster);
+    }
+
     return simulator;
 }
 

@@ -81,6 +81,8 @@ namespace alsfvm { namespace simulator {
         ///
         void addWriter(alsfvm::shared_ptr<io::Writer>& writer);
 
+        void addTimestepAdjuster(alsfvm::shared_ptr<integrator::TimestepAdjuster>& adjuster);
+
         ///
         /// \return the current simulation time.
         ///

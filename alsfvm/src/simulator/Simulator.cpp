@@ -90,6 +90,11 @@ void Simulator::addWriter(alsfvm::shared_ptr<io::Writer> &writer)
     writers.push_back(writer);
 }
 
+void Simulator::addTimestepAdjuster(alsfvm::shared_ptr<integrator::TimestepAdjuster> &adjuster)
+{
+    integrator->addTimestepAdjuster(adjuster);
+}
+
 real Simulator::getCurrentTime() const
 {
     return timestepInformation.getCurrentTime();
@@ -145,7 +150,7 @@ void Simulator::incrementSolution()
 	real dt = 0;
     for (size_t substep = 0; substep < integrator->getNumberOfSubsteps(); ++substep) {
         auto& conservedNext = conservedVolumes[substep + 1];
-        dt = integrator->performSubstep(conservedVolumes, grid->getCellLengths(), dt, cflNumber, *conservedNext, substep);
+        dt = integrator->performSubstep(conservedVolumes, grid->getCellLengths(), dt, cflNumber, *conservedNext, substep, timestepInformation);
         boundary->applyBoundaryConditions(*conservedNext, *grid);
     }
     conservedVolumes[0].swap(conservedVolumes.back());
