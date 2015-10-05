@@ -5,8 +5,8 @@ import random
 
 class Generate(object):
     def __init__(self, basefile, outdir, M, numberOfRandomVariables):
-        self.basefile = basefile
-        self.baseinputpath = os.path.dirname(basefile) + os.sep
+        self.basefile = os.path.abspath(basefile)
+        self.baseinputpath = os.path.dirname(self.basefile) + os.sep
         print self.baseinputpath
         self.outdir = outdir
         self.M = M
