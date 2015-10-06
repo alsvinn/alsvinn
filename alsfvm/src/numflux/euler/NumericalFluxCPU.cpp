@@ -53,44 +53,55 @@ namespace alsfvm { namespace numflux { namespace euler {
 
         equation::euler::Euler::Views temporaryViews(temporaryVolume);
 
-        ivec3 directionVector(direction==0, direction==1, direction==2);
+        const bool xDir = direction == 0;
+        const bool yDir = direction == 1;
+        const bool zDir = direction == 2;
 
-        volume::for_each_cell_index_with_neighbours<direction>(out,
-                             [&](size_t leftIndex, size_t middleIndex, size_t rightIndex) {
+        const size_t nx = out.getTotalNumberOfXCells();
+        const size_t ny = out.getTotalNumberOfYCells();
+        const size_t nz = out.getTotalNumberOfZCells();
+        const size_t ngx = out.getNumberOfXGhostCells();
+        const size_t ngy = out.getNumberOfYGhostCells();
+        const size_t ngz = out.getNumberOfZGhostCells();
 
-            equation::euler::ConservedVariables flux;
-            const real waveSpeedLocal = computeNetFlux<Flux, direction>(
-                                 middleIndex,
-                                 rightIndex,
-                                 leftViews,
-                                 rightViews,
-                                 flux);
+        for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
+            for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
+#pragma omp parallel for  reduction(max: waveSpeed)
+                for(size_t x = ngx - xDir; x < nx - ngx; ++x) {
+                    const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
+                    const size_t middleIndex = outViews.index(x, y, z);
 
-            equation::euler::Euler::setViewAt(temporaryViews, middleIndex, (-1.0)*flux);
-			waveSpeed = std::max(waveSpeed, waveSpeedLocal);
 
-        }, ivec3(left.getNumberOfXGhostCells(),
-                 left.getNumberOfYGhostCells(),
-                 left.getNumberOfZGhostCells())- directionVector,
-           ivec3(left.getNumberOfXGhostCells(),
-                 left.getNumberOfYGhostCells(),
-                 left.getNumberOfZGhostCells()));
+                    equation::euler::ConservedVariables flux;
+                    const real waveSpeedLocal = computeNetFlux<Flux, direction>(
+                                middleIndex,
+                                rightIndex,
+                                leftViews,
+                                rightViews,
+                                flux);
 
-        volume::for_each_cell_index_with_neighbours<direction>(out,
-                                                               [&](size_t leftIndex, size_t middleIndex, size_t rightIndex)
-        {
+                    equation::euler::Euler::setViewAt(temporaryViews, middleIndex, (-1.0)*flux);
+                    waveSpeed = std::max(waveSpeed, waveSpeedLocal);
+                }
+            }
+        }
 
-            auto fluxMiddleRight = equation::euler::Euler::fetchConservedVariables(temporaryViews, rightIndex);
-            auto fluxLeftMiddle = (-1.0)*equation::euler::Euler::fetchConservedVariables(temporaryViews, middleIndex);
 
-            equation::euler::Euler::addToViewAt(outViews, rightIndex, fluxMiddleRight + fluxLeftMiddle);
+        for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
+            for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
+#pragma omp parallel for
+                for(size_t x = ngx - xDir; x < nx - ngx; ++x) {
 
-        },ivec3(left.getNumberOfXGhostCells(),
-                left.getNumberOfYGhostCells(),
-                left.getNumberOfZGhostCells())- directionVector,
-          ivec3(left.getNumberOfXGhostCells(),
-                left.getNumberOfYGhostCells(),
-                left.getNumberOfZGhostCells()));
+                    const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
+                    const size_t middleIndex = outViews.index(x, y, z);
+                    auto fluxMiddleRight = equation::euler::Euler::fetchConservedVariables(temporaryViews, rightIndex);
+                    auto fluxLeftMiddle = (-1.0)*equation::euler::Euler::fetchConservedVariables(temporaryViews, middleIndex);
+
+                    equation::euler::Euler::addToViewAt(outViews, rightIndex, fluxMiddleRight + fluxLeftMiddle);
+
+                }
+            }
+        }
     }
 
 
