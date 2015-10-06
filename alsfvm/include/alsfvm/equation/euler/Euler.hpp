@@ -57,7 +57,8 @@ namespace alsfvm {
 						views.E.at(index));
 				}
 				
-				__device__ __host__ static ConservedVariables fetchConservedVariables(ConstViews& views, size_t index) {
+                template<class T, class S>
+                __device__ __host__ static ConservedVariables fetchConservedVariables(euler::Views<T, S>& views, size_t index) {
 					return ConservedVariables(views.rho.at(index),
 						views.mx.at(index),
 						views.my.at(index),

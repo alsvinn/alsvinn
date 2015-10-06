@@ -10,11 +10,11 @@
 namespace alsfvm { namespace numflux { namespace euler { 
 
     template<class Flux, int direction>
-    real computeNetFlux(size_t leftIndex,
+    real computeNetFlux(
                   size_t middleIndex,
                   size_t rightIndex,
-                  const std::array<memory::View<const real>, 5>& left,
-                  const std::array<memory::View<const real>, 5>& right,
+                  equation::euler::Euler::ConstViews & left,
+                  equation::euler::Euler::ConstViews & right,
                   equation::euler::ConservedVariables& out)
     {
 
@@ -22,25 +22,11 @@ namespace alsfvm { namespace numflux { namespace euler {
         // This needs to be done with some smart template recursion
 
         // This is the value for j+1/2
-        equation::euler::AllVariables rightJpHf = equation::euler::Euler::makeAllVariables(
-                left[0].at(rightIndex),
-                left[1].at(rightIndex),
-                left[2].at(rightIndex),
-                left[3].at(rightIndex),
-                left[4].at(rightIndex)
-                );
+        equation::euler::AllVariables rightJpHf = equation::euler::Euler::fetchAllVariables(left, rightIndex);
 
 
         // This is the value for j+1/2
-        equation::euler::AllVariables leftJpHf = equation::euler::Euler::makeAllVariables(
-                right[0].at(middleIndex),
-                right[1].at(middleIndex),
-                right[2].at(middleIndex),
-                right[3].at(middleIndex),
-                right[4].at(middleIndex)
-                );
-
-
+        equation::euler::AllVariables leftJpHf = equation::euler::Euler::fetchAllVariables(right, middleIndex);
 
         // F(U_l, U_r)
         equation::euler::ConservedVariables fluxMiddleRight;
@@ -52,33 +38,20 @@ namespace alsfvm { namespace numflux { namespace euler {
 
     template<class Flux, size_t direction>
     void computeNetFlux(const volume::Volume& left, const volume::Volume& right,
-                        volume::Volume& out, real& waveSpeed, size_t numberOfGhostCells) {
+                        volume::Volume& out,
+                        volume::Volume& temporaryVolume,
+                        real& waveSpeed, size_t numberOfGhostCells) {
         // We will automate the creation of these pointer arrays soon,
         // for now we keep them to keep things simple.
-        std::array<memory::View<const real>, 5> leftViews = {
-            left.getScalarMemoryArea(0)->getView(),
-            left.getScalarMemoryArea(1)->getView(),
-            left.getScalarMemoryArea(2)->getView(),
-            left.getScalarMemoryArea(3)->getView(),
-            left.getScalarMemoryArea(4)->getView()
-        };
 
-        std::array<memory::View<const real>, 5> rightViews = {
-            right.getScalarMemoryArea(0)->getView(),
-            right.getScalarMemoryArea(1)->getView(),
-            right.getScalarMemoryArea(2)->getView(),
-            right.getScalarMemoryArea(3)->getView(),
-            right.getScalarMemoryArea(4)->getView()
-        };
+        equation::euler::Euler::ConstViews leftViews(left);
 
 
-        std::array<memory::View<real>, 5> outViews = {
-            out.getScalarMemoryArea(0)->getView(),
-            out.getScalarMemoryArea(1)->getView(),
-            out.getScalarMemoryArea(2)->getView(),
-            out.getScalarMemoryArea(3)->getView(),
-            out.getScalarMemoryArea(4)->getView()
-        };
+        equation::euler::Euler::ConstViews rightViews(right);
+
+        equation::euler::Euler::Views outViews(out);
+
+        equation::euler::Euler::Views temporaryViews(temporaryVolume);
 
         ivec3 directionVector(direction==0, direction==1, direction==2);
 
@@ -87,39 +60,37 @@ namespace alsfvm { namespace numflux { namespace euler {
 
             equation::euler::ConservedVariables flux;
             const real waveSpeedLocal = computeNetFlux<Flux, direction>(
-                                 leftIndex,
                                  middleIndex,
                                  rightIndex,
                                  leftViews,
                                  rightViews,
                                  flux);
+
+            equation::euler::Euler::setViewAt(temporaryViews, middleIndex, (-1.0)*flux);
 			waveSpeed = std::max(waveSpeed, waveSpeedLocal);
 
-            outViews[0].at(middleIndex) -= flux.rho;
-            outViews[1].at(middleIndex) -= flux.m.x;
-            outViews[2].at(middleIndex) -= flux.m.y;
-            outViews[3].at(middleIndex) -= flux.m.z;
-            outViews[4].at(middleIndex) -= flux.E;
-
-            outViews[0].at(rightIndex) += flux.rho;
-            outViews[1].at(rightIndex) += flux.m.x;
-            outViews[2].at(rightIndex) += flux.m.y;
-            outViews[3].at(rightIndex) += flux.m.z;
-            outViews[4].at(rightIndex) += flux.E;
-
-            assert(!std::isnan(flux.rho));
-            assert(!std::isnan(flux.m.x));
-            assert(!std::isnan(flux.m.y));
-            assert(!std::isnan(flux.m.z));
-            assert(!std::isnan(flux.E));
-
-
         }, ivec3(left.getNumberOfXGhostCells(),
-            left.getNumberOfYGhostCells(),
-            left.getNumberOfZGhostCells())- directionVector,
+                 left.getNumberOfYGhostCells(),
+                 left.getNumberOfZGhostCells())- directionVector,
            ivec3(left.getNumberOfXGhostCells(),
-            left.getNumberOfYGhostCells(),
-            left.getNumberOfZGhostCells()));
+                 left.getNumberOfYGhostCells(),
+                 left.getNumberOfZGhostCells()));
+
+        volume::for_each_cell_index_with_neighbours<direction>(out,
+                                                               [&](size_t leftIndex, size_t middleIndex, size_t rightIndex)
+        {
+
+            auto fluxMiddleRight = equation::euler::Euler::fetchConservedVariables(temporaryViews, rightIndex);
+            auto fluxLeftMiddle = (-1.0)*equation::euler::Euler::fetchConservedVariables(temporaryViews, middleIndex);
+
+            equation::euler::Euler::addToViewAt(outViews, rightIndex, fluxMiddleRight + fluxLeftMiddle);
+
+        },ivec3(left.getNumberOfXGhostCells(),
+                left.getNumberOfYGhostCells(),
+                left.getNumberOfZGhostCells())- directionVector,
+          ivec3(left.getNumberOfXGhostCells(),
+                left.getNumberOfYGhostCells(),
+                left.getNumberOfZGhostCells()));
     }
 
 
@@ -147,6 +118,11 @@ namespace alsfvm { namespace numflux { namespace euler {
                                                     getNumberOfGhostCells());
 
         right->makeZero();
+
+        temporaryVolume = volumeFactory.createConservedVolume(grid.getDimensions().x,
+                                                              grid.getDimensions().y,
+                                                              grid.getDimensions().z,
+                                                              getNumberOfGhostCells());
     }
 
     template<class Flux, size_t dimension>
@@ -161,17 +137,17 @@ namespace alsfvm { namespace numflux { namespace euler {
         output.makeZero();
 
         reconstruction->performReconstruction(conservedVariables, 0, 0, *left, *right);
-        computeNetFlux<Flux, 0>(*left, *right, output, waveSpeed.x, getNumberOfGhostCells());
+        computeNetFlux<Flux, 0>(*left, *right, output, *temporaryVolume, waveSpeed.x, getNumberOfGhostCells());
 
         if (dimension > 1) {
             reconstruction->performReconstruction(conservedVariables, 1, 0, *left, *right);
-			computeNetFlux<Flux, 1>(*left, *right, output, waveSpeed.y, getNumberOfGhostCells());
+            computeNetFlux<Flux, 1>(*left, *right, output, *temporaryVolume, waveSpeed.y, getNumberOfGhostCells());
         }
 
 
         if (dimension > 2) {
             reconstruction->performReconstruction(conservedVariables, 2, 0, *left, *right);
-			computeNetFlux<Flux, 2>(*left, *right, output, waveSpeed.z, getNumberOfGhostCells());
+            computeNetFlux<Flux, 2>(*left, *right, output, *temporaryVolume, waveSpeed.z, getNumberOfGhostCells());
         }
 
 	}

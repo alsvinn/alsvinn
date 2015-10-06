@@ -56,6 +56,9 @@ namespace alsfvm { namespace numflux { namespace euler {
         alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction;
         alsfvm::shared_ptr<volume::Volume> left;
         alsfvm::shared_ptr<volume::Volume> right;
+
+        // This is for storing F(U_l, U_r) at each cell
+        alsfvm::shared_ptr<volume::Volume> temporaryVolume;
     };
 
 } // namespace alsfvm
