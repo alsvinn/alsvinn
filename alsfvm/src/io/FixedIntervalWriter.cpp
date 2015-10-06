@@ -1,6 +1,7 @@
 #include "alsfvm/io/FixedIntervalWriter.hpp"
 #include <iostream>
-#include <cmath>
+#include <algorithm>
+
 namespace alsfvm { namespace io {
 
 FixedIntervalWriter::FixedIntervalWriter(alsfvm::shared_ptr<Writer> &writer,
