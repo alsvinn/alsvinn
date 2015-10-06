@@ -23,7 +23,9 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
       cellComputer(cellComputerFactory.createComputer()),
       initialData(initialData),
       cflNumber(simulatorParameters.getCFLNumber()),
-      endTime(endTime)
+      endTime(endTime),
+      equationName(equationName),
+      platformName(deviceConfiguration->getPlatform())
 {
     const size_t nx = grid->getDimensions().x;
     const size_t ny = grid->getDimensions().y;
@@ -103,6 +105,22 @@ real Simulator::getCurrentTime() const
 real Simulator::getEndTime() const
 {
     return endTime;
+}
+
+void Simulator::setSimulationState(const volume::Volume &conservedVolume)
+{
+    conservedVolumes[0]->setVolume(conservedVolume);
+    boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
+}
+
+std::string Simulator::getPlatformName() const
+{
+    return platformName;
+}
+
+std::string Simulator::getEquationName() const
+{
+    return equationName;
 }
 
 void Simulator::callWriters()

@@ -1,5 +1,6 @@
 #include "alsfvm/volume/Volume.hpp"
 #include "alsfvm/error/Exception.hpp"
+#include "alsfvm/volume/interpolate.hpp"
 
 namespace alsfvm {
 	namespace volume {
@@ -215,8 +216,37 @@ namespace alsfvm {
 			for (size_t var = 0; var < getNumberOfVariables(); ++var) {
 				getScalarMemoryArea(var)->copyToHost(temporaryStorage.data(), temporaryStorage.size());
 				other.getScalarMemoryArea(var)->copyFromHost(temporaryStorage.data(), temporaryStorage.size());
-			}
-		}
+            }
+        }
+
+        void Volume::setVolume(const Volume &other)
+        {
+            if (other.getNumberOfVariables() != getNumberOfVariables()) {
+                THROW("Trying to interpolate between to volumes, but"
+                       "we do not have the same number of variables.");
+            }
+
+            const size_t nxOther =  other.getNumberOfXCells();
+            const size_t nyOther =  other.getNumberOfYCells();
+            const size_t nzOther =  other.getNumberOfZCells();
+
+            // Base case.
+            if (nxOther == nx && nyOther == ny && nzOther == nz) {
+                other.copyTo(*this);
+                return;
+            }
+
+            // Test which dimension we are in.
+            if (getNumberOfYCells() == 1) {
+                interpolate<1>(*this, other);
+            } else if(getNumberOfZCells() == 1) {
+                interpolate<2>(*this, other);
+            } else {
+                interpolate<3>(*this, other);
+            }
+
+
+        }
 	}
 
 }

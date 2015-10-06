@@ -51,7 +51,7 @@ namespace {
 alsfvm::shared_ptr<simulator::Simulator>
     SimulatorSetup::readSetupFromFile(const std::string &filename)
 {
-    basePath = boost::filesystem::path(filename).parent_path().string();
+    basePath = boost::filesystem::path(boost::filesystem::absolute(filename)).parent_path().string();
     std::ifstream file(filename);
     XMLParser parser;
 
@@ -110,6 +110,7 @@ alsfvm::shared_ptr<simulator::Simulator>
 
     return simulator;
 }
+
 
 alsfvm::shared_ptr<grid::Grid> SimulatorSetup::createGrid(const SimulatorSetup::ptree &configuration)
 {

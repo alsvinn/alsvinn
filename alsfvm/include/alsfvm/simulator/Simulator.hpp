@@ -93,6 +93,19 @@ namespace alsfvm { namespace simulator {
         ///
         real getEndTime() const;
 
+        ///
+        /// Updates the simulation state.
+        ///
+        /// \param conservedVolume the conservedVolume to update to
+        ///
+        /// \note This does not need to be on the same size as the conserved volume,
+        ///       interpolation will be done.
+        ///
+        void setSimulationState(const volume::Volume& conservedVolume);
+
+        std::string getPlatformName() const;
+
+        std::string getEquationName() const;
     private:
 
         real computeTimestep();
@@ -114,6 +127,8 @@ namespace alsfvm { namespace simulator {
 
         const real cflNumber;
         const real endTime;
+        const std::string equationName;
+        const std::string platformName;
     };
 } // namespace alsfvm
 } // namespace simulator

@@ -49,7 +49,8 @@ find_package(PythonLibs REQUIRED)
 
 # We try to limit use of boost, but we also want to avoid having to 
 # reprogram everything.
-find_package(Boost REQUIRED COMPONENTS filesystem system chrono)
+find_package(Boost REQUIRED COMPONENTS filesystem system chrono program_options)
+find_package (Threads)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 if(CUDA_FOUND)
 	

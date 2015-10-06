@@ -180,6 +180,12 @@ namespace alsfvm {
 			///
 			void copyTo(volume::Volume& other) const;
 
+            ///
+            /// \brief setVolume sets the contents of this volume to the contenst of the other volume
+            /// \param other the other volume to read from
+            /// \note This does interpolation if necessary.
+            ///
+            void setVolume(const volume::Volume& other);
 
         private:
             const std::vector<std::string> variableNames;
