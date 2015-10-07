@@ -12,10 +12,10 @@ def runAlsvinn(alsvinnpath, alsmlmc, work):
         print("Running\n\t%s" % commandToRun)
         os.system(commandToRun)
 
-if len(sys.argv) != 2:
+if len(sys.argv) != 3:
     print("Wrong number of arguments supplied")
     print("Usage:")
-    print("\tpython %s <path to alsvinncli>" % sys.argv[0])
+    print("\tpython %s <path to alsvinncli> <path to alsmlmc>" % sys.argv[0])
     sys.exit(1)
 
 alsvinnExecutable = os.path.abspath(sys.argv[1])
