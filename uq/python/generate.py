@@ -30,7 +30,8 @@ class Generate(object):
         return os.path.join(self.outdir, "%s_%d" % (self.basename, k))
     def createOutDir(self, k):
         outdirname = self.getOutdirname(k)
-        os.mkdir(outdirname)
+        if not os.path.exists(outdirname):
+            os.mkdir(outdirname)
         return outdirname
 
     def generateInputFiles(self):
@@ -38,7 +39,7 @@ class Generate(object):
         with open(self.pythonfile, "r") as pythonfile:
             basepythonscript = pythonfile.read()
 
-        for k in range(M):
+        for k in range(self.M):
             outdirname = self.createOutDir(k)
             outfilename = os.path.join(outdirname, self.basepythonfile)
             randomVars = {}
@@ -62,6 +63,7 @@ class Generate(object):
             self.xmlfiles.append(outxmlfilename)
             with open(outxmlfilename, "w") as outxmlfile:
                 outxmlfile.write(self.xmlfile)
+        return self.xmlfiles
 
     def distributeWork(self, numberOfNodes):
         with open("nodes.py", "w") as nodefile:
