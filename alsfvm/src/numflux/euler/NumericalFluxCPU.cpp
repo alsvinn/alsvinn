@@ -6,6 +6,8 @@
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include <fstream>
+#include <omp.h>
+#include <iostream>
 
 namespace alsfvm { namespace numflux { namespace euler { 
 
@@ -64,10 +66,14 @@ namespace alsfvm { namespace numflux { namespace euler {
         const size_t ngy = out.getNumberOfYGhostCells();
         const size_t ngz = out.getNumberOfZGhostCells();
 
+
+
+        std::vector<real> waveSpeeds(omp_get_num_procs(), 0);
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
             for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
-#pragma omp parallel for  reduction(max: waveSpeed)
+#pragma omp parallel for
                 for(size_t x = ngx - xDir; x < nx - ngx; ++x) {
+                    const auto threadId = omp_get_thread_num();
                     const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
                     const size_t middleIndex = outViews.index(x, y, z);
 
@@ -81,10 +87,11 @@ namespace alsfvm { namespace numflux { namespace euler {
                                 flux);
 
                     equation::euler::Euler::setViewAt(temporaryViews, middleIndex, (-1.0)*flux);
-                    waveSpeed = std::max(waveSpeed, waveSpeedLocal);
+                    waveSpeeds[threadId] = std::max(waveSpeeds[threadId], waveSpeedLocal);
                 }
             }
         }
+        waveSpeed = *std::max_element(waveSpeeds.begin(), waveSpeeds.end());
 
 
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
