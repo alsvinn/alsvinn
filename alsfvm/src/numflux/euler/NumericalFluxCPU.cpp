@@ -66,9 +66,7 @@ namespace alsfvm { namespace numflux { namespace euler {
         const size_t ngy = out.getNumberOfYGhostCells();
         const size_t ngz = out.getNumberOfZGhostCells();
 
-
-
-        std::vector<real> waveSpeeds(omp_get_num_procs(), 0);
+        std::vector<real> waveSpeeds(omp_get_max_threads(), 0);
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
             for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
 #pragma omp parallel for
