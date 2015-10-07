@@ -2,13 +2,15 @@ import generate
 import xml.dom.minidom
 import os.path
 import sys
+import heapq
 
 class GenerateMLMC(object):
-    def __init__(self, basefile, outdir, M, numberOfRandomVariables, L):
+    def __init__(self, basefile, outdir, M, numberOfRandomVariables, L, m):
         self.basefile = os.path.abspath(basefile)
         self.baseinputpath = os.path.dirname(self.basefile) + os.sep
         self.outdir = outdir
         self.M = M
+        self.m = m
         self.numberOfRandomVariables = numberOfRandomVariables
         self.L = L
 
@@ -61,43 +63,100 @@ class GenerateMLMC(object):
 
         with open(outfilename, "w") as outfile:
             document.writexml(outfile)
+        return outfilename
 
 
     def generateLevels(self):
-
-        for level in range(L):
+        self.xmlPairs = []
+        self.resolutions = []
+        self.xmlPairs.append([])
+        self.resolutions = [[] for x in range(self.L + 1)]
+        for level in range(0, self.L + 1):
+            self.xmlPairs.append([])
             levelDir = os.path.join(self.outdir, "level_%d" % level)
             if not os.path.exists(levelDir):
                 os.mkdir(levelDir)
 
-            resolution = [x/(2**level) for x in self.resolution]
+            resolution = [max(x/(2**(self.L-level)),1) for x in self.resolution]
 
+            self.resolutions[level]= resolution
             xmlFile = self.__makeBaseXML(resolution, level, levelDir)
             print "xmlFile = %s" % xmlFile
-            gen = generate.Generate(xmlFile, levelDir, (4**level) * self.M, self.numberOfRandomVariables)
+            print "blah = %d" % self.M
+
+            numberOfSamples = (4**(self.L-level)) * self.M if level > 0 else self.m
+            gen = generate.Generate(xmlFile, levelDir, numberOfSamples, self.numberOfRandomVariables)
 
             xmlFiles = gen.generateInputFiles()
 
             for xmlFile in xmlFiles:
-                self.makeCoarseXMLFile(xmlFile, [x/2 for x in resolution])
+                xmlFile = os.path.abspath(xmlFile)
+                if level > 0:
+                    coarseFile = self.makeCoarseXMLFile(xmlFile, [max(x/2, 1) for x in resolution])
+                    self.xmlPairs[level].append([xmlFile, coarseFile])
+                else:
+                    self.xmlPairs[level].append([xmlFile])
+
+
+    def setPlatform(self, xmlFile, platform):
+         document = xml.dom.minidom.parse(xmlFile)
+         document.getElementsByTagName("fvm")[0].getElementsByTagName("platform")[0].firstChild.nodeValue = platform
+         with open(xmlFile, "w") as outfile:
+             document.writexml(outfile)
+         
+    def distributeWork(self, numberOfNodesToUse, useGPU=True):
+        workList = [[] for node in range(numberOfNodesToUse)]
+        loadList = []
+        for node in range(numberOfNodesToUse):
+            heapq.heappush(loadList, (0, node))
+        
+        for level in range(self.L, -1, -1):
+            resolution = self.resolutions[level]
+
+            numberOfCells = resolution[0]*resolution[1]*resolution[2]
+
+            if numberOfCells > 1024:
+                useGPUOnLevel = useGPU
+            else:
+                useGPUOnLevel = False
+
+            for xmlPair in self.xmlPairs[level]:
+                nextNode = heapq.heappop(loadList)
+
+                if len(xmlPair) > 1:
+                    if useGPUOnLevel:
+                        self.setPlatform(xmlPair[0], "cuda")
+                        
+                workList[nextNode[1]].append(xmlPair)
+                # Add that work also depends on the CFL condition
+                additionalWork = numberOfCells * resolution[0]
+                if not useGPUOnLevel and len(xmlPair) > 1:
+                    additionalWork *= 2
+                newWork = nextNode[0] +additionalWork
+                heapq.heappush(loadList, (newWork, nextNode[1]))
+        with open(os.path.join(self.outdir, "nodes.py"), "w") as nodeFile:
+            nodeFile.write("workLists = %s\n" % workList)
+                
+
 
 
 if __name__ == "__main__":
-     if len(sys.argv) != 6:
+     if len(sys.argv) != 7:
         print("Not enough parameters supplied")
         print("Usage")
-        print("\tpython %s <number of samples> <number of levels> <basefile.xml> <output directory> <number of nodes>" % sys.argv[0])
+        print("\tpython %s <number of samples on finest level> <number of levels> <number of samples on coarsest level> <basefile.xml> <output directory> <number of nodes>" % sys.argv[0])
         sys.exit(1)
     
     
      M = int(sys.argv[1])
+     m = int(sys.argv[3])
      L = int(sys.argv[2])
-     basefile = sys.argv[3]
-     outdir = sys.argv[4]
-     numberOfNodes = int(sys.argv[5])
+     basefile = sys.argv[4]
+     outdir = sys.argv[5]
+     numberOfNodes = int(sys.argv[6])
      
      numberOfRandomVariables = 10
      
-     gen = GenerateMLMC(basefile, outdir, M, numberOfRandomVariables, L)
+     gen = GenerateMLMC(basefile, outdir, M, numberOfRandomVariables, L, m)
      gen.generateLevels()
-     
+     gen.distributeWork(numberOfNodes)
