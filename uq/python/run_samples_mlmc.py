@@ -9,8 +9,8 @@ def runAlsvinn(alsvinnpath, alsmlmc, work):
         commandToRun = "%s %s" % (alsvinnpath, work[0])
     else:
         commandToRun = "%s -f %s -c %s -s 0.05" % (alsmlmc, work[0], work[1])
-        print("Running\n\t%s" % commandToRun)
-        os.system(commandToRun)
+    print("Running\n\t%s" % commandToRun)
+    os.system(commandToRun)
 
 if len(sys.argv) != 3:
     print("Wrong number of arguments supplied")

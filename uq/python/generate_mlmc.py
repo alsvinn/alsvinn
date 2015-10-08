@@ -159,4 +159,4 @@ if __name__ == "__main__":
      
      gen = GenerateMLMC(basefile, outdir, M, numberOfRandomVariables, L, m)
      gen.generateLevels()
-     gen.distributeWork(numberOfNodes)
+     gen.distributeWork(numberOfNodes, True)
