@@ -123,9 +123,13 @@ class GenerateMLMC(object):
             for xmlPair in self.xmlPairs[level]:
                 nextNode = heapq.heappop(loadList)
 
+
+                if useGPUOnLevel:
+                    self.setPlatform(xmlPair[0], "cuda")
+                else:
+                    self.setPlatform(xmlPair[0], "cpu")
                 if len(xmlPair) > 1:
-                    if useGPUOnLevel:
-                        self.setPlatform(xmlPair[0], "cuda")
+                    self.setPlatform(xmlPair[1], "cpu")
                         
                 workList[nextNode[1]].append(xmlPair)
                 # Add that work also depends on the CFL condition
