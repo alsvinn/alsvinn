@@ -33,6 +33,7 @@ IF(ALSVINN_HAVE_CUDA)
 	add_custom_target(alsfvm_ptx_build ALL
 		DEPENDS ${ALSFVM_CUDA_PTX} ${CUDA_SRC}
 		SOURCES ${CUDA_SRC})
+	set_target_properties(alsfvm_ptx_build PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
 ELSE()
 	SET(ALSFVM_CUDA "")
 ENDIF()
