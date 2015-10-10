@@ -27,6 +27,12 @@ IF(ALSVINN_HAVE_CUDA)
 	FILE(GLOB_RECURSE CUDA_SRC src/*.cu)
 	set_source_groups( "CUDA Files" "${CMAKE_CURRENT_SOURCE_DIR}/src/" "${CUDA_SRC}")
 	CUDA_COMPILE(ALSFVM_CUDA alsfvm_cuda ${CUDA_SRC})
+	CUDA_COMPILE_PTX(ALSFVM_CUDA_PTX alsfvm_cuda_ptx ${CUDA_SRC} OPTIONS -src-in-ptx)
+
+	# This is so that we can build the ptx files for performance analysis
+	add_custom_target(alsfvm_ptx_build ALL
+		DEPENDS ${ALSFVM_CUDA_PTX} ${CUDA_SRC}
+		SOURCES ${CUDA_SRC})
 ELSE()
 	SET(ALSFVM_CUDA "")
 ENDIF()
