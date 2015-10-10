@@ -40,6 +40,7 @@ endif()
 
 IF(WIN32)
   ADD_DEFINITIONS( -DBOOST_ALL_NO_LIB )
+  ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK )
 ENDIF()
 
 
@@ -59,7 +60,9 @@ if(CUDA_FOUND)
 	# Basically, we do not want to use std=c++11 on CUDA
 	  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
   ENDIF()
+  SET(CUDA_COMPILE_PTX ON)
   #list(APPEND CUDA_NVCC_FLAGS -gencode=arch=compute_52,code="compute_52,sm_52" -Xptxas -v )
+  list(APPEND CUDA_NVCC_FLAGS_RELEASE -O3 --use_fast_math -Xptxas -v -keep  -src-in-ptx -gencode=arch=compute_30,code="compute_30,sm_30")
   list(APPEND CUDA_NVCC_FLAGS_DEBUG -G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0)
   set(ALSVINN_HAVE_CUDA On)
   add_definitions(-DALSVINN_HAVE_CUDA)
