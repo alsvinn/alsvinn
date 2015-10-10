@@ -42,7 +42,7 @@ namespace alsfvm {
 				const real w0 = a0 / (a0 + a1);
 				const real w1 = a1 / (a0 + a1);
 
-				
+				#pragma unroll
 				for (int var = 0; var < Equation::getNumberOfConservedVariables(); var++) {
 					memory::View<const real> in = input.get(var);
 					left.get(var).at(indexOut) =
