@@ -2,7 +2,7 @@
   <name>
     kh
   </name>
-  <platform>cuda</platform>
+  <platform>cpu</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
@@ -10,7 +10,7 @@
   </grid>
   <boundary>periodic</boundary>
   <flux>HLL3</flux>
-  <endTime>2</endTime>
+  <endTime>0.5</endTime>
   <equation>euler</equation>
   <reconstruction>none</reconstruction>
   <cfl>auto</cfl>
