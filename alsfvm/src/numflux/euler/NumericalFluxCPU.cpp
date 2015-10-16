@@ -70,7 +70,7 @@ namespace alsfvm { namespace numflux { namespace euler {
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
             for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
 #pragma omp parallel for
-                for(size_t x = ngx - xDir; x < nx - ngx; ++x) {
+                for(int x = ngx - xDir; x < nx - ngx; ++x) {
                     const auto threadId = omp_get_thread_num();
                     const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
                     const size_t middleIndex = outViews.index(x, y, z);
@@ -95,7 +95,7 @@ namespace alsfvm { namespace numflux { namespace euler {
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
             for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
 #pragma omp parallel for
-                for(size_t x = ngx - xDir; x < nx - ngx; ++x) {
+                for(int x = ngx - xDir; x < nx - ngx; ++x) {
 
                     const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
                     const size_t middleIndex = outViews.index(x, y, z);

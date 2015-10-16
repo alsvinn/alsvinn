@@ -84,7 +84,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 		for (size_t z = startZ; z < endZ; z++) {
 			for (size_t y = startY; y < endY; y++) {
 #pragma omp parallel for
-				for (size_t x = startX; x < endX; x++) {
+				for (int x = startX; x < endX; x++) {
 
 
 					const size_t indexRight = z*nx*ny + y * nx + x;
