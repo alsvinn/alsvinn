@@ -1,7 +1,7 @@
 ﻿import sys
 import xml.dom.minidom
 import os.path
-import random
+import numpy.random as random
 
 class Generate(object):
     def __init__(self, basefile, outdir, M, numberOfRandomVariables):
