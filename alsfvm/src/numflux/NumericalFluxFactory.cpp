@@ -6,6 +6,8 @@
 #include "alsfvm/reconstruction/WENO2CUDA.hpp"
 #include "alsfvm/reconstruction/NoReconstructionCUDA.hpp"
 #endif
+#include "alsfvm/reconstruction/WENOF2.hpp"
+#include "alsfvm/reconstruction/ReconstructionCPU.hpp"
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include "alsfvm/numflux/euler/HLL3.hpp"
 #include "alsfvm/reconstruction/NoReconstruction.hpp"
@@ -75,6 +77,11 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
 			reconstructor.reset(new reconstruction::WENOCPU<3>());
 
 		}
+        else if (reconstruction == "wenof2") {
+            reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENOF2<equation::euler::Euler>, equation::euler::Euler>());
+
+        }
+
 		else {
 			THROW("Unknown reconstruction " << reconstruction);
 		}

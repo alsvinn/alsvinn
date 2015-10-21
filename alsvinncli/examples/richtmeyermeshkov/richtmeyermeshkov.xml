@@ -1,0 +1,26 @@
+<fvm>
+  <name>
+    rm
+  </name>
+  <platform>cpu</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>1 1 0</upperCorner>
+    <dimension>512 512 1</dimension>
+  </grid>
+  <boundary>periodic</boundary>
+  <flux>HLL3</flux>
+  <endTime>4</endTime>
+  <equation>euler</equation>
+  <reconstruction>wenof2</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
+  <initialData>
+    <python>richtmeyermeshkov.py</python>
+  </initialData>
+  <writer>
+    <type>hdf5</type>
+    <basename>rm</basename>
+    <numberOfSaves>10</numberOfSaves>
+  </writer>
+</fvm>

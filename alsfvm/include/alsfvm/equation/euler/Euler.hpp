@@ -227,6 +227,18 @@ namespace alsfvm {
                     return AllVariables(conserved, computeExtra(conserved));
                 }
 
+                __device__ __host__ static real getWeight(const ConstViews& in, size_t index) {
+                    return in.rho.at(index);
+                }
+
+                __device__ __host__ static PrimitiveVariables computePrimitiveVariables(const ConservedVariables& conserved) {
+                    rvec3 u = conserved.m / conserved.rho;
+                    real ie = conserved.E - 0.5*conserved.m.dot(conserved.m)/conserved.rho;
+
+                    real p = (GAMMA-1)*ie;
+                    return PrimitiveVariables(conserved.rho, u.x, u.y, u.z, p);
+                }
+
 
 			};
 		}
