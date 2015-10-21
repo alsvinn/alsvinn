@@ -17,6 +17,7 @@ MACRO(set_source_groups  folder_name directory source_files)
 	endforeach()
 ENDMACRO(set_source_groups)
 
+SET(ALSVINN_USE_MPI OFF CACHE BOOL "Build with MPI")
 SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 SET(ALSVINN_USE_CUDA OFF CACHE BOOL "Build with CUDA")
 SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
@@ -76,6 +77,12 @@ else()
 endif()
 
 find_package(HDF5 REQUIRED)
+
+if(ALSVINN_USE_MPI)
+  find_package(MPI REQUIRED)
+else()
+  set(MPI_LIBRARIES "")
+endif()
 
 add_subdirectory("alsfvm")
 add_subdirectory("alsvinncli")
