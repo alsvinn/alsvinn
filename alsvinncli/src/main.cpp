@@ -23,9 +23,10 @@ int main(int argc, char** argv) {
 		auto timeStart = boost::chrono::thread_clock::now();
 
 		int lastPercentSeen = -1;
+        size_t timestepsPerformed = 0;
 		while (!simulator->atEnd()) {
 			simulator->performStep();
-
+            timestepsPerformed++;
 			int percentDone = std::round(100.0 * simulator->getCurrentTime() / simulator->getEndTime());
 			if (percentDone != lastPercentSeen) {
 				std::cout << "\rPercent done: " << percentDone << std::flush;
@@ -34,6 +35,7 @@ int main(int argc, char** argv) {
 
 		}
 		std::cout << std::endl << std::endl;
+        std::cout << "timesteps = " << timestepsPerformed << std::endl;
 		auto timeEnd = boost::chrono::thread_clock::now();
 
 		std::cout << "Simulation finished!" << std::endl;
