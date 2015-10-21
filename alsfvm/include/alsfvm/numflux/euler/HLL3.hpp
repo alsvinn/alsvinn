@@ -4,6 +4,7 @@
 #include "alsfvm/equation/euler/Euler.hpp"
 #include <algorithm>
 #include <numeric>
+#include "alsfvm/numflux/euler/HLL.hpp"
 
 namespace alsfvm { namespace numflux { namespace euler {
 

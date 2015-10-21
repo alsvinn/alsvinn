@@ -12,7 +12,7 @@
 /// Gamma constant
 /// \note This will be moved into a paramter struct soon! 
 ///
-#define GAMMA (5.0/3.0)
+#define GAMMA (1.4)
 
 
 namespace alsfvm {
