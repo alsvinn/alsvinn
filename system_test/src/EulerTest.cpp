@@ -92,7 +92,7 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
     writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
     simulator::TimestepInformation timestepInformation;
-    while (t < T) {
+    while (timestepInformation.getCurrentTime() < T) {
 		real dt = 0;
         numberOfTimesteps++;
         for(size_t substep = 0; substep < integrator->getNumberOfSubsteps(); substep++) {
