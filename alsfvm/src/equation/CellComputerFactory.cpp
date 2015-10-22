@@ -29,7 +29,7 @@ alsfvm::shared_ptr<CellComputer> CellComputerFactory::createComputer()
 #ifdef ALSVINN_HAVE_CUDA
     if (platform == "cuda") {
 		if (equation == "euler") {
-            return alsfvm::shared_ptr<CellComputer>(new CUDACellComputer<euler::Euler>(parameters));
+            return alsfvm::shared_ptr<CellComputer>(new CUDACellComputer<euler::Euler>(*simulatorParameters));
 		}
 		else {
 			THROW("Unknown equation " << equation);

@@ -22,6 +22,9 @@ public:
 	std::string reconstruction;
 	alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
 	alsfvm::shared_ptr<DeviceConfiguration> deviceConfigurationCPU;
+
+    alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParameters;
+    alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParametersCPU;
 	NumericalFluxFactory fluxFactory;
 	NumericalFluxFactory fluxFactoryCPU;
 	grid::Grid grid;
@@ -37,8 +40,10 @@ public:
 		: equation("euler"), flux("HLL"), reconstruction("none"),
 		deviceConfiguration(new DeviceConfiguration("cuda")),
 		deviceConfigurationCPU(new DeviceConfiguration("cpu")),
-		fluxFactory(equation, flux, reconstruction, deviceConfiguration),
-		fluxFactoryCPU(equation, flux, reconstruction, deviceConfigurationCPU),
+        simulatorParameters(new simulator::SimulatorParameters("euler", "cuda")),
+        simulatorParametersCPU(new simulator::SimulatorParameters("euler", "cpu")),
+		fluxFactory(equation, flux, reconstruction, simulatorParameters, deviceConfiguration),
+        fluxFactoryCPU(equation, flux, reconstruction, simulatorParametersCPU, deviceConfigurationCPU),
 		grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(10, 10, 1)),
 		memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
 		memoryFactoryCPU(new memory::MemoryFactory(deviceConfigurationCPU)),
@@ -78,7 +83,7 @@ TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
 	conservedVariablesCPU->copyTo(*conservedVariables);
 	boundary->applyBoundaryConditions(*conservedVariables, grid);
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
-	equation::CellComputerFactory cellComputerFactory("cuda", "euler", deviceConfiguration);
+	equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
 
 	auto computer = cellComputerFactory.createComputer();
 	computer->computeExtraVariables(*conservedVariables, *extraVariables);
@@ -176,7 +181,7 @@ TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
 	conservedVariablesCPU->copyTo(*conservedVariables);
 	boundary->applyBoundaryConditions(*conservedVariables, grid);
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
-	equation::CellComputerFactory cellComputerFactory("cuda", "euler", deviceConfiguration);
+	equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
 
 	
 	auto output = volumeFactory.createConservedVolume(nx, ny, nz, 1);

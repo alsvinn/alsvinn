@@ -182,13 +182,13 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
 			if (fluxname == "HLL") {
 
 				if (grid.getActiveDimension() == 3) {
-					return NumericalFluxPtr(new NumericalFluxCUDA<euler::HLL, equation::euler::Euler, 3>(grid, reconstructor, deviceConfiguration));
+                    return NumericalFluxPtr(new NumericalFluxCUDA<euler::HLL, equation::euler::Euler, 3>(grid, reconstructor, *simulatorParameters, deviceConfiguration));
 				}
 				else if (grid.getActiveDimension() == 2) {
-					return NumericalFluxPtr(new NumericalFluxCUDA<euler::HLL, equation::euler::Euler, 2>(grid, reconstructor, deviceConfiguration));
+                    return NumericalFluxPtr(new NumericalFluxCUDA<euler::HLL, equation::euler::Euler, 2>(grid, reconstructor, *simulatorParameters, deviceConfiguration));
 				}
 				else if (grid.getActiveDimension() == 1) {
-					return NumericalFluxPtr(new NumericalFluxCUDA<euler::HLL, equation::euler::Euler, 1>(grid, reconstructor, deviceConfiguration));
+                    return NumericalFluxPtr(new NumericalFluxCUDA<euler::HLL, equation::euler::Euler, 1>(grid, reconstructor, *simulatorParameters, deviceConfiguration));
 				}
 				else {
 					THROW("Unsupported dimension " << grid.getActiveDimension()
@@ -200,13 +200,13 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
 				if (fluxname == "HLL3") {
 
 					if (grid.getActiveDimension() == 3) {
-						return NumericalFluxPtr(new NumericalFluxCUDA<euler::HLL3, equation::euler::Euler, 3>(grid, reconstructor, deviceConfiguration));
+						return NumericalFluxPtr(new NumericalFluxCUDA<euler::HLL3, equation::euler::Euler, 3>(grid, reconstructor, *simulatorParameters, deviceConfiguration));
 					}
 					else if (grid.getActiveDimension() == 2) {
-						return NumericalFluxPtr(new NumericalFluxCUDA<euler::HLL3, equation::euler::Euler, 2>(grid, reconstructor, deviceConfiguration));
+                        return NumericalFluxPtr(new NumericalFluxCUDA<euler::HLL3, equation::euler::Euler, 2>(grid, reconstructor, *simulatorParameters, deviceConfiguration));
 					}
 					else if (grid.getActiveDimension() == 1) {
-						return NumericalFluxPtr(new NumericalFluxCUDA<euler::HLL3, equation::euler::Euler, 1>(grid, reconstructor, deviceConfiguration));
+                        return NumericalFluxPtr(new NumericalFluxCUDA<euler::HLL3, equation::euler::Euler, 1>(grid, reconstructor, *simulatorParameters, deviceConfiguration));
 					}
 					else {
 						THROW("Unsupported dimension " << grid.getActiveDimension()
