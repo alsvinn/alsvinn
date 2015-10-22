@@ -20,6 +20,8 @@ namespace alsfvm { namespace integrator {
 	///
 	/// Performs one substep and stores the result to output.
 	/// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
+    /// @param inputConserved the current conservedVolume
+    /// @param spatialCell
 	///
 	real ForwardEuler::performSubstep(const std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
 		rvec3 spatialCellSizes, real dt, real cfl,

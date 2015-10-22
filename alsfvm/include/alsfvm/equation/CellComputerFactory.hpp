@@ -13,8 +13,7 @@ namespace alsfvm { namespace equation {
     public:
         ///
         /// \brief CellComputerFactory construct a new factory instance
-        /// \param platform the platform (eg. "cpu", "cuda")
-        /// \param equation (eg. "euler")
+        /// \param parameters the relevant simulatorParameters.
 		/// \param deviceConfiguration the deviceConfiguration used.
         ///
         CellComputerFactory(const alsfvm::shared_ptr<simulator::SimulatorParameters>& parameters,
