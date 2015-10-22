@@ -19,7 +19,7 @@ ENDMACRO(set_source_groups)
 SET(ALSVINN_BUILD_TESTS ON CACHE BOOL "Build unittests (requires Gtest). HIGHLY recommended!")
 SET(ALSVINN_USE_MPI OFF CACHE BOOL "Build with MPI")
 SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
-SET(ALSVINN_USE_CUDA OFF CACHE BOOL "Build with CUDA")
+SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
 SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
 # Add the user's chosen flags to the build for this directory.
 if (NOT WIN32)
