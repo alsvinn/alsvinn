@@ -12,6 +12,9 @@
   <flux>HLL3</flux>
   <endTime>0.5</endTime>
   <equation>euler</equation>
+  <equationParameters>
+    <gamma>1.4</gamma>
+  </equationParameters>
   <reconstruction>none</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>

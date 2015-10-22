@@ -16,9 +16,10 @@ MACRO(set_source_groups  folder_name directory source_files)
 		source_group("${SRCGR}" FILES ${f})
 	endforeach()
 ENDMACRO(set_source_groups)
-
+SET(ALSVINN_BUILD_TESTS ON CACHE BOOL "Build unittests (requires Gtest). HIGHLY recommended!")
+SET(ALSVINN_USE_MPI OFF CACHE BOOL "Build with MPI")
 SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
-SET(ALSVINN_USE_CUDA OFF CACHE BOOL "Build with CUDA")
+SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
 SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
 # Add the user's chosen flags to the build for this directory.
 if (NOT WIN32)
@@ -77,11 +78,20 @@ endif()
 
 find_package(HDF5 REQUIRED)
 
+if(ALSVINN_USE_MPI)
+  find_package(MPI REQUIRED)
+else()
+  set(MPI_LIBRARIES "")
+endif()
+
 add_subdirectory("alsfvm")
 add_subdirectory("alsvinncli")
 add_subdirectory("alsmlmccli")
-add_subdirectory("test")
-add_subdirectory("system_test")
+
+if(ALSVINN_BUILD_TESTS)
+  add_subdirectory("test")
+  add_subdirectory("system_test")
+endif()
 
 if(ALSVINN_BUILD_DOXYGEN)
 	add_subdirectory("doxygen")

@@ -4,6 +4,7 @@
 #include "alsfvm/equation/euler/Euler.hpp"
 #include <algorithm>
 #include <numeric>
+#include "alsfvm/numflux/euler/HLL.hpp"
 
 namespace alsfvm { namespace numflux { namespace euler {
 
@@ -25,7 +26,7 @@ public:
     /// \todo Document this better
     ///
     template<int direction>
-	__device__ __host__ inline static real computeFlux(const equation::euler::AllVariables& left,
+    __device__ __host__ inline static real computeFlux(const equation::euler::Euler& eq, const equation::euler::AllVariables& left,
                                    const equation::euler::AllVariables& right, equation::euler::ConservedVariables& F)
     {
 
@@ -35,9 +36,9 @@ public:
         real cs;
         equation::euler::ConservedVariables fluxLeft, fluxRight;
 
-        computeHLLSpeeds<direction>(left, right, speedLeft, speedRight, cs);
-        equation::euler::Euler::computePointFlux<direction>(left, fluxLeft);
-        equation::euler::Euler::computePointFlux<direction>(right, fluxRight);
+        computeHLLSpeeds<direction>(eq, left, right, speedLeft, speedRight, cs);
+        eq.computePointFlux<direction>(left, fluxLeft);
+        eq.computePointFlux<direction>(right, fluxRight);
 
         const real pressureLeft = left.p;
         const real pressureRight = right.p;
@@ -76,7 +77,7 @@ public:
             F = fluxRight + speedRight*(middle-right.conserved());
         }
 
-		return fmax(abs(speedLeft), abs(speedRight));
+		return fmax(fabs(speedLeft), fabs(speedRight));
     }
 
     ///
@@ -89,7 +90,8 @@ public:
     /// \todo Document this better
     ///
     template<int direction>
-	__device__ __host__ inline static void computeHLLSpeeds(const equation::euler::AllVariables& left,
+    __device__ __host__ inline static void computeHLLSpeeds(const equation::euler::Euler& eq,
+                                                            const equation::euler::AllVariables& left,
                                         const equation::euler::AllVariables& right, real& speedLeft, real& speedRight, real& cs) {
 
         const real waveLeft = sqrt(left.rho);
@@ -100,14 +102,14 @@ public:
         const real p = (waveLeft * left.p + waveRight * right.p)/(waveLeft+waveRight);
 
         // calculate extended fast speed cf at the left boundary
-        const real cfLeft = sqrt( GAMMA*left.p/left.rho );
+        const real cfLeft = sqrt( eq.getGamma()*left.p/left.rho );
 
         // calculate extended fast speed cf at the right boundary
-        const real cfRight = sqrt( GAMMA*right.p/right.rho );
+        const real cfRight = sqrt( eq.getGamma()*right.p/right.rho );
 
         const real correct = 0.5*fmax(real(0),left.u[direction]-right.u[direction]);
 
-        cs = sqrt(GAMMA * p / rho);
+        cs = sqrt(eq.getGamma() * p / rho);
         speedLeft = fmin(left.u[direction] + correct - cfLeft, u[direction] - cs);
         speedRight = fmax(right.u[direction] - correct + cfRight, u[direction] + cs);
 

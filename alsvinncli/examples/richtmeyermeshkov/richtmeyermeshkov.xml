@@ -1,6 +1,6 @@
 <fvm>
   <name>
-    riemann
+    rm
   </name>
   <platform>cpu</platform>
   <grid>
@@ -8,19 +8,22 @@
     <upperCorner>1 1 0</upperCorner>
     <dimension>128 128 1</dimension>
   </grid>
-  <boundary>neumann</boundary>
+  <boundary>periodic</boundary>
   <flux>HLL3</flux>
-  <endTime>0.35</endTime>
+  <endTime>4</endTime>
   <equation>euler</equation>
-  <reconstruction>weno2</reconstruction>
+  <equationParameters>
+    <gamma>1.4</gamma>
+  </equationParameters>
+  <reconstruction>wenof2</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>
   <initialData>
-    <python>shockvortex.py</python>
+    <python>richtmeyermeshkov.py</python>
   </initialData>
   <writer>
     <type>hdf5</type>
-    <basename>shockvortex</basename>
+    <basename>rm</basename>
     <numberOfSaves>10</numberOfSaves>
   </writer>
 </fvm>

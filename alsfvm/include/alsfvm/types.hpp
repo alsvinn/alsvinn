@@ -74,7 +74,7 @@ namespace alsfvm {
 
 #ifdef ALSVINN_USE_QUADMATH
 namespace std {
-    inline __float128 abs(const __float128& x) {
+    inline __float128 fabs(const __float128& x) {
         return fabsq(x);
     }
 

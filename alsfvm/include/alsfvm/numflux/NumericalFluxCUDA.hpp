@@ -2,6 +2,7 @@
 #include "alsfvm/numflux/NumericalFlux.hpp"
 #include "alsfvm/DeviceConfiguration.hpp"
 #include "alsfvm/reconstruction/Reconstruction.hpp"
+#include "alsfvm/simulator/SimulatorParameters.hpp"
 #include "alsfvm/grid/Grid.hpp"
 namespace alsfvm { namespace numflux { 
 
@@ -10,6 +11,7 @@ namespace alsfvm { namespace numflux {
     public:
 		NumericalFluxCUDA(const grid::Grid& grid,
 			alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
+            simulator::SimulatorParameters& parameters, 
 			alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration
 			);
 
@@ -48,6 +50,7 @@ namespace alsfvm { namespace numflux {
 		alsfvm::shared_ptr<volume::Volume> left;
 		alsfvm::shared_ptr<volume::Volume> right;
 		alsfvm::shared_ptr<volume::Volume> fluxOutput;
+        Equation equation;
     };
 } // namespace alsfvm
 } // namespace numflux

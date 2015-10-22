@@ -11,16 +11,18 @@ TEST(HLLTest, ConsistencyTest) {
 	// then the numerical flux just returns the point flux
 
 
+    EulerParameters parameters;
+    Euler equation(parameters);
 	AllVariables input(1, 2, 3, 4, 5, 6, 7, 8, 9);
 	// Test for each direction
 	{
 
 		ConservedVariables output(1, 1, 1, 1, 1);
-		HLL::computeFlux<0>(input, input, output);
+        HLL::computeFlux<0>(equation, input, input, output);
 
 		ConservedVariables pointFlux(0, 0, 0, 0, 0);
 
-		Euler::computePointFlux<0>(input, pointFlux);
+        equation.computePointFlux<0>(input, pointFlux);
 
 		ASSERT_EQ(pointFlux.E, output.E);
 		ASSERT_EQ(pointFlux.m, output.m);
@@ -30,10 +32,10 @@ TEST(HLLTest, ConsistencyTest) {
 	{
 
 		ConservedVariables output(1, 1, 1, 1, 1);
-		HLL::computeFlux<1>(input, input, output);
+        HLL::computeFlux<1>(equation, input, input, output);
 		ConservedVariables pointFlux(0, 0, 0, 0, 0);
 
-		Euler::computePointFlux<1>(input, pointFlux);
+        equation.computePointFlux<1>(input, pointFlux);
 
 		ASSERT_EQ(pointFlux.E, output.E);
 		ASSERT_EQ(pointFlux.m, output.m);
@@ -42,10 +44,10 @@ TEST(HLLTest, ConsistencyTest) {
 
 	{
 		ConservedVariables output(1, 1, 1, 1, 1);
-		HLL::computeFlux<2>(input, input, output);
+        HLL::computeFlux<2>(equation, input, input, output);
 		ConservedVariables pointFlux(0, 0, 0, 0, 0);
 	
-		Euler::computePointFlux<2>(input, pointFlux);
+        equation.computePointFlux<2>(input, pointFlux);
 
 		ASSERT_EQ(pointFlux.E, output.E);
 		ASSERT_EQ(pointFlux.m, output.m);

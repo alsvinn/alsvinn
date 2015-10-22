@@ -84,7 +84,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 		for (size_t z = startZ; z < endZ; z++) {
 			for (size_t y = startY; y < endY; y++) {
 #pragma omp parallel for
-				for (int x = startX; x < endX; x++) {
+                for (int x = startX; x < int(endX); x++) {
 
 
 					const size_t indexRight = z*nx*ny + y * nx + x;
@@ -101,7 +101,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 						real dividedDifferenceRight = dividedDifferencesPointers[level][indexRight];
 						real dividedDifferenceLeft = dividedDifferencesPointers[level][indexLeft];
 
-						if (std::abs(dividedDifferenceLeft) < std::abs(dividedDifferenceRight)) {
+						if (std::fabs(dividedDifferenceLeft) < std::fabs(dividedDifferenceRight)) {
 							// Now we choose the left stencil
 							shift++;
 						}

@@ -10,10 +10,12 @@ TEST(EulerEquationTest, FluxTest) {
 
 	AllVariables input(1, 1, 1, 1, 1, 1, 1, 1, 1);
 
+    EulerParameters parameters;
+    Euler equation(parameters);
 	{
 		ConservedVariables output(0, 0, 0, 0, 0);
 
-		Euler::computePointFlux < 0 >(input, output);
+        equation.computePointFlux < 0 >(input, output);
 
 		ASSERT_EQ(output.E, 2);
 		ASSERT_EQ(output.m, rvec3(2, 1, 1));
@@ -23,7 +25,7 @@ TEST(EulerEquationTest, FluxTest) {
 		
 	{
 		ConservedVariables output(0, 0, 0, 0, 0);
-		Euler::computePointFlux < 1 >(input, output);
+        equation.computePointFlux < 1 >(input, output);
 		ASSERT_EQ(output.E, 2);
 		ASSERT_EQ(output.m, rvec3(1, 2, 1));
 		ASSERT_EQ(output.rho, 1);
@@ -32,7 +34,7 @@ TEST(EulerEquationTest, FluxTest) {
 	{
 		ConservedVariables output(0, 0, 0, 0, 0);
 
-		Euler::computePointFlux < 2 >(input, output);
+        equation.computePointFlux < 2 >(input, output);
 
 		ASSERT_EQ(output.E, 2);
 		ASSERT_EQ(output.m, rvec3(1, 1, 2));

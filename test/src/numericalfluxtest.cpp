@@ -20,10 +20,12 @@ public:
     std::string flux;
     std::string reconstruction;
     alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+    alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParameters;
     NumericalFluxFactory fluxFactory;
     grid::Grid grid;
 	alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
 	volume::VolumeFactory volumeFactory;
+
 	const size_t nx;
 	const size_t ny;
 	const size_t nz;
@@ -31,7 +33,8 @@ public:
     NumericalFluxTest()
         : equation("euler"), flux("HLL"), reconstruction("none"),
           deviceConfiguration(new DeviceConfiguration("cpu")),
-          fluxFactory(equation, flux, reconstruction, deviceConfiguration),
+          simulatorParameters(new simulator::SimulatorParameters(equation, "cpu")),
+          fluxFactory(equation, flux, reconstruction, simulatorParameters, deviceConfiguration),
           grid(rvec3(0,0,0), rvec3(1,1,1), ivec3(20, 20, 20)),
 		  memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
 		  volumeFactory(equation, memoryFactory), nx(10), ny(10), nz(10)
@@ -66,7 +69,7 @@ TEST_F(NumericalFluxTest, ConsistencyTest) {
     });
 
     boundary->applyBoundaryConditions(*conservedVariables, grid);
-    equation::CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
+    equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
 
     auto computer = cellComputerFactory.createComputer();
     computer->computeExtraVariables(*conservedVariables, *extraVariables);

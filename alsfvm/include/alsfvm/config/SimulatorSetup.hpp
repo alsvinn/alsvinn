@@ -24,6 +24,8 @@ namespace alsfvm { namespace config {
         std::string readPlatform(const ptree& configuration);
         std::string readBoundary(const ptree& configuration);
 
+        void readEquationParameters(const ptree& configuration, simulator::SimulatorParameters& parameters);
+
         std::string readFlux(const ptree& configuration);
 
         std::string basePath;
