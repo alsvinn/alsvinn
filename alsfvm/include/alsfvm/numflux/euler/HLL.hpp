@@ -24,7 +24,7 @@ namespace alsfvm { namespace numflux { namespace euler {
 		/// \todo Document this better
 		///
 		template<int direction>
-		__device__ __host__ inline static real computeFlux(const equation::euler::AllVariables& left,
+        __device__ __host__ inline static real computeFlux(const equation::euler::Euler eq, const equation::euler::AllVariables& left,
 			const equation::euler::AllVariables& right, equation::euler::ConservedVariables& F)
 		{
 
@@ -32,25 +32,25 @@ namespace alsfvm { namespace numflux { namespace euler {
 			real speedLeft;
 			real speedRight;
 
-			computeHLLSpeeds<direction>(left, right, speedLeft, speedRight);
+            computeHLLSpeeds<direction>(eq, left, right, speedLeft, speedRight);
 
 			if (speedLeft == 0) {
 				F = equation::euler::ConservedVariables(0, 0, 0, 0, 0);
 			}
 			else if (speedLeft > 0) {
-				equation::euler::Euler::computePointFlux<direction>(left, F);
+                eq.computePointFlux<direction>(left, F);
 			}
 			else if (speedRight < 0) {
-				equation::euler::Euler::computePointFlux<direction>(right, F);
+                eq.computePointFlux<direction>(right, F);
 			}
 			else {
                 equation::euler::ConservedVariables leftFlux, rightFlux;
-				equation::euler::Euler::computePointFlux<direction>(left, leftFlux);
-				equation::euler::Euler::computePointFlux<direction>(right, rightFlux);
+                eq.template computePointFlux<direction>(left, leftFlux);
+                eq.template computePointFlux<direction>(right, rightFlux);
 				F = (speedRight*leftFlux - speedLeft*rightFlux + speedRight*speedLeft*(right.conserved() - left.conserved())) / (speedRight - speedLeft);
 			}
 
-			return fmax(abs(speedLeft), abs(speedRight));
+			return fmax(fabs(speedLeft), fabs(speedRight));
 		}
 
 		/// 
@@ -62,7 +62,7 @@ namespace alsfvm { namespace numflux { namespace euler {
 		/// \todo Document this better
 		///
 		template<int direction>
-		__device__ __host__ inline static void computeHLLSpeeds(const equation::euler::AllVariables& left,
+        __device__ __host__ inline static void computeHLLSpeeds(const equation::euler::Euler eq, const equation::euler::AllVariables& left,
 			const equation::euler::AllVariables& right, real& speedLeft, real& speedRight) {
 
 			static_assert(direction < 3, "We only support three dimensions.");
@@ -75,10 +75,10 @@ namespace alsfvm { namespace numflux { namespace euler {
 
 			const real p = (left.p * waveLeft + right.p * waveRight) / (waveLeft + waveRight);
 
-            const real cs = sqrt(GAMMA * p / rho);
+            const real cs = sqrt(eq.getGamma() * p / rho);
 
-            speedLeft = fmin(left.u[direction] - sqrt(GAMMA * left.p / left.rho), u[direction] - cs);
-            speedRight = fmax(right.u[direction] + sqrt(GAMMA * right.p / right.rho), u[direction] + cs);
+            speedLeft = fmin(left.u[direction] - sqrt(eq.getGamma() * left.p / left.rho), u[direction] - cs);
+            speedRight = fmax(right.u[direction] + sqrt(eq.getGamma() * right.p / right.rho), u[direction] + cs);
 
 		}
     };

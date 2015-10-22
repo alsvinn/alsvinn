@@ -10,7 +10,7 @@
   </grid>
   <boundary>neumann</boundary>
   <flux>HLL3</flux>
-  <endTime>0.00035</endTime>
+  <endTime>0.35</endTime>
   <equation>euler</equation>
   <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>

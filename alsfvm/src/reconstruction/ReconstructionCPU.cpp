@@ -7,6 +7,13 @@
 namespace alsfvm { namespace reconstruction {
 
 template<class ReconstructionType, class Equation>
+ReconstructionCPU<ReconstructionType, Equation>::ReconstructionCPU(simulator::SimulatorParameters &simulatorParameters)
+    : parameters(static_cast<typename Equation::Parameters&>(simulatorParameters.getEquationParameters()))
+{
+
+}
+
+template<class ReconstructionType, class Equation>
 void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(const volume::Volume &inputVariables,
                                               size_t direction,
                                               size_t indicatorVariable,
@@ -47,11 +54,12 @@ void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(cons
     typename Equation::Views viewLeft(leftOut);
     typename Equation::Views viewRight(rightOut);
 
+    Equation eq(parameters);
     for (size_t z = startZ; z < endZ; z++) {
         for (size_t y = startY; y < endY; y++) {
             #pragma omp parallel for
             for (int x = startX; x < endX; x++) {
-                ReconstructionType::reconstruct(viewIn, x, y, z, viewLeft, viewRight,
+                ReconstructionType::reconstruct(eq, viewIn, x, y, z, viewLeft, viewRight,
                                                 directionVector.x, directionVector.y,
                                                 directionVector.z);
             }

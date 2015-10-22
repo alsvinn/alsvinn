@@ -12,7 +12,7 @@
 namespace alsfvm { namespace numflux { namespace euler { 
 
     template<class Flux, int direction>
-    real computeNetFlux(
+    real computeNetFlux(const equation::euler::Euler& eq,
                   size_t middleIndex,
                   size_t rightIndex,
                   equation::euler::Euler::ConstViews & left,
@@ -24,22 +24,22 @@ namespace alsfvm { namespace numflux { namespace euler {
         // This needs to be done with some smart template recursion
 
         // This is the value for j+1/2
-        equation::euler::AllVariables rightJpHf = equation::euler::Euler::fetchAllVariables(left, rightIndex);
+        equation::euler::AllVariables rightJpHf = eq.fetchAllVariables(left, rightIndex);
 
 
         // This is the value for j+1/2
-        equation::euler::AllVariables leftJpHf = equation::euler::Euler::fetchAllVariables(right, middleIndex);
+        equation::euler::AllVariables leftJpHf = eq.fetchAllVariables(right, middleIndex);
 
         // F(U_l, U_r)
         equation::euler::ConservedVariables fluxMiddleRight;
-        real waveSpeed = Flux::template computeFlux<direction>(leftJpHf, rightJpHf, fluxMiddleRight);
+        real waveSpeed = Flux::template computeFlux<direction>(eq, leftJpHf, rightJpHf, fluxMiddleRight);
 
         out = fluxMiddleRight;
 		return waveSpeed;
     }
 
     template<class Flux, size_t direction>
-    void computeNetFlux(const volume::Volume& left, const volume::Volume& right,
+    void computeNetFlux(const equation::euler::Euler& eq, const volume::Volume& left, const volume::Volume& right,
                         volume::Volume& out,
                         volume::Volume& temporaryVolume,
                         real& waveSpeed, size_t numberOfGhostCells) {
@@ -78,13 +78,14 @@ namespace alsfvm { namespace numflux { namespace euler {
 
                     equation::euler::ConservedVariables flux;
                     const real waveSpeedLocal = computeNetFlux<Flux, direction>(
+                                eq,
                                 middleIndex,
                                 rightIndex,
                                 leftViews,
                                 rightViews,
                                 flux);
 
-                    equation::euler::Euler::setViewAt(temporaryViews, middleIndex, (-1.0)*flux);
+                    eq.setViewAt(temporaryViews, middleIndex, (-1.0)*flux);
                     waveSpeeds[threadId] = std::max(waveSpeeds[threadId], waveSpeedLocal);
                 }
             }
@@ -99,10 +100,10 @@ namespace alsfvm { namespace numflux { namespace euler {
 
                     const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
                     const size_t middleIndex = outViews.index(x, y, z);
-                    auto fluxMiddleRight = equation::euler::Euler::fetchConservedVariables(temporaryViews, rightIndex);
-                    auto fluxLeftMiddle = (-1.0)*equation::euler::Euler::fetchConservedVariables(temporaryViews, middleIndex);
+                    auto fluxMiddleRight = eq.fetchConservedVariables(temporaryViews, rightIndex);
+                    auto fluxLeftMiddle = (-1.0)*eq.fetchConservedVariables(temporaryViews, middleIndex);
 
-                    equation::euler::Euler::addToViewAt(outViews, rightIndex, fluxMiddleRight + fluxLeftMiddle);
+                    eq.addToViewAt(outViews, rightIndex, fluxMiddleRight + fluxLeftMiddle);
 
                 }
             }
@@ -113,8 +114,9 @@ namespace alsfvm { namespace numflux { namespace euler {
     template<class Flux, size_t dimension>
     NumericalFluxCPU<Flux, dimension>::NumericalFluxCPU(const grid::Grid &grid,
                                                         alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
+                                                        const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters,
                                                         alsfvm::shared_ptr<DeviceConfiguration> &deviceConfiguration)
-        : reconstruction(reconstruction)
+        : reconstruction(reconstruction), parameters(static_cast<equation::euler::EulerParameters&>(simulatorParameters->getEquationParameters()))
     {
         static_assert(dimension > 0, "We only support positive dimension!");
         static_assert(dimension < 4, "We only support dimension up to 3");
@@ -147,23 +149,24 @@ namespace alsfvm { namespace numflux { namespace euler {
 		volume::Volume& output
 		) 
 	{
+        equation::euler::Euler eq(parameters);
         static_assert(dimension > 0, "We only support positive dimension!");
         static_assert(dimension < 4, "We only support dimension up to 3");
 
         output.makeZero();
 
         reconstruction->performReconstruction(conservedVariables, 0, 0, *left, *right);
-        computeNetFlux<Flux, 0>(*left, *right, output, *temporaryVolume, waveSpeed.x, getNumberOfGhostCells());
+        computeNetFlux<Flux, 0>(eq, *left, *right, output, *temporaryVolume, waveSpeed.x, getNumberOfGhostCells());
 
         if (dimension > 1) {
             reconstruction->performReconstruction(conservedVariables, 1, 0, *left, *right);
-            computeNetFlux<Flux, 1>(*left, *right, output, *temporaryVolume, waveSpeed.y, getNumberOfGhostCells());
+            computeNetFlux<Flux, 1>(eq, *left, *right, output, *temporaryVolume, waveSpeed.y, getNumberOfGhostCells());
         }
 
 
         if (dimension > 2) {
             reconstruction->performReconstruction(conservedVariables, 2, 0, *left, *right);
-            computeNetFlux<Flux, 2>(*left, *right, output, *temporaryVolume, waveSpeed.z, getNumberOfGhostCells());
+            computeNetFlux<Flux, 2>(eq, *left, *right, output, *temporaryVolume, waveSpeed.z, getNumberOfGhostCells());
         }
 
 	}

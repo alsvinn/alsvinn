@@ -8,19 +8,21 @@
 #include "alsfvm/volume/Volume.hpp"
 #include "alsfvm/equation/euler/ViewsExtra.hpp"
 
-///
-/// Gamma constant
-/// \note This will be moved into a paramter struct soon! 
-///
-#define GAMMA (1.4)
-
-
+#include "alsfvm/equation/euler/EulerParameters.hpp"
+#include <iostream>
 namespace alsfvm {
 	namespace equation {
 		namespace euler {
 
             class Euler {
-			public:
+                public:
+
+                Euler(const EulerParameters& parameters)
+                    : gamma(parameters.getGamma())
+                {
+                }
+
+                typedef euler::EulerParameters Parameters;
 				typedef euler::ConservedVariables ConservedVariables;
 				typedef euler::ExtraVariables ExtraVariables;
                 typedef euler::PrimitiveVariables PrimitiveVariables;
@@ -49,7 +51,7 @@ namespace alsfvm {
 				///
 				/// Fetches and computes the all variables from memory
 				///
-				__device__ __host__ static AllVariables fetchAllVariables(ConstViews& views, size_t index) {
+                __device__ __host__ AllVariables fetchAllVariables(ConstViews& views, size_t index) const {
 					return makeAllVariables(views.rho.at(index),
 						views.mx.at(index), 
 						views.my.at(index), 
@@ -58,7 +60,7 @@ namespace alsfvm {
 				}
 				
                 template<class T, class S>
-                __device__ __host__ static ConservedVariables fetchConservedVariables(euler::Views<T, S>& views, size_t index) {
+                __device__ __host__ ConservedVariables fetchConservedVariables(euler::Views<T, S>& views, size_t index) const {
 					return ConservedVariables(views.rho.at(index),
 						views.mx.at(index),
 						views.my.at(index),
@@ -66,7 +68,7 @@ namespace alsfvm {
 						views.E.at(index));
 				}
 
-				__device__ __host__ static ExtraVariables fetchExtraVariables(ConstViewsExtra& views, size_t index) {
+                __device__ __host__ ExtraVariables fetchExtraVariables(ConstViewsExtra& views, size_t index) const {
 					return ExtraVariables(views.p.at(index),
 						views.ux.at(index),
 						views.uy.at(index),
@@ -76,7 +78,7 @@ namespace alsfvm {
 				///
 				/// Writes the ConservedVariable struct back to memory
 				///
-				__device__ __host__ static void setViewAt(Views& output, size_t index, const ConservedVariables& input) {
+                __device__ __host__ void setViewAt(Views& output, size_t index, const ConservedVariables& input) const  {
 					output.rho.at(index) = input.rho;
 					output.mx.at(index) = input.m.x;
 					output.my.at(index) = input.m.y;
@@ -88,7 +90,7 @@ namespace alsfvm {
 				///
 				/// Writes the ExtraVariable struct back to memory
 				///
-				__device__ __host__ static void setExtraViewAt(ViewsExtra& output, size_t index, const ExtraVariables& input) {
+                __device__ __host__ void setExtraViewAt(ViewsExtra& output, size_t index, const ExtraVariables& input) const {
 					output.p.at(index) = input.p;
 					output.ux.at(index) = input.u.x;
 					output.uy.at(index) = input.u.y;
@@ -101,7 +103,7 @@ namespace alsfvm {
 				/// 
 				/// Basically sets output[index] += input
 				///
-				__device__ __host__ static void addToViewAt(Views& output, size_t index, const ConservedVariables& input) {
+                __device__ __host__ void addToViewAt(Views& output, size_t index, const ConservedVariables& input) const {
 					output.rho.at(index) += input.rho;
 					output.mx.at(index) += input.m.x;
 					output.my.at(index) += input.m.y;
@@ -132,7 +134,7 @@ namespace alsfvm {
 				///
 
 				template<size_t direction>
-				__device__ __host__ static void computePointFlux(const AllVariables& u, ConservedVariables& F) {
+                __device__ __host__  void computePointFlux(const AllVariables& u, ConservedVariables& F) const {
 					static_assert(direction < 3, "We only support up to three dimensions");
 
 					F.rho = u.m[direction];
@@ -150,11 +152,11 @@ namespace alsfvm {
 				/// and
 				/// \f[p = (1-\gamma)(E-\frac{1}{2\rho}m^2)\f]
 				///
-				__device__ __host__ static ExtraVariables computeExtra(const ConservedVariables& u) {
+                __device__ __host__  ExtraVariables computeExtra(const ConservedVariables& u) const {
                     ExtraVariables v;
                     real ie = u.E - 0.5*u.m.dot(u.m)/u.rho;
                     v.u = u.m / u.rho;
-                    v.p = (GAMMA-1)*ie;
+                    v.p = (gamma-1)*ie;
                     return v;
                 }
 
@@ -166,7 +168,7 @@ namespace alsfvm {
                 /// \note This implementation is not made for speed! Should only be
                 /// used sparsely (eg. for initialization).
                 ///
-				__device__ __host__ static ExtraVariables computeExtra(const PrimitiveVariables& primitiveVariables) {
+                __device__ __host__ ExtraVariables computeExtra(const PrimitiveVariables& primitiveVariables) const {
                     return ExtraVariables(primitiveVariables.p,
                                           primitiveVariables.u.x,
                                           primitiveVariables.u.y,
@@ -182,11 +184,11 @@ namespace alsfvm {
                 /// \note This implementation is not made for speed! Should only be
                 /// used sparsely (eg. for initialization).
                 ///
-				__device__ __host__ static ConservedVariables computeConserved(const PrimitiveVariables& primitiveVariables) {
+                __device__ __host__ ConservedVariables computeConserved(const PrimitiveVariables& primitiveVariables) const {
                     const rvec3 m = primitiveVariables.rho * primitiveVariables.u;
 
                     const real E =
-                            primitiveVariables.p / (GAMMA - 1)
+                            primitiveVariables.p / (gamma - 1)
                             + 0.5*primitiveVariables.rho*primitiveVariables.u.dot(primitiveVariables.u);
 
                     return ConservedVariables(primitiveVariables.rho, m.x, m.y, m.z, E);
@@ -197,12 +199,12 @@ namespace alsfvm {
 				/// (absolute value of wave speed)
 				///
 				template<int direction>
-				__device__ __host__ static real computeWaveSpeed(const ConservedVariables& u,
-					const ExtraVariables& v) {
+                __device__ __host__ real computeWaveSpeed(const ConservedVariables& u,
+                    const ExtraVariables& v) const {
 					static_assert(direction >= 0, "Direction can not be negative");
 					static_assert(direction < 3, "We only support dimension up to and inclusive 3");
 
-                    return abs(v.u[direction]) +sqrt(GAMMA * v.p / u.rho);
+                    return fabs(v.u[direction]) +sqrt(gamma * v.p / u.rho);
 				}
 
 				/// 
@@ -214,32 +216,36 @@ namespace alsfvm {
 				/// 
 				/// \returns true if the inequalities are fulfilled, false otherwise
 				///
-				__device__ __host__ static bool obeysConstraints(const ConservedVariables& u,
-					const ExtraVariables& v) 
+                __device__ __host__ bool obeysConstraints(const ConservedVariables& u,
+                    const ExtraVariables& v) const
 				{
 
                     return u.rho < INFINITY && (u.rho == u.rho) && (u.rho > 0) && (v.p > 0);
 				}
 
-				__device__ __host__ static AllVariables makeAllVariables(real rho, real mx, real my, real mz, real E) {
+                __device__ __host__ AllVariables makeAllVariables(real rho, real mx, real my, real mz, real E) const {
 
                     ConservedVariables conserved(rho, mx, my, mz, E);
                     return AllVariables(conserved, computeExtra(conserved));
                 }
 
-                __device__ __host__ static real getWeight(const ConstViews& in, size_t index) {
+                __device__ __host__ real getWeight(const ConstViews& in, size_t index) const {
                     return in.rho.at(index);
                 }
 
-                __device__ __host__ static PrimitiveVariables computePrimitiveVariables(const ConservedVariables& conserved) {
+                __device__ __host__ PrimitiveVariables computePrimitiveVariables(const ConservedVariables& conserved) const {
                     rvec3 u = conserved.m / conserved.rho;
                     real ie = conserved.E - 0.5*conserved.m.dot(conserved.m)/conserved.rho;
 
-                    real p = (GAMMA-1)*ie;
+                    real p = (gamma-1)*ie;
                     return PrimitiveVariables(conserved.rho, u.x, u.y, u.z, p);
                 }
 
-
+                __device__ __host__ real getGamma() const {
+                    return gamma;
+                }
+            private:
+                const real gamma;
 			};
 		}
 } // namespace alsfvm

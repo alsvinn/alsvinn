@@ -1,9 +1,10 @@
 #pragma once
 #include "alsfvm/types.hpp"
+#include "alsfvm/equation/EquationParameters.hpp"
 
 namespace alsfvm { namespace equation { namespace euler { 
 
-    class EulerParameters {
+    class EulerParameters : public EquationParameters {
     public:
         __device__ __host__ EulerParameters()
             : gamma(1.4)
@@ -11,9 +12,9 @@ namespace alsfvm { namespace equation { namespace euler {
             // empty
         }
 
-        __device__ __host__ void setGamma(real gamma)
+        __device__ __host__ void setGamma(real gamma_)
         {
-            gamma = gamma;
+            gamma = gamma_;
         }
 
         __device__ __host__ real getGamma() const {

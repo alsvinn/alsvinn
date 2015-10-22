@@ -48,8 +48,9 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
     VolumeFactory volumeFactory("euler", memoryFactory);
 
-    NumericalFluxFactory fluxFactory("euler", "HLL", reconstruction, deviceConfiguration);
-    CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
+    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler", "cpu");
+    NumericalFluxFactory fluxFactory("euler", "HLL", reconstruction, simulatorParameters, deviceConfiguration);
+    CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
     BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
 
 
@@ -186,7 +187,8 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
 }
 TEST(EulerTest, ShockTubeTest) {
-	runTest([](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
+    equation::euler::EulerParameters parameters;
+    runTest([&](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
 
 		if (x < 0.04) {
 			u.rho = 3.86859;
@@ -206,26 +208,27 @@ TEST(EulerTest, ShockTubeTest) {
 			v.p = 1.0;
 		}
 		u.m = u.rho * v.u;
-		u.E = v.p / (GAMMA - 1) + 0.5*u.rho*v.u.dot(v.u);
+        u.E = v.p / (parameters.getGamma() - 1) + 0.5*u.rho*v.u.dot(v.u);
     }, 128, "none", 0.06, "euler_shocktube");
 }
 
 TEST(EulerTest, ShockVortex) {
-    runTest([](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
+    equation::euler::EulerParameters parameters;
+    runTest([&](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
         real epsilon = 0.3, r_c = 0.05, alpha = 0.204, x_c = 0.25, y_c = 0.5;
 
 		// shock part
 		if (x < 0.5) {
 			u.rho = 1.0;
-			v.u.x = sqrt(GAMMA);
+            v.u.x = sqrt(parameters.getGamma());
 			v.u.y = 0.0;
 			v.p = 1.0;
 		}
 		else {
 			u.rho = 1.0 / 1.1;
-			v.u.x = 1.1 * sqrt(GAMMA);
+            v.u.x = 1.1 * sqrt(parameters.getGamma());
 			v.u.y = 0.0;
-			v.p = 1 - 0.1 * GAMMA;
+            v.p = 1 - 0.1 * parameters.getGamma();
 		}
 
 		// vortex part
@@ -236,10 +239,10 @@ TEST(EulerTest, ShockVortex) {
 
 			v.u.x += epsilon * tau * exp(alpha*(1 - pow(tau, 2))) * sin_theta;
 			v.u.y += -epsilon * tau * exp(alpha*(1 - pow(tau, 2))) * cos_theta;
-			v.p += -(GAMMA - 1) * pow(epsilon, 2) * exp(2 * alpha*(1 - pow(tau, 2))) / (4 * alpha * GAMMA) * u.rho;
+            v.p += -(parameters.getGamma() - 1) * pow(epsilon, 2) * exp(2 * alpha*(1 - pow(tau, 2))) / (4 * alpha * parameters.getGamma()) * u.rho;
 		}
 		u.m = u.rho * v.u;
-		u.E = v.p / (GAMMA - 1) + 0.5*u.rho*v.u.dot(v.u);
+        u.E = v.p / (parameters.getGamma() - 1) + 0.5*u.rho*v.u.dot(v.u);
 
     }, 256, "eno2", 0.35, "euler_vortex");
 }

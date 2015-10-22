@@ -2,6 +2,8 @@
 #include "alsfvm/numflux/NumericalFlux.hpp"
 #include "alsfvm/grid/Grid.hpp"
 #include "alsfvm/reconstruction/Reconstruction.hpp"
+#include "alsfvm/simulator/SimulatorParameters.hpp"
+#include "alsfvm/equation/euler/Euler.hpp"
 
 namespace alsfvm { namespace numflux { namespace euler { 
 
@@ -17,6 +19,7 @@ namespace alsfvm { namespace numflux { namespace euler {
 
         NumericalFluxCPU(const grid::Grid& grid,
                          alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
+                         const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters,
                          alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration
                          );
 
@@ -53,12 +56,15 @@ namespace alsfvm { namespace numflux { namespace euler {
 		virtual size_t getNumberOfGhostCells();
 
     private:
+
         alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction;
         alsfvm::shared_ptr<volume::Volume> left;
         alsfvm::shared_ptr<volume::Volume> right;
 
         // This is for storing F(U_l, U_r) at each cell
         alsfvm::shared_ptr<volume::Volume> temporaryVolume;
+
+        equation::euler::Euler::Parameters parameters;
     };
 
 } // namespace alsfvm

@@ -55,7 +55,9 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
 		auto extraVolumeCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz,
 			numericalFlux->getNumberOfGhostCells());
 
-		equation::CellComputerFactory cellComputerFactoryCPU(deviceConfigurationCPU->getPlatform(), equationName, deviceConfigurationCPU);
+        auto simulatorParametersCPU = alsfvm::make_shared<SimulatorParameters>(simulatorParameters);
+        simulatorParametersCPU->setPlatform("cpu");
+        equation::CellComputerFactory cellComputerFactoryCPU(simulatorParametersCPU, deviceConfigurationCPU);
 		auto cellComputerCPU = cellComputerFactoryCPU.createComputer();
 		initialData->setInitialData(*conservedVolumeCPU, *extraVolumeCPU, *primitiveVolume, *cellComputerCPU, *grid);
 		

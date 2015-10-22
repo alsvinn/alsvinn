@@ -101,7 +101,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 						real dividedDifferenceRight = dividedDifferencesPointers[level][indexRight];
 						real dividedDifferenceLeft = dividedDifferencesPointers[level][indexLeft];
 
-						if (std::abs(dividedDifferenceLeft) < std::abs(dividedDifferenceRight)) {
+						if (std::fabs(dividedDifferenceLeft) < std::fabs(dividedDifferenceRight)) {
 							// Now we choose the left stencil
 							shift++;
 						}

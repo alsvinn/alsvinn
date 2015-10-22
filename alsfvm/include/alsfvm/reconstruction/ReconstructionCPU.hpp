@@ -1,5 +1,7 @@
 #pragma once
 #include "alsfvm/reconstruction/Reconstruction.hpp"
+#include "alsfvm/simulator/SimulatorParameters.hpp"
+
 namespace alsfvm { namespace reconstruction { 
 
 ///
@@ -9,6 +11,7 @@ namespace alsfvm { namespace reconstruction {
     template<class ReconstructionType, class Equation>
     class ReconstructionCPU : public Reconstruction {
     public:
+        ReconstructionCPU(simulator::SimulatorParameters& simulatorParameters);
         ///
         /// Performs reconstruction.
         /// \param[in] inputVariables the variables to reconstruct.
@@ -41,6 +44,8 @@ namespace alsfvm { namespace reconstruction {
         /// \return order.
         ///
         virtual size_t getNumberOfGhostCells();
+    private:
+        typename Equation::Parameters parameters;
     };
 } // namespace alsfvm
 } // namespace reconstruction

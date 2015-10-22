@@ -14,8 +14,10 @@ using namespace alsfvm::init;
 
 TEST(PythonInitialDataTest, AnswerToEverything) {
 
+
     alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(new DeviceConfiguration);
-    equation::CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
+    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler", "cpu");
+    equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
     auto cellComputer = cellComputerFactory.createComputer();
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
     volume::VolumeFactory volumeFactory("euler", memoryFactory);
@@ -52,7 +54,8 @@ TEST(PythonInitialDataTest, AnswerToEverything) {
 TEST(PythonInitialDataTest, RiemannProblem) {
 
     alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(new DeviceConfiguration);
-    equation::CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
+    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler", "cpu");
+    equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
     auto cellComputer = cellComputerFactory.createComputer();
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
     volume::VolumeFactory volumeFactory("euler", memoryFactory);

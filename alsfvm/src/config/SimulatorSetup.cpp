@@ -10,6 +10,9 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include "alsfvm/init/PythonInitialData.hpp"
 #include <boost/filesystem.hpp>
+#include "alsfvm/equation/euler/EulerParameters.hpp"
+#include <set>
+
 namespace alsfvm { namespace config {
 // Example xml:
 // <fvm>
@@ -55,9 +58,22 @@ alsfvm::shared_ptr<simulator::Simulator>
     std::ifstream file(filename);
     XMLParser parser;
 
+
     XMLParser::ptree configuration;
     parser.parseFile(file, configuration);
 
+
+    std::set<std::string> supportedNodes =
+    {
+        "name", "platform", "boundary", "flux", "endTime", "equation", "equationParameters",
+        "reconstruction", "cfl", "integrator", "initialData", "writer", "grid"
+    };
+
+    for (auto node : configuration.get_child("fvm")) {
+        if (supportedNodes.find(node.first) == supportedNodes.end()) {
+            THROW("Unsupported configuration option " << node.first);
+        }
+    }
     auto grid = createGrid(configuration);
     auto boundary = readBoundary(configuration);
     real endTime = readEndTime(configuration);
@@ -74,21 +90,26 @@ alsfvm::shared_ptr<simulator::Simulator>
     auto platform = readPlatform(configuration);
     auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>(platform);
 
+
+    alsfvm::shared_ptr<simulator::SimulatorParameters>
+            parameters(new simulator::SimulatorParameters(equation, platform));
+    readEquationParameters(configuration, *parameters);
+    parameters->setCFLNumber(cfl);
+
     auto memoryFactory = alsfvm::make_shared<memory::MemoryFactory>(deviceConfiguration);
     auto volumeFactory = alsfvm::make_shared<volume::VolumeFactory>(equation, memoryFactory);
     auto boundaryFactory = alsfvm::make_shared<boundary::BoundaryFactory>(boundary, deviceConfiguration);
-    auto numericalFluxFactory = alsfvm::make_shared<numflux::NumericalFluxFactory>(equation, fluxname, reconstruction, deviceConfiguration);
+    auto numericalFluxFactory = alsfvm::make_shared<numflux::NumericalFluxFactory>(equation, fluxname, reconstruction, parameters, deviceConfiguration);
     auto integratorFactory = alsfvm::make_shared<integrator::IntegratorFactory>(integrator);
 
-    auto cellComputerFactory = alsfvm::make_shared<equation::CellComputerFactory>(platform, equation, deviceConfiguration);
+    auto cellComputerFactory = alsfvm::make_shared<equation::CellComputerFactory>(parameters, deviceConfiguration);
 
 
 
 
-    simulator::SimulatorParameters parameters;
-    parameters.setCFLNumber(cfl);
 
-    auto simulator = alsfvm::make_shared<simulator::Simulator>(parameters,
+
+    auto simulator = alsfvm::make_shared<simulator::Simulator>(*parameters,
                          grid,
                          *volumeFactory,
                          *integratorFactory,
@@ -224,6 +245,24 @@ std::string SimulatorSetup::readPlatform(const SimulatorSetup::ptree &configurat
 std::string SimulatorSetup::readBoundary(const SimulatorSetup::ptree &configuration)
 {
     return configuration.get<std::string>("fvm.boundary");
+}
+
+void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree &configuration, simulator::SimulatorParameters &parameters)
+{
+
+    auto& equationParameters = parameters.getEquationParameters();
+
+    auto fvmNode = configuration.get_child("fvm");
+    if (fvmNode.find("equationParameters") != fvmNode.not_found()) {
+
+        if (readEquation(configuration) == "euler") {
+
+            auto& eulerParameters = static_cast<equation::euler::EulerParameters&>(equationParameters);
+
+            real gamma = configuration.get<real>("fvm.equationParameters.gamma");
+            eulerParameters.setGamma(gamma);
+        }
+    }
 }
 
 std::string SimulatorSetup::readFlux(const SimulatorSetup::ptree &configuration)

@@ -12,8 +12,11 @@
   <flux>HLL3</flux>
   <endTime>4</endTime>
   <equation>euler</equation>
+  <equationParameters>
+    <gamma>1.4</gamma>
+  </equationParameters>
   <reconstruction>wenof2</reconstruction>
-  <cfl>0.4</cfl>
+  <cfl>auto</cfl>
   <integrator>auto</integrator>
   <initialData>
     <python>richtmeyermeshkov.py</python>
