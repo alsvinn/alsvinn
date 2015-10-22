@@ -2,6 +2,7 @@
 #include "alsfvm/types.hpp"
 #include "alsfvm/reconstruction/WENOCoefficients.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
+#include <algorithm>
 namespace alsfvm { namespace reconstruction { 
 ///
 /// Simple WENO2 reconstruction. This is to be used with the ReconstructionCPU
