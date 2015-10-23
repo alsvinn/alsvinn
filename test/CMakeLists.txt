@@ -25,4 +25,5 @@ ADD_EXECUTABLE(alstest ${SRC} ${ALSTEST_CUDA})
 TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm
                               ${CUDA_LIBRARIES}
                               ${CMAKE_THREAD_LIBS_INIT}
+			      ${MPI_LIBRARIES}
                               )

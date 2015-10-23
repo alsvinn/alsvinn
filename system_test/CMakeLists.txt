@@ -12,4 +12,5 @@ INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS} "../alsfvm/includ
 TARGET_LINK_LIBRARIES(alssystemtest ${GTEST_LIBRARIES} alsfvm
                               ${CUDA_LIBRARIES}
                               ${CMAKE_THREAD_LIBS_INIT}
+			      ${MPI_LIBRARIES}
                               )
