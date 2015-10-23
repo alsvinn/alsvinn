@@ -2,11 +2,11 @@
   <name>
     rm
   </name>
-  <platform>cpu</platform>
+  <platform>cuda</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>128 128 1</dimension>
+    <dimension>1024 1024 1</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>HLL3</flux>
@@ -23,7 +23,7 @@
   </initialData>
   <writer>
     <type>hdf5</type>
-    <basename>rm</basename>
+    <basename>rm_cuda</basename>
     <numberOfSaves>10</numberOfSaves>
   </writer>
 </fvm>

@@ -7,7 +7,9 @@
 #include "alsfvm/reconstruction/NoReconstructionCUDA.hpp"
 #endif
 #include "alsfvm/reconstruction/WENOF2.hpp"
+#include "alsfvm/reconstruction/WENO2.hpp"
 #include "alsfvm/reconstruction/ReconstructionCPU.hpp"
+#include "alsfvm/reconstruction/ReconstructionCUDA.hpp"
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include "alsfvm/numflux/euler/HLL3.hpp"
 #include "alsfvm/reconstruction/NoReconstruction.hpp"
@@ -105,7 +107,9 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
 		}
 		else if (reconstruction == "weno2") {
 			if (equation == "euler") {
-				reconstructor.reset(new reconstruction::WENO2CUDA<equation::euler::Euler>());
+				//reconstructor.reset(new reconstruction::WENO2CUDA<equation::euler::Euler>());
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENO2<equation::euler::Euler>, equation::euler::Euler>(*simulatorParameters));
+
 			}
 			else {
 				THROW("We do not support WENOCUDA for equation " << equation);
@@ -121,6 +125,10 @@ NumericalFluxFactory::createNumericalFlux(const grid::Grid& grid) {
 			}
 
 		}
+        else if (reconstruction == "wenof2") {
+            reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENOF2<equation::euler::Euler>, equation::euler::Euler>(*simulatorParameters));
+
+        }
 		else {
 			THROW("Unknown reconstruction " << reconstruction);
 		}

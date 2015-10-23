@@ -24,12 +24,24 @@ namespace alsfvm { namespace reconstruction {
             const real i0 = eq.getWeight(in, indexOut);
             const real b0 = square(eq.getWeight(in, indexRight) - i0);
             const real b1 = square(i0 - eq.getWeight(in, indexLeft));
+
             const real a0 = 1 / (3 * (ALSFVM_WENO_EPSILON + b0)*(ALSFVM_WENO_EPSILON + b0));
             const real a1 = 2 / (3 * (ALSFVM_WENO_EPSILON + b1)*(ALSFVM_WENO_EPSILON + b1));
             const real w0 = a0 / (a0 + a1);
             const real w1 = a1 / (a0 + a1);
 
+#pragma unroll
+            for (size_t var = 0; var < Equation::getNumberOfConservedVariables(); ++var) {
+                leftView.get(var).at(indexOut) = 0.5*(w1 * in.get(var).at(indexLeft) +
+                                        (3 * w0 + w1) * in.get(var).at(indexOut) -
+                                        w0 * in.get(var).at(indexRight));
 
+                rightView.get(var).at(indexOut) = 0.5*(w0 * in.get(var).at(indexRight) +
+                    (3 * w1 + w0) * in.get(var).at(indexOut) -
+                    w1 * in.get(var).at(indexLeft));
+
+            }
+#if 0
             typename Equation::ConservedVariables inLeft = eq.fetchConservedVariables(in, indexLeft);
             typename Equation::ConservedVariables inMiddle = eq.fetchConservedVariables(in, indexOut);
             typename Equation::ConservedVariables inRight = eq.fetchConservedVariables(in, indexRight);
@@ -43,6 +55,7 @@ namespace alsfvm { namespace reconstruction {
                                                                 w1 * inLeft);
             eq.setViewAt(leftView, indexOut, left);
             eq.setViewAt(rightView, indexOut, right);
+#endif
         }
 
         __device__ __host__ static size_t getNumberOfGhostCells() {
