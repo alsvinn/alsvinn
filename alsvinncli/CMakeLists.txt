@@ -7,4 +7,6 @@ INCLUDE_DIRECTORIES("../alsfvm/include")
 ADD_EXECUTABLE(alsvinncli ${SRC} ${EXAMPLES})
 TARGET_LINK_LIBRARIES(alsvinncli alsfvm
                               ${CUDA_LIBRARIES}
-                              ${CMAKE_THREAD_LIBS_INIT})
+                              ${CMAKE_THREAD_LIBS_INIT}
+			      ${MPI_LIBRARIES}
+			      )
