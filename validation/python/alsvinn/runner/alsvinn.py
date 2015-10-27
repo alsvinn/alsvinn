@@ -1,5 +1,6 @@
 import xml.etree.ElementTree
 import os
+import configuration
 
 class Alsvinn(object):
     def __init__(self, basefile, configuration):
@@ -14,7 +15,7 @@ class Alsvinn(object):
 
             self.__run_alsvinn(xml_file)
 
-            basenames.append(basename)
+            basenames.append((basename, "alsvinn"))
         return basenames
 
 
@@ -50,3 +51,10 @@ class Alsvinn(object):
         command_to_run = "alsvinncli %s" % xml_file
         print(command_to_run)
         os.system(command_to_run)
+
+
+def run_configurations(basefile, configurations, resolutions, consume_function):
+    for config in configuration.make_configurations(configurations):
+        runner = Alsvinn(basefile, config)
+        output_files = runner(resolutions)
+        consume_function(config, output_files)
