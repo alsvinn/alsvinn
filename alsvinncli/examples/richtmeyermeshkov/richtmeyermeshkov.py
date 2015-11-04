@@ -1,11 +1,11 @@
-epsilon = 1e-2
+epsilon = 1e-1
 xc = x - 0.5
 yc = y - 0.5
 phi = atan(xc/yc) if abs(yc) > 0 else 0
 
 if "has_random_variables" in locals() and has_random_variables:
     N = len(a1)
-    perturbation = sum([a1[n] * cos(phi+b1[n]) for n in xrange(N)])
+    perturbation = epislon * sum([a1[n] * cos(phi+b1[n]) for n in xrange(N)])
 else:
     perturbation = 0
 
