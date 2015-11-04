@@ -47,16 +47,16 @@ namespace alsfvm { namespace reconstruction {
                 w0 * (inRight - inMiddle);
 
 
-            dP.rho = std::max(-BOUND*inMiddle.rho, std::min(BOUND*inMiddle.rho, dP.rho));
-            dP.p = std::max(-BOUND*inMiddle.p, std::min(BOUND*inMiddle.p, dP.p));
+            dP.rho =fmax(-BOUND*inMiddle.rho, fmin(BOUND*inMiddle.rho, dP.rho));
+            dP.p = fmax(-BOUND*inMiddle.p, fmin(BOUND*inMiddle.p, dP.p));
 
             real LL = 0.125*inMiddle.rho*(dP.u.dot(dP.u)) -
-                0.5*std::min(0.0, dP.rho * (inMiddle.u.dot(dP.u))) +
+                0.5*fmin(0.0, dP.rho * (inMiddle.u.dot(dP.u))) +
                 0.5*dP.rho*dP.rho*dP.u.dot(dP.u)/inMiddle.rho;
 
 
             real R = inMiddle.p / (eq.getGamma()-1);
-            real aijk = 0.5*std::sqrt(R/std::max(R,LL));
+            real aijk = 0.5*std::sqrt(R/fmax(R,LL));
 
 
             typename Equation::ConservedVariables left = eq.computeConserved(inMiddle - aijk * dP);
