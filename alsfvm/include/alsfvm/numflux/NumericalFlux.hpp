@@ -9,7 +9,7 @@ namespace alsfvm {
 		///
 		class NumericalFlux {
 		public:
-
+          	        virtual ~NumericalFlux() {}
 			/// 
 			/// Computes the numerical flux at each cell. 
 			/// This will compute the net flux in the cell, ie.

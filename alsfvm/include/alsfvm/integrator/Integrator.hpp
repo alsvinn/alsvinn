@@ -32,7 +32,7 @@ namespace alsfvm { namespace integrator {
 	///
     class Integrator {
     public:
-
+      virtual ~Integrator() {}
 		///
 		/// Returns the number of substeps this integrator uses.
 		/// For ForwardEuler this is 1, for RK4 this is 4, etc.
