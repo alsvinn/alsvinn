@@ -5,7 +5,12 @@ phi = atan(xc/yc) if abs(yc) > 0 else 0
 
 if "has_random_variables" in locals() and has_random_variables:
     N = len(a1)
-    perturbation = epislon * sum([a1[n] * cos(phi+b1[n]) for n in xrange(N)])
+    normalization = sum(a1)
+
+    if abs(normalization) < 1e-8:
+        normalization = N
+
+    perturbation = epsilon * sum([a1[n] * cos(phi+b1[n]) for n in xrange(N)]) / sum(a1)
 else:
     perturbation = 0
 
