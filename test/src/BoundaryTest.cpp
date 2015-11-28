@@ -122,3 +122,47 @@ TEST_F(BoundaryTest, NeumannTest2CellsVarying) {
         }
     }
 }
+
+
+
+TEST_F(BoundaryTest, NeumannTest2CellsVarying2D) {
+    boundaryFactory.reset(new BoundaryFactory("neumann", deviceConfiguration));
+
+    auto volume = volumeFactory->createConservedVolume(nx, ny, 1, ghostCells);
+    volume->makeZero();
+
+    auto rho = volume->getScalarMemoryArea("rho")->getView();
+    auto mx = volume->getScalarMemoryArea("mx")->getView();
+    auto my = volume->getScalarMemoryArea("my")->getView();
+    auto mz = volume->getScalarMemoryArea("mz")->getView();
+    auto E = volume->getScalarMemoryArea("E")->getView();
+
+    size_t z = 0;
+    for(size_t x = ghostCells; x < nx + ghostCells; ++x) {
+        for(size_t y = ghostCells; y < ny + ghostCells; ++y) {
+
+            rho.at(x, y, z) = rho.index(x, y, z);
+            mx.at(x, y, z) = rho.index(x, y, z);
+            my.at(x, y, z) = rho.index(x, y, z);
+            mz.at(x, y, z) = rho.index(x, y, z);
+            E.at(x, y, z) = rho.index(x, y, z);
+
+        }
+    }
+
+
+    auto boundary = boundaryFactory->createBoundary(ghostCells);
+
+    auto smallerGrid = alsfvm::make_shared<grid::Grid>(rvec3(0,0,0), rvec3(1, 1,0), ivec3(nx, ny, 1));
+    boundary->applyBoundaryConditions(*volume, *smallerGrid);
+
+    // X side
+    for(size_t y = ghostCells; y < ny + ghostCells; ++y) {
+        ASSERT_EQ(rho.at(0, y, z), rho.index(3, y, z));
+        ASSERT_EQ(rho.at(1, y, z), rho.index(2, y, z));
+
+        ASSERT_EQ(rho.at(ghostCells + nx + 1, y, z), rho.index(nx + ghostCells - 2, y, z));
+        ASSERT_EQ(rho.at(ghostCells + nx, y, z), rho.index(nx + ghostCells - 1, y, z));
+    }
+}
+
