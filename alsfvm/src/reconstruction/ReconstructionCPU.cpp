@@ -7,8 +7,8 @@
 namespace alsfvm { namespace reconstruction {
 
 template<class ReconstructionType, class Equation>
-ReconstructionCPU<ReconstructionType, Equation>::ReconstructionCPU(simulator::SimulatorParameters &simulatorParameters)
-    : parameters(static_cast<typename Equation::Parameters&>(simulatorParameters.getEquationParameters()))
+ReconstructionCPU<ReconstructionType, Equation>::ReconstructionCPU(const simulator::SimulatorParameters &simulatorParameters)
+    : parameters(static_cast<const typename Equation::Parameters&>(simulatorParameters.getEquationParameters()))
 {
 
 }
@@ -34,18 +34,20 @@ void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(cons
     const size_t ny = inputVariables.getTotalNumberOfYCells();
     const size_t nz = inputVariables.getTotalNumberOfZCells();
 
+    const size_t ngc = this->getNumberOfGhostCells();
+
     // Sanity check, we need at least ONE point in the interior.
     assert(int(nx) > 2 * directionVector.x * 2);
-    assert((directionVector.y == 0) || (int(ny) > 2 * directionVector.y * 2));
-    assert((directionVector.z == 0) || (int(nz) > 2 * directionVector.z * 2));
+    assert((directionVector.y == 0) || (int(ny) > ngc * directionVector.y * 2));
+    assert((directionVector.z == 0) || (int(nz) > ngc * directionVector.z * 2));
 
-    const size_t startX = directionVector.x * (2 - 1);
-    const size_t startY = directionVector.y * (2 - 1);
-    const size_t startZ = directionVector.z * (2 - 1);
+    const size_t startX = directionVector.x * (ngc - 1);
+    const size_t startY = directionVector.y * (ngc - 1);
+    const size_t startZ = directionVector.z * (ngc - 1);
 
-    const size_t endX = nx - directionVector.x * (2 - 1);
-    const size_t endY = ny - directionVector.y * (2 - 1);
-    const size_t endZ = nz - directionVector.z * (2 - 1);
+    const size_t endX = nx - directionVector.x * (ngc - 2);
+    const size_t endY = ny - directionVector.y * (ngc - 2);
+    const size_t endZ = nz - directionVector.z * (ngc - 2);
 
 
     typename Equation::ConstViews viewIn(inputVariables);

@@ -11,7 +11,7 @@ namespace alsfvm { namespace reconstruction {
     template<class ReconstructionType, class Equation>
     class ReconstructionCPU : public Reconstruction {
     public:
-        ReconstructionCPU(simulator::SimulatorParameters& simulatorParameters);
+        ReconstructionCPU(const simulator::SimulatorParameters& simulatorParameters);
         ///
         /// Performs reconstruction.
         /// \param[in] inputVariables the variables to reconstruct.
