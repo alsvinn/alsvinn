@@ -45,9 +45,9 @@ void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(cons
     const size_t startY = directionVector.y * (ngc - 1);
     const size_t startZ = directionVector.z * (ngc - 1);
 
-    const size_t endX = nx - directionVector.x * (ngc - 2);
-    const size_t endY = ny - directionVector.y * (ngc - 2);
-    const size_t endZ = nz - directionVector.z * (ngc - 2);
+    const size_t endX = nx - directionVector.x * (ngc - 1);
+    const size_t endY = ny - directionVector.y * (ngc - 1);
+    const size_t endZ = nz - directionVector.z * (ngc - 1);
 
 
     typename Equation::ConstViews viewIn(inputVariables);
