@@ -28,11 +28,15 @@ namespace alsfvm { namespace reconstruction {
             const real i0 = eq.getWeight(in, indexOut);
             const real b0 = square(eq.getWeight(in, indexRight) - i0);
             const real b1 = square(i0 - eq.getWeight(in, indexLeft));
-            const real a0 = 1 / (3 * (ALSFVM_WENO_EPSILON + b0)*(ALSFVM_WENO_EPSILON + b0));
-            const real a1 = 2 / (3 * (ALSFVM_WENO_EPSILON + b1)*(ALSFVM_WENO_EPSILON + b1));
-            const real w0 = a0 / (a0 + a1);
-            const real w1 = a1 / (a0 + a1);
+            const real a0Left = 1 / (3 * (ALSFVM_WENO_EPSILON + b0)*(ALSFVM_WENO_EPSILON + b0));
+            const real a1Left = 2 / (3 * (ALSFVM_WENO_EPSILON + b1)*(ALSFVM_WENO_EPSILON + b1));
+            const real w0Left = a0Left / (a0Left + a1Left);
+            const real w1Left = a1Left / (a0Left + a1Left);
 
+            const real a0Right = 2 / (3 * (ALSFVM_WENO_EPSILON + b0)*(ALSFVM_WENO_EPSILON + b0));
+            const real a1Right = 1 / (3 * (ALSFVM_WENO_EPSILON + b1)*(ALSFVM_WENO_EPSILON + b1));
+            const real w0Right = a0Right / (a0Right + a1Right);
+            const real w1Right = a1Right / (a0Right + a1Right);
 
             typename Equation::PrimitiveVariables inLeft =
                     eq.computePrimitiveVariables(eq.fetchConservedVariables(in, indexLeft));
@@ -43,25 +47,42 @@ namespace alsfvm { namespace reconstruction {
             typename Equation::PrimitiveVariables inRight =
                     eq.computePrimitiveVariables(eq.fetchConservedVariables(in, indexRight));
 
-            typename Equation::PrimitiveVariables dP = w1 * (inMiddle - inLeft) +
-                w0 * (inRight - inMiddle);
+            typename Equation::PrimitiveVariables dPLeft = w1Left * (inMiddle - inLeft) +
+                w0Left * (inRight - inMiddle);
 
 
-            dP.rho =fmax(-BOUND*inMiddle.rho, fmin(BOUND*inMiddle.rho, dP.rho));
-            dP.p = fmax(-BOUND*inMiddle.p, fmin(BOUND*inMiddle.p, dP.p));
+            dPLeft.rho =fmax(-BOUND*inMiddle.rho, fmin(BOUND*inMiddle.rho, dPLeft.rho));
+            dPLeft.p = fmax(-BOUND*inMiddle.p, fmin(BOUND*inMiddle.p, dPLeft.p));
 
-            real LL = 0.125*inMiddle.rho*(dP.u.dot(dP.u)) -
-                0.5*fmin(0.0, dP.rho * (inMiddle.u.dot(dP.u))) +
-                0.5*dP.rho*dP.rho*dP.u.dot(dP.u)/inMiddle.rho;
+            real LLLeft = 0.125*inMiddle.rho*(dPLeft.u.dot(dPLeft.u)) -
+                0.5*fmin(0.0, dPLeft.rho * (inMiddle.u.dot(dPLeft.u))) +
+                0.5*dPLeft.rho*dPLeft.rho*dPLeft.u.dot(dPLeft.u)/inMiddle.rho;
 
 
             real R = inMiddle.p / (eq.getGamma()-1);
-            real aijk = 0.5*std::sqrt(R/fmax(R,LL));
+            real aijkLeft = 0.5*std::sqrt(R/fmax(R,LLLeft));
 
 
-            typename Equation::ConservedVariables left = eq.computeConserved(inMiddle - aijk * dP);
 
-            typename Equation::ConservedVariables right =  eq.computeConserved(inMiddle + aijk * dP);
+
+
+            typename Equation::ConservedVariables left = eq.computeConserved(inMiddle - aijkLeft * dPLeft);
+
+
+            typename Equation::PrimitiveVariables dPRight = w1Right * (inMiddle - inLeft) +
+                w0Right * (inRight - inMiddle);
+
+
+            dPRight.rho = fmax(-BOUND*inMiddle.rho, fmin(BOUND*inMiddle.rho, dPRight.rho));
+            dPRight.p = fmax(-BOUND*inMiddle.p, fmin(BOUND*inMiddle.p, dPRight.p));
+
+            real LLRight = 0.125*inMiddle.rho*(dPRight.u.dot(dPRight.u)) -
+                0.5*fmin(0.0, dPRight.rho * (inMiddle.u.dot(dPRight.u))) +
+                0.5*dPRight.rho*dPRight.rho*dPRight.u.dot(dPRight.u) / inMiddle.rho;
+           
+            real aijkRight = 0.5*std::sqrt(R / fmax(R, LLRight));
+
+            typename Equation::ConservedVariables right =  eq.computeConserved(inMiddle + aijkRight * dPRight);
             eq.setViewAt(leftView, indexOut, left);
             eq.setViewAt(rightView, indexOut, right);
 
