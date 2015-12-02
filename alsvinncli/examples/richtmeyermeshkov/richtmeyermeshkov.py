@@ -10,7 +10,7 @@ if "has_random_variables" in locals() and has_random_variables:
     if abs(normalization) < 1e-8:
         normalization = N
 
-    perturbation = epsilon * sum([a1[n] * cos(phi+b1[n]) for n in xrange(N)]) / sum(a1)
+    perturbation = epsilon * sum([a1[n] * cos(phi+b1[n]) for n in xrange(N)]) / normalization
 else:
     perturbation = 0
 
