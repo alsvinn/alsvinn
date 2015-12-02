@@ -140,8 +140,8 @@ namespace alsfvm {
         }
 
         template<class ReconstructionType, class Equation>
-        ReconstructionCUDA<ReconstructionType, Equation>::ReconstructionCUDA(simulator::SimulatorParameters& parameters)
-            : equation(static_cast<typename Equation::Parameters&>(parameters.getEquationParameters()))
+        ReconstructionCUDA<ReconstructionType, Equation>::ReconstructionCUDA(const simulator::SimulatorParameters& parameters)
+            : equation(static_cast<const typename Equation::Parameters&>(parameters.getEquationParameters()))
         {
 
 

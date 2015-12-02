@@ -34,9 +34,9 @@ namespace alsfvm { namespace boundary {
                 for (size_t d = 0; d < dimensions; d++) {
 					// i=0 represents bottom, i=1 represents top
 					for (int i = 0; i < 2; i++) {
-						const bool zDir = d == 2;
-						const bool yDir = d == 1;
-						const bool xDir = d == 0;
+						const bool zDir = (d == 2);
+						const bool yDir = (d == 1);
+						const bool xDir = (d == 0);
                         // Either we start on the left (i == 0), or on the right(i==1)
                         const size_t zStart = zDir ?
                             (i == 0 ? numberOfGhostCells : nz - numberOfGhostCells - 1) : 0;

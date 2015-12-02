@@ -1,5 +1,5 @@
 
-GAMMA=1.4
+GAMMA=1.66666666666667
 epsilon = 0.3
 r_c = 0.05
 alpha = 0.204

@@ -12,7 +12,7 @@ namespace alsfvm {
         template<class ReconstructionType, class Equation>
         class ReconstructionCUDA : public Reconstruction {
         public:
-            ReconstructionCUDA(simulator::SimulatorParameters& simulatorParameters);
+            ReconstructionCUDA(const simulator::SimulatorParameters& simulatorParameters);
 
             ///
             /// Performs reconstruction.

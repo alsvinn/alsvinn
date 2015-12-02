@@ -5,6 +5,11 @@
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include "alsfvm/numflux/euler/HLL3.hpp"
 
+#ifdef ALSVINN_HAVE_CUDA
+#include "alsfvm/numflux/NumericalFluxCUDA.hpp"
+#endif
+
+
 #include "alsfvm/error/Exception.hpp"
 #include <iostream>
 

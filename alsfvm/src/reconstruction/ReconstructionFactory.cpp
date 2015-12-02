@@ -1,10 +1,11 @@
 #include "alsfvm/reconstruction/ReconstructionFactory.hpp"
 #include "alsfvm/simulator/SimulatorParameters.hpp"
 #ifdef ALSVINN_HAVE_CUDA
-#include "alsfvm/numflux/NumericalFluxCUDA.hpp"
 #include "alsfvm/reconstruction/WENOCUDA.hpp"
 #include "alsfvm/reconstruction/WENO2CUDA.hpp"
 #include "alsfvm/reconstruction/NoReconstructionCUDA.hpp"
+#include "alsfvm/reconstruction/ReconstructionCUDA.hpp"
+
 #endif
 #include "alsfvm/reconstruction/WENOF2.hpp"
 #include "alsfvm/reconstruction/WENO2.hpp"
@@ -112,7 +113,7 @@ ReconstructionFactory::ReconstructionPtr
 
         }
         else {
-            THROW("Unknown reconstruction " << reconstruction);
+            THROW("Unknown reconstruction " << name);
         }
 
     }

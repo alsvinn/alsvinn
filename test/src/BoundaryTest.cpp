@@ -72,9 +72,9 @@ TEST_F(BoundaryTest, NeumannTest2CellsVarying) {
     auto mz = volume->getScalarMemoryArea("mz")->getView();
     auto E = volume->getScalarMemoryArea("E")->getView();
 
-    for(size_t x = ghostCells; x < nx + ghostCells; ++x) {
-        for(size_t y = ghostCells; y < ny + ghostCells; ++y) {
-            for(size_t z = ghostCells; z < nz + ghostCells; ++z) {
+    for(size_t x = ghostCells; x < nx + ghostCells; ++x) { // NOTE: The endpoint is correct, this is indexing wrt. full volume, WITH ghost cells
+        for(size_t y = ghostCells; y < ny + ghostCells; ++y) { // NOTE: The endpoint is correct, this is indexing wrt. full volume, WITH ghost cells
+            for(size_t z = ghostCells; z < nz + ghostCells; ++z) { // NOTE: The endpoint is correct, this is indexing wrt. full volume, WITH ghost cells
                 rho.at(x, y, z) = rho.index(x, y, z);
                 mx.at(x, y, z) = rho.index(x, y, z);
                 my.at(x, y, z) = rho.index(x, y, z);
@@ -95,8 +95,10 @@ TEST_F(BoundaryTest, NeumannTest2CellsVarying) {
             ASSERT_EQ(rho.at(0, y, z), rho.index(3, y, z));
             ASSERT_EQ(rho.at(1, y, z), rho.index(2, y, z));
 
-            ASSERT_EQ(rho.at(ghostCells + nx + 1, y, z), rho.index(nx + ghostCells - 2, y, z));
-            ASSERT_EQ(rho.at(ghostCells + nx, y, z), rho.index(nx + ghostCells - 1, y, z));
+            ASSERT_EQ(rho.at(ghostCells + nx + 1, y, z), rho.index(nx + ghostCells - 2, y, z))
+                << "Wrong index at (" << (ghostCells + nx + 1) << ", " << y << ", " << z << ")";
+            ASSERT_EQ(rho.at(ghostCells + nx, y, z), rho.index(nx + ghostCells - 1, y, z))
+                << "Wrong index at (" << (ghostCells + nx) << ", " << y << ", " << z << ")";;
         }
     }
 
