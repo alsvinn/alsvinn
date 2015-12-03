@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "alsfvm/integrator/ForwardEuler.hpp"
+#include "alsfvm/integrator/RungeKutta2.hpp"
 #include <cmath>
 using namespace alsfvm;
 using namespace alsfvm::integrator;
@@ -23,7 +23,7 @@ namespace {
         }
     };
 }
-TEST(ForwardEulerTest, ConvergenceTest) {
+TEST(RungeKutta2Test, ConvergenceTest) {
 
     // We test that if we integrate the system
     // du/dt = u
@@ -51,8 +51,9 @@ TEST(ForwardEulerTest, ConvergenceTest) {
         const real dt = real(1) / real(N);
         alsfvm::shared_ptr<NumericalFlux> flux(new ODENumericalFlux(dt));
 
-        ForwardEuler integrator(flux);
-        std::vector<alsfvm::shared_ptr<alsfvm::volume::Volume> > volumes(integrator.getNumberOfSubsteps() + 1);
+        RungeKutta2 integrator(flux);
+        std::vector<alsfvm::shared_ptr<alsfvm::volume::Volume> >
+                volumes(integrator.getNumberOfSubsteps() + 1);
 
         for (auto& volume : volumes) {
             volume.reset(new alsfvm::volume::Volume(variableNames, factory, nx, ny, nz));
@@ -64,7 +65,7 @@ TEST(ForwardEulerTest, ConvergenceTest) {
                 auto& currentVolume = volumes[substep + 1];
 
                 // Note that we do not care about spatial resolution here
-                integrator.performSubstep(volumes, rvec3(1, 1, 1), dt, 1, *currentVolume,  0, simulator::TimestepInformation());
+                integrator.performSubstep(volumes, rvec3(1, 1, 1), dt, 1, *currentVolume,  substep, simulator::TimestepInformation());
             }
             volumes.back().swap(volumes.front());
 
@@ -80,7 +81,7 @@ TEST(ForwardEulerTest, ConvergenceTest) {
 
 
     for (size_t i = 1; i < errors.size(); ++i) {
-        EXPECT_NEAR((std::log(errors[i]) - std::log(errors[i-1]))/ (std::log(resolutions[i]) - std::log(resolutions[i-1])), -1, 1e-1);
+        EXPECT_NEAR((std::log(errors[i]) - std::log(errors[i-1]))/ (std::log(resolutions[i]) - std::log(resolutions[i-1])), -2, 1e-1);
     }
 
 }

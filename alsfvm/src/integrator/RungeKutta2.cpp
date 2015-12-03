@@ -38,12 +38,12 @@ real RungeKutta2::performSubstep(const std::vector<alsfvm::shared_ptr< volume::V
 		dt / spatialCellSizes.y,
 		dt / spatialCellSizes.z);
 
-	output *= cellScaling.x;
+    output *= cellScaling.x;
     output += *inputConserved[substep];
 
     if (substep == 1) {
         // 0.5 * (U+U')
-        output += *inputConserved[0];
+        output += *inputConserved[1];
         output *= 0.5;
     }
 
