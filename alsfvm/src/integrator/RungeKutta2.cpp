@@ -1,5 +1,5 @@
 #include "alsfvm/integrator/RungeKutta2.hpp"
-
+#include <iostream>
 namespace alsfvm { namespace integrator { 
 
 ///
@@ -43,7 +43,7 @@ real RungeKutta2::performSubstep(const std::vector<alsfvm::shared_ptr< volume::V
 
     if (substep == 1) {
         // 0.5 * (U+U')
-        output += *inputConserved[1];
+        output += *inputConserved[0];
         output *= 0.5;
     }
 
