@@ -64,11 +64,11 @@ TEST(RungeKutta2Test, ConvergenceTest) {
         simulator::TimestepInformation timestepInformation;
         const double cfl = 1; // To keep timestep constant
         for (size_t i = 0; i < N; i++) {
-            for (int substep = 0; substep < integrator.getNumberOfSubsteps(); ++substep) {
+            for (size_t substep = 0; substep < integrator.getNumberOfSubsteps(); ++substep) {
                 auto& currentVolume = volumes[substep + 1];
 
                 // Note that we do not care about spatial resolution here
-                integrator.performSubstep(volumes, rvec3(1, 1, 1), dt, 1, *currentVolume,  substep, timestepInformation);
+                integrator.performSubstep(volumes, rvec3(1, 1, 1), 1, cfl, *currentVolume,  substep, timestepInformation);
                
             }
 
@@ -76,10 +76,10 @@ TEST(RungeKutta2Test, ConvergenceTest) {
             volumes.back().swap(volumes.front());
             t += dt;
         }
-        //ASSERT_EQ(t, 1);
+        ASSERT_EQ(t, 1);
         const double error = std::abs(std::exp(1) - volumes.front()->getScalarMemoryArea(0)->getPointer()[0]);
 
-        std::cout << volumes.front()->getScalarMemoryArea(0)->getPointer()[0] << std::endl;
+
         errors.push_back(error);
         resolutions.push_back(N);
 
@@ -89,9 +89,8 @@ TEST(RungeKutta2Test, ConvergenceTest) {
 
 
     for (size_t i = 1; i < errors.size(); ++i) {
-        EXPECT_NEAR((std::log(errors[i]) - std::log(errors[i-1]))/ (std::log(resolutions[i]) - std::log(resolutions[i-1])), -2, 1e-1);
+        EXPECT_NEAR((std::log(errors[i]) - std::log(errors[i-1]))/ (std::log(resolutions[i]) - std::log(resolutions[i-1])), -2, 5e-2);
     }
 
-    for (auto error : errors)
-        std::cout << error << std::endl;
+
 }
