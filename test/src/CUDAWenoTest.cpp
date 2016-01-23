@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-
-#include "alsfvm/reconstruction/WENOCUDA.hpp"
+#include "alsfvm/reconstruction/ReconstructionFactory.hpp"
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/reconstruction/WENOCoefficients.hpp"
+#include "alsfvm/equation/euler/EulerParameters.hpp"
 
 using namespace alsfvm;
 using namespace alsfvm::memory;
@@ -19,25 +19,34 @@ TEST(CUDAWenoTest, ConstantZeroTestSecondOrder) {
 	auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
 	VolumeFactory volumeFactory("euler", memoryFactory);
-	WENOCUDA<equation::euler::Euler, 2> wenoCUDA;
 
-	auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
+    Grid grid({ 0, 0, 0 }, { 1, 1, 0 }, ivec3( nx, ny, nz ));
+
+    ReconstructionFactory reconstructionFactory;
+    simulator::SimulatorParameters simulatorParameters;
+    auto eulerParameters = std::make_shared<equation::euler::EulerParameters>();
+
+    simulatorParameters.setEquationParameters(eulerParameters);
+
+    auto wenoCUDA = reconstructionFactory.createReconstruction("weno2", "euler", simulatorParameters, memoryFactory, grid, deviceConfiguration);
+
+	auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
 
 	conserved->makeZero();
 
 
 
-	wenoCUDA.performReconstruction(*conserved, 0, 0, *left, *right);
+    wenoCUDA->performReconstruction(*conserved, 0, 0, *left, *right);
 
 
 	auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
 	auto memoryFactoryCPU = alsfvm::make_shared<MemoryFactory>(deviceConfigurationCPU);
 
 	VolumeFactory volumeFactoryCPU("euler", memoryFactoryCPU);
-	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
+	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
 
 	right->copyTo(*rightCPU);
 	left->copyTo(*leftCPU);
@@ -63,24 +72,32 @@ TEST(CUDAWenoTest, ConstantZeroTestThirdOrder) {
 	auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
 	VolumeFactory volumeFactory("euler", memoryFactory);
-	WENOCUDA<equation::euler::Euler, 3> wenoCUDA;
+    Grid grid({ 0, 0, 0 }, { 1, 1, 0 }, ivec3(nx, ny, nz));
 
-	auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
+    ReconstructionFactory reconstructionFactory;
+    simulator::SimulatorParameters simulatorParameters;
+    auto eulerParameters = std::make_shared<equation::euler::EulerParameters>();
+
+    simulatorParameters.setEquationParameters(eulerParameters);
+
+    auto wenoCUDA = reconstructionFactory.createReconstruction("weno3", "euler", simulatorParameters, memoryFactory, grid, deviceConfiguration);
+
+	auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
 
 	conserved->makeZero();
 
 
 
-	wenoCUDA.performReconstruction(*conserved, 0, 0, *left, *right);
+	wenoCUDA->performReconstruction(*conserved, 0, 0, *left, *right);
 
 	auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
 	auto memoryFactoryCPU = alsfvm::make_shared<MemoryFactory>(deviceConfigurationCPU);
 
 	VolumeFactory volumeFactoryCPU("euler", memoryFactoryCPU);
-	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
+	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
 
 	right->copyTo(*rightCPU);
 	left->copyTo(*leftCPU);
@@ -101,24 +118,35 @@ TEST(CUDAWenoTest, ConstantZeroTestThirdOrder) {
 }
 
 TEST(CUDAWenoTest, ConstantOneTestSecondOrder) {
-	WENOCUDA<equation::euler::Euler, 2> wenoCUDA;
-	const size_t nx = 10, ny = 10, nz = 1;
+    const size_t nx = 10, ny = 10, nz = 1;
+
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>("cuda");
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
+
+
+    Grid grid({ 0, 0, 0 }, { 1, 1, 0 }, ivec3(nx, ny, nz));
+
+    ReconstructionFactory reconstructionFactory;
+    simulator::SimulatorParameters simulatorParameters;
+    auto eulerParameters = std::make_shared<equation::euler::EulerParameters>();
+
+    simulatorParameters.setEquationParameters(eulerParameters);
+
+    auto wenoCUDA = reconstructionFactory.createReconstruction("weno2", "euler", simulatorParameters, memoryFactory, grid, deviceConfiguration);
 	auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
 	auto memoryFactoryCPU = alsfvm::make_shared<MemoryFactory>(deviceConfigurationCPU);
 
 	VolumeFactory volumeFactoryCPU("euler", memoryFactoryCPU);
-	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto conservedCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
+	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto conservedCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
 
-	auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>("cuda");
-	auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
 	VolumeFactory volumeFactory("euler", memoryFactory);
 
-	auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
+	auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
 
 	for_each_cell_index(*conservedCPU, [&](size_t index) {
 		conservedCPU->getScalarMemoryArea("rho")->getPointer()[index] = 1;
@@ -132,7 +160,7 @@ TEST(CUDAWenoTest, ConstantOneTestSecondOrder) {
 	conservedCPU->copyTo(*conserved);
 
 
-	wenoCUDA.performReconstruction(*conserved, 0, 0, *left, *right);
+	wenoCUDA->performReconstruction(*conserved, 0, 0, *left, *right);
 
 	left->copyTo(*leftCPU);
 	right->copyTo(*rightCPU);
@@ -153,24 +181,36 @@ TEST(CUDAWenoTest, ConstantOneTestSecondOrder) {
 }
 
 TEST(CUDAWenoTest, ConstantOneTestThirdOrder) {
-	WENOCUDA<equation::euler::Euler, 3> wenoCUDA;
+
 	const size_t nx = 10, ny = 10, nz = 1;
 	auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
 	auto memoryFactoryCPU = alsfvm::make_shared<MemoryFactory>(deviceConfigurationCPU);
 
-	VolumeFactory volumeFactoryCPU("euler", memoryFactoryCPU);
-	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto conservedCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>("cuda");
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
-	auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>("cuda");
-	auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
+
+    Grid grid({ 0, 0, 0 }, { 1, 1, 0 }, ivec3(nx, ny, nz));
+
+    ReconstructionFactory reconstructionFactory;
+    simulator::SimulatorParameters simulatorParameters;
+    auto eulerParameters = std::make_shared<equation::euler::EulerParameters>();
+
+    simulatorParameters.setEquationParameters(eulerParameters);
+
+    auto wenoCUDA = reconstructionFactory.createReconstruction("weno2", "euler", simulatorParameters, memoryFactory, grid, deviceConfiguration);
+
+	VolumeFactory volumeFactoryCPU("euler", memoryFactoryCPU);
+	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto conservedCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+
 
 	VolumeFactory volumeFactory("euler", memoryFactory);
 
-	auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
+	auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
 
 	for_each_cell_index(*conservedCPU, [&](size_t index) {
 		conservedCPU->getScalarMemoryArea("rho")->getPointer()[index] = 1;
@@ -184,7 +224,7 @@ TEST(CUDAWenoTest, ConstantOneTestThirdOrder) {
 	conservedCPU->copyTo(*conserved);
 
 
-	wenoCUDA.performReconstruction(*conserved, 0, 0, *left, *right);
+	wenoCUDA->performReconstruction(*conserved, 0, 0, *left, *right);
 
 	left->copyTo(*leftCPU);
 	right->copyTo(*rightCPU);
@@ -211,18 +251,29 @@ TEST(CUDAWenoTest, ReconstructionSimple) {
 	auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
 	VolumeFactory volumeFactory("euler", memoryFactory);
-	WENOCUDA<equation::euler::Euler, 2> wenoCUDA;
-	auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
+	
+    Grid grid({ 0, 0, 0 }, { 1, 1, 0 }, ivec3(nx, ny, nz));
+
+    ReconstructionFactory reconstructionFactory;
+    simulator::SimulatorParameters simulatorParameters;
+    auto eulerParameters = std::make_shared<equation::euler::EulerParameters>();
+
+    simulatorParameters.setEquationParameters(eulerParameters);
+
+    auto wenoCUDA = reconstructionFactory.createReconstruction("weno2", "euler", simulatorParameters, memoryFactory, grid, deviceConfiguration);
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+
+
+	auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
 
 	auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
 	auto memoryFactoryCPU = alsfvm::make_shared<MemoryFactory>(deviceConfigurationCPU);
 
 	VolumeFactory volumeFactoryCPU("euler", memoryFactoryCPU);
-	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
-	auto conservedCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA.getNumberOfGhostCells());
+	auto rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
+	auto conservedCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
 
 	for_each_cell_index(*conservedCPU, [&](size_t index) {
 		// fill some dummy data
@@ -243,7 +294,7 @@ TEST(CUDAWenoTest, ReconstructionSimple) {
 	conservedCPU->copyTo(*conserved);
 
 
-	wenoCUDA.performReconstruction(*conserved, 0, 0, *left, *right);
+	wenoCUDA->performReconstruction(*conserved, 0, 0, *left, *right);
 	cudaDeviceSynchronize();
 	const real epsilon = WENOCoefficients<2>::epsilon;
 	const real right1 = 0.5;
