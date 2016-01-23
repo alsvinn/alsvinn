@@ -13,6 +13,13 @@
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsfvm/python/PythonInterpreter.hpp"
 #define L std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+
+#define CHECK_PYTHON \
+        if ( PyErr_Occurred()) { \
+            PyErr_Print(); \
+            THROW("Python error occured"); \
+        }
+
 using namespace alsfvm::python;
 namespace alsfvm { namespace init {
 
@@ -51,12 +58,9 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
 
 
     auto globalNamespace = interpreter.getGlobalNamespace();
-    PyObject* moduleLocal(PyImport_AddModule("alsfvm"));
+    PyObject* moduleLocal(PyImport_AddModule("__main__"));
     PythonObjectHolder localNamespace(PyModule_GetDict(moduleLocal));
-    if (PyErr_Occurred()) {
-        PyErr_Print();
-        THROW("Error in python script.");
-    }
+    CHECK_PYTHON
     // This will hold the inputs for our function. We allocate this once,
     // and use it several times.
     PythonObjectHolder argumentTuple(PyTuple_New(4));
@@ -65,8 +69,9 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     // Now we declare the wrappers around the function.
     std::stringstream functionStringStream;
 
-    functionStringStream << "def initial_data(x, y, z, output):\n";
-    addIndent("from math import *", functionStringStream);
+    
+    functionStringStream << "from numpy import *" << std::endl;
+    functionStringStream << "def initial_data(x, y, z, output):\n"; 
 
     // Now we need to add the variables we need to write:
     for(size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
@@ -86,19 +91,11 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
 
     PyRun_String(functionStringStream.str().c_str(),
                  Py_file_input, globalNamespace, localNamespace.object);
-
-
-    if (PyErr_Occurred()) {
-        PyErr_Print();
-        THROW("Error in python script.");
-    }
+    CHECK_PYTHON
 
 
     PythonObjectHolder initialValueFunction(PyObject_GetAttrString(moduleLocal, "initial_data"));
-    if ( PyErr_Occurred()) {
-        PyErr_Print();
-        THROW("Python error occured");
-    }
+
 
     // loop through the map and set the initial values
     volume::for_each_midpoint(primitiveVolume, grid,
@@ -113,25 +110,18 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
         PyObject* xObject(PyFloat_FromDouble(x));
         PyObject* yObject(PyFloat_FromDouble(y));
         PyObject* zObject(PyFloat_FromDouble(z));
-        if ( PyErr_Occurred()) {
-            PyErr_Print();
-            THROW("Python error occured");
-        }
+
+        CHECK_PYTHON
+
         PyTuple_SetItem(argumentTuple.object, 0, xObject);
         PyTuple_SetItem(argumentTuple.object, 1, yObject);
         PyTuple_SetItem(argumentTuple.object, 2, zObject);
         PyTuple_SetItem(argumentTuple.object, 3, outputMap);
 
-        if ( PyErr_Occurred()) {
-            PyErr_Print();
-            THROW("Python error occured");
-        }
+        CHECK_PYTHON
         PyObject_CallObject(initialValueFunction.object,
                                                argumentTuple.object);
-		if (PyErr_Occurred()) {
-			PyErr_Print();
-			THROW("Python error occured");
-		}
+        CHECK_PYTHON
         // Loop through each variable and set it in the primitive variables:
         for(size_t var = 0; var <  primitiveVolume.getNumberOfVariables(); ++var) {
             const auto& name = primitiveVolume.getName(var);
@@ -139,18 +129,11 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
             const double value = PyFloat_AsDouble(floatObject);
             primitiveVolume.getScalarMemoryArea(var)->getPointer()[index] = value;
         }
-		if (PyErr_Occurred()) {
-			PyErr_Print();
-			THROW("Python error occured");
-		}
+        CHECK_PYTHON
     });
 
 
-    if (PyErr_Occurred()) {
-        PyErr_Print();
-        THROW("Error in python script.");
-    }
-
+    CHECK_PYTHON
     cellComputer.computeFromPrimitive(primitiveVolume, conservedVolume, extraVolume);
 }
 

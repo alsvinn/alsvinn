@@ -104,3 +104,51 @@ TEST(PythonInitialDataTest, RiemannProblem) {
     });
 
 }
+
+
+TEST(PythonInitialDataTest, SineCosineExp) {
+
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(new DeviceConfiguration);
+    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler", "cpu");
+    equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
+    auto cellComputer = cellComputerFactory.createComputer();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
+    volume::VolumeFactory volumeFactory("euler", memoryFactory);
+    size_t nx = 10;
+    size_t ny = 10;
+    size_t nz = 1;
+
+    grid::Grid grid({ 0., 0., 0. }, { 1, 1, 1 }, { int(nx), int(ny), int(nz) });
+
+
+    auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
+    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
+    auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
+
+    // Fill every variable with 42
+    const std::string pythonCode = ""
+        "rho=sin(x)\n"
+        "ux=cos(x)\n"
+        "uy=exp(x)\n"
+        "uz=x\n"
+        "p=y\n";
+        
+
+    PythonInitialData initialData(pythonCode);
+
+    initialData.setInitialData(*volumeConserved,
+        *volumeExtra,
+        *volumePrimitive,
+        *cellComputer,
+        grid);
+
+    volume::for_each_midpoint(*volumePrimitive, grid, [&](real x, real y, real z, size_t index){
+        ASSERT_EQ(std::sin(x), volumePrimitive->getScalarMemoryArea("rho")->getPointer()[index]);
+        ASSERT_EQ(std::cos(x), volumePrimitive->getScalarMemoryArea("ux")->getPointer()[index]);
+        ASSERT_EQ(std::exp(x), volumePrimitive->getScalarMemoryArea("uy")->getPointer()[index]);
+        ASSERT_EQ(x, volumePrimitive->getScalarMemoryArea("uz")->getPointer()[index]);
+        ASSERT_EQ(y, volumePrimitive->getScalarMemoryArea("p")->getPointer()[index]);
+        
+    });
+
+}
