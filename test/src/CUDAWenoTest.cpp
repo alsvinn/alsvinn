@@ -14,9 +14,9 @@ using namespace alsfvm::grid;
 
 class CUDAWenoTest : public ::testing::Test {
 public:
-    const size_t nx = 10;
-    const size_t ny = 10;
-    const size_t nz = 1;
+    size_t nx = 10;
+    size_t ny = 10;
+    size_t nz = 1;
 
     Grid grid;
 
@@ -57,6 +57,16 @@ public:
         simulatorParameters.setEquationParameters(eulerParameters);
     }
 
+    void makeReconstruction(const std::string name, size_t newNx) {
+        nx = newNx;
+        nz = 1;
+        ny = 1;
+        
+        grid = Grid({ 0, 0, 0 }, { 1, 1, 1 }, ivec3(nx, ny, nz));
+
+        makeReconstruction(name);
+    }
+
     void makeReconstruction(const std::string& name) {
         wenoCUDA = reconstructionFactory.createReconstruction(name, "euler", simulatorParameters, memoryFactory, grid, deviceConfiguration);
 
@@ -80,7 +90,7 @@ TEST_F(CUDAWenoTest, ConstantZeroTestSecondOrder) {
 
 	right->copyTo(*rightCPU);
 	left->copyTo(*leftCPU);
-	for_each_internal_volume_index(*left, 0, [&](size_t, size_t middle, size_t) {
+	for_each_internal_volume_index(*leftCPU, 0, [&](size_t, size_t middle, size_t) {
 		ASSERT_EQ(0, leftCPU->getScalarMemoryArea(0)->getPointer()[middle]);
 		ASSERT_EQ(0, leftCPU->getScalarMemoryArea(1)->getPointer()[middle]);
 		ASSERT_EQ(0, leftCPU->getScalarMemoryArea(2)->getPointer()[middle]);
@@ -187,4 +197,57 @@ TEST_F(CUDAWenoTest, ReconstructionSimple) {
 	ASSERT_NEAR(omega0 * right1 + omega1 * right2, rightCPU->getScalarMemoryArea("rho")->getPointer()[2], 1e-8);
 	ASSERT_NEAR(omega0Tilde * left1 + omega1Tilde * left2, leftCPU->getScalarMemoryArea("rho")->getPointer()[2], 1e-8);
 
+}
+
+TEST_F(CUDAWenoTest, SecondOrderTest) {
+    // We test that we actually get second order convergence of 
+    // WENO2. That is, we create a 1 dimensional grid
+    // with values rho[x] = sin(x)
+
+    auto f = [](real x) {
+        return sin(x);
+    };
+
+    // Integral of f / dx
+    // where dx = b - a
+    auto averageIntegralF = [](real a, real b) {
+        return (-cos(b) + cos(a)) / ( b - a);
+    };
+
+    const size_t startK= 5;
+    const size_t endK = 15;
+
+    const real expectedConvergenceRate = 2.8;
+    
+    for (size_t k = startK; k < endK; ++k) {
+        const size_t n = 1 << k;
+        makeReconstruction("weno2", n);
+        const real dx = grid.getCellLengths().x;
+        for_each_internal_volume_index(*conservedCPU, 0, [&](size_t left, size_t middle, size_t right) {
+            const real a = left * dx;
+            const real b = middle * dx;
+
+            conservedCPU->getScalarMemoryArea("rho")->getPointer()[middle] = averageIntegralF(a, b);
+        });
+        conservedCPU->copyTo(*conserved);
+        wenoCUDA->performReconstruction(*conserved, 0, 0, *left, *right);
+
+        left->copyTo(*leftCPU);
+        right->copyTo(*rightCPU);
+
+        real L1Difference = 0.0;
+        for_each_internal_volume_index(*leftCPU, 0, [&](size_t left, size_t middle, size_t right) {
+            const real a = left * dx;
+            const real b = middle * dx;
+
+            const real leftValue = leftCPU->getScalarMemoryArea("rho")->getPointer()[middle];
+
+            L1Difference += std::abs(leftValue - f(a));
+        });
+        L1Difference /= n;
+        ASSERT_GE(std::log2(L1Difference) / std::log2(dx), expectedConvergenceRate)
+            << "Did not achieve required convergence rate. L1 difference is: " << L1Difference
+            << "\nn = " << n << std::endl;
+        
+    }
 }
