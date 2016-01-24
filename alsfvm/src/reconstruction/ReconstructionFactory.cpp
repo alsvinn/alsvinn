@@ -100,12 +100,7 @@ ReconstructionFactory::ReconstructionPtr
 
         }
         else if (name == "weno3") {
-            if (equation == "euler") {
-                reconstructor.reset(new reconstruction::WENOCUDA<equation::euler::Euler, 3>());
-            }
-            else {
-                THROW("We do not support WENOCUDA for equation " << equation);
-            }
+            THROW("We currently do not support WENO3. Use weno2.");
 
         }
         else if (name == "wenof2") {

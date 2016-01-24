@@ -94,29 +94,6 @@ TEST_F(CUDAWenoTest, ConstantZeroTestSecondOrder) {
 		ASSERT_EQ(0, rightCPU->getScalarMemoryArea(4)->getPointer()[middle]);
 	});
 }
-
-TEST_F(CUDAWenoTest, ConstantZeroTestThirdOrder) {
-    makeReconstruction("weno3");
-	wenoCUDA->performReconstruction(*conserved, 0, 0, *left, *right);
-
-	right->copyTo(*rightCPU);
-	left->copyTo(*leftCPU);
-
-	for_each_internal_volume_index(*left, 0, [&](size_t, size_t middle, size_t) {
-		ASSERT_EQ(0, leftCPU->getScalarMemoryArea(0)->getPointer()[middle]);
-		ASSERT_EQ(0, leftCPU->getScalarMemoryArea(1)->getPointer()[middle]);
-		ASSERT_EQ(0, leftCPU->getScalarMemoryArea(2)->getPointer()[middle]);
-		ASSERT_EQ(0, leftCPU->getScalarMemoryArea(3)->getPointer()[middle]);
-		ASSERT_EQ(0, leftCPU->getScalarMemoryArea(4)->getPointer()[middle]);
-
-		ASSERT_EQ(0, rightCPU->getScalarMemoryArea(0)->getPointer()[middle]);
-		ASSERT_EQ(0, rightCPU->getScalarMemoryArea(1)->getPointer()[middle]);
-		ASSERT_EQ(0, rightCPU->getScalarMemoryArea(2)->getPointer()[middle]);
-		ASSERT_EQ(0, rightCPU->getScalarMemoryArea(3)->getPointer()[middle]);
-		ASSERT_EQ(0, rightCPU->getScalarMemoryArea(4)->getPointer()[middle]);
-	});
-}
-
 TEST_F(CUDAWenoTest, ConstantOneTestSecondOrder) {
     makeReconstruction("weno2");
 	for_each_cell_index(*conservedCPU, [&](size_t index) {
@@ -151,41 +128,6 @@ TEST_F(CUDAWenoTest, ConstantOneTestSecondOrder) {
 	});
 }
 
-TEST_F(CUDAWenoTest, ConstantOneTestThirdOrder) {
-    makeReconstruction("weno2");
-
-	
-	for_each_cell_index(*conservedCPU, [&](size_t index) {
-		conservedCPU->getScalarMemoryArea("rho")->getPointer()[index] = 1;
-		conservedCPU->getScalarMemoryArea("mx")->getPointer()[index] = 1;
-		conservedCPU->getScalarMemoryArea("my")->getPointer()[index] = 1;
-		conservedCPU->getScalarMemoryArea("mz")->getPointer()[index] = 1;
-		conservedCPU->getScalarMemoryArea("E")->getPointer()[index] = 10;
-
-	});
-
-	conservedCPU->copyTo(*conserved);
-
-
-	wenoCUDA->performReconstruction(*conserved, 0, 0, *left, *right);
-
-	left->copyTo(*leftCPU);
-	right->copyTo(*rightCPU);
-
-	for_each_internal_volume_index(*left, 0, [&](size_t, size_t middle, size_t) {
-		ASSERT_NEAR(1, leftCPU->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-		ASSERT_NEAR(1, leftCPU->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
-		ASSERT_NEAR(1, leftCPU->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
-		ASSERT_NEAR(1, leftCPU->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
-		ASSERT_NEAR(10, leftCPU->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
-
-		ASSERT_NEAR(1, rightCPU->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-		ASSERT_NEAR(1, rightCPU->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
-		ASSERT_NEAR(1, rightCPU->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
-		ASSERT_NEAR(1, rightCPU->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
-		ASSERT_NEAR(10, rightCPU->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
-	});
-}
 
 TEST_F(CUDAWenoTest, ReconstructionSimple) {
 	makeReconstruction("weno2");
