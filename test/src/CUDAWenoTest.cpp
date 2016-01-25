@@ -235,19 +235,29 @@ TEST_F(CUDAWenoTest, SecondOrderTest) {
         left->copyTo(*leftCPU);
         right->copyTo(*rightCPU);
 
-        real L1Difference = 0.0;
+        real L1DifferenceLeft = 0.0;
+        real L1DifferenceRight = 0.0;
         for_each_internal_volume_index(*leftCPU, 0, [&](size_t left, size_t middle, size_t right) {
             const real a = left * dx;
             const real b = middle * dx;
 
             const real leftValue = leftCPU->getScalarMemoryArea("rho")->getPointer()[middle];
+            const real rightValue = rightCPU->getScalarMemoryArea("rho")->getPointer()[middle];
 
-            L1Difference += std::abs(leftValue - f(a));
+
+
+            L1DifferenceLeft += std::abs(leftValue - f(a));
+            L1DifferenceRight += std::abs(rightValue - f(b));
         });
-        L1Difference /= n;
-        ASSERT_GE(std::log2(L1Difference) / std::log2(dx), expectedConvergenceRate)
-            << "Did not achieve required convergence rate. L1 difference is: " << L1Difference
+        L1DifferenceLeft /= n;
+        ASSERT_GE(std::log2(L1DifferenceLeft) / std::log2(dx), expectedConvergenceRate)
+            << "Did not achieve required convergence rate (left side). L1 difference is: " << L1DifferenceLeft
             << "\nn = " << n << std::endl;
-        
+
+        L1DifferenceRight /= n;
+        ASSERT_GE(std::log2(L1DifferenceRight) / std::log2(dx), expectedConvergenceRate)
+            << "Did not achieve required convergence rate (right side). L1 difference is: " << L1DifferenceRight
+            << "\nn = " << n << std::endl;
+
     }
 }
