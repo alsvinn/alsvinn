@@ -22,7 +22,8 @@ namespace alsfvm { namespace boundary {
 			// index = z * nx * ny + y * nx + x;
 			const size_t xInternalFormat = xDir ? 0 : index % numberOfXCells;
 			const size_t yInternalFormat = yDir ? 0 : (index / numberOfXCells) % numberOfYCells;
-			const size_t zInternalFormat = zDir ? 0 : min((index) / (numberOfXCells * numberOfYCells), numberOfZCells - 1);
+			const size_t zInternalFormat = zDir ? 0 : min(int((index) / (numberOfXCells * numberOfYCells)),
+			int(numberOfZCells - 1));
 			
 
 			const size_t x = xInternalFormat + xDir * (numberOfGhostCells + internalNumberOfXCells * top);
@@ -96,7 +97,7 @@ namespace alsfvm { namespace boundary {
 	void BoundaryCUDA < BoundaryConditions > :: applyBoundaryConditions(volume::Volume& volume,
 		const grid::Grid& grid) {
 		for (size_t var = 0; var < volume.getNumberOfVariables(); ++var) {
-			auto memoryArea = volume.getScalarMemoryArea(var)->getView();
+			memory::View<real> memoryArea = volume.getScalarMemoryArea(var)->getView();
 			callApplyBoundaryConditions<BoundaryConditions>(memoryArea, numberOfGhostCells);
 		}
 	}

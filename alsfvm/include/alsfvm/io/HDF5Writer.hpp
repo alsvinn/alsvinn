@@ -46,6 +46,8 @@ protected:
 	///
 	void writeGrid(hid_t object, const grid::Grid& grid);
 
+    void writeTimeGroup(hid_t object, const simulator::TimestepInformation& timestepInformation);
+
     ///
     /// \brief writeVolume takes each variable of the volume and writes it
     /// \param volume the volume to read from

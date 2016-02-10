@@ -4,7 +4,10 @@
 #include <cassert>
 #include "alsfvm/io/hdf5_utils.hpp"
 
+#include <mutex>
 
+// It seems like HDF5 doesn't like to be accessed from different threads...
+static std::mutex mutex;
 namespace alsfvm {
 namespace io {
 
@@ -19,6 +22,9 @@ void HDF5Writer::write(const volume::Volume &conservedVariables,
 					   const grid::Grid& grid,
                        const simulator::TimestepInformation &timestepInformation)
 {
+
+    // for hdf5, often the version we use is not thread safe.
+    std::unique_lock<std::mutex> lock(mutex);
     std::string name = getOutputname(basefileName, snapshotNumber);
     std::string h5name = name + std::string(".h5");
     HDF5Resource file(H5Fcreate(h5name.c_str(),
@@ -58,7 +64,12 @@ void HDF5Writer::writeGrid(hid_t object, const grid::Grid& grid) {
 		grid.getOrigin().convert<float>().toStdVector());
 	writeFloats(gridGroup.hid(), "vsUpperBounds", 
 		grid.getTop().convert<float>().toStdVector());
-	
+    
+}
+
+void HDF5Writer::writeTimeGroup(hid_t object, const simulator::TimestepInformation &timestepInformation)
+{
+    
 }
 
 void HDF5Writer::writeVolume(const volume::Volume &volume, hid_t file)
@@ -124,13 +135,15 @@ void HDF5Writer::writeMemory(const volume::Volume& volume, size_t index,
 
 
     // Here we only support double writing at the moment
-    static_assert(std::is_same<real, double>::value, "HDF5 only supports double for now");
+    //static_assert(std::is_same<real, double>::value, "HDF5 only supports double for now");
 
     
 
 
-    std::vector<real> data(volume.getNumberOfXCells() * volume.getNumberOfYCells() * volume.getNumberOfZCells());
-    volume.copyInternalCells(index, data.data(), data.size());
+    std::vector<real> dataTmp(volume.getNumberOfXCells() * volume.getNumberOfYCells() * volume.getNumberOfZCells());
+    volume.copyInternalCells(index, dataTmp.data(), dataTmp.size());
+	std::vector<double> data(volume.getNumberOfXCells() * volume.getNumberOfYCells() * volume.getNumberOfZCells());
+	std::copy(dataTmp.begin(), dataTmp.end(), data.begin());
     // Then we write the data as we normally would.
     HDF5_SAFE_CALL(H5Dwrite(dataset.hid(), H5T_NATIVE_DOUBLE,
                 memspace.hid(), filespace.hid(), H5P_DEFAULT,

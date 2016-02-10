@@ -1,26 +1,29 @@
 <fvm>
-  <name>
-    riemann
-  </name>
-  <platform>cpu</platform>
-  <grid>
-    <lowerCorner>0 0 0</lowerCorner>
-    <upperCorner>1 1 0</upperCorner>
-    <dimension>1024 1024 1</dimension>
-  </grid>
-  <boundary>neumann</boundary>
-  <flux>HLL3</flux>
-  <endTime>0.35</endTime>
-  <equation>euler</equation>
-  <reconstruction>none</reconstruction>
-  <cfl>auto</cfl>
-  <integrator>auto</integrator>
-  <initialData>
-    <python>shockvortex.py</python>
-  </initialData>
-  <writer>
-    <type>hdf5</type>
-    <basename>shockvortex</basename>
-    <numberOfSaves>10</numberOfSaves>
-  </writer>
+    <name>
+        riemann
+    </name>
+    <platform>cpu</platform>
+    <grid>
+        <lowerCorner>0 0 0</lowerCorner>
+        <upperCorner>1 1 0</upperCorner>
+        <dimension>128 128 1</dimension>
+    </grid>
+    <boundary>neumann</boundary>
+    <flux>HLL3</flux>
+    <endTime>0.0035</endTime>
+    <equation>euler</equation>
+    <equationParameters>
+        <gamma>1.66666666666667</gamma>
+    </equationParameters>
+    <reconstruction>weno2</reconstruction>
+    <cfl>auto</cfl>
+    <integrator>auto</integrator>
+    <initialData>
+        <python>shockvortex.py</python>
+    </initialData>
+    <writer>
+        <type>hdf5</type>
+        <basename>shockvortex</basename>
+        <numberOfSaves>10</numberOfSaves>
+    </writer>
 </fvm>

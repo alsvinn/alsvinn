@@ -5,6 +5,7 @@
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/reconstruction/WENOCoefficients.hpp"
+#include "alsfvm/reconstruction/ReconstructionFactory.hpp"
 
 using namespace alsfvm;
 using namespace alsfvm::memory;
@@ -15,21 +16,27 @@ using namespace alsfvm::grid;
 TEST(WenoTest, ConstantZeroTestSecondOrder) {
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
-    WENOCPU<2> wenoCPU;
+    ReconstructionFactory reconstructionFactory;
+    grid::Grid grid(rvec3(0,0,0), rvec3(1,1,1), ivec3(nx, ny, nz));
+    simulator::SimulatorParameters parameters;
+    parameters.setEquationParameters(alsfvm::dynamic_pointer_cast<equation::EquationParameters>(
+                                         alsfvm::make_shared<equation::euler::EulerParameters>()));
+    auto wenoCPU = reconstructionFactory.createReconstruction("weno2", "euler", parameters, memoryFactory,  grid, deviceConfiguration);
 
-    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
-    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
+
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
 
     conserved->makeZero();
 
     
 
-    wenoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
+    wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
 
     for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
         ASSERT_EQ(0, left->getScalarMemoryArea(0)->getPointer()[middle]);
@@ -49,21 +56,25 @@ TEST(WenoTest, ConstantZeroTestSecondOrder) {
 TEST(WenoTest, ConstantZeroTestThirdOrder) {
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
-    WENOCPU<3> wenoCPU;
-
-    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
-    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
+    ReconstructionFactory reconstructionFactory;
+    grid::Grid grid(rvec3(0,0,0), rvec3(1,1,1), ivec3(nx, ny, nz));
+    simulator::SimulatorParameters parameters;
+    parameters.setEquationParameters(alsfvm::dynamic_pointer_cast<equation::EquationParameters>(
+                                         alsfvm::make_shared<equation::euler::EulerParameters>()));
+    auto wenoCPU = reconstructionFactory.createReconstruction("weno2", "euler", parameters, memoryFactory,  grid, deviceConfiguration);
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
 
     conserved->makeZero();
 
 
 
-    wenoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
+    wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
 
     for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
         ASSERT_EQ(0, left->getScalarMemoryArea(0)->getPointer()[middle]);
@@ -84,14 +95,19 @@ TEST(WenoTest, ConstantOneTestSecondOrder) {
 
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
-    WENOCPU<2> wenoCPU;
-    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
-    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
+    ReconstructionFactory reconstructionFactory;
+    grid::Grid grid(rvec3(0,0,0), rvec3(1,1,1), ivec3(nx, ny, nz));
+    simulator::SimulatorParameters parameters;
+    parameters.setEquationParameters(alsfvm::dynamic_pointer_cast<equation::EquationParameters>(
+                                         alsfvm::make_shared<equation::euler::EulerParameters>()));
+    auto wenoCPU = reconstructionFactory.createReconstruction("weno2", "euler", parameters, memoryFactory,  grid, deviceConfiguration);
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
 
     for_each_cell_index(*conserved, [&] (size_t index) {
         conserved->getScalarMemoryArea("rho")->getPointer()[index] = 1;
@@ -103,7 +119,7 @@ TEST(WenoTest, ConstantOneTestSecondOrder) {
     });
   
 
-    wenoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
+    wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
 
     for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
         ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle] , 1e-8);
@@ -124,14 +140,19 @@ TEST(WenoTest, ConstantOneTestThirdOrder) {
 
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
-    WENOCPU<3> wenoCPU;
-    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
-    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
+    ReconstructionFactory reconstructionFactory;
+    grid::Grid grid(rvec3(0,0,0), rvec3(1,1,1), ivec3(nx, ny, nz));
+    simulator::SimulatorParameters parameters;
+    parameters.setEquationParameters(alsfvm::dynamic_pointer_cast<equation::EquationParameters>(
+                                         alsfvm::make_shared<equation::euler::EulerParameters>()));
+    auto wenoCPU = reconstructionFactory.createReconstruction("weno2", "euler", parameters, memoryFactory,  grid, deviceConfiguration);
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
 
     for_each_cell_index(*conserved, [&] (size_t index) {
         conserved->getScalarMemoryArea("rho")->getPointer()[index] = 1;
@@ -143,7 +164,7 @@ TEST(WenoTest, ConstantOneTestThirdOrder) {
     });
 
 
-    wenoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
+    wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
 
     for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
         ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle] , 1e-8);
@@ -163,14 +184,19 @@ TEST(WenoTest, ConstantOneTestThirdOrder) {
 TEST(WenoTest, ReconstructionSimple) {
     const size_t nx = 10, ny = 1, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
-    WENOCPU<2> wenoCPU;
-    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
-    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
+    ReconstructionFactory reconstructionFactory;
+    grid::Grid grid(rvec3(0,0,0), rvec3(1,1,1), ivec3(nx, ny, nz));
+    simulator::SimulatorParameters parameters;
+    parameters.setEquationParameters(alsfvm::dynamic_pointer_cast<equation::EquationParameters>(
+                                         alsfvm::make_shared<equation::euler::EulerParameters>()));
+    auto wenoCPU = reconstructionFactory.createReconstruction("weno2", "euler", parameters, memoryFactory,  grid, deviceConfiguration);
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
     for_each_cell_index(*conserved, [&] (size_t index) {
         // fill some dummy data
         conserved->getScalarMemoryArea("rho")->getPointer()[index] = 1;
@@ -186,7 +212,7 @@ TEST(WenoTest, ReconstructionSimple) {
     conserved->getScalarMemoryArea("rho")->getPointer()[2] = 0;
     conserved->getScalarMemoryArea("rho")->getPointer()[3] = 1;
 
-    wenoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
+    wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
 
     const real epsilon = WENOCoefficients<2>::epsilon;
     const real right1 = 0.5;
@@ -198,8 +224,8 @@ TEST(WenoTest, ReconstructionSimple) {
     const real d0 = 2.0/3.0;
     const real d1 = 1.0/3.0;
 
-    const real beta0 = 4.0;
-    const real beta1 = 1.0;
+    const real beta0 = 1.0;
+    const real beta1 = 4.0;
 
     const real alpha0 = d0 / pow(beta0 + epsilon, 2);
     const real alpha1 = d1 / pow(beta1 + epsilon, 2);
@@ -225,14 +251,19 @@ TEST(WenoTest, ReconstructionSimple) {
 TEST(WenoTest, ReconstructionSimpleYDirection) {
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
-    WENOCPU<2> wenoCPU;
-    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
-    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU.getNumberOfGhostCells());
+    ReconstructionFactory reconstructionFactory;
+    grid::Grid grid(rvec3(0,0,0), rvec3(1,1,1), ivec3(nx, ny, nz));
+    simulator::SimulatorParameters parameters;
+    parameters.setEquationParameters(alsfvm::dynamic_pointer_cast<equation::EquationParameters>(
+                                         alsfvm::make_shared<equation::euler::EulerParameters>()));
+    auto wenoCPU = reconstructionFactory.createReconstruction("weno2", "euler", parameters, memoryFactory,  grid, deviceConfiguration);
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCPU->getNumberOfGhostCells());
     for_each_cell_index(*conserved, [&] (size_t index) {
         // fill some dummy data
         conserved->getScalarMemoryArea("rho")->getPointer()[index] = 1;
@@ -243,13 +274,13 @@ TEST(WenoTest, ReconstructionSimpleYDirection) {
 
     });
 
-    const size_t totalNx = nx + 2 * wenoCPU.getNumberOfGhostCells();
+    const size_t totalNx = nx + 2 * wenoCPU->getNumberOfGhostCells();
     // This is the main ingredient:
     conserved->getScalarMemoryArea("rho")->getPointer()[3+1 * totalNx] = 2;
     conserved->getScalarMemoryArea("rho")->getPointer()[3+2 * totalNx] = 0;
     conserved->getScalarMemoryArea("rho")->getPointer()[3+3 * totalNx] = 1;
 
-    wenoCPU.performReconstruction(*conserved, 1, 0, *left, *right);
+    wenoCPU->performReconstruction(*conserved, 1, 0, *left, *right);
 
     const real epsilon = WENOCoefficients<2>::epsilon;
     const real right1 = 0.5;
@@ -261,8 +292,8 @@ TEST(WenoTest, ReconstructionSimpleYDirection) {
     const real d0 = 2.0/3.0;
     const real d1 = 1.0/3.0;
 
-    const real beta0 = 4.0;
-    const real beta1 = 1.0;
+    const real beta0 = 1.0;
+    const real beta1 = 4.0;
 
     const real alpha0 = d0 / pow(beta0 + epsilon, 2);
     const real alpha1 = d1 / pow(beta1 + epsilon, 2);

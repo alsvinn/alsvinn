@@ -5,25 +5,27 @@
 namespace alsfvm { namespace simulator {
 
 Simulator::Simulator(const SimulatorParameters& simulatorParameters,
-                     std::shared_ptr<grid::Grid> & grid,
+                     alsfvm::shared_ptr<grid::Grid> & grid,
                      volume::VolumeFactory &volumeFactory,
                      integrator::IntegratorFactory &integratorFactory,
                      boundary::BoundaryFactory &boundaryFactory,
                      numflux::NumericalFluxFactory &numericalFluxFactory,
                      equation::CellComputerFactory &cellComputerFactory,
-                     std::shared_ptr<memory::MemoryFactory>& memoryFactory,
-                     std::shared_ptr<init::InitialData>& initialData,
+                     alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+                     alsfvm::shared_ptr<init::InitialData>& initialData,
                      real endTime,
-					 std::shared_ptr<DeviceConfiguration>& deviceConfiguration,
+					 alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
 					 std::string& equationName)
-    : cflNumber(simulatorParameters.getCFLNumber()),
-      grid(grid),
+    :      grid(grid),
       numericalFlux(numericalFluxFactory.createNumericalFlux(*grid)),
       integrator(integratorFactory.createIntegrator(numericalFlux)),
       boundary(boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells())),
       cellComputer(cellComputerFactory.createComputer()),
       initialData(initialData),
-      endTime(endTime)
+      cflNumber(simulatorParameters.getCFLNumber()),
+      endTime(endTime),
+      equationName(equationName),
+      platformName(deviceConfiguration->getPlatform())
 {
     const size_t nx = grid->getDimensions().x;
     const size_t ny = grid->getDimensions().y;
@@ -43,8 +45,8 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
 	// Here we will create the volumes on the CPU, initialize the data on the 
 	// cpu, then copy it to the GPU
 	if (deviceConfiguration->getPlatform() == "cuda") {
-		auto deviceConfigurationCPU = std::make_shared<DeviceConfiguration>("cpu");
-		auto memoryFactoryCPU = std::make_shared<memory::MemoryFactory>(deviceConfigurationCPU);
+		auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
+		auto memoryFactoryCPU = alsfvm::make_shared<memory::MemoryFactory>(deviceConfigurationCPU);
 		volume::VolumeFactory volumeFactoryCPU(equationName, memoryFactoryCPU);
 		auto primitiveVolume = volumeFactoryCPU.createPrimitiveVolume(nx, ny, nz,
 			numericalFlux->getNumberOfGhostCells());
@@ -53,7 +55,9 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
 		auto extraVolumeCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz,
 			numericalFlux->getNumberOfGhostCells());
 
-		equation::CellComputerFactory cellComputerFactoryCPU(deviceConfigurationCPU->getPlatform(), equationName, deviceConfigurationCPU);
+        auto simulatorParametersCPU = alsfvm::make_shared<SimulatorParameters>(simulatorParameters);
+        simulatorParametersCPU->setPlatform("cpu");
+        equation::CellComputerFactory cellComputerFactoryCPU(simulatorParametersCPU, deviceConfigurationCPU);
 		auto cellComputerCPU = cellComputerFactoryCPU.createComputer();
 		initialData->setInitialData(*conservedVolumeCPU, *extraVolumeCPU, *primitiveVolume, *cellComputerCPU, *grid);
 		
@@ -85,9 +89,14 @@ void Simulator::performStep()
     callWriters();
 }
 
-void Simulator::addWriter(std::shared_ptr<io::Writer> &writer)
+void Simulator::addWriter(alsfvm::shared_ptr<io::Writer> &writer)
 {
     writers.push_back(writer);
+}
+
+void Simulator::addTimestepAdjuster(alsfvm::shared_ptr<integrator::TimestepAdjuster> &adjuster)
+{
+    integrator->addTimestepAdjuster(adjuster);
 }
 
 real Simulator::getCurrentTime() const
@@ -98,6 +107,22 @@ real Simulator::getCurrentTime() const
 real Simulator::getEndTime() const
 {
     return endTime;
+}
+
+void Simulator::setSimulationState(const volume::Volume &conservedVolume)
+{
+    conservedVolumes[0]->setVolume(conservedVolume);
+    boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
+}
+
+std::string Simulator::getPlatformName() const
+{
+    return platformName;
+}
+
+std::string Simulator::getEquationName() const
+{
+    return equationName;
 }
 
 void Simulator::callWriters()
@@ -142,10 +167,10 @@ void Simulator::checkConstraints()
 
 void Simulator::incrementSolution()
 {
-    const real dt = computeTimestep();
+	real dt = 0;
     for (size_t substep = 0; substep < integrator->getNumberOfSubsteps(); ++substep) {
         auto& conservedNext = conservedVolumes[substep + 1];
-        integrator->performSubstep(conservedVolumes, grid->getCellLengths(), dt, *conservedNext, 0);
+        dt = integrator->performSubstep(conservedVolumes, grid->getCellLengths(), dt, cflNumber, *conservedNext, substep, timestepInformation);
         boundary->applyBoundaryConditions(*conservedNext, *grid);
     }
     conservedVolumes[0].swap(conservedVolumes.back());

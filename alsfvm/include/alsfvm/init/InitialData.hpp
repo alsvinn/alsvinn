@@ -6,7 +6,7 @@ namespace alsfvm { namespace init {
 
     class InitialData {
     public:
-
+        virtual ~InitialData() {}
         ///
         /// \brief setInitialData sets the initial data
         /// \param conservedVolume conserved volume to fill

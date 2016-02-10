@@ -12,16 +12,16 @@ using namespace alsfvm::volume;
 
 class VolumeForEachTest : public ::testing::Test {
 public:
-	std::shared_ptr<DeviceConfiguration> deviceConfiguration;
+	alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
 	const std::string equation;
 	const std::string platform;
 	const size_t nx;
 	const size_t ny;
 	const size_t nz;
-	std::shared_ptr<MemoryFactory> memoryFactory;
+	alsfvm::shared_ptr<MemoryFactory> memoryFactory;
 	VolumeFactory volumeFactory;
-	std::shared_ptr<Volume> conservedVolume;
-	std::shared_ptr<Volume> extraVolume;
+	alsfvm::shared_ptr<Volume> conservedVolume;
+	alsfvm::shared_ptr<Volume> extraVolume;
 
 	VolumeForEachTest()
 		: deviceConfiguration(new DeviceConfiguration("cpu")),

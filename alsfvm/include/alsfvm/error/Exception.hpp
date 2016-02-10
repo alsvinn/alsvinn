@@ -1,7 +1,8 @@
 #pragma once
-
+#include "alsfvm/types.hpp"
 #include <sstream>
 #include <exception>
+#include <stdexcept>
 #include <boost/current_function.hpp>
 
 /// 

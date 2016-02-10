@@ -4,6 +4,7 @@ namespace alsfvm { namespace reconstruction {
 
     class Reconstruction {
     public:
+        virtual ~Reconstruction() {}
         ///
         /// Performs reconstruction.
         /// \param[in] inputVariables the variables to reconstruct.

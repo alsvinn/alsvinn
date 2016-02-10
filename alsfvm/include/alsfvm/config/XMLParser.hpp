@@ -1,4 +1,5 @@
 #pragma once
+#include "alsfvm/types.hpp"
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
 

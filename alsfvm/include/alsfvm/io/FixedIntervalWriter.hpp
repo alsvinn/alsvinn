@@ -1,5 +1,6 @@
 #pragma once
 #include "alsfvm/io/Writer.hpp"
+#include "alsfvm/integrator/TimestepAdjuster.hpp"
 
 #include <memory>
 
@@ -11,7 +12,7 @@ namespace alsfvm { namespace io {
 ///
 /// This class is useful if you only want to save every x seconds of simulation.
 ///
-class FixedIntervalWriter : public Writer
+class FixedIntervalWriter : public Writer, public integrator::TimestepAdjuster
 {
 public:
     ///
@@ -19,7 +20,7 @@ public:
     /// \param timeInterval the time interval (will save for every time n*timeInterval)
     /// \param endTime the final time for the simulation.
     ///
-    FixedIntervalWriter(std::shared_ptr<Writer>& writer, real timeInterval, real endTime);
+    FixedIntervalWriter(alsfvm::shared_ptr<Writer>& writer, real timeInterval, real endTime);
 
     virtual ~FixedIntervalWriter() {}
     ///
@@ -34,8 +35,10 @@ public:
                        const grid::Grid& grid,
                        const simulator::TimestepInformation& timestepInformation);
 
+    virtual real adjustTimestep(real dt, const simulator::TimestepInformation &timestepInformation) const;
+
 private:
-    std::shared_ptr<Writer> writer;
+    alsfvm::shared_ptr<Writer> writer;
     const real timeInterval;
     const real endTime;
     size_t numberSaved;

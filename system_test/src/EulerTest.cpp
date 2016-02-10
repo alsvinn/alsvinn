@@ -42,14 +42,15 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     const real saveInterval = T / numberOfSaves;
     Grid grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(N, N, 1));
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>("cpu");
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>("cpu");
 
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
 
-    NumericalFluxFactory fluxFactory("euler", "HLL", reconstruction, deviceConfiguration);
-    CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
+    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler", "cpu");
+    NumericalFluxFactory fluxFactory("euler", "HLL", reconstruction, simulatorParameters, deviceConfiguration);
+    CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
     BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
 
 
@@ -59,7 +60,7 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     integrator::IntegratorFactory integratorFactory(integratorName);
     auto integrator = integratorFactory.createIntegrator(numericalFlux);
 
-    std::vector<std::shared_ptr<volume::Volume> > conservedVolumes(integrator->getNumberOfSubsteps() + 1);
+    std::vector<alsfvm::shared_ptr<volume::Volume> > conservedVolumes(integrator->getNumberOfSubsteps() + 1);
 
     for(size_t i = 0; i < conservedVolumes.size(); i++) {
         conservedVolumes[i] = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
@@ -90,73 +91,15 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extra1);
     ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolumes[0], *extra1));
 
-    auto left = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
-
-    left->makeZero();
-    right->makeZero();
-    alsfvm::reconstruction::ENOCPU<2> eno(memoryFactory, N, N, 1);
-    alsfvm::reconstruction::WENOCPU<2> weno;
-
-    eno.performReconstruction(*conservedVolumes[0], 1, 0, *left, *right);
-    writer.write(*left, *extra1, grid, simulator::TimestepInformation());
-    writer.write(*right, *extra1, grid, simulator::TimestepInformation());
-    auto fluxOutput = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
-
     writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
-
-
-    while (t < T) {
-
-
-
-#if 1
-        const real waveSpeedX = cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extra1, 0);
-        const real waveSpeedY = cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extra1, 1);
-#else
-        eno.performReconstruction(*conservedVolumes[0], 0, 0, *left, *right);
-        cellComputer->computeExtraVariables(*left, *extra1);
-        real waveSpeedX = cellComputer->computeMaxWaveSpeed(*left, *extra1, 0);
-        real waveSpeedY = cellComputer->computeMaxWaveSpeed(*left, *extra1, 1);
-
-        cellComputer->computeExtraVariables(*right, *extra1);
-        waveSpeedX = std::max(waveSpeedX, cellComputer->computeMaxWaveSpeed(*right, *extra1, 0));
-        waveSpeedY = std::max(waveSpeedY, cellComputer->computeMaxWaveSpeed(*right, *extra1, 1));
-
-
-        eno.performReconstruction(*conservedVolumes[0], 1, 0, *left, *right);
-        cellComputer->computeExtraVariables(*left, *extra1);
-        waveSpeedX = std::max(waveSpeedX, cellComputer->computeMaxWaveSpeed(*left, *extra1, 0));
-        waveSpeedY = std::max(waveSpeedY, cellComputer->computeMaxWaveSpeed(*left, *extra1, 1));
-
-        cellComputer->computeExtraVariables(*right, *extra1);
-        waveSpeedX = std::max(waveSpeedX, cellComputer->computeMaxWaveSpeed(*right, *extra1, 0));
-        waveSpeedY = std::max(waveSpeedY, cellComputer->computeMaxWaveSpeed(*right, *extra1, 1));
-
-#endif
-
-        real dt = cfl /( waveSpeedX / grid.getCellLengths().x  + waveSpeedY / grid.getCellLengths().y);
-
-        if (t + dt >=  nsaves * saveInterval) {
-            dt = nsaves * saveInterval - t;
-        }
-        if (t==0) {
-            boundary->applyBoundaryConditions(*conservedVolumes[0], grid);
-            std::cout << std::setprecision(std::numeric_limits<long double>::digits10 + 1)<< "dt/dx = "  << dt/(grid.getCellLengths().x) << std::endl;
-            std::cout << "dt = " << dt << std::endl;
-            std::cout << "dx = " << grid.getCellLengths().x << std::endl;
-            std::cout << "dy = " << grid.getCellLengths().y << std::endl;
-            numericalFlux->computeFlux(*conservedVolumes[0], rvec3(dt/(1.0/N), dt/(1.0/N), dt/(1.0/N)), *fluxOutput);
-            writer.write(*fluxOutput, *extra1, grid, simulator::TimestepInformation());
-        }
-
-
-        t += dt;
+    simulator::TimestepInformation timestepInformation;
+    while (timestepInformation.getCurrentTime() < T) {
+		real dt = 0;
         numberOfTimesteps++;
         for(size_t substep = 0; substep < integrator->getNumberOfSubsteps(); substep++) {
             auto conservedNext = conservedVolumes[substep + 1];
 
-            integrator->performSubstep(conservedVolumes, grid.getCellLengths(), dt, *conservedNext, 0);
+            dt = integrator->performSubstep(conservedVolumes, grid.getCellLengths(), dt, cfl, *conservedNext, substep, timestepInformation);
 
             std::array<real*, 5> conservedPointers = {
                 conservedNext->getScalarMemoryArea(0)->getPointer(),
@@ -176,7 +119,6 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
             boundary->applyBoundaryConditions(*conservedNext, grid);
 
-#if 0
             cellComputer->computeExtraVariables(*conservedNext, *extra1);
 
             // Intense error checking below. We basically check that the output is sane,
@@ -218,7 +160,6 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
 
             ASSERT_TRUE(cellComputer->obeysConstraints(*conservedNext, *extra1));
-#endif
 
 
 
@@ -237,6 +178,8 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
             writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
         }
 
+        timestepInformation.incrementTime(dt);
+
 
     }
 
@@ -244,7 +187,8 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
 }
 TEST(EulerTest, ShockTubeTest) {
-	runTest([](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
+    equation::euler::EulerParameters parameters;
+    runTest([&](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
 
 		if (x < 0.04) {
 			u.rho = 3.86859;
@@ -264,26 +208,27 @@ TEST(EulerTest, ShockTubeTest) {
 			v.p = 1.0;
 		}
 		u.m = u.rho * v.u;
-		u.E = v.p / (GAMMA - 1) + 0.5*u.rho*v.u.dot(v.u);
+        u.E = v.p / (parameters.getGamma() - 1) + 0.5*u.rho*v.u.dot(v.u);
     }, 128, "none", 0.06, "euler_shocktube");
 }
 
 TEST(EulerTest, ShockVortex) {
-    runTest([](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
-		real epsilon = 0.3, r_c = 0.05, alpha = 0.204, x_c = 0.25, y_c = 0.5, M = 1.1;
+    equation::euler::EulerParameters parameters;
+    runTest([&](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
+        real epsilon = 0.3, r_c = 0.05, alpha = 0.204, x_c = 0.25, y_c = 0.5;
 
 		// shock part
 		if (x < 0.5) {
 			u.rho = 1.0;
-			v.u.x = sqrt(GAMMA);
+            v.u.x = sqrt(parameters.getGamma());
 			v.u.y = 0.0;
 			v.p = 1.0;
 		}
 		else {
 			u.rho = 1.0 / 1.1;
-			v.u.x = 1.1 * sqrt(GAMMA);
+            v.u.x = 1.1 * sqrt(parameters.getGamma());
 			v.u.y = 0.0;
-			v.p = 1 - 0.1 * GAMMA;
+            v.p = 1 - 0.1 * parameters.getGamma();
 		}
 
 		// vortex part
@@ -294,10 +239,10 @@ TEST(EulerTest, ShockVortex) {
 
 			v.u.x += epsilon * tau * exp(alpha*(1 - pow(tau, 2))) * sin_theta;
 			v.u.y += -epsilon * tau * exp(alpha*(1 - pow(tau, 2))) * cos_theta;
-			v.p += -(GAMMA - 1) * pow(epsilon, 2) * exp(2 * alpha*(1 - pow(tau, 2))) / (4 * alpha * GAMMA) * u.rho;
+            v.p += -(parameters.getGamma() - 1) * pow(epsilon, 2) * exp(2 * alpha*(1 - pow(tau, 2))) / (4 * alpha * parameters.getGamma()) * u.rho;
 		}
 		u.m = u.rho * v.u;
-		u.E = v.p / (GAMMA - 1) + 0.5*u.rho*v.u.dot(v.u);
+        u.E = v.p / (parameters.getGamma() - 1) + 0.5*u.rho*v.u.dot(v.u);
 
-    }, 256, "none", 0.35, "euler_vortex");
+    }, 256, "eno2", 0.35, "euler_vortex");
 }

@@ -4,7 +4,7 @@ namespace alsfvm {
 namespace simulator {
 
 TimestepInformation::TimestepInformation()
-    : numberOfStepsPerformed(0), currentTime(0)
+    : currentTime(0), numberOfStepsPerformed(0)
 {
 
 }

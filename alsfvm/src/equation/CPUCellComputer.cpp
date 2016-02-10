@@ -4,16 +4,24 @@
 namespace alsfvm { namespace equation {
 
 template<class Equation>
+CPUCellComputer<Equation>::CPUCellComputer(simulator::SimulatorParameters &parameters)
+    : parameters(static_cast<typename Equation::Parameters&>(parameters.getEquationParameters()))
+{
+
+}
+
+template<class Equation>
 void CPUCellComputer<Equation>::computeExtraVariables(const volume::Volume &conservedVariables,
                                                       volume::Volume &extraVariables)
 {
+    Equation eq(parameters);
     volume::transform_volume<typename Equation::ConservedVariables,
             typename Equation::ExtraVariables>(
                 conservedVariables, extraVariables,
-                             [](const typename Equation::ConservedVariables& in)
+                             [&](const typename Equation::ConservedVariables& in)
                                 -> typename Equation::ExtraVariables
     {
-        return Equation::computeExtra(in);
+        return eq.computeExtra(in);
     });
 }
 
@@ -21,19 +29,20 @@ void CPUCellComputer<Equation>::computeExtraVariables(const volume::Volume &cons
 template<class Equation>
 real CPUCellComputer<Equation>::computeMaxWaveSpeed(const volume::Volume& conservedVariables,
     const volume::Volume& extraVariables, size_t direction) {
+    Equation eq(parameters);
 	real maxWaveSpeed = 0;
     assert(direction < 3);
 	volume::for_each_cell<typename Equation::ConservedVariables,
-        typename Equation::ExtraVariables>(conservedVariables, extraVariables, [&maxWaveSpeed, direction](const euler::ConservedVariables& conserved,
+        typename Equation::ExtraVariables>(conservedVariables, extraVariables, [&maxWaveSpeed, direction,&eq](const euler::ConservedVariables& conserved,
 		const euler::ExtraVariables& extra, size_t index) {
         if (direction == 0) {
-            const real waveSpeedX = Equation::template computeWaveSpeed<0>(conserved, extra);
+            const real waveSpeedX = eq.template computeWaveSpeed<0>(conserved, extra);
             maxWaveSpeed = std::max(maxWaveSpeed, waveSpeedX);
         } else if(direction == 1) {
-            const real waveSpeedY = Equation::template computeWaveSpeed<1>(conserved, extra);
+            const real waveSpeedY = eq.template computeWaveSpeed<1>(conserved, extra);
             maxWaveSpeed = std::max(maxWaveSpeed, waveSpeedY);
         }    else if(direction == 2) {
-            const real waveSpeedZ = Equation::template computeWaveSpeed<1>(conserved, extra);
+            const real waveSpeedZ = eq.template computeWaveSpeed<1>(conserved, extra);
             maxWaveSpeed = std::max(maxWaveSpeed, waveSpeedZ);
         }
     });
@@ -53,9 +62,9 @@ bool CPUCellComputer<Equation>::obeysConstraints(const volume::Volume& conserved
 	const volume::Volume& extraVariables) {
 
 	bool obeys = true;
-
+    Equation eq(parameters);
 	volume::for_each_cell<typename Equation::ConservedVariables,
-        typename Equation::ExtraVariables>(conservedVariables, extraVariables, [&obeys](const typename Equation::ConservedVariables& conserved,
+        typename Equation::ExtraVariables>(conservedVariables, extraVariables, [&obeys,&eq](const typename Equation::ConservedVariables& conserved,
         const typename Equation::ExtraVariables& extra, size_t index) {
         // Check for nan and inf:
         const real* conservedAsRealPtr = (const real*)&conserved;
@@ -74,7 +83,7 @@ bool CPUCellComputer<Equation>::obeysConstraints(const volume::Volume& conserved
                 obeys = false;
             }
         }
-		if (!Equation::obeysConstraints(conserved, extra)) {
+        if (!eq.obeysConstraints(conserved, extra)) {
 			obeys = false;
 		}
 	});
@@ -87,23 +96,24 @@ void CPUCellComputer<Equation>::computeFromPrimitive(const volume::Volume &primi
                                                      volume::Volume &conservedVariables,
                                                      volume::Volume &extraVariables)
 {
+   Equation eq(parameters);
     volume::transform_volume<typename Equation::PrimitiveVariables,
             typename Equation::ExtraVariables>(
                 primitiveVariables, extraVariables,
-                             [](const typename Equation::PrimitiveVariables& in)
+                             [&](const typename Equation::PrimitiveVariables& in)
                                 -> typename Equation::ExtraVariables
     {
-        return Equation::computeExtra(in);
+        return eq.computeExtra(in);
     });
 
 
     volume::transform_volume<typename Equation::PrimitiveVariables,
             typename Equation::ConservedVariables>(
                 primitiveVariables, conservedVariables,
-                             [](const typename Equation::PrimitiveVariables& in)
+                             [&](const typename Equation::PrimitiveVariables& in)
                                 -> typename Equation::ConservedVariables
     {
-        return Equation::computeConserved(in);
+        return eq.computeConserved(in);
     });
 }
 

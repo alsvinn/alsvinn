@@ -1,11 +1,12 @@
 #include "alsfvm/volume/Volume.hpp"
 #include "alsfvm/error/Exception.hpp"
+#include "alsfvm/volume/interpolate.hpp"
 
 namespace alsfvm {
 	namespace volume {
 
 		Volume::Volume(const std::vector<std::string>& variableNames,
-			std::shared_ptr<memory::MemoryFactory> memoryFactory,
+			alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory,
 			size_t nx, size_t ny, size_t nz,
 			size_t numberOfGhostCells)
 			: variableNames(variableNames), memoryFactory(memoryFactory), nx(nx), ny(ny), nz(nz),
@@ -38,7 +39,7 @@ namespace alsfvm {
 		///
 		/// \return the MemoryArea for the given index
 		///
-		std::shared_ptr<memory::Memory<real> >&
+		alsfvm::shared_ptr<memory::Memory<real> >&
 			Volume::getScalarMemoryArea(size_t index) {
 			return memoryAreas[index];
 		}
@@ -50,7 +51,7 @@ namespace alsfvm {
         ///
         /// \return the MemoryArea for the given index
         ///
-        std::shared_ptr<const memory::Memory<real> >
+        alsfvm::shared_ptr<const memory::Memory<real> >
             Volume::getScalarMemoryArea(size_t index) const {
             return memoryAreas[index];
         }
@@ -61,7 +62,7 @@ namespace alsfvm {
 		/// \return the MemoryArea for the given name
 		/// \note Equivalent to calling getScalarMemoryArea(getIndexFromName(name))
 		///
-		std::shared_ptr<memory::Memory<real> >&
+		alsfvm::shared_ptr<memory::Memory<real> >&
 			Volume::getScalarMemoryArea(const std::string& name) {
 			return getScalarMemoryArea(getIndexFromName(name));
 		}
@@ -72,7 +73,7 @@ namespace alsfvm {
         /// \return the MemoryArea for the given name
         /// \note Equivalent to calling getScalarMemoryArea(getIndexFromName(name))
         ///
-        std::shared_ptr<const memory::Memory<real> >
+        alsfvm::shared_ptr<const memory::Memory<real> >
             Volume::getScalarMemoryArea(const std::string& name) const {
             return getScalarMemoryArea(getIndexFromName(name));
         }
@@ -215,8 +216,37 @@ namespace alsfvm {
 			for (size_t var = 0; var < getNumberOfVariables(); ++var) {
 				getScalarMemoryArea(var)->copyToHost(temporaryStorage.data(), temporaryStorage.size());
 				other.getScalarMemoryArea(var)->copyFromHost(temporaryStorage.data(), temporaryStorage.size());
-			}
-		}
+            }
+        }
+
+        void Volume::setVolume(const Volume &other)
+        {
+            if (other.getNumberOfVariables() != getNumberOfVariables()) {
+                THROW("Trying to interpolate between to volumes, but"
+                       "we do not have the same number of variables.");
+            }
+
+            const size_t nxOther =  other.getNumberOfXCells();
+            const size_t nyOther =  other.getNumberOfYCells();
+            const size_t nzOther =  other.getNumberOfZCells();
+
+            // Base case.
+            if (nxOther == nx && nyOther == ny && nzOther == nz) {
+                other.copyTo(*this);
+                return;
+            }
+
+            // Test which dimension we are in.
+            if (getNumberOfYCells() == 1) {
+                interpolate<1>(*this, other);
+            } else if(getNumberOfZCells() == 1) {
+                interpolate<2>(*this, other);
+            } else {
+                interpolate<3>(*this, other);
+            }
+
+
+        }
 	}
 
 }

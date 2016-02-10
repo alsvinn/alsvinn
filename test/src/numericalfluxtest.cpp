@@ -19,11 +19,13 @@ public:
     std::string equation;
     std::string flux;
     std::string reconstruction;
-    std::shared_ptr<DeviceConfiguration> deviceConfiguration;
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+    alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParameters;
     NumericalFluxFactory fluxFactory;
     grid::Grid grid;
-	std::shared_ptr<memory::MemoryFactory> memoryFactory;
+	alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
 	volume::VolumeFactory volumeFactory;
+
 	const size_t nx;
 	const size_t ny;
 	const size_t nz;
@@ -31,7 +33,8 @@ public:
     NumericalFluxTest()
         : equation("euler"), flux("HLL"), reconstruction("none"),
           deviceConfiguration(new DeviceConfiguration("cpu")),
-          fluxFactory(equation, flux, reconstruction, deviceConfiguration),
+          simulatorParameters(new simulator::SimulatorParameters(equation, "cpu")),
+          fluxFactory(equation, flux, reconstruction, simulatorParameters, deviceConfiguration),
           grid(rvec3(0,0,0), rvec3(1,1,1), ivec3(20, 20, 20)),
 		  memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
 		  volumeFactory(equation, memoryFactory), nx(10), ny(10), nz(10)
@@ -66,7 +69,7 @@ TEST_F(NumericalFluxTest, ConsistencyTest) {
     });
 
     boundary->applyBoundaryConditions(*conservedVariables, grid);
-    equation::CellComputerFactory cellComputerFactory("cpu", "euler", deviceConfiguration);
+    equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
 
     auto computer = cellComputerFactory.createComputer();
     computer->computeExtraVariables(*conservedVariables, *extraVariables);
@@ -81,7 +84,8 @@ TEST_F(NumericalFluxTest, ConsistencyTest) {
 	}
 	auto numericalFlux = fluxFactory.createNumericalFlux(grid);
 
-    numericalFlux->computeFlux(*conservedVariables, rvec3(1, 1, 1), *output);
+	rvec3 waveSpeeds(0, 0, 0);
+	numericalFlux->computeFlux(*conservedVariables, waveSpeeds, true, *output);
 
 	// Check that output is what we expect
 	// Here the flux should be consistent, so we expect that 

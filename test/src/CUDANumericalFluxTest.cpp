@@ -20,13 +20,16 @@ public:
 	std::string equation;
 	std::string flux;
 	std::string reconstruction;
-	std::shared_ptr<DeviceConfiguration> deviceConfiguration;
-	std::shared_ptr<DeviceConfiguration> deviceConfigurationCPU;
+	alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+	alsfvm::shared_ptr<DeviceConfiguration> deviceConfigurationCPU;
+
+    alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParameters;
+    alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParametersCPU;
 	NumericalFluxFactory fluxFactory;
 	NumericalFluxFactory fluxFactoryCPU;
 	grid::Grid grid;
-	std::shared_ptr<memory::MemoryFactory> memoryFactory;
-	std::shared_ptr<memory::MemoryFactory> memoryFactoryCPU;
+	alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
+	alsfvm::shared_ptr<memory::MemoryFactory> memoryFactoryCPU;
 	volume::VolumeFactory volumeFactory;
 	volume::VolumeFactory volumeFactoryCPU;
 	const size_t nx;
@@ -37,8 +40,10 @@ public:
 		: equation("euler"), flux("HLL"), reconstruction("none"),
 		deviceConfiguration(new DeviceConfiguration("cuda")),
 		deviceConfigurationCPU(new DeviceConfiguration("cpu")),
-		fluxFactory(equation, flux, reconstruction, deviceConfiguration),
-		fluxFactoryCPU(equation, flux, reconstruction, deviceConfigurationCPU),
+        simulatorParameters(new simulator::SimulatorParameters("euler", "cuda")),
+        simulatorParametersCPU(new simulator::SimulatorParameters("euler", "cpu")),
+		fluxFactory(equation, flux, reconstruction, simulatorParameters, deviceConfiguration),
+        fluxFactoryCPU(equation, flux, reconstruction, simulatorParametersCPU, deviceConfigurationCPU),
 		grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(10, 10, 1)),
 		memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
 		memoryFactoryCPU(new memory::MemoryFactory(deviceConfigurationCPU)),
@@ -78,7 +83,7 @@ TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
 	conservedVariablesCPU->copyTo(*conservedVariables);
 	boundary->applyBoundaryConditions(*conservedVariables, grid);
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
-	equation::CellComputerFactory cellComputerFactory("cuda", "euler", deviceConfiguration);
+	equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
 
 	auto computer = cellComputerFactory.createComputer();
 	computer->computeExtraVariables(*conservedVariables, *extraVariables);
@@ -109,7 +114,8 @@ TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
 		}
 	}
 
-	numericalFlux->computeFlux(*conservedVariables, rvec3(1, 1, 1), *output);
+	rvec3 waveSpeeds(0, 0, 0);
+	numericalFlux->computeFlux(*conservedVariables, waveSpeeds, true, *output);
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
 	CUDA_SAFE_CALL(cudaGetLastError());
 	// Check that output is what we expect
@@ -175,7 +181,7 @@ TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
 	conservedVariablesCPU->copyTo(*conservedVariables);
 	boundary->applyBoundaryConditions(*conservedVariables, grid);
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
-	equation::CellComputerFactory cellComputerFactory("cuda", "euler", deviceConfiguration);
+	equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
 
 	
 	auto output = volumeFactory.createConservedVolume(nx, ny, nz, 1);
@@ -225,9 +231,13 @@ TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
 
 		}
 	}
-
-	numericalFlux->computeFlux(*conservedVariables, rvec3(1, 1, 1), *output);
-	numericalFluxCPU->computeFlux(*conservedVariablesCPU, rvec3(1, 1, 1), *outputCPU);
+	rvec3 waveSpeedsGPU(0, 0, 0);
+	numericalFlux->computeFlux(*conservedVariables, waveSpeedsGPU, true, *output);
+	rvec3 waveSpeedsCPU(0, 0, 0);
+	numericalFluxCPU->computeFlux(*conservedVariablesCPU, waveSpeedsCPU, true, *outputCPU);
+	ASSERT_EQ(waveSpeedsGPU.x, waveSpeedsCPU.x);
+	ASSERT_EQ(waveSpeedsGPU.y, waveSpeedsCPU.y);
+	ASSERT_EQ(waveSpeedsGPU.z, waveSpeedsCPU.z);
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
 	CUDA_SAFE_CALL(cudaGetLastError());
 	// Check that output is what we expect

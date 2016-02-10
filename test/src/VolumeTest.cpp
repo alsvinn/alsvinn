@@ -12,8 +12,8 @@ TEST(VolumeTest, SizeTest) {
     const size_t ny=10;
     const size_t nz=10;
 
-    auto configuration = std::make_shared<alsfvm::DeviceConfiguration>("cpu");
-    auto factory = std::make_shared<alsfvm::memory::MemoryFactory>(configuration);
+    auto configuration = alsfvm::make_shared<alsfvm::DeviceConfiguration>("cpu");
+    auto factory = alsfvm::make_shared<alsfvm::memory::MemoryFactory>(configuration);
     alsfvm::volume::Volume volume(variableNames, factory, nx, ny, nz);
     ASSERT_EQ(variableNames.size(), volume.getNumberOfVariables());
 }
@@ -25,9 +25,9 @@ TEST(VolumeTest, GetVariableIndex) {
 	const size_t ny = 10;
 	const size_t nz = 10;
 
-    auto configuration = std::make_shared<alsfvm::DeviceConfiguration>("cpu");
+    auto configuration = alsfvm::make_shared<alsfvm::DeviceConfiguration>("cpu");
 
-    auto factory = std::make_shared<alsfvm::memory::MemoryFactory>(configuration);
+    auto factory = alsfvm::make_shared<alsfvm::memory::MemoryFactory>(configuration);
 	alsfvm::volume::Volume volume(variableNames, factory, nx, ny, nz);
 
 	ASSERT_EQ(0, volume.getIndexFromName("alpha"));
@@ -44,9 +44,9 @@ TEST(VolumeTest, WriteToMemoryArea) {
     const size_t ny = 10;
     const size_t nz = 10;
 
-    auto configuration = std::make_shared<alsfvm::DeviceConfiguration>("cpu");
+    auto configuration = alsfvm::make_shared<alsfvm::DeviceConfiguration>("cpu");
 
-    auto factory = std::make_shared<alsfvm::memory::MemoryFactory>(configuration);
+    auto factory = alsfvm::make_shared<alsfvm::memory::MemoryFactory>(configuration);
     alsfvm::volume::Volume volume(variableNames, factory, nx, ny, nz);
 
     auto memory0 = volume.getScalarMemoryArea("alpha");
@@ -55,7 +55,7 @@ TEST(VolumeTest, WriteToMemoryArea) {
     ASSERT_EQ(ny, memory0->getSizeY());
     ASSERT_EQ(nz, memory0->getSizeZ());
 
-    std::dynamic_pointer_cast<alsfvm::memory::HostMemory<alsfvm::real> >(memory0)->at(0,0,0) = 10;
+    alsfvm::dynamic_pointer_cast<alsfvm::memory::HostMemory<alsfvm::real> >(memory0)->at(0,0,0) = 10;
 
 
 }
@@ -65,9 +65,9 @@ TEST(VolumeTest, FactoryTestEuler) {
 	const size_t ny = 10;
 	const size_t nz = 10;
 
-	auto configuration = std::make_shared<alsfvm::DeviceConfiguration>("cpu");
+	auto configuration = alsfvm::make_shared<alsfvm::DeviceConfiguration>("cpu");
 
-	auto factory = std::make_shared<alsfvm::memory::MemoryFactory>(configuration);
+	auto factory = alsfvm::make_shared<alsfvm::memory::MemoryFactory>(configuration);
 
 	VolumeFactory volumeFactory("euler", factory);
 

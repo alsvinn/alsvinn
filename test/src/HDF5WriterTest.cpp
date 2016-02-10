@@ -18,8 +18,8 @@ public:
 
     alsfvm::simulator::TimestepInformation info;
 
-    std::shared_ptr<alsfvm::DeviceConfiguration> deviceConfiguration;
-    std::shared_ptr<MemoryFactory> memoryFactory;
+    alsfvm::shared_ptr<alsfvm::DeviceConfiguration> deviceConfiguration;
+    alsfvm::shared_ptr<MemoryFactory> memoryFactory;
     std::vector<std::string> namesConserved;
     std::vector<std::string> namesExtra;
     Volume conservedVariables;
@@ -50,7 +50,7 @@ TEST_F(HDF5WriterTest, WriteAndReadTest) {
     for(size_t i = 0; i < namesConserved.size(); i++) {
         auto memoryArea = conservedVariables.getScalarMemoryArea(i);
         for(size_t j = 0; j < memoryArea->getSize(); j++) {
-            memoryArea->getPointer()[j] = 1<<i + j;
+            memoryArea->getPointer()[j] = (1<<i) + j;
         }
     }
 
@@ -58,7 +58,7 @@ TEST_F(HDF5WriterTest, WriteAndReadTest) {
     for(size_t i = 0; i < namesExtra.size(); i++) {
         auto memoryArea = extraVariables.getScalarMemoryArea(i);
         for(size_t j = 0; j < memoryArea->getSize(); j++) {
-            memoryArea->getPointer()[j] = 2<<i + j;
+            memoryArea->getPointer()[j] = (2<<i) + j;
         }
     }
 
@@ -88,7 +88,7 @@ TEST_F(HDF5WriterTest, WriteAndReadTest) {
                            data.data()));
 
         for(size_t j = 0; j < data.size(); j++) {
-            ASSERT_EQ(1<<i + j, data[j]);
+            ASSERT_EQ((1<<i) + j, data[j]);
         }
     }
 
@@ -99,7 +99,7 @@ TEST_F(HDF5WriterTest, WriteAndReadTest) {
                            data.data()));
 
         for(size_t j = 0; j < data.size(); j++) {
-            ASSERT_EQ(2<<i + j, data[j]);
+            ASSERT_EQ((2<<i) + j, data[j]);
         }
     }
 

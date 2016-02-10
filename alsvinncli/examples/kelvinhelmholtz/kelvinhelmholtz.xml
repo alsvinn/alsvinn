@@ -6,13 +6,16 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>1024 1024 1</dimension>
+    <dimension>512 512 1</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>HLL3</flux>
-  <endTime>.2</endTime>
+  <endTime>0.5</endTime>
   <equation>euler</equation>
-  <reconstruction>none</reconstruction>
+  <equationParameters>
+    <gamma>1.4</gamma>
+  </equationParameters>
+  <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>
   <initialData>

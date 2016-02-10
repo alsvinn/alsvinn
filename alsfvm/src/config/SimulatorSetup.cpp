@@ -10,6 +10,9 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include "alsfvm/init/PythonInitialData.hpp"
 #include <boost/filesystem.hpp>
+#include "alsfvm/equation/euler/EulerParameters.hpp"
+#include <set>
+
 namespace alsfvm { namespace config {
 // Example xml:
 // <fvm>
@@ -48,16 +51,29 @@ namespace {
 
     }
 }
-std::shared_ptr<simulator::Simulator>
+alsfvm::shared_ptr<simulator::Simulator>
     SimulatorSetup::readSetupFromFile(const std::string &filename)
 {
-    basePath = boost::filesystem::path(filename).parent_path().string();
+    basePath = boost::filesystem::path(boost::filesystem::absolute(filename)).parent_path().string();
     std::ifstream file(filename);
     XMLParser parser;
+
 
     XMLParser::ptree configuration;
     parser.parseFile(file, configuration);
 
+
+    std::set<std::string> supportedNodes =
+    {
+        "name", "platform", "boundary", "flux", "endTime", "equation", "equationParameters",
+        "reconstruction", "cfl", "integrator", "initialData", "writer", "grid"
+    };
+
+    for (auto node : configuration.get_child("fvm")) {
+        if (supportedNodes.find(node.first) == supportedNodes.end()) {
+            THROW("Unsupported configuration option " << node.first);
+        }
+    }
     auto grid = createGrid(configuration);
     auto boundary = readBoundary(configuration);
     real endTime = readEndTime(configuration);
@@ -72,23 +88,28 @@ std::shared_ptr<simulator::Simulator>
     auto writer = createWriter(configuration);
 
     auto platform = readPlatform(configuration);
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>(platform);
-
-    auto memoryFactory = std::make_shared<memory::MemoryFactory>(deviceConfiguration);
-    auto volumeFactory = std::make_shared<volume::VolumeFactory>(equation, memoryFactory);
-    auto boundaryFactory = std::make_shared<boundary::BoundaryFactory>(boundary, deviceConfiguration);
-    auto numericalFluxFactory = std::make_shared<numflux::NumericalFluxFactory>(equation, fluxname, reconstruction, deviceConfiguration);
-    auto integratorFactory = std::make_shared<integrator::IntegratorFactory>(integrator);
-
-    auto cellComputerFactory = std::make_shared<equation::CellComputerFactory>(platform, equation, deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>(platform);
 
 
+    alsfvm::shared_ptr<simulator::SimulatorParameters>
+            parameters(new simulator::SimulatorParameters(equation, platform));
+    readEquationParameters(configuration, *parameters);
+    parameters->setCFLNumber(cfl);
+
+    auto memoryFactory = alsfvm::make_shared<memory::MemoryFactory>(deviceConfiguration);
+    auto volumeFactory = alsfvm::make_shared<volume::VolumeFactory>(equation, memoryFactory);
+    auto boundaryFactory = alsfvm::make_shared<boundary::BoundaryFactory>(boundary, deviceConfiguration);
+    auto numericalFluxFactory = alsfvm::make_shared<numflux::NumericalFluxFactory>(equation, fluxname, reconstruction, parameters, deviceConfiguration);
+    auto integratorFactory = alsfvm::make_shared<integrator::IntegratorFactory>(integrator);
+
+    auto cellComputerFactory = alsfvm::make_shared<equation::CellComputerFactory>(parameters, deviceConfiguration);
 
 
-    simulator::SimulatorParameters parameters;
-    parameters.setCFLNumber(cfl);
 
-    auto simulator = std::make_shared<simulator::Simulator>(parameters,
+
+
+
+    auto simulator = alsfvm::make_shared<simulator::Simulator>(*parameters,
                          grid,
                          *volumeFactory,
                          *integratorFactory,
@@ -103,10 +124,16 @@ std::shared_ptr<simulator::Simulator>
 
     simulator->addWriter(writer);
 
+    auto timestepAdjuster = alsfvm::dynamic_pointer_cast<integrator::TimestepAdjuster>(writer);
+    if (timestepAdjuster) {
+        simulator->addTimestepAdjuster(timestepAdjuster);
+    }
+
     return simulator;
 }
 
-std::shared_ptr<grid::Grid> SimulatorSetup::createGrid(const SimulatorSetup::ptree &configuration)
+
+alsfvm::shared_ptr<grid::Grid> SimulatorSetup::createGrid(const SimulatorSetup::ptree &configuration)
 {
     const ptree& gridNode =  configuration.get_child("fvm.grid");
 
@@ -119,7 +146,7 @@ std::shared_ptr<grid::Grid> SimulatorSetup::createGrid(const SimulatorSetup::ptr
     auto upperCorner = parseVector<real>(upperCornerString);
     auto dimension = parseVector<int>(dimensionString);
 
-    return std::make_shared<grid::Grid>(lowerCorner, upperCorner, dimension);
+    return alsfvm::make_shared<grid::Grid>(lowerCorner, upperCorner, dimension);
 }
 
 real SimulatorSetup::readEndTime(const SimulatorSetup::ptree &configuration)
@@ -146,7 +173,6 @@ real SimulatorSetup::readCFLNumber(const SimulatorSetup::ptree &configuration)
         if (reconstruction == "none") {
             return 0.9;
         } else {
-            std::cout << "correct" << std::endl;
             return 0.475;
         }
     } else {
@@ -165,9 +191,10 @@ std::string SimulatorSetup::readIntegrator(const SimulatorSetup::ptree &configur
             return "rungekutta2";
         }
     }
+    return integratorString;
 }
 
-std::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(const SimulatorSetup::ptree &configuration)
+alsfvm::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(const SimulatorSetup::ptree &configuration)
 {
     auto initialDataNode = configuration.get_child("fvm.initialData");
 
@@ -183,17 +210,17 @@ std::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(const Simul
                          std::istreambuf_iterator<char>());
 
 
-        return std::shared_ptr<init::InitialData>(new init::PythonInitialData(pythonProgram));
+        return alsfvm::shared_ptr<init::InitialData>(new init::PythonInitialData(pythonProgram));
     }
 
     THROW("Unknown initial data.");
 }
 
-std::shared_ptr<io::Writer> SimulatorSetup::createWriter(const SimulatorSetup::ptree &configuration)
+alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(const SimulatorSetup::ptree &configuration)
 {
     std::string type = configuration.get<std::string>("fvm.writer.type");
     std::string basename = configuration.get<std::string>("fvm.writer.basename");
-    std::shared_ptr<io::Writer> baseWriter;
+    alsfvm::shared_ptr<io::Writer> baseWriter;
     if (type == "hdf5") {
         baseWriter.reset(new io::HDF5Writer(basename));
     } else {
@@ -205,7 +232,7 @@ std::shared_ptr<io::Writer> SimulatorSetup::createWriter(const SimulatorSetup::p
         size_t numberOfSaves = writerNode.get<size_t>("numberOfSaves");
         real endTime = readEndTime(configuration);
         real timeInterval = endTime / numberOfSaves;
-        return std::shared_ptr<io::Writer>(new io::FixedIntervalWriter(baseWriter, timeInterval, endTime));
+        return alsfvm::shared_ptr<io::Writer>(new io::FixedIntervalWriter(baseWriter, timeInterval, endTime));
     }
     return baseWriter;
 }
@@ -218,6 +245,24 @@ std::string SimulatorSetup::readPlatform(const SimulatorSetup::ptree &configurat
 std::string SimulatorSetup::readBoundary(const SimulatorSetup::ptree &configuration)
 {
     return configuration.get<std::string>("fvm.boundary");
+}
+
+void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree &configuration, simulator::SimulatorParameters &parameters)
+{
+
+    auto& equationParameters = parameters.getEquationParameters();
+
+    auto fvmNode = configuration.get_child("fvm");
+    if (fvmNode.find("equationParameters") != fvmNode.not_found()) {
+
+        if (readEquation(configuration) == "euler") {
+
+            auto& eulerParameters = static_cast<equation::euler::EulerParameters&>(equationParameters);
+
+            real gamma = configuration.get<real>("fvm.equationParameters.gamma");
+            eulerParameters.setGamma(gamma);
+        }
+    }
 }
 
 std::string SimulatorSetup::readFlux(const SimulatorSetup::ptree &configuration)

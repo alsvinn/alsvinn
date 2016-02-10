@@ -2,6 +2,7 @@
 #include <memory>
 #include "alsfvm/equation/CellComputer.hpp"
 #include "alsfvm/DeviceConfiguration.hpp"
+#include "alsfvm/simulator/SimulatorParameters.hpp"
 
 namespace alsfvm { namespace equation { 
 
@@ -12,23 +13,20 @@ namespace alsfvm { namespace equation {
     public:
         ///
         /// \brief CellComputerFactory construct a new factory instance
-        /// \param platform the platform (eg. "cpu", "cuda")
-        /// \param equation (eg. "euler")
+        /// \param parameters the relevant simulatorParameters.
 		/// \param deviceConfiguration the deviceConfiguration used.
         ///
-        CellComputerFactory(const std::string& platform,
-                            const std::string& equation,
-							std::shared_ptr<DeviceConfiguration>& deviceConfiguration);
+        CellComputerFactory(const alsfvm::shared_ptr<simulator::SimulatorParameters>& parameters,
+							alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration);
 
         ///
         /// \brief createComputer creates a new cell computer
         /// \return an instance of the cell computer.
         ///
-        std::shared_ptr<CellComputer> createComputer();
+        alsfvm::shared_ptr<CellComputer> createComputer();
 
     private:
-        const std::string platform;
-        const std::string equation;
+        const alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParameters;
 
     };
 } // namespace alsfvm

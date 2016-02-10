@@ -19,8 +19,8 @@ public:
 
 	alsfvm::simulator::TimestepInformation info;
 
-	std::shared_ptr<alsfvm::DeviceConfiguration> deviceConfiguration;
-	std::shared_ptr<MemoryFactory> memoryFactory;
+	alsfvm::shared_ptr<alsfvm::DeviceConfiguration> deviceConfiguration;
+	alsfvm::shared_ptr<MemoryFactory> memoryFactory;
 	std::vector<std::string> namesConserved;
 	std::vector<std::string> namesExtra;
 	Volume conservedVariables;

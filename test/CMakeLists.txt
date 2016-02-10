@@ -13,7 +13,10 @@ IF(ALSVINN_HAVE_CUDA)
 	set_source_groups( "CUDA Files" "${CMAKE_CURRENT_SOURCE_DIR}/src/" "${CUDA_SRC}")
 	CUDA_COMPILE(ALSTEST_CUDA alstest_cuda ${CUDA_SRC})
 ELSE()
-	SET(ALSTEST_CUDA "")
+   # Remove files looking like CUDA files
+   FILE(GLOB_RECURSE CUDA_FILES src/*CUDA*)
+   LIST(REMOVE_ITEM SRC ${CUDA_FILES})
+   SET(ALSTEST_CUDA "")
 ENDIF()
 
 ADD_EXECUTABLE(alstest ${SRC} ${ALSTEST_CUDA})
@@ -22,4 +25,5 @@ ADD_EXECUTABLE(alstest ${SRC} ${ALSTEST_CUDA})
 TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm
                               ${CUDA_LIBRARIES}
                               ${CMAKE_THREAD_LIBS_INIT}
+			      ${MPI_LIBRARIES}
                               )

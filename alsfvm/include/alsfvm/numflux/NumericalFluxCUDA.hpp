@@ -2,6 +2,7 @@
 #include "alsfvm/numflux/NumericalFlux.hpp"
 #include "alsfvm/DeviceConfiguration.hpp"
 #include "alsfvm/reconstruction/Reconstruction.hpp"
+#include "alsfvm/simulator/SimulatorParameters.hpp"
 #include "alsfvm/grid/Grid.hpp"
 namespace alsfvm { namespace numflux { 
 
@@ -9,8 +10,9 @@ namespace alsfvm { namespace numflux {
     class NumericalFluxCUDA : public NumericalFlux  {
     public:
 		NumericalFluxCUDA(const grid::Grid& grid,
-			std::shared_ptr<reconstruction::Reconstruction>& reconstruction,
-			std::shared_ptr<DeviceConfiguration>& deviceConfiguration
+			alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
+            simulator::SimulatorParameters& parameters, 
+			alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration
 			);
 
 		/// 
@@ -22,18 +24,20 @@ namespace alsfvm { namespace numflux {
 		///                         \frac{\Delta t}{\Delta z}\left((F(u_{i,j,k+1}, u_{i,j,k})-F(u_{i,j,k}, u_{i,j,k-1})\right)
 		/// \f]
 		/// \param[in] conservedVariables the conservedVariables to read from (eg. for Euler: \f$\rho,\; \vec{m},\; E\f$)
-		/// \param[in] cellScaling contains the cell length in each direction. So
+		/// \param[in] cellLengths contains the cell length in each direction. So
 		///            \f{eqnarray*}{
-		///             \Delta t/\Delta x = \mathrm{cellLengths.x}\\
-		            ///             \Delta t/\Delta y = \mathrm{cellLengths.y}\\
-		            ///             \Delta t/\Delta z = \mathrm{cellLengths.z}\\
-					///            \f}
+		///             \Delta x = \mathrm{cellLengths.x}\\
+		///             \Delta y = \mathrm{cellLengths.y}\\
+		///             \Delta z = \mathrm{cellLengths.z}\\
+		///            \f}
+		/// \param[out] waveSpeed the maximum wave speed in each direction
+		/// \param[in] computeWaveSpeed should we compute the wave speeds?
 		/// \param[out] output the output to write to
 		///
 		/// \note this will calculate the extra variables on the fly.
 		/// 
 		virtual void computeFlux(const volume::Volume& conservedVariables,
-			const rvec3& cellScaling,
+			rvec3& waveSpeed, bool computeWaveSpeed,
 			volume::Volume& output
 			);
 
@@ -42,10 +46,11 @@ namespace alsfvm { namespace numflux {
 		///
 		virtual size_t getNumberOfGhostCells();
 	private:
-		std::shared_ptr<reconstruction::Reconstruction> reconstruction;
-		std::shared_ptr<volume::Volume> left;
-		std::shared_ptr<volume::Volume> right;
-		std::shared_ptr<volume::Volume> fluxOutput;
+		alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction;
+		alsfvm::shared_ptr<volume::Volume> left;
+		alsfvm::shared_ptr<volume::Volume> right;
+		alsfvm::shared_ptr<volume::Volume> fluxOutput;
+        Equation equation;
     };
 } // namespace alsfvm
 } // namespace numflux

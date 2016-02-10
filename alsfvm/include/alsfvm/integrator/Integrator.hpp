@@ -1,5 +1,6 @@
 #pragma once
 #include "alsfvm/volume/Volume.hpp"
+#include "alsfvm/integrator/TimestepAdjuster.hpp"
 
 namespace alsfvm { namespace integrator { 
 
@@ -31,7 +32,7 @@ namespace alsfvm { namespace integrator {
 	///
     class Integrator {
     public:
-
+      virtual ~Integrator() {}
 		///
 		/// Returns the number of substeps this integrator uses.
 		/// For ForwardEuler this is 1, for RK4 this is 4, etc.
@@ -48,11 +49,42 @@ namespace alsfvm { namespace integrator {
         /// \param dt is the timestep
         /// \param substep is the currently computed substep, starting at 0.
         /// \param output where to write the output
+		/// \param cfl the cfl number to use.
 		/// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
+		/// \returns the newly computed timestep (each integrator may choose to change the timestep)
 		///
-        virtual void performSubstep(const std::vector<std::shared_ptr< volume::Volume> >& inputConserved,
-			rvec3 spatialCellSizes, real dt,
-            volume::Volume& output, size_t substep) = 0;
+        virtual real performSubstep(const std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
+			rvec3 spatialCellSizes, real dt, real cfl, 
+            volume::Volume& output, size_t substep,
+            const simulator::TimestepInformation& timestepInformation) = 0;
+
+		///
+		/// Computes the timestep (dt).
+		/// \param[in] waveSpeeds the wave speeds in each direction
+		/// \param[in] cellLengths the cell lengths in each direction
+		/// \param[in] cfl the CFL number
+        /// \param[in] timestepInformation the timestep information.
+		///
+        real computeTimestep(const rvec3& waveSpeeds, const rvec3& cellLengths, real cfl,
+                             const simulator::TimestepInformation& timestepInformation) const;
+
+        ///
+        /// \brief addTimestepAdjuster adds a timestep adjuster
+        /// \param adjuster the adjuster to add
+        ///
+        void addTimestepAdjuster(alsfvm::shared_ptr<TimestepAdjuster>& adjuster);
+
+    protected:
+        ///
+        /// \brief adjustTimestep adjusts the timesteps according to the timestepsadjusters
+        /// \param dt the current timestep
+        /// \param timestepInformation the current timestep information
+        /// \return the new timestep (or dt if unchanged)
+        ///
+        real adjustTimestep(real dt, const simulator::TimestepInformation& timestepInformation) const;
+
+    private:
+        std::vector<alsfvm::shared_ptr<TimestepAdjuster> > timestepAdjusters;
 
     };
 

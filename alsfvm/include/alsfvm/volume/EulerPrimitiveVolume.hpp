@@ -17,12 +17,12 @@ public:
     /// Typedef to make some function signatures look nicer,
     /// nothing else.
     ///
-    typedef std::shared_ptr<memory::Memory<real> > ScalarMemoryPtr;
+    typedef alsfvm::shared_ptr<memory::Memory<real> > ScalarMemoryPtr;
 
     ///
     /// Const version of the memory pointer
     ///
-    typedef std::shared_ptr<const memory::Memory<real> > ConstScalarMemoryPtr;
+    typedef alsfvm::shared_ptr<const memory::Memory<real> > ConstScalarMemoryPtr;
 
     ///
     /// Constructs the EulerVolume
@@ -33,7 +33,7 @@ public:
     /// \param nz the number of cells in z direction
     /// \param numberOfGhostCells the number of ghostcells to use
     ///
-    EulerPrimitiveVolume(std::shared_ptr<memory::MemoryFactory> memoryFactory,
+    EulerPrimitiveVolume(alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory,
         size_t nx, size_t ny, size_t nz, size_t numberOfGhostCells);
 
 

@@ -8,19 +8,20 @@
 
 namespace alsfvm { namespace equation {
 
-CellComputerFactory::CellComputerFactory(const std::string &platform,
-                                         const std::string &equation,
-										 std::shared_ptr<DeviceConfiguration>& deviceConfiguration)
-    : platform(platform), equation(equation)
+CellComputerFactory::CellComputerFactory(const alsfvm::shared_ptr<simulator::SimulatorParameters>& parameters,
+										 alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration)
+    : simulatorParameters(parameters)
 {
     // empty
 }
 
-std::shared_ptr<CellComputer> CellComputerFactory::createComputer()
+alsfvm::shared_ptr<CellComputer> CellComputerFactory::createComputer()
 {
+    auto platform = simulatorParameters->getPlatform();
+    auto equation = simulatorParameters->getEquationName();
     if (platform == "cpu") {
         if (equation == "euler") {
-            return std::shared_ptr<CellComputer>(new CPUCellComputer<euler::Euler>());
+            return alsfvm::shared_ptr<CellComputer>(new CPUCellComputer<euler::Euler>(*simulatorParameters));
         } else {
             THROW("Unknown equation " << equation);
         }
@@ -28,7 +29,7 @@ std::shared_ptr<CellComputer> CellComputerFactory::createComputer()
 #ifdef ALSVINN_HAVE_CUDA
     if (platform == "cuda") {
 		if (equation == "euler") {
-			return std::shared_ptr<CellComputer>(new CUDACellComputer<euler::Euler>());
+            return alsfvm::shared_ptr<CellComputer>(new CUDACellComputer<euler::Euler>(*simulatorParameters));
 		}
 		else {
 			THROW("Unknown equation " << equation);

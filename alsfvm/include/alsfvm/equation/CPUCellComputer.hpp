@@ -1,11 +1,12 @@
 #pragma once
 #include "alsfvm/equation/CellComputer.hpp"
-
+#include "alsfvm/simulator/SimulatorParameters.hpp"
 namespace alsfvm { namespace equation { 
 
     template<class Equation>
     class CPUCellComputer : public CellComputer {
     public:
+        CPUCellComputer(simulator::SimulatorParameters& parameters);
         ///
         /// \brief computeExtraVariables computes the extra variables (eg. pressure for euler)
         /// \param[in] conservedVariables the conserved variables to read from
@@ -48,6 +49,9 @@ namespace alsfvm { namespace equation {
         virtual void computeFromPrimitive(const volume::Volume& primtiveVariables,
                                          volume::Volume& conservedVariables,
                                          volume::Volume& extraVariables);
+
+    private:
+        typename Equation::Parameters parameters;
     };
 } // namespace alsfvm
 } // namespace equation

@@ -19,7 +19,7 @@ namespace alsfvm { namespace boundary {
 	/// \param deviceConfiguration the device configuration
 	///
 	BoundaryFactory::BoundaryFactory(const std::string& name,
-		std::shared_ptr<DeviceConfiguration>& deviceConfiguration)
+		alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration)
 		: name(name), deviceConfiguration(deviceConfiguration)
 	{
 
@@ -29,12 +29,12 @@ namespace alsfvm { namespace boundary {
 	/// Creates the new boundary
 	/// \param ghostCellSize the number of ghost cell to use on each side.
 	/// 
-	std::shared_ptr<Boundary> BoundaryFactory::createBoundary(size_t ghostCellSize) {
+	alsfvm::shared_ptr<Boundary> BoundaryFactory::createBoundary(size_t ghostCellSize) {
 		if (deviceConfiguration->getPlatform() == "cpu") {
 			if (name == "neumann") {
-				return std::shared_ptr<Boundary>(new BoundaryCPU<Neumann>(ghostCellSize));
+				return alsfvm::shared_ptr<Boundary>(new BoundaryCPU<Neumann>(ghostCellSize));
 			} else if (name == "periodic") {
-				return std::shared_ptr<Boundary>(new BoundaryCPU<Periodic>(ghostCellSize));
+				return alsfvm::shared_ptr<Boundary>(new BoundaryCPU<Periodic>(ghostCellSize));
 			}
 			else {
 				THROW("Unknown boundary type " << name);
@@ -44,10 +44,10 @@ namespace alsfvm { namespace boundary {
 #ifdef ALSVINN_HAVE_CUDA
 		else if (deviceConfiguration->getPlatform() == "cuda") {
 			if (name == "neumann") {
-				return std::shared_ptr<Boundary>(new BoundaryCUDA<Neumann>(ghostCellSize));
+				return alsfvm::shared_ptr<Boundary>(new BoundaryCUDA<Neumann>(ghostCellSize));
 			}
 			else if (name == "periodic") {
-				return std::shared_ptr<Boundary>(new BoundaryCUDA<Periodic>(ghostCellSize));
+				return alsfvm::shared_ptr<Boundary>(new BoundaryCUDA<Periodic>(ghostCellSize));
 			}
 			else {
 				THROW("Unknown boundary type " << name);

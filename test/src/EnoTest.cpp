@@ -31,8 +31,8 @@ TEST(EnoTest, CoefficientsTest) {
 TEST(EnoTest, ConstantZeroTestSecondOrder) {
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
 	ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
@@ -66,8 +66,8 @@ TEST(EnoTest, ConstantZeroTestSecondOrder) {
 TEST(EnoTest, ConstantZeroTestThirdOrder) {
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
     ENOCPU<3> enoCPU(memoryFactory, nx, ny, nz);
@@ -101,8 +101,8 @@ TEST(EnoTest, ConstantOneTestSecondOrder) {
 
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
 	ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
@@ -141,8 +141,8 @@ TEST(EnoTest, ConstantOneTestThirdOrder) {
 
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
     ENOCPU<3> enoCPU(memoryFactory, nx, ny, nz);
@@ -180,8 +180,8 @@ TEST(EnoTest, ConstantOneTestThirdOrder) {
 TEST(EnoTest, ReconstructionSimple) {
     const size_t nx = 10, ny = 1, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
     ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
@@ -213,8 +213,8 @@ TEST(EnoTest, ReconstructionSimple) {
 TEST(EnoTest, ReconstructionSimpleReverse) {
     const size_t nx = 10, ny = 1, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
     ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
@@ -246,8 +246,8 @@ TEST(EnoTest, ReconstructionSimpleReverse) {
 TEST(EnoTest, ReconstructionSimpleReverseYDirection) {
     const size_t nx = 10, ny = 10, nz = 1;
 
-    auto deviceConfiguration = std::make_shared<DeviceConfiguration>();
-    auto memoryFactory = std::make_shared<MemoryFactory>(deviceConfiguration);
+    auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler", memoryFactory);
     ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);

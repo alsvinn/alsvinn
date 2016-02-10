@@ -1,5 +1,6 @@
 #pragma once
 #include "alsfvm/numflux/NumericalFlux.hpp"
+#include "alsfvm/simulator/SimulatorParameters.hpp"
 #include "alsfvm/grid/Grid.hpp"
 
 namespace alsfvm { namespace numflux { 
@@ -12,7 +13,7 @@ namespace alsfvm { namespace numflux {
         ///
         /// The numerical flux pointer
         ///
-        typedef std::shared_ptr < NumericalFlux > NumericalFluxPtr;
+        typedef alsfvm::shared_ptr < NumericalFlux > NumericalFluxPtr;
 
         ///
         /// \param equation the name of the equation (eg. Euler)
@@ -24,7 +25,8 @@ namespace alsfvm { namespace numflux {
         NumericalFluxFactory(const std::string& equation,
                       const std::string& fluxname,
                       const std::string& reconstruction,
-                      std::shared_ptr<DeviceConfiguration>& deviceConfiguration);
+                      const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters,
+                      alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration);
 
         ///
         /// Creates the numerical flux
@@ -35,7 +37,8 @@ namespace alsfvm { namespace numflux {
         std::string equation;
         std::string fluxname;
         std::string reconstruction;
-        std::shared_ptr<DeviceConfiguration> deviceConfiguration;
+        alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+        const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters;
     };
 } // namespace alsfvm
 } // namespace numflux
