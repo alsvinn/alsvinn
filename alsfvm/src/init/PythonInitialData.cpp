@@ -69,7 +69,8 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     // Now we declare the wrappers around the function.
     std::stringstream functionStringStream;
 
-    
+    functionStringStream << "from math import *" << std::endl;
+    functionStringStream << "from scipy import *" << std::endl;
     functionStringStream << "from numpy import *" << std::endl;
     functionStringStream << "def initial_data(x, y, z, output):\n"; 
 
