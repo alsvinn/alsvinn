@@ -31,19 +31,16 @@ namespace alsfvm {
 					switch (variableIndex) {
 					case 0:
 						return p;
-						break;
 					case 1:
 						return ux;
-						break;
 					case 2:
 						return uy;
-						break;
 					case 3:
 						return uz;
-						break;
 					}
 					// If we reach this far, something has gone wrong
 					assert(false);
+                    return p;
 				}
 
 				__device__ __host__ size_t index(size_t x, size_t y, size_t z) const {

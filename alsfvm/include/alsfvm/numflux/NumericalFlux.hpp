@@ -9,7 +9,7 @@ namespace alsfvm {
 		///
 		class NumericalFlux {
 		public:
-          	        virtual ~NumericalFlux() {}
+            virtual ~NumericalFlux() {}
 			/// 
 			/// Computes the numerical flux at each cell. 
 			/// This will compute the net flux in the cell, ie.
@@ -18,17 +18,10 @@ namespace alsfvm {
 			///                         \frac{\Delta t}{\Delta y}\left(F(u_{i,j+1,k}, u_{i,j,k})-F(u_{i,j,k}, u_{i,j-1,k})\right)+
 			///                         \frac{\Delta t}{\Delta z}\left((F(u_{i,j,k+1}, u_{i,j,k})-F(u_{i,j,k}, u_{i,j,k-1})\right)
 			/// \f]
-			/// \param[in] conservedVariables the conservedVariables to read from (eg. for Euler: \f$\rho,\; \vec{m},\; E\f$)
-			/// \param[in] cellLengths contains the cell length in each direction. So
-			///            \f{eqnarray*}{
-			///             \Delta x = \mathrm{cellLengths.x}\\
-			///             \Delta y = \mathrm{cellLengths.y}\\
-			///             \Delta z = \mathrm{cellLengths.z}\\
-			///            \f}
+            /// \param[in] conservedVariables the conservedVariables to read from (eg. for Euler: \f$\rho,\; \vec{m},\; E\f$.
 			/// \param[out] waveSpeed the maximum wave speed in each direction
 			/// \param[in] computeWaveSpeed should we compute the wave speeds?
 			/// \param[out] output the output to write to
-			///
 			/// \note this will calculate the extra variables on the fly.
 			/// 
 			virtual void computeFlux(const volume::Volume& conservedVariables,
