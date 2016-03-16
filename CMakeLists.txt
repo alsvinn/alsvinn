@@ -30,7 +30,7 @@ endif()
 
 IF(WIN32) 
 	# This is apparently needed for Visual Studio 2013, could be 
-	# fixed on 2013, but cuda doesn't work there...
+        # fixed on 2015, but cuda doesn't work there...
 	ADD_DEFINITIONS(-DBOOST_NO_CXX11_ALLOCATOR)
 ENDIF()
 
