@@ -20,9 +20,10 @@ public:
 	boundary::BoundaryFactory boundaryFactory;
 
 	CUDABoundaryTest()
-		: equation("euler"), 
-		deviceConfiguration(new DeviceConfiguration("cuda")),
+        :
 		nx(10), ny(10), nz(1),
+        equation("euler"),
+        deviceConfiguration(new DeviceConfiguration("cuda")),
 		grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(nx, ny, nz)),
 		memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
 		volumeFactory(equation, memoryFactory), boundaryFactory("neumann", deviceConfiguration)
@@ -35,7 +36,6 @@ public:
 TEST_F(CUDABoundaryTest, TestOnes) {
 	const real baseValue = 123.123;
 	const real size = nx * ny *nz;
-	const real blockSize = 1024;
 	std::cout << size << std::endl;
 	auto volume = volumeFactory.createConservedVolume(nx, ny, nz, 0);
 	std::vector<real> inputVector(size);

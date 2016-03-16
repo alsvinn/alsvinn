@@ -57,6 +57,7 @@ namespace alsfvm { namespace numflux { namespace euler {
 		/// Computes the wave speeds for the given direction
 		/// \param[in] left the values on the left side of the grid cell ("left" after we align the grid to the direction)
 		/// \param[in] right the values on the right side of the grid cell
+        /// \param[in] eq the equation instance
 		/// \param[out] speedLeft the speed to the left side
 		/// \param[out] speedRight the speed to the right
 		/// \todo Document this better

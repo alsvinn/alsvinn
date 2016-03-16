@@ -60,7 +60,7 @@ TEST(ForwardEulerTest, ConvergenceTest) {
         }
 
         for (size_t i = 0; i < N; i++) {
-            for (int substep = 0; substep < integrator.getNumberOfSubsteps(); ++substep) {
+            for (size_t substep = 0; substep < integrator.getNumberOfSubsteps(); ++substep) {
                 auto& currentVolume = volumes[substep + 1];
 
                 // Note that we do not care about spatial resolution here

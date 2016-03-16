@@ -20,6 +20,8 @@ namespace alsfvm { namespace numflux {
         /// \param fluxname the name of the flux (eg. HLL)
         /// \param reconstruction the reconstruction to use ("none" is default).
         /// \param deviceConfiguration the relevant device configuration
+        /// \param simulatorParameters the given parameters for the simulation
+        ///
         /// \note The platform name is deduced by deviceConfiguration
         ///
         NumericalFluxFactory(const std::string& equation,
