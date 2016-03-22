@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/integrator/Integrator.hpp"
 #include "alsfvm/numflux/NumericalFlux.hpp"
+#include "alsfvm/integrator/System.hpp"
 
 namespace alsfvm { namespace integrator {
 
@@ -10,7 +11,7 @@ namespace alsfvm { namespace integrator {
     ///
     class RungeKutta3 : public Integrator {
     public:
-		RungeKutta3(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux);
+        RungeKutta3(alsfvm::shared_ptr<System> system);
 
 
         ///
@@ -42,7 +43,7 @@ namespace alsfvm { namespace integrator {
             const simulator::TimestepInformation& timestepInformation);
 
     private:
-		alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;
+        alsfvm::shared_ptr<System> system;
 
     };
 } // namespace alsfvm

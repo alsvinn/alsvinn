@@ -3,8 +3,8 @@
 namespace alsfvm { namespace integrator {
 
 
-RungeKutta3::RungeKutta3(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux)
-    : numericalFlux(numericalFlux)
+RungeKutta3::RungeKutta3(alsfvm::shared_ptr<System> system)
+    : system(system)
 {
 
 }
@@ -40,7 +40,7 @@ real RungeKutta3::performSubstep(const std::vector<alsfvm::shared_ptr< volume::V
 
     // Compute F(U)
 	rvec3 waveSpeeds(0, 0, 0);
-    numericalFlux->computeFlux(*inputConserved[substep], waveSpeeds, true, output);
+    (*system)(*inputConserved[substep], waveSpeeds, true, output);
 
 	if (substep == 0) {
         dt = computeTimestep(waveSpeeds, spatialCellSizes, cfl, timestepInformation);

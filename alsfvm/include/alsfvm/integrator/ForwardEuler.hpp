@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/integrator/Integrator.hpp"
 #include "alsfvm/numflux/NumericalFlux.hpp"
+#include "alsfvm/integrator/System.hpp"
 
 namespace alsfvm { namespace integrator { 
 
@@ -18,9 +19,9 @@ namespace alsfvm { namespace integrator {
 		///
 		/// Constructs a new instance.
 		///
-		/// \param numericalFlux the numerical flux to use 
+        /// \param system the ODE system to use
 		///
-		ForwardEuler(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux);
+        ForwardEuler(alsfvm::shared_ptr<System> system);
 
 		///
 		/// \returns 1
@@ -49,7 +50,7 @@ namespace alsfvm { namespace integrator {
             const simulator::TimestepInformation& timestepInformation);
 
 	private:
-		alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;
+        alsfvm::shared_ptr<System> system;
     };
 } // namespace alsfvm
 } // namespace integrator

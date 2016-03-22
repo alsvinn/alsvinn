@@ -16,6 +16,7 @@
 #include "alsfvm/boundary/BoundaryFactory.hpp"
 #include <array>
 #include "alsfvm/reconstruction/ENOCPU.hpp"
+#include "alsfvm/simulator/ConservedSystem.hpp"
 #include "alsfvm/reconstruction/WENOCPU.hpp"
 #include <limits>
 #include <iomanip>
@@ -57,8 +58,9 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
 
     auto numericalFlux = fluxFactory.createNumericalFlux(grid);
+    alsfvm::shared_ptr<integrator::System> system(new simulator::ConservedSystem(numericalFlux));
     integrator::IntegratorFactory integratorFactory(integratorName);
-    auto integrator = integratorFactory.createIntegrator(numericalFlux);
+    auto integrator = integratorFactory.createIntegrator(system);
 
     std::vector<alsfvm::shared_ptr<volume::Volume> > conservedVolumes(integrator->getNumberOfSubsteps() + 1);
 

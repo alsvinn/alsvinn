@@ -2,8 +2,8 @@
 #include <iostream>
 namespace alsfvm { namespace integrator {
 
-	ForwardEuler::ForwardEuler(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux) 
-	: numericalFlux(numericalFlux) 
+    ForwardEuler::ForwardEuler(alsfvm::shared_ptr<System> system)
+    : system(system)
 	{
 		// Empty
 	}
@@ -21,7 +21,7 @@ namespace alsfvm { namespace integrator {
 
 		rvec3 waveSpeed(0, 0, 0);
 
-        numericalFlux->computeFlux(*inputConserved[0], waveSpeed, true, output);
+        (*system)(*inputConserved[0], waveSpeed, true, output);
         dt = computeTimestep(waveSpeed, spatialCellSizes, cfl, timestepInformation);
 		rvec3 cellScaling(dt / spatialCellSizes.x,
 			dt / spatialCellSizes.y,

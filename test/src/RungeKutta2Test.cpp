@@ -8,13 +8,13 @@ using namespace alsfvm::numflux;
 namespace {
 
     // Represents the system du/dt = u;
-    class ODENumericalFlux : public NumericalFlux {
+    class ODESystem : public System {
     public:
         real dt;
-        ODENumericalFlux(real dt) : dt(dt) {}
+        ODESystem(real dt) : dt(dt) {}
         size_t getNumberOfGhostCells() { return 0; }
 
-        void computeFlux(const volume::Volume& conservedVariables,
+        void operator()(const volume::Volume& conservedVariables,
             rvec3& waveSpeeds, bool computeWaveSpeeds,
             volume::Volume& output)
         {
@@ -49,7 +49,7 @@ TEST(RungeKutta2Test, ConvergenceTest) {
 
         const size_t N = (2<<k);
         const real dt = real(1) / real(N);
-        alsfvm::shared_ptr<NumericalFlux> flux(new ODENumericalFlux(dt));
+        alsfvm::shared_ptr<System> flux(new ODESystem(dt));
 
         RungeKutta2 integrator(flux);
         std::vector<alsfvm::shared_ptr<alsfvm::volume::Volume> >

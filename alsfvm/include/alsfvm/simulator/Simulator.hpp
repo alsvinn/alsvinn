@@ -9,6 +9,7 @@
 #include "alsfvm/simulator/TimestepInformation.hpp"
 #include "alsfvm/simulator/SimulatorParameters.hpp"
 #include "alsfvm/init/InitialData.hpp"
+#include "alsfvm/simulator/ConservedSystem.hpp"
 #include <vector>
 #include <memory>
 
@@ -115,6 +116,7 @@ namespace alsfvm { namespace simulator {
         TimestepInformation timestepInformation;
         alsfvm::shared_ptr<grid::Grid> grid;
         alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;
+        alsfvm::shared_ptr<integrator::System> system;
         alsfvm::shared_ptr<integrator::Integrator> integrator;
         alsfvm::shared_ptr<boundary::Boundary> boundary;
         std::vector<alsfvm::shared_ptr<volume::Volume> > conservedVolumes;
