@@ -1,40 +1,50 @@
 #pragma once
 #include "alsfvm/types.hpp"
+#include "alsfvm/equation/EquationParameters.hpp"
+#include "alsfvm/equation/burgers/ConservedVariables.hpp"
+#include "alsfvm/equation/burgers/ExtraVariables.hpp"
+#include "alsfvm/equation/burgers/AllVariables.hpp"
+#include "alsfvm/equation/burgers/PrimitiveVariables.hpp"
+
+#include "alsfvm/equation/burgers/Views.hpp"
+#include "alsfvm/volume/Volume.hpp"
+#include "alsfvm/equation/burgers/ViewsExtra.hpp"
 
 namespace alsfvm { namespace equation { namespace burgers { 
 
 class Burgers {
 public:
 
-    Burgers(const EulerParameters& parameters)
-        : gamma(parameters.getGamma())
+    Burgers(const EquationParameters& parameters)
     {
+        // empty
     }
 
-    typedef euler::EulerParameters Parameters;
-    typedef euler::ConservedVariables ConservedVariables;
-    typedef euler::ExtraVariables ExtraVariables;
-    typedef euler::PrimitiveVariables PrimitiveVariables;
-    typedef euler::AllVariables AllVariables;
+    typedef EquationParameters Parameters;
+    typedef burgers::ConservedVariables ConservedVariables;
+    typedef burgers::ExtraVariables ExtraVariables;
+    typedef burgers::PrimitiveVariables PrimitiveVariables;
+    typedef burgers::AllVariables AllVariables;
+
     ///
-    /// Defaults to "euler".
+    /// Defaults to "burgers".
     ///
     static const std::string name;
 
     ///
-    /// Gives the number of conserved variables used (5)
+    /// Gives the number of conserved variables used (1)
     ///
-    static const size_t  numberOfConservedVariables = 5;
+    static const size_t  numberOfConservedVariables = 1;
 
     __device__ __host__ static size_t getNumberOfConservedVariables() {
-        return 5;
+        return 1;
     }
 
-    typedef equation::euler::Views<volume::Volume, memory::View<real> > Views;
-    typedef equation::euler::Views<const volume::Volume, const memory::View<const real> > ConstViews;
+    typedef equation::burgers::Views<volume::Volume, memory::View<real> > Views;
+    typedef equation::burgers::Views<const volume::Volume, const memory::View<const real> > ConstViews;
 
-    typedef equation::euler::ViewsExtra<volume::Volume, memory::View<real> > ViewsExtra;
-    typedef equation::euler::ViewsExtra<const volume::Volume, const memory::View<const real> > ConstViewsExtra;
+    typedef equation::burgers::ViewsExtra<volume::Volume, memory::View<real> > ViewsExtra;
+    typedef equation::burgers::ViewsExtra<const volume::Volume, const memory::View<const real> > ConstViewsExtra;
 
 
     ///
@@ -229,12 +239,6 @@ public:
         real p = (gamma-1)*ie;
         return PrimitiveVariables(conserved.rho, u.x, u.y, u.z, p);
     }
-
-    __device__ __host__ real getGamma() const {
-        return gamma;
-    }
-private:
-    const real gamma;
 
 };
 } // namespace alsfvm
