@@ -51,50 +51,30 @@ public:
     /// Fetches and computes the all variables from memory
     ///
     __device__ __host__ AllVariables fetchAllVariables(ConstViews& views, size_t index) const {
-        return makeAllVariables(views.rho.at(index),
-                                views.mx.at(index),
-                                views.my.at(index),
-                                views.mz.at(index),
-                                views.E.at(index));
+        return makeAllVariables(views.u.at(index));
     }
 
     template<class T, class S>
-    __device__ __host__ ConservedVariables fetchConservedVariables(euler::Views<T, S>& views, size_t index) const {
-        return ConservedVariables(views.rho.at(index),
-                                  views.mx.at(index),
-                                  views.my.at(index),
-                                  views.mz.at(index),
-                                  views.E.at(index));
+    __device__ __host__ ConservedVariables fetchConservedVariables(burgers::Views<T, S>& views, size_t index) const {
+        return ConservedVariables(views.u);
     }
 
     __device__ __host__ ExtraVariables fetchExtraVariables(ConstViewsExtra& views, size_t index) const {
-        return ExtraVariables(views.p.at(index),
-                              views.ux.at(index),
-                              views.uy.at(index),
-                              views.uz.at(index));
+        return ExtraVariables();
     }
 
     ///
     /// Writes the ConservedVariable struct back to memory
     ///
     __device__ __host__ void setViewAt(Views& output, size_t index, const ConservedVariables& input) const  {
-        output.rho.at(index) = input.rho;
-        output.mx.at(index) = input.m.x;
-        output.my.at(index) = input.m.y;
-        output.mz.at(index) = input.m.z;
-        output.E.at(index) = input.E;
-
+        output.u.at(index) = input.u;
     }
 
     ///
     /// Writes the ExtraVariable struct back to memory
     ///
     __device__ __host__ void setExtraViewAt(ViewsExtra& output, size_t index, const ExtraVariables& input) const {
-        output.p.at(index) = input.p;
-        output.ux.at(index) = input.u.x;
-        output.uy.at(index) = input.u.y;
-        output.uz.at(index) = input.u.z;
-
+        // empty
     }
 
     ///
@@ -103,30 +83,16 @@ public:
     /// Basically sets output[index] += input
     ///
     __device__ __host__ void addToViewAt(Views& output, size_t index, const ConservedVariables& input) const {
-        output.rho.at(index) += input.rho;
-        output.mx.at(index) += input.m.x;
-        output.my.at(index) += input.m.y;
-        output.mz.at(index) += input.m.z;
-        output.E.at(index) += input.E;
-
+        output.u.at(index) += input.u;
     }
 
     ///
     /// Computes the point flux.
     ///
-    /// Here we view the Euler equation as the following hyperbolic system
-    /// \f[\vec{U}_t+F(\vec{U})_x+G(\vec{U})_y+H(\vec{U})_z = 0\f]
-    /// where
-    /// \f[\vec{U}=\left(\begin{array}{l}\rho\\ \vec{m}\\E\end{array}\right)=\left(\begin{array}{c}\rho\\ \rho u\\ \rho v\\ \rho w \\E\end{array}\right)\f]
-    /// and
-    /// \f[F(\vec{U})=\left(\begin{array}{c}\rho u\\ \rho u^2+p\\ \rho u v\\ \rho u w\\ u(E+p)\end{array}\right)\qquad
-    ///	   G(\vec{U})=\left(\begin{array}{c}\rho v\\ \rho uv\\ \rho v^2+p\\ \rho v w\\ v(E+p)\end{array}\right)\qquad
-    ///    H(\vec{U})=\left(\begin{array}{c}\rho w\\ \rho uw\\ \rho w v\\ \rho w^2+p\\ w(E+p)\end{array}\right)
-    /// \f]
-    /// \returns \f[\left\{\begin{array}{lr}F(\vec{U})&\mathrm{if}\;\mathrm{direction}=0\\
-    ///										G(\vec{U})&\mathrm{if}\;\mathrm{direction}=1\\
-    ///                                     H(\vec{U})&\mathrm{if}\;\mathrm{direction}=2
-    ///           \end{array}\right.\f]
+    /// Here we view the Burgers equation as the following hyperbolic system
+    /// \f[u_t+\left(\frac{u^2}{2}\right)_x=0,\f]
+    ///
+    /// whence the function will return \f$u^2/2\f$
     ///
     /// \param[in] u the variables to use
     /// \param[out] F the resulting flux
@@ -136,47 +102,28 @@ public:
     __device__ __host__  void computePointFlux(const AllVariables& u, ConservedVariables& F) const {
         static_assert(direction < 3, "We only support up to three dimensions");
 
-        F.rho = u.m[direction];
-        F.m = u.u[direction] * u.m;
-        F.m[direction] += u.p;
-        F.E = (u.E + u.p) * u.u[direction];
+        F = u.u * u.u / 2;
     }
 
 
 
     ///
-    /// Computes the extra variables \f$ p \f$ and \f$u\f$.
-    /// Here we compute
-    /// \f[u =\frac{1}{\rho} m\f]
-    /// and
-    /// \f[p = (1-\gamma)(E-\frac{1}{2\rho}m^2)\f]
+    /// Empty function, Burgers has no extra variables at the moment
     ///
     __device__ __host__  ExtraVariables computeExtra(const ConservedVariables& u) const {
-        ExtraVariables v;
-        real ie = u.E - 0.5*u.m.dot(u.m)/u.rho;
-        v.u = u.m / u.rho;
-        v.p = (gamma-1)*ie;
-        return v;
+        return ExtraVariables();
     }
 
     ///
     /// \brief computes the extra variables from the primitive ones
-    ///
-    /// \param primitiveVariables the primtive variables
-    /// \return the computed all variables
-    /// \note This implementation is not made for speed! Should only be
-    /// used sparsely (eg. for initialization).
+    /// \note Empty function, Burgers has no extra varaibles at the moment.
     ///
     __device__ __host__ ExtraVariables computeExtra(const PrimitiveVariables& primitiveVariables) const {
-        return ExtraVariables(primitiveVariables.p,
-                              primitiveVariables.u.x,
-                              primitiveVariables.u.y,
-                              primitiveVariables.u.z
-                              );
+        return ExtraVariables();
     }
 
     ///
-    /// \brief computes the extra variables from the primitive ones
+    /// \brief computes the conserved variables from the primitive ones
     ///
     /// \param primitiveVariables the primtive variables
     /// \return the computed all variables
@@ -184,13 +131,7 @@ public:
     /// used sparsely (eg. for initialization).
     ///
     __device__ __host__ ConservedVariables computeConserved(const PrimitiveVariables& primitiveVariables) const {
-        const rvec3 m = primitiveVariables.rho * primitiveVariables.u;
-
-        const real E =
-                primitiveVariables.p / (gamma - 1)
-                + 0.5*primitiveVariables.rho*primitiveVariables.u.dot(primitiveVariables.u);
-
-        return ConservedVariables(primitiveVariables.rho, m.x, m.y, m.z, E);
+        return ConservedVariables(primitiveVariables.u);
     }
 
     ///
@@ -203,7 +144,7 @@ public:
         static_assert(direction >= 0, "Direction can not be negative");
         static_assert(direction < 3, "We only support dimension up to and inclusive 3");
 
-        return fabs(v.u[direction]) +sqrt(gamma * v.p / u.rho);
+        return fabs(u.u);
     }
 
     ///
@@ -219,25 +160,20 @@ public:
                                               const ExtraVariables& v) const
     {
 
-        return u.rho < INFINITY && (u.rho == u.rho) && (u.rho > 0) && (v.p > 0);
+        return u.u < INFINITY && (u.u == u.u);
     }
 
-    __device__ __host__ AllVariables makeAllVariables(real rho, real mx, real my, real mz, real E) const {
+    __device__ __host__ AllVariables makeAllVariables(real u) const {
 
-        ConservedVariables conserved(rho, mx, my, mz, E);
-        return AllVariables(conserved, computeExtra(conserved));
+        return AllVariables(u);
     }
 
     __device__ __host__ real getWeight(const ConstViews& in, size_t index) const {
-        return in.rho.at(index);
+        return in.u.at(index);
     }
 
     __device__ __host__ PrimitiveVariables computePrimitiveVariables(const ConservedVariables& conserved) const {
-        rvec3 u = conserved.m / conserved.rho;
-        real ie = conserved.E - 0.5*conserved.m.dot(conserved.m)/conserved.rho;
-
-        real p = (gamma-1)*ie;
-        return PrimitiveVariables(conserved.rho, u.x, u.y, u.z, p);
+        return PrimitiveVariables(conserved.u);
     }
 
 };

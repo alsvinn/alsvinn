@@ -17,27 +17,6 @@ public:
         // Empty
     }
 
-    template<size_t variableIndex>
-    __device__ __host__ ViewType& get() {
-        static_assert(variableIndex < 5, "We only have 5 conserved variables for Euler!");
-        switch (variableIndex) {
-        case 0:
-            return p;
-        case 1:
-            return ux;
-        case 2:
-            return uy;
-        case 3:
-            return uz;
-        }
-        // If we reach this far, something has gone wrong
-        assert(false);
-        return p;
-    }
-
-    __device__ __host__ size_t index(size_t x, size_t y, size_t z) const {
-        return p.index(x, y, z);
-    }
 
 
     ViewType p;
