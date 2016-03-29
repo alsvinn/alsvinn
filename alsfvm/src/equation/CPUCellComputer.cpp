@@ -1,6 +1,8 @@
 #include "alsfvm/equation/CPUCellComputer.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
+#include "alsfvm/equation/equation_list.hpp"
+
 namespace alsfvm { namespace equation {
 
 template<class Equation>
@@ -42,7 +44,7 @@ real CPUCellComputer<Equation>::computeMaxWaveSpeed(const volume::Volume& conser
             const real waveSpeedY = eq.template computeWaveSpeed<1>(conserved, extra);
             maxWaveSpeed = std::max(maxWaveSpeed, waveSpeedY);
         }    else if(direction == 2) {
-            const real waveSpeedZ = eq.template computeWaveSpeed<1>(conserved, extra);
+            const real waveSpeedZ = eq.template computeWaveSpeed<2>(conserved, extra);
             maxWaveSpeed = std::max(maxWaveSpeed, waveSpeedZ);
         }
     });
@@ -117,6 +119,6 @@ void CPUCellComputer<Equation>::computeFromPrimitive(const volume::Volume &primi
     });
 }
 
-template class CPUCellComputer<euler::Euler>;
+ALSFVM_EQUATION_INSTANTIATE(CPUCellComputer);
 }
 }
