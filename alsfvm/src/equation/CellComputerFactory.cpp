@@ -6,7 +6,44 @@
 #include "alsfvm/equation/CUDACellComputer.hpp"
 #endif
 
+#include "alsfvm/equation/equation_list.hpp"
+
 namespace alsfvm { namespace equation {
+
+namespace {
+struct CellComputerFunctor {
+    CellComputerFunctor( simulator::SimulatorParameters& parameters,
+                        alsfvm::shared_ptr<CellComputer>& cellComputerPointer)
+        : parameters(parameters), cellComputerPointer(cellComputerPointer)
+    {
+
+    }
+
+    template<class EquationInfo>
+    void operator()(const EquationInfo& t) const {
+        auto platform = parameters.getPlatform();
+        if (t.getName() == parameters.getEquationName()) {
+             if (platform == "cpu") {
+                 cellComputerPointer.reset(
+                             new CPUCellComputer<typename EquationInfo::EquationType>(parameters));
+             }
+#ifdef ALSVINN_HAVE_CUDA
+             else if (platform == "cuda") {
+                 cellComputerPointer.reset(
+                             new CUDACellComputer<typename EquationInfo::EquationType>(*simulatorParameters));
+             }
+#endif
+             else {
+                 THROW("Unknown platform " << platform);
+             }
+        }
+    }
+
+    simulator::SimulatorParameters& parameters;
+    alsfvm::shared_ptr<CellComputer>& cellComputerPointer;
+
+};
+}
 
 CellComputerFactory::CellComputerFactory(const alsfvm::shared_ptr<simulator::SimulatorParameters>& parameters,
 										 alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration)
@@ -17,28 +54,16 @@ CellComputerFactory::CellComputerFactory(const alsfvm::shared_ptr<simulator::Sim
 
 alsfvm::shared_ptr<CellComputer> CellComputerFactory::createComputer()
 {
-    auto platform = simulatorParameters->getPlatform();
-    auto equation = simulatorParameters->getEquationName();
-    if (platform == "cpu") {
-        if (equation == "euler") {
-            return alsfvm::shared_ptr<CellComputer>(new CPUCellComputer<euler::Euler>(*simulatorParameters));
-        } else {
-            THROW("Unknown equation " << equation);
-        }
+    alsfvm::shared_ptr<CellComputer> cellComputerPointer;
+
+    for_each_equation(CellComputerFunctor(*simulatorParameters, cellComputerPointer));
+
+    if (!cellComputerPointer) {
+        THROW("Unrecognized equation " << simulatorParameters->getEquationName());
     }
-#ifdef ALSVINN_HAVE_CUDA
-    if (platform == "cuda") {
-		if (equation == "euler") {
-            return alsfvm::shared_ptr<CellComputer>(new CUDACellComputer<euler::Euler>(*simulatorParameters));
-		}
-		else {
-			THROW("Unknown equation " << equation);
-		}
-	}
-#endif
-	else {
-        THROW("Unknown platform " << platform);
-    }
+
+    return cellComputerPointer;
+
 }
 
 }

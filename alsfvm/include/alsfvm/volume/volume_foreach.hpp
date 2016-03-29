@@ -77,6 +77,21 @@ namespace alsfvm {
         }
 
 
+
+
+
+        template<class VariableStruct>
+        inline VariableStruct expandVariableStruct(const std::array<const real*, 0>& in, size_t index) {
+            // Yes, we want an empty one, since this is called when we do not
+            // have extra variables (eg. burgers)
+        }
+
+        template<class VariableStruct>
+        inline VariableStruct expandVariableStruct(const std::array<const real*, 1>& in, size_t index) {
+            return VariableStruct(in[0][index]);
+        }
+
+
 		template<class VariableStruct>
 		inline VariableStruct expandVariableStruct(const std::array<const real*, 5>& in, size_t index) {
 			return VariableStruct(in[0][index], in[1][index], in[2][index], in[3][index], in[4][index]);
@@ -86,6 +101,22 @@ namespace alsfvm {
 		inline VariableStruct expandVariableStruct(const std::array<const real*, 4>& in, size_t index) {
 			return VariableStruct(in[0][index], in[1][index], in[2][index], in[3][index]);
 		}
+
+
+        template<class VariableStruct>
+        inline void saveVariableStruct(const VariableStruct& in, size_t index, std::array<real*, 1>& out) {
+            real* inAsRealPointer = (real*)&in;
+
+            out[0][index] = inAsRealPointer[0];
+
+        }
+
+        template<class VariableStruct>
+        inline void saveVariableStruct(const VariableStruct& in, size_t index, std::array<real*, 0>& out) {
+            // Yes, we want an empty one, since this is called when we do not
+            // have extra variables (eg. burgers)
+        }
+
 
 		template<class VariableStruct>
 		inline void saveVariableStruct(const VariableStruct& in, size_t index, std::array<real*, 4>& out) {

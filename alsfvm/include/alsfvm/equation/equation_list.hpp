@@ -44,3 +44,10 @@ namespace alsfvm { namespace equation {
 
 
 }}
+
+///
+/// Macro to instantiate a class for every equation available.
+///
+#define ALSFVM_EQUATION_INSTANTIATE(X) \
+    template class X<::alsfvm::equation::euler::Euler>; \
+    template class X<::alsfvm::equation::burgers::Burgers>;
