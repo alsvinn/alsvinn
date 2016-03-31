@@ -56,7 +56,7 @@ public:
 
     template<class T, class S>
     __device__ __host__ ConservedVariables fetchConservedVariables(burgers::Views<T, S>& views, size_t index) const {
-        return ConservedVariables(views.u);
+        return ConservedVariables(views.u.at(index));
     }
 
     __device__ __host__ ExtraVariables fetchExtraVariables(ConstViewsExtra& views, size_t index) const {

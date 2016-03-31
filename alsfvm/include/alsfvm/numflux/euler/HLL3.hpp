@@ -18,6 +18,10 @@ namespace alsfvm { namespace numflux { namespace euler {
 ///
 class HLL3 {
 public:
+    ///
+    /// \brief name is "hll3"
+    ///
+    static const std::string name;
 
     ///
     /// Computes the flux. Ie. computes
