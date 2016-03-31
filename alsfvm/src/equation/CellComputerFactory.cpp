@@ -30,7 +30,7 @@ struct CellComputerFunctor {
 #ifdef ALSVINN_HAVE_CUDA
              else if (platform == "cuda") {
                  cellComputerPointer.reset(
-                             new CUDACellComputer<typename EquationInfo::EquationType>(*simulatorParameters));
+                     new CUDACellComputer<typename EquationInfo::EquationType>(parameters));
              }
 #endif
              else {

@@ -2,6 +2,7 @@
 #include "alsfvm/types.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 namespace alsfvm { namespace numflux { 
 
@@ -32,7 +33,7 @@ namespace alsfvm { namespace numflux {
             // This looks a bit weird, but it is OK. The basic principle is that AllVariables
             // is both a conservedVariable and an extra variable, hence we need to pass
             // it twice since this function expects both.
-            return std::max(eq.template computeWaveSpeed<direction>(left, left),
+            return fmax(eq.template computeWaveSpeed<direction>(left, left),
                             eq.template computeWaveSpeed<direction>(right, right));
         }
     };

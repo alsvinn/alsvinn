@@ -16,13 +16,6 @@ public:
     {
         // Empty
     }
-
-
-
-    ViewType p;
-    ViewType ux;
-    ViewType uy;
-    ViewType uz;
 };
 
 } // namespace alsfvm

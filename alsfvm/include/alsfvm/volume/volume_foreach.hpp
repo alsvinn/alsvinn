@@ -84,6 +84,7 @@ namespace alsfvm {
         inline VariableStruct expandVariableStruct(const std::array<const real*, 0>& in, size_t index) {
             // Yes, we want an empty one, since this is called when we do not
             // have extra variables (eg. burgers)
+            return VariableStruct();
         }
 
         template<class VariableStruct>

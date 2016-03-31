@@ -62,13 +62,13 @@ struct FluxFunctor {
 #ifdef ALSVINN_HAVE_CUDA
             else if (deviceConfiguration->getPlatform() == "cuda") {
                 if (grid.getActiveDimension() == 3) {
-                    numericalFlux.reset(new NumericalFluxCUDA<NumericalFlux, Equation, 3>(grid, reconstruction, simulatorParameters, deviceConfiguration));
+                    numericalFlux.reset(new NumericalFluxCUDA<NumericalFlux, Equation, 3>(grid, reconstruction, *simulatorParameters, deviceConfiguration));
                 }
                 else if (grid.getActiveDimension() == 2) {
-                    numericalFlux.reset(new NumericalFluxCUDA<NumericalFlux, Equation, 2>(grid, reconstruction, simulatorParameters, deviceConfiguration));
+                    numericalFlux.reset(new NumericalFluxCUDA<NumericalFlux, Equation, 2>(grid, reconstruction, *simulatorParameters, deviceConfiguration));
                 }
                 else if (grid.getActiveDimension() == 1) {
-                    numericalFlux.reset(new NumericalFluxCUDA<NumericalFlux, Equation, 1>(grid, reconstruction, simulatorParameters, deviceConfiguration));
+                    numericalFlux.reset(new NumericalFluxCUDA<NumericalFlux, Equation, 1>(grid, reconstruction, *simulatorParameters, deviceConfiguration));
                 }
                 else {
                     THROW("Unsupported dimension " << grid.getActiveDimension());
