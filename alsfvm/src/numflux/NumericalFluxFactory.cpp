@@ -13,6 +13,7 @@
 
 #include "alsfvm/error/Exception.hpp"
 #include <iostream>
+#include <boost/algorithm/string.hpp>
 
 namespace alsfvm { namespace numflux { 
 
@@ -43,7 +44,7 @@ struct FluxFunctor {
 
     template<class NumericalFlux>
     void operator()(const NumericalFlux& flux) const {
-        if (NumericalFlux::name == fluxName) {
+        if (NumericalFlux::name == boost::to_lower_copy(fluxName)) {
             if (deviceConfiguration->getPlatform() == "cpu") {
                 if (grid.getActiveDimension() == 3) {
                     numericalFlux.reset(new NumericalFluxCPU<NumericalFlux, Equation, 3>(grid, reconstruction, simulatorParameters, deviceConfiguration));
@@ -56,7 +57,6 @@ struct FluxFunctor {
                 }
                 else {
                     THROW("Unsupported dimension " << grid.getActiveDimension());
-
                 }
             }
 #ifdef ALSVINN_HAVE_CUDA
