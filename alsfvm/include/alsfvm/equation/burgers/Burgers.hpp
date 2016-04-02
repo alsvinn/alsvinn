@@ -31,6 +31,21 @@ public:
     ///
     static const std::string name;
 
+    //!
+    //! List of all conserved variables used by Burgers (u)
+    //!
+    static const std::vector<std::string> conservedVariables;
+
+    //!
+    //! List of all primtive variables used by Burgers (u)
+    //!
+    static const std::vector<std::string> primitiveVariables;
+
+    //!
+    //! List of all extra variables used by Burgers (none)
+    //!
+    static const std::vector<std::string> extraVariables;
+
     ///
     /// Gives the number of conserved variables used (1)
     ///
