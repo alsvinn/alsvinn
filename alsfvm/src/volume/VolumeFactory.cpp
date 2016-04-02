@@ -1,9 +1,6 @@
 #include <vector>
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/error/Exception.hpp"
-#include "alsfvm/volume/EulerConservedVolume.hpp"
-#include "alsfvm/volume/EulerExtraVolume.hpp"
-#include "alsfvm/volume/EulerPrimitiveVolume.hpp"
 #include "alsfvm/equation/equation_list.hpp"
 
 namespace alsfvm { namespace volume { 
