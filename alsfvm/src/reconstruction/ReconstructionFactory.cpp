@@ -1,5 +1,6 @@
 #include "alsfvm/reconstruction/ReconstructionFactory.hpp"
 #include "alsfvm/simulator/SimulatorParameters.hpp"
+#include "alsfvm/equation/equation_list.hpp"
 #ifdef ALSVINN_HAVE_CUDA
 #include "alsfvm/reconstruction/WENOCUDA.hpp"
 #include "alsfvm/reconstruction/WENO2CUDA.hpp"
@@ -28,7 +29,7 @@ ReconstructionFactory::ReconstructionPtr
                                                 const grid::Grid& grid,
                                                 alsfvm::shared_ptr<DeviceConfiguration> &deviceConfiguration)
 {
-    if (equation != "euler") {
+    if (equation != "euler" && equation != "burgers") {
         THROW("Unknown equation " << equation);
     }
     auto& platform = deviceConfiguration->getPlatform();
@@ -56,7 +57,11 @@ ReconstructionFactory::ReconstructionPtr
 
         }
         else if (name == "weno2") {
-            reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENO2<equation::euler::Euler>, equation::euler::Euler>(simulatorParameters));
+            if (equation == "euler") {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENO2<equation::euler::Euler>, equation::euler::Euler>(simulatorParameters));
+            } else {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>(simulatorParameters));
+            }
 
         }
         else if (name == "weno3") {
@@ -64,7 +69,11 @@ ReconstructionFactory::ReconstructionPtr
 
         }
         else if (name == "wenof2") {
-            reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENOF2<equation::euler::Euler>, equation::euler::Euler>(simulatorParameters));
+            if (equation == "euler") {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENOF2<equation::euler::Euler>, equation::euler::Euler>(simulatorParameters));
+            } else {
+                THROW("We do not support WENO2F for Burgers.");
+            }
 
         }
 
@@ -93,6 +102,8 @@ ReconstructionFactory::ReconstructionPtr
                 //reconstructor.reset(new reconstruction::WENO2CUDA<equation::euler::Euler>());
                 reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENO2<equation::euler::Euler>, equation::euler::Euler>(simulatorParameters));
 
+            } else {
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>(simulatorParameters));
             }
             else {
                 THROW("We do not support WENOCUDA for equation " << equation);
@@ -104,7 +115,11 @@ ReconstructionFactory::ReconstructionPtr
 
         }
         else if (name == "wenof2") {
-            reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENOF2<equation::euler::Euler>, equation::euler::Euler>(simulatorParameters));
+            if (equation == "euler") {
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENOF2<equation::euler::Euler>, equation::euler::Euler>(simulatorParameters));
+            } else {
+                THROW("We do not support WENO2F for Burgers.");
+            }
 
         }
         else {

@@ -28,7 +28,12 @@ namespace alsfvm { namespace numflux {
                                                            const typename Equation::AllVariables& right,
                                                            typename Equation::ConservedVariables& F)
         {
-            F = 0.5 * (left + right);
+            typename Equation::ConservedVariables fluxLeft;
+            eq.template computePointFlux<direction>(left, fluxLeft);
+            typename Equation::ConservedVariables fluxRight;
+            eq.template computePointFlux<direction>(right, fluxRight);
+
+            F = 0.5 * (fluxLeft+fluxRight);
 
             // This looks a bit weird, but it is OK. The basic principle is that AllVariables
             // is both a conservedVariable and an extra variable, hence we need to pass
