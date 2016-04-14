@@ -2,10 +2,12 @@
 #include "alsfvm/reconstruction/ReconstructionFactory.hpp"
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
-#include "alsfvm/equation/euler/Euler.hpp"
+#include "alsfvm/equation/burgers/Burgers.hpp"
 #include "alsfvm/reconstruction/WENOCoefficients.hpp"
-#include "alsfvm/equation/euler/EulerParameters.hpp"
 #include "alsfvm/boundary/BoundaryFactory.hpp"
+#include <array>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/lu.hpp>
 #include "utils/polyfit.hpp"
 using namespace alsfvm;
 using namespace alsfvm::memory;
@@ -38,6 +40,7 @@ namespace {
 
     };
 
+
     std::ostream& operator<<(std::ostream& os, const ReconstructionParameters& parameters) {
         os << "\n{\n\texpectedConvergenceRate = " << parameters.expectedConvergenceRate
             << "\n\texpectedLInftyConvergenceRate = " << parameters.expectedLInftyConvergenceRate
@@ -47,7 +50,7 @@ namespace {
     }
 }
 
-class ReconstructionConvergenceTest : public ::testing::TestWithParam <ReconstructionParameters> {
+class BurgersReconstructionConvergenceTest : public ::testing::TestWithParam <ReconstructionParameters> {
 public:
     ReconstructionParameters parameters;
     size_t nx = 10;
@@ -79,22 +82,22 @@ public:
 
     alsfvm::shared_ptr<boundary::Boundary> boundary;
 
-    ReconstructionConvergenceTest()
+    BurgersReconstructionConvergenceTest()
 
         :
         parameters(GetParam()),
         grid({ 0, 0, 0 }, { 1, 1, 0 }, ivec3(nx, ny, nz)),
         deviceConfiguration(new DeviceConfiguration(parameters.platform)),
         memoryFactory(new MemoryFactory(deviceConfiguration)),
-        volumeFactory("euler", memoryFactory),
+        volumeFactory("burgers", memoryFactory),
         deviceConfigurationCPU(new DeviceConfiguration("cpu")),
         memoryFactoryCPU(new MemoryFactory(deviceConfigurationCPU)),
-        volumeFactoryCPU("euler", memoryFactoryCPU)
+        volumeFactoryCPU("burgers", memoryFactoryCPU)
 
     {
-        auto eulerParameters = alsfvm::make_shared<equation::euler::EulerParameters>();
+        auto burgersParameters = alsfvm::make_shared<equation::EquationParameters>();
 
-        simulatorParameters.setEquationParameters(eulerParameters);
+        simulatorParameters.setEquationParameters(burgersParameters);
 
        
     }
@@ -110,7 +113,7 @@ public:
     }
 
     void makeReconstruction(const std::string& name) {
-        wenoCUDA = reconstructionFactory.createReconstruction(name, "euler", simulatorParameters, memoryFactory, grid, deviceConfiguration);
+        wenoCUDA = reconstructionFactory.createReconstruction(name, "burgers", simulatorParameters, memoryFactory, grid, deviceConfiguration);
 
         conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
         left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
@@ -129,10 +132,10 @@ public:
     
 };
 
-TEST_P(ReconstructionConvergenceTest, ReconstructionTest) {
+TEST_P(BurgersReconstructionConvergenceTest, ReconstructionTest) {
     // We test that we actually get second order convergence of 
     // WENO2. That is, we create a 1 dimensional grid
-    // with values rho[x] = sin(x) + 2
+    // with values u[x] = sin(x) + 2
     // (note: we add the + 2 to make sure we always have positive density)
 
     auto f = [](real x) {
@@ -166,28 +169,23 @@ TEST_P(ReconstructionConvergenceTest, ReconstructionTest) {
         makeReconstruction(parameters.name, n);
         const size_t numberOfGhostCells = wenoCUDA->getNumberOfGhostCells();
         const real dx = grid.getCellLengths().x;
-        auto conservedView = conservedCPU->getScalarMemoryArea("rho")->getView();
+        auto conservedView = conservedCPU->getScalarMemoryArea("u")->getView();
         for (int x = 0; x < nx; ++x) {
             const real a = x * dx;
             const real b = (x + 1) * dx;
 
             const size_t index = conservedView.index(x + numberOfGhostCells, 0, 0);
-            equation::euler::PrimitiveVariables primitiveVariables;
+            equation::burgers::PrimitiveVariables primitiveVariables;
 
-            primitiveVariables.rho = averageIntegralF(a, b);
-            primitiveVariables.p = 2.5;
+            primitiveVariables.u = averageIntegralF(a, b);
+            
 
-            equation::euler::EulerParameters eulerParameters;
-            equation::euler::Euler eq(eulerParameters);
+            equation::EquationParameters burgersParameters;
+            equation::burgers::Burgers eq(burgersParameters);
             auto conservedVariables = eq.computeConserved(primitiveVariables);
 
                  
-            conservedCPU->getScalarMemoryArea("rho")->getPointer()[index] = conservedVariables.rho;
-            conservedCPU->getScalarMemoryArea("mx")->getPointer() [index] = conservedVariables.m.x;
-            conservedCPU->getScalarMemoryArea("my")->getPointer() [index] = conservedVariables.m.y;
-            conservedCPU->getScalarMemoryArea("mz")->getPointer() [index] = conservedVariables.m.z;
-            conservedCPU->getScalarMemoryArea("E")->getPointer()  [index] = conservedVariables.E;
-
+            conservedCPU->getScalarMemoryArea("u")->getPointer()[index] = conservedVariables.u;
             
         }
 
@@ -209,8 +207,8 @@ TEST_P(ReconstructionConvergenceTest, ReconstructionTest) {
 
             const size_t index = conservedView.index(x + numberOfGhostCells, 0, 0);
 
-            const real leftValue = leftCPU->getScalarMemoryArea("rho")->getPointer()[index];
-            const real rightValue = rightCPU->getScalarMemoryArea("rho")->getPointer()[index];
+            const real leftValue = leftCPU->getScalarMemoryArea("u")->getPointer()[index];
+            const real rightValue = rightCPU->getScalarMemoryArea("u")->getPointer()[index];
             const real differenceLeft = std::abs(leftValue - f(a));
             
             L1DifferenceLeft += differenceLeft;
@@ -238,12 +236,10 @@ TEST_P(ReconstructionConvergenceTest, ReconstructionTest) {
 }
 
 INSTANTIATE_TEST_CASE_P(ReconstructionTests,
-    ReconstructionConvergenceTest,
+    BurgersReconstructionConvergenceTest,
     ::testing::Values(
     ReconstructionParameters(1.99 ,  1.99, "weno2", "cuda"),
     ReconstructionParameters(1.99 ,  1.99, "weno2", "cpu"),
-    ReconstructionParameters(1.99 ,  1.99, "wenof2", "cpu"),
-    ReconstructionParameters(1.99,   1.99, "wenof2", "cuda"),
     ReconstructionParameters(1.98 ,  1.99, "eno2", "cpu"),
     ReconstructionParameters(2.95 ,  2.99, "eno3", "cpu"),
     ReconstructionParameters(0.999, .999, "none", "cpu"),
