@@ -12,14 +12,14 @@ IntegratorFactory::IntegratorFactory(const std::string &integratorName)
 
 }
 
-alsfvm::shared_ptr<Integrator> IntegratorFactory::createIntegrator(alsfvm::shared_ptr<numflux::NumericalFlux> &numericalFlux)
+alsfvm::shared_ptr<Integrator> IntegratorFactory::createIntegrator(alsfvm::shared_ptr<System> &system)
 {
     if (integratorName == "forwardeuler") {
-        return alsfvm::shared_ptr<Integrator>(new ForwardEuler(numericalFlux));
+        return alsfvm::shared_ptr<Integrator>(new ForwardEuler(system));
     } else if (integratorName == "rungekutta2") {
-        return alsfvm::shared_ptr<Integrator>(new RungeKutta2(numericalFlux));
+        return alsfvm::shared_ptr<Integrator>(new RungeKutta2(system));
     } else if (integratorName == "rungekutta3") {
-        return alsfvm::shared_ptr<Integrator>(new RungeKutta3(numericalFlux));
+        return alsfvm::shared_ptr<Integrator>(new RungeKutta3(system));
     } else {
         THROW("Unknown integrator " << integratorName);
     }

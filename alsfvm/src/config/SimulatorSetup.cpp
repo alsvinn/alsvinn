@@ -254,13 +254,16 @@ void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree &configu
 
     auto fvmNode = configuration.get_child("fvm");
     if (fvmNode.find("equationParameters") != fvmNode.not_found()) {
-
-        if (readEquation(configuration) == "euler") {
+        const auto equationName = readEquation(configuration);
+        if (equationName== "euler") {
 
             auto& eulerParameters = static_cast<equation::euler::EulerParameters&>(equationParameters);
 
             real gamma = configuration.get<real>("fvm.equationParameters.gamma");
             eulerParameters.setGamma(gamma);
+        } else if (equationName == "burgers") {
+            // we do not need to do anything.
+
         }
     }
 }

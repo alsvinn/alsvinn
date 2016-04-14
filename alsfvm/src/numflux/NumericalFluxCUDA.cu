@@ -8,6 +8,7 @@
 #include <thrust/reduce.h>
 
 #include <iostream>
+#include "alsfvm/numflux/numerical_flux_list.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
 
 namespace alsfvm { namespace numflux { 
@@ -158,9 +159,10 @@ namespace alsfvm { namespace numflux {
 	template<class Flux, class Equation, size_t dimension>
 	NumericalFluxCUDA<Flux, Equation, dimension>::NumericalFluxCUDA(const grid::Grid &grid,
 		alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
-        simulator::SimulatorParameters& parameters,
+        const simulator::SimulatorParameters& parameters,
 		alsfvm::shared_ptr<DeviceConfiguration> &deviceConfiguration)
-        : reconstruction(reconstruction), equation(static_cast<typename Equation::Parameters&>(parameters.getEquationParameters()))
+        : reconstruction(reconstruction), equationParameters(static_cast<const typename Equation::Parameters&>(parameters.getEquationParameters())),
+        equation(equationParameters)
 	{
 		static_assert(dimension > 0, "We only support positive dimension!");
 		static_assert(dimension < 4, "We only support dimension up to 3");
@@ -209,13 +211,7 @@ namespace alsfvm { namespace numflux {
 	size_t NumericalFluxCUDA<Flux, Equation, dimension>::getNumberOfGhostCells() {
 		return reconstruction->getNumberOfGhostCells();
 	}
-
-	template class NumericalFluxCUDA < euler::HLL, equation::euler::Euler, 1 >;
-	template class NumericalFluxCUDA < euler::HLL, equation::euler::Euler, 2 >;
-	template class NumericalFluxCUDA < euler::HLL, equation::euler::Euler, 3 >;
-
-	template class NumericalFluxCUDA < euler::HLL3, equation::euler::Euler, 1 >;
-	template class NumericalFluxCUDA < euler::HLL3, equation::euler::Euler, 2 >;
-	template class NumericalFluxCUDA < euler::HLL3, equation::euler::Euler, 3 >;
+    
+    ALSFVM_FLUX_INSTANTIATE(NumericalFluxCUDA)
 }
 }

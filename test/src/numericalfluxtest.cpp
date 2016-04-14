@@ -2,7 +2,7 @@
 
 #include "alsfvm/types.hpp"
 #include "alsfvm/numflux/NumericalFluxFactory.hpp"
-#include "alsfvm/numflux/euler/NumericalFluxCPU.hpp"
+#include "alsfvm/numflux/NumericalFluxCPU.hpp"
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/equation/euler/AllVariables.hpp"

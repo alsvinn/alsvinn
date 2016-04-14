@@ -22,28 +22,30 @@ namespace alsfvm { namespace equation { namespace euler {
 			// Empty
 		}
 
+
 		template<size_t variableIndex>
 		__device__ __host__ ViewType& get() {
 			static_assert(variableIndex < 5, "We only have 5 conserved variables for Euler!");
-			switch (variableIndex) {
-			case 0: 
+
+            if (variableIndex == 0) {
 				return rho;
-				break;
-			case 1:
+            }
+            else if (variableIndex == 1) {
 				return mx;
-				break;
-			case 2:
+            }
+            else if (variableIndex == 2) {
 				return my;
-				break;
-			case 3:
+            }
+            else if (variableIndex == 3) {
 				return mz;
-				break;
-			case 4:
+
+            }
+            else if (variableIndex == 4) {
 				return E;
-				break;
 			}
 			// If we reach this far, something has gone wrong
 			assert(false);
+            return rho;
 		}
 
 
@@ -51,22 +53,18 @@ namespace alsfvm { namespace equation { namespace euler {
 			switch (variableIndex) {
 			case 0:
 				return rho;
-				break;
 			case 1:
 				return mx;
-				break;
 			case 2:
 				return my;
-				break;
 			case 3:
-				return mz;
-				break;
-			case 4:
+                return mz;
+            case 4:
 				return E;
-				break;
 			}
 			// If we reach this far, something has gone wrong
 			assert(false);
+            return rho;
 		}
 		__device__ __host__ size_t index(size_t x, size_t y, size_t z) const {
 			return rho.index(x, y, z);

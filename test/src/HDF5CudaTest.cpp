@@ -52,7 +52,7 @@ TEST_F(HDF5CudaTest, WriteAndReadTest) {
 		auto memoryArea = conservedVariables.getScalarMemoryArea(i);
 		std::vector<alsfvm::real> hostMemory(memoryArea->getSize());
 		for (size_t j = 0; j < memoryArea->getSize(); j++) {
-			hostMemory[j] = 1 << i + j;
+            hostMemory[j] = (1 << i) + j;
 		}
 
 		memoryArea->copyFromHost(hostMemory.data(), hostMemory.size());
@@ -64,7 +64,7 @@ TEST_F(HDF5CudaTest, WriteAndReadTest) {
 		auto memoryArea = extraVariables.getScalarMemoryArea(i);
 		std::vector<alsfvm::real> hostMemory(memoryArea->getSize());
 		for (size_t j = 0; j < memoryArea->getSize(); j++) {
-			hostMemory[j] = 2 << i + j;
+            hostMemory[j] = (2 << i) + j;
 		}
 
 		memoryArea->copyFromHost(hostMemory.data(), hostMemory.size());
@@ -96,7 +96,7 @@ TEST_F(HDF5CudaTest, WriteAndReadTest) {
 			data.data()));
 
 		for (size_t j = 0; j < data.size(); j++) {
-			ASSERT_EQ(1 << i + j, data[j]);
+            ASSERT_EQ((1 << i) + j, data[j]);
 		}
 	}
 	
@@ -107,7 +107,7 @@ TEST_F(HDF5CudaTest, WriteAndReadTest) {
 			data.data()));
 
 		for (size_t j = 0; j < data.size(); j++) {
-			ASSERT_EQ(2 << i + j, data[j]);
+            ASSERT_EQ((2 << i) + j, data[j]);
 		}
 	}
 

@@ -27,10 +27,27 @@ namespace alsfvm {
 				typedef euler::ExtraVariables ExtraVariables;
                 typedef euler::PrimitiveVariables PrimitiveVariables;
 				typedef euler::AllVariables AllVariables;
+
 				///
 				/// Defaults to "euler".
 				///
 				static const std::string name;
+
+                //!
+                //! List of all conserved variables used by Euler (rho, mx, my, mz, E)
+                //!
+                static const std::vector<std::string> conservedVariables;
+
+                //!
+                //! List of all primtive variables used by Euler (rho, vx, vy, vz, p)
+                //!
+                static const std::vector<std::string> primitiveVariables;
+
+                //!
+                //! List of all extra variables used by Euler (p, vx, vy, vz)
+                //!
+                static const std::vector<std::string> extraVariables;
+
 
 				///
 				/// Gives the number of conserved variables used (5)

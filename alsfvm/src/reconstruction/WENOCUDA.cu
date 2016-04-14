@@ -76,7 +76,7 @@ namespace alsfvm { namespace reconstruction {
 
 			// First we need to find alpha and beta.
 			real stencil[2 * order - 1];
-			for (int i = -order + 1; i < order; i++) {
+            for (int i = -int(order) + 1; i < int(order); i++) {
 				const size_t indexIn = input.index((x + i * xDir) ,
 					(y + i*yDir),
 					(z + i*zDir));

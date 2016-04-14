@@ -11,7 +11,7 @@ namespace alsfvm { namespace numflux {
     public:
 		NumericalFluxCUDA(const grid::Grid& grid,
 			alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
-            simulator::SimulatorParameters& parameters, 
+            const simulator::SimulatorParameters& parameters, 
 			alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration
 			);
 
@@ -24,12 +24,6 @@ namespace alsfvm { namespace numflux {
 		///                         \frac{\Delta t}{\Delta z}\left((F(u_{i,j,k+1}, u_{i,j,k})-F(u_{i,j,k}, u_{i,j,k-1})\right)
 		/// \f]
 		/// \param[in] conservedVariables the conservedVariables to read from (eg. for Euler: \f$\rho,\; \vec{m},\; E\f$)
-		/// \param[in] cellLengths contains the cell length in each direction. So
-		///            \f{eqnarray*}{
-		///             \Delta x = \mathrm{cellLengths.x}\\
-		///             \Delta y = \mathrm{cellLengths.y}\\
-		///             \Delta z = \mathrm{cellLengths.z}\\
-		///            \f}
 		/// \param[out] waveSpeed the maximum wave speed in each direction
 		/// \param[in] computeWaveSpeed should we compute the wave speeds?
 		/// \param[out] output the output to write to
@@ -50,6 +44,7 @@ namespace alsfvm { namespace numflux {
 		alsfvm::shared_ptr<volume::Volume> left;
 		alsfvm::shared_ptr<volume::Volume> right;
 		alsfvm::shared_ptr<volume::Volume> fluxOutput;
+        typename Equation::Parameters equationParameters;
         Equation equation;
     };
 } // namespace alsfvm

@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/integrator/Integrator.hpp"
 #include "alsfvm/numflux/NumericalFlux.hpp"
+#include "alsfvm/integrator/System.hpp"
 
 namespace alsfvm { namespace integrator { 
 
@@ -25,7 +26,7 @@ namespace alsfvm { namespace integrator {
 	/// 
     class RungeKutta2 : public Integrator {
     public:
-        RungeKutta2(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux);
+        RungeKutta2(alsfvm::shared_ptr<System> system);
 
 
         ///
@@ -47,6 +48,7 @@ namespace alsfvm { namespace integrator {
 		/// \param substep is the currently computed substep, starting at 0.
 		/// \param output where to write the output
 		/// \param cfl the cfl number to use.
+        /// \param timestepInformation the current timestepInformation (needed for current time)
 		/// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
 		/// \returns the newly computed timestep (each integrator may choose to change the timestep)
 		///
@@ -56,7 +58,7 @@ namespace alsfvm { namespace integrator {
             const simulator::TimestepInformation& timestepInformation);
 
     private:
-        alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;
+        alsfvm::shared_ptr<System> system;
 
     };
 } // namespace alsfvm

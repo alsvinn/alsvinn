@@ -16,6 +16,12 @@ namespace alsfvm { namespace numflux { namespace euler {
 	///
     class HLL {
 	public:
+
+        ///
+        /// \brief name is "hll"
+        ///
+        static const std::string name;
+
 		
 		///
 		/// Computes the flux. Ie. computes
@@ -57,6 +63,7 @@ namespace alsfvm { namespace numflux { namespace euler {
 		/// Computes the wave speeds for the given direction
 		/// \param[in] left the values on the left side of the grid cell ("left" after we align the grid to the direction)
 		/// \param[in] right the values on the right side of the grid cell
+        /// \param[in] eq the equation instance
 		/// \param[out] speedLeft the speed to the left side
 		/// \param[out] speedRight the speed to the right
 		/// \todo Document this better
@@ -65,7 +72,7 @@ namespace alsfvm { namespace numflux { namespace euler {
         __device__ __host__ inline static void computeHLLSpeeds(const equation::euler::Euler eq, const equation::euler::AllVariables& left,
 			const equation::euler::AllVariables& right, real& speedLeft, real& speedRight) {
 
-			static_assert(direction < 3, "We only support three dimensions.");
+            static_assert(direction < 3, "We only support up to three dimensions.");
 
             const real waveLeft = sqrt(left.rho);
             const real waveRight = sqrt(right.rho);
