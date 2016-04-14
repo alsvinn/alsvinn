@@ -102,7 +102,7 @@ ReconstructionFactory::ReconstructionPtr
                 //reconstructor.reset(new reconstruction::WENO2CUDA<equation::euler::Euler>());
                 reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENO2<equation::euler::Euler>, equation::euler::Euler>(simulatorParameters));
 
-            } else {
+            }else if (equation == "burgers") {
                 reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>(simulatorParameters));
             }
             else {
