@@ -33,7 +33,11 @@ namespace {
             expectedConvergenceRate(expectedConvergenceRate_),
             expectedLInftyConvergenceRate(expectedLInftyConvergenceRate_),
             name(name_),
+    #ifdef ALSVINN_HAVE_CUDA
             platform(platform_)
+    #else
+            platform("cpu")
+    #endif
         {
 
         }
