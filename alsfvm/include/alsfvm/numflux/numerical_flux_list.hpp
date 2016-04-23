@@ -20,13 +20,13 @@ namespace numflux {
             euler::HLL,
             euler::HLL3,
             Central<equation::euler::Euler>
-        >>,
+        > >,
 
         // BURGERS
         boost::fusion::pair<equation::burgers::Burgers,
         boost::fusion::vector<
             Central<equation::burgers::Burgers>
-        >>
+        > >
         > NumericalFluxList;
 
 
@@ -45,15 +45,15 @@ namespace numflux {
 }
 
 #define ALSFVM_FLUX_INSTANTIATE(X) \
-    template class X<::alsfvm::numflux::euler::HLL, ::alsfvm::equation::euler::Euler,  1>; \
-    template class X<::alsfvm::numflux::euler::HLL, ::alsfvm::equation::euler::Euler,  2>; \
-    template class X<::alsfvm::numflux::euler::HLL, ::alsfvm::equation::euler::Euler,  3>; \
-    template class X<::alsfvm::numflux::euler::HLL3, ::alsfvm::equation::euler::Euler, 1>; \
-    template class X<::alsfvm::numflux::euler::HLL3, ::alsfvm::equation::euler::Euler, 2>; \
-    template class X<::alsfvm::numflux::euler::HLL3, ::alsfvm::equation::euler::Euler, 3>; \
-    template class X<::alsfvm::numflux::Central<equation::euler::Euler>, ::alsfvm::equation::euler::Euler, 1>; \
-    template class X<::alsfvm::numflux::Central<equation::euler::Euler>, ::alsfvm::equation::euler::Euler, 2>; \
-    template class X<::alsfvm::numflux::Central<equation::euler::Euler>, ::alsfvm::equation::euler::Euler, 3>; \
-    template class X<::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 1>; \
-    template class X<::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 2>; \
-    template class X<::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 3>;
+    template class X< ::alsfvm::numflux::euler::HLL, ::alsfvm::equation::euler::Euler,  1>; \
+    template class X< ::alsfvm::numflux::euler::HLL, ::alsfvm::equation::euler::Euler,  2>; \
+    template class X< ::alsfvm::numflux::euler::HLL, ::alsfvm::equation::euler::Euler,  3>; \
+    template class X< ::alsfvm::numflux::euler::HLL3, ::alsfvm::equation::euler::Euler, 1>; \
+    template class X< ::alsfvm::numflux::euler::HLL3, ::alsfvm::equation::euler::Euler, 2>; \
+    template class X< ::alsfvm::numflux::euler::HLL3, ::alsfvm::equation::euler::Euler, 3>; \
+    template class X< ::alsfvm::numflux::Central<equation::euler::Euler>, ::alsfvm::equation::euler::Euler, 1>; \
+    template class X< ::alsfvm::numflux::Central<equation::euler::Euler>, ::alsfvm::equation::euler::Euler, 2>; \
+    template class X< ::alsfvm::numflux::Central<equation::euler::Euler>, ::alsfvm::equation::euler::Euler, 3>; \
+    template class X< ::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 1>; \
+    template class X< ::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 2>; \
+    template class X< ::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 3>;
