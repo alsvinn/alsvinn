@@ -116,7 +116,7 @@ struct BurgersFluxTest : public ::testing::TestWithParam <FluxTestParameters>  {
             // fill up array
             for(size_t i = 0; i < N+2; ++i) {
                 conservedVolumeIn->getScalarMemoryArea("u")->getPointer()[i]
-                        = N - i;
+                        = real(i)/real(N);
             }
 
             rvec3 waveSpeed;
@@ -124,18 +124,13 @@ struct BurgersFluxTest : public ::testing::TestWithParam <FluxTestParameters>  {
 
             double l1ErrorSum = 0.0;
             for (size_t i = 1; i < N+1; ++i) {
-               l1ErrorSum += std::abs((N-i+1)*(N-i+1) / 2. - (N-i-1)*(N-i-1) / 2. - conservedVolumeOut->getScalarMemoryArea("u")->getPointer()[i]);
+               l1ErrorSum += std::abs((std::pow(real(i+1)/real(N),2) -std::pow( real(i-1)/real(N), 2))/4.0- conservedVolumeOut->getScalarMemoryArea("u")->getPointer()[i]);
             }
 
-            differences.push_back(l1ErrorSum / N);
+            ASSERT_NEAR(l1ErrorSum, 0, 1e-8);
         }
 
-        for (auto v : differences) {
-            std::cout << v << std::endl;
-        }
-        auto fit = linearFit(dx, differences);
 
-        ASSERT_FLOAT_EQ(1, fit[0]);
 
 
     }
@@ -151,6 +146,6 @@ TEST_P(BurgersFluxTest, Tests) {
 INSTANTIATE_TEST_CASE_P(Tests,
     BurgersFluxTest,
     ::testing::Values(
-    FluxTestParameters("central", "cuda")
+    FluxTestParameters("central", "cpu")
 
     ));
