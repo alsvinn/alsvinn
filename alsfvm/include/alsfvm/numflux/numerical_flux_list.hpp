@@ -5,6 +5,7 @@
 #include "alsfvm/equation/equation_list.hpp"
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include "alsfvm/numflux/euler/HLL3.hpp"
+#include "alsfvm/numflux/burgers/Godunov.hpp"
 #include "alsfvm/numflux/Central.hpp"
 
 
@@ -25,7 +26,8 @@ namespace numflux {
         // BURGERS
         boost::fusion::pair<equation::burgers::Burgers,
         boost::fusion::vector<
-            Central<equation::burgers::Burgers>
+            Central<equation::burgers::Burgers>,
+            burgers::Godunov
         > >
         > NumericalFluxList;
 
@@ -56,4 +58,7 @@ namespace numflux {
     template class X< ::alsfvm::numflux::Central<equation::euler::Euler>, ::alsfvm::equation::euler::Euler, 3>; \
     template class X< ::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 1>; \
     template class X< ::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 2>; \
-    template class X< ::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 3>;
+    template class X< ::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 3>; \
+    template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 1>; \
+    template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 2>; \
+    template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 3>;

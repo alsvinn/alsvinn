@@ -35,7 +35,7 @@ __device__ __host__ inline ConservedVariables operator-(const ConservedVariables
 /// \note Makes a new instance
 ///
 __device__ __host__ inline ConservedVariables operator+(const ConservedVariables& a, const ConservedVariables& b) {
-    return ConservedVariables(a.u - b.u);
+    return ConservedVariables(a.u + b.u);
 }
 
 ///

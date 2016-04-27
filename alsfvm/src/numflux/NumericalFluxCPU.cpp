@@ -29,6 +29,8 @@ namespace alsfvm { namespace numflux {
         // This is the value for j+1/2
         typename Equation::AllVariables leftJpHf = eq.fetchAllVariables(right, middleIndex);
 
+
+
         // F(U_l, U_r)
         typename Equation::ConservedVariables fluxMiddleRight;
         real waveSpeed = Flux::template computeFlux<direction>(eq, leftJpHf, rightJpHf, fluxMiddleRight);

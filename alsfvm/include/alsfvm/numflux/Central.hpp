@@ -10,9 +10,7 @@ namespace alsfvm { namespace numflux {
     //!
     //! Approximate the flux through
     //!
-    //! \f[
-    //! \frac{u_{j+1/2}-u_{j-1/2}}{2}}
-    //! \f]
+    //! \f[ \frac{u_{j+1/2}-u_{j-1/2}}{2}\f]
     //!
     template<class Equation>
     class Central {
