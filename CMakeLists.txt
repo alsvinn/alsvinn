@@ -87,7 +87,7 @@ endif()
 add_subdirectory("alsfvm")
 add_subdirectory("alsvinncli")
 add_subdirectory("alsmlmccli")
-
+add_subdirectory("validation")
 if(ALSVINN_BUILD_TESTS)
   add_subdirectory("test")
   add_subdirectory("system_test")

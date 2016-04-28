@@ -242,8 +242,8 @@ TEST_P(BurgersReconstructionConvergenceTest, ReconstructionTest) {
 INSTANTIATE_TEST_CASE_P(ReconstructionTests,
     BurgersReconstructionConvergenceTest,
     ::testing::Values(
-    ReconstructionParameters(1.99 ,  1.99, "weno2", "cuda"),
-    ReconstructionParameters(1.99 ,  1.99, "weno2", "cpu"),
+    ReconstructionParameters(2.99 ,  2.99, "weno2", "cuda"),
+    ReconstructionParameters(2.99 ,  2.99, "weno2", "cpu"),
     ReconstructionParameters(1.98 ,  1.99, "eno2", "cpu"),
     ReconstructionParameters(2.95 ,  2.99, "eno3", "cpu"),
     ReconstructionParameters(0.999, .999, "none", "cpu"),
