@@ -1,4 +1,5 @@
 #include "alsfvm/reconstruction/ReconstructionCPU.hpp"
+#include "alsfvm/equation/burgers/Burgers.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/reconstruction/WENO2.hpp"
 #include "alsfvm/reconstruction/WENOF2.hpp"
@@ -75,5 +76,8 @@ size_t ReconstructionCPU<ReconstructionType, Equation>::getNumberOfGhostCells()
 
 template class ReconstructionCPU<WENO2<equation::euler::Euler>, equation::euler::Euler>;
 template class ReconstructionCPU<WENOF2<equation::euler::Euler>, equation::euler::Euler>;
+
+
+template class ReconstructionCPU<WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>;
 }
 }

@@ -11,7 +11,7 @@ namespace alsfvm { namespace boundary {
 		/// \param volume the volume to apply the boundary condition to
         /// \param grid the active grid
 		///
-		virtual void applyBoundaryConditions(volume::Volume& volume,
+        virtual void applyBoundaryConditions(volume::Volume& volume,
 			const grid::Grid& grid) = 0;
 
     };

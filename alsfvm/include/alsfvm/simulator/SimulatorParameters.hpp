@@ -5,7 +5,9 @@ namespace alsfvm { namespace simulator {
 
     class SimulatorParameters {
     public:
-        SimulatorParameters() {}
+        SimulatorParameters()
+            : equationParameters(new equation::EquationParameters)
+        {}
         SimulatorParameters(const std::string& equationName,
                             const std::string& platform);
 

@@ -11,7 +11,7 @@ namespace alsfvm { namespace numflux {
     public:
 		NumericalFluxCUDA(const grid::Grid& grid,
 			alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
-            simulator::SimulatorParameters& parameters, 
+            const simulator::SimulatorParameters& parameters, 
 			alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration
 			);
 
@@ -44,6 +44,7 @@ namespace alsfvm { namespace numflux {
 		alsfvm::shared_ptr<volume::Volume> left;
 		alsfvm::shared_ptr<volume::Volume> right;
 		alsfvm::shared_ptr<volume::Volume> fluxOutput;
+        typename Equation::Parameters equationParameters;
         Equation equation;
     };
 } // namespace alsfvm

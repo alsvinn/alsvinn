@@ -4,7 +4,7 @@
 
 namespace alsfvm {
 	namespace volume {
-
+      
 		Volume::Volume(const std::vector<std::string>& variableNames,
 			alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory,
 			size_t nx, size_t ny, size_t nz,
@@ -212,6 +212,9 @@ namespace alsfvm {
 		/// Copies the whole volume to the other volume
 		///
 		void Volume::copyTo(volume::Volume& other) const {
+            if(getNumberOfVariables() == 0) {
+                return;
+            }
 			std::vector<real> temporaryStorage(getScalarMemoryArea(0)->getSize());
 			for (size_t var = 0; var < getNumberOfVariables(); ++var) {
 				getScalarMemoryArea(var)->copyToHost(temporaryStorage.data(), temporaryStorage.size());

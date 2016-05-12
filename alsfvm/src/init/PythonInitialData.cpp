@@ -70,7 +70,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     std::stringstream functionStringStream;
 
     functionStringStream << "from math import *" << std::endl;
-    functionStringStream << "from numpy import *" << std::endl;
+    functionStringStream << "try:\n    from numpy import *\nexcept:\n    pass" << std::endl;
     functionStringStream << "def initial_data(x, y, z, output):\n"; 
 
     // Now we need to add the variables we need to write:

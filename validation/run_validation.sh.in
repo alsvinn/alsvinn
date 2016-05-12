@@ -1,0 +1,26 @@
+#!/bin/bash
+
+ALSVINNCLI_EXECUTABLE_PATH=${CMAKE_BINARY_DIR}/alsvinncli/
+ALSVINN_VALIDATION_PATH=${CMAKE_CURRENT_SOURCE_DIR}/python
+export PATH=$PATH:$ALSVINN_EXECUTABLE_PATH
+export PYTHONPATH=$PYTHONPATH:$ALSVINN_VALIDATION_PATH
+rm -r ${CMAKE_BINARY_DIR}/validation_cases
+cp -r $ALSVINN_VALIDATION_PATH/cases ${CMAKE_BINARY_DIR}/validation_cases;
+PDFFILES=""
+for case in ${CMAKE_BINARY_DIR}/validation_cases/*; do
+	cd $case;
+	python2.7 run.py;
+	if [ $? -ne 0 ]; then
+	    echo "CASE $case FAILED!"
+	    exit;
+	fi;
+
+	pdflatex `basename $case`.tex;
+	PDFFILES="$PDFFILES "$case/`basename $case`.pdf
+    done;
+ 
+    cd ${CMAKE_BINARY_DIR}
+    pdfunite $PDFFILES validation_report.pdf
+    
+    
+    

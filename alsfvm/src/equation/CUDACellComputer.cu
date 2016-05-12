@@ -1,7 +1,7 @@
 #include "alsfvm/equation/CUDACellComputer.hpp"
 #include "alsfvm/equation/CPUCellComputer.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
-
+#include "alsfvm/equation/equation_list.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
 #include <thrust/device_vector.h>
 #include <thrust/reduce.h>
@@ -167,7 +167,8 @@ namespace alsfvm {
         {
 
         }
-		template class CUDACellComputer < euler::Euler > ;
+		
+        ALSFVM_EQUATION_INSTANTIATE(CUDACellComputer)
 	}
 }
 
