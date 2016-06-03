@@ -2,8 +2,6 @@
 #include "alsfvm/simulator/SimulatorParameters.hpp"
 #include "alsfvm/equation/equation_list.hpp"
 #ifdef ALSVINN_HAVE_CUDA
-#include "alsfvm/reconstruction/WENOCUDA.hpp"
-#include "alsfvm/reconstruction/WENO2CUDA.hpp"
 #include "alsfvm/reconstruction/NoReconstructionCUDA.hpp"
 #include "alsfvm/reconstruction/ReconstructionCUDA.hpp"
 
