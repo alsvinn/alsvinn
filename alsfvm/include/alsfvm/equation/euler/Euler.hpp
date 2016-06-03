@@ -3,6 +3,7 @@
 #include "alsfvm/equation/euler/ExtraVariables.hpp"
 #include "alsfvm/equation/euler/AllVariables.hpp"
 #include "alsfvm/equation/euler/PrimitiveVariables.hpp"
+#include "alsfvm/equation/euler/TecnoVariables.hpp"
 
 #include "alsfvm/equation/euler/Views.hpp"
 #include "alsfvm/volume/Volume.hpp"
@@ -27,6 +28,7 @@ namespace alsfvm {
 				typedef euler::ExtraVariables ExtraVariables;
                 typedef euler::PrimitiveVariables PrimitiveVariables;
 				typedef euler::AllVariables AllVariables;
+                typedef euler::TecnoVariables TecnoVariables;
 
 				///
 				/// Defaults to "euler".
@@ -260,6 +262,25 @@ namespace alsfvm {
 
                 __device__ __host__ real getGamma() const {
                     return gamma;
+                }
+
+                //! see definition of \f$\vec{z}\f$ in
+                //!
+                //! http://www.cscamm.umd.edu/people/faculty/tadmor/pub/TV+entropy/Fjordholm_Mishra_Tadmor_SINUM2012.pdf
+                //!
+                //! eq (6.11). That is, we set
+                //!
+                //! \f[\vec{z} = \left(\begin{array}{l} \sqrt{\frac{\rho}{p}}\\ \sqrt{\frac{\rho}{p}}u\\ \sqrt{\frac{\rho}{p}}v\\ \sqrt{\rho p}\end{array}\right).\f]
+                //!
+                __device__ __host__ TecnoVariables computeTecnoVariables(const ConservedVariables& conserved) const {
+                    PrimitiveVariables primitiveVariables = computePrimitiveVariables(conserved);
+
+
+                    return TecnoVariables(sqrtf(primitiveVariables.rho/primitiveVariables.p),
+                                          sqrtf(primitiveVariables.rho/primitiveVariables.p)*primitiveVariables.u.x,
+                                          sqrtf(primitiveVariables.rho/primitiveVariables.p)*primitiveVariables.u.y,
+                                          sqrtf(primitiveVariables.rho/primitiveVariables.p)*primitiveVariables.u.z,
+                                          sqrtf(primitiveVariables.rho*primitiveVariables.p));
                 }
             private:
                 const real gamma;
