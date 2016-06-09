@@ -88,7 +88,7 @@ struct BurgersFluxTest : public ::testing::TestWithParam <FluxTestParameters>  {
         const real constant = 42;
         for (size_t k = startK; k < endK; ++k) {
             const size_t N = 1 << k;
-            grid.reset(new grid::Grid({0,0,0}, {1,0,0}, ivec3{N, 1, 1}));
+            grid.reset(new grid::Grid({0,0,0}, {1,0,0}, ivec3{int(N), 1, 1}));
             auto numericalFlux = numericalFluxFactory.createNumericalFlux(*grid);
             conservedVolumeIn = volumeFactory.createConservedVolume(N, 1, 1, 1);
             conservedVolumeOut = volumeFactory.createConservedVolume(N, 1, 1, 1);
@@ -128,7 +128,7 @@ struct BurgersFluxTest : public ::testing::TestWithParam <FluxTestParameters>  {
         for (size_t k = startK; k < endK; ++k) {
             const size_t N = 1 << k;
             dx.push_back(std::log(1.0/N));
-            grid.reset(new grid::Grid({0,0,0}, {1,0,0}, ivec3{N, 1, 1}));
+            grid.reset(new grid::Grid({0,0,0}, {1,0,0}, ivec3{int(N), 1, 1}));
             auto numericalFlux = numericalFluxFactory.createNumericalFlux(*grid);
             conservedVolumeIn = volumeFactory.createConservedVolume(N, 1, 1, 1);
             conservedVolumeOut = volumeFactory.createConservedVolume(N, 1, 1, 1);
