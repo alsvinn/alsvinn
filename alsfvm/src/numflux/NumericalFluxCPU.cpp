@@ -69,8 +69,9 @@ namespace alsfvm { namespace numflux {
 
 	double waveSpeedComputed = 0;
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
-            for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
 #pragma omp parallel for reduction(max: waveSpeedComputed)
+            for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
+	      #pragma omp simd
                 for(int x = int(ngx) - xDir; x < int(nx) - int(ngx); ++x) {
                     const auto threadId = omp_get_thread_num();
                     const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
@@ -93,11 +94,12 @@ namespace alsfvm { namespace numflux {
         }
 	waveSpeed = waveSpeedComputed;
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
-            for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
 #pragma omp parallel for
+            for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
+	      #pragma omp simd
                 for(int x = int(ngx) - xDir; x < int(nx - ngx); ++x) {
 
-                    const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
+		  const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
                     const size_t middleIndex = outViews.index(x, y, z);
                     auto fluxMiddleRight = eq.fetchConservedVariables(temporaryViews, rightIndex);
                     auto fluxLeftMiddle = (-1.0)*eq.fetchConservedVariables(temporaryViews, middleIndex);
