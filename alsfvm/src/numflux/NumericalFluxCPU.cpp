@@ -67,10 +67,10 @@ namespace alsfvm { namespace numflux {
         const size_t ngy = out.getNumberOfYGhostCells();
         const size_t ngz = out.getNumberOfZGhostCells();
 
-        std::vector<real> waveSpeeds(omp_get_max_threads(), 0);
+	double waveSpeedComputed = 0;
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
             for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
-#pragma omp parallel for
+#pragma omp parallel for reduction(max: waveSpeedComputed)
                 for(int x = int(ngx) - xDir; x < int(nx) - int(ngx); ++x) {
                     const auto threadId = omp_get_thread_num();
                     const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
@@ -87,13 +87,11 @@ namespace alsfvm { namespace numflux {
                                 flux);
 
                     eq.setViewAt(temporaryViews, middleIndex, (-1.0)*flux);
-                    waveSpeeds[threadId] = std::max(waveSpeeds[threadId], waveSpeedLocal);
+                    waveSpeedComputed = std::max(waveSpeedComputed, waveSpeedLocal);
                 }
             }
         }
-        waveSpeed = *std::max_element(waveSpeeds.begin(), waveSpeeds.end());
-
-
+	waveSpeed = waveSpeedComputed;
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
             for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
 #pragma omp parallel for
