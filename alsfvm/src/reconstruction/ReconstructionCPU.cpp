@@ -59,7 +59,6 @@ void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(cons
     for (size_t z = startZ; z < endZ; z++) {
 #pragma omp parallel for
         for (size_t y = startY; y < endY; y++) {
-#pragma omp simd
             for (int x = startX; x < int(endX); x++) {
                 ReconstructionType::reconstruct(eq, viewIn, x, y, z, viewLeft, viewRight,
                                                 directionVector.x, directionVector.y,

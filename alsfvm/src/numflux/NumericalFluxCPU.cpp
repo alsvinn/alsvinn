@@ -71,7 +71,6 @@ namespace alsfvm { namespace numflux {
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
 #pragma omp parallel for reduction(max: waveSpeedComputed)
             for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
-	      #pragma omp simd
                 for(int x = int(ngx) - xDir; x < int(nx) - int(ngx); ++x) {
                     const auto threadId = omp_get_thread_num();
                     const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
@@ -96,7 +95,7 @@ namespace alsfvm { namespace numflux {
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
 #pragma omp parallel for
             for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
-	      #pragma omp simd
+
                 for(int x = int(ngx) - xDir; x < int(nx - ngx); ++x) {
 
 		  const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
