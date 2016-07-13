@@ -13,8 +13,8 @@ if "has_random_variables" in locals() and has_random_variables:
 	if abs(normalization2) < 1e-10:
 		normalization2 = 1
 
-	perturbation_upper = perturbation*sum([a1[i]*cos(2*pi*i*(x+b1[i])) for i in range(len(a1))])/normalization1
-	perturbation_lower = perturbation*sum([a2[i]*cos(2*pi*i*(x+b2[i])) for i in range(len(a2))])/normalization2
+	perturbation_upper = perturbation*sum([a1[i]*cos(2*pi*(i+1)*(x+b1[i])) for i in range(len(a1))])/normalization1
+	perturbation_lower = perturbation*sum([a2[i]*cos(2*pi*(i+1)*(x+b2[i])) for i in range(len(a2))])/normalization2
 else:
 	perturbation_upper = 0
 	perturbation_lower = 0
