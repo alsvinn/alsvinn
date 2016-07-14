@@ -1,7 +1,6 @@
 #pragma once
 #include "alsfvm/types.hpp"
 
-#include <array>
 namespace alsfvm { namespace equation { namespace euler { 
 
     //!
@@ -16,13 +15,13 @@ namespace alsfvm { namespace equation { namespace euler {
     //!
     class TecnoVariables {
     public:
-        TecnoVariables(real z1, real z2, real z3, real z4, real z5) :
-            z({z1, z2, z3, z4, z5})
+        __device__ __host__ TecnoVariables(real z1, real z2, real z3, real z4, real z5) :
+            z(z1, z2, z3, z4, z5)
         {
             // empty
         }
 
-        std::array<real, 5> z;
+        vec5<real> z;
     };
 } // namespace alsfvm
 } // namespace equation
