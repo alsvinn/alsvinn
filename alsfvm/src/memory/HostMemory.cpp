@@ -59,7 +59,7 @@ void HostMemory<T>::operator+=(const Memory<T>& other) {
 	}
 
 	auto pointer = other.getPointer();
-    #pragma omp parallel for
+    #pragma omp parallel for simd
     for (int i = 0; i < int(data.size()); ++i) {
 		data[i] += pointer[i];
 	}
@@ -80,7 +80,7 @@ void HostMemory<T>::operator*=(const Memory<T>& other) {
 	}
 
 	auto pointer = other.getPointer();
-    #pragma omp parallel for
+    #pragma omp parallel for simd
     for (int i = 0; i < int(data.size()); ++i) {
 		data[i] *= pointer[i];
 	}
@@ -100,7 +100,7 @@ void HostMemory<T>::operator-=(const Memory<T>& other) {
 	}
 
 	auto pointer = other.getPointer();
-    #pragma omp parallel for
+    #pragma omp parallel for simd
     for (int i = 0; i < int(data.size()); ++i) {
 		data[i] -= pointer[i];
 	}
@@ -120,7 +120,7 @@ void HostMemory<T>::operator/=(const Memory<T>& other) {
 	}
 
 	auto pointer = other.getPointer();
-    #pragma omp parallel for
+    #pragma omp parallel for simd
     for (int i = 0; i < int(data.size()); ++i) {
 		data[i] /= pointer[i];
 	}
@@ -133,7 +133,7 @@ void HostMemory<T>::operator/=(const Memory<T>& other) {
 template <class T>
 void HostMemory<T>::operator+=(real scalar) {
 
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (int i = 0; i < int(data.size()); ++i) {
 		data[i] += scalar;
 	}
@@ -145,7 +145,7 @@ void HostMemory<T>::operator+=(real scalar) {
 ///
 template <class T>
 void HostMemory<T>::operator*=(real scalar) {
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (int i = 0; i < int(data.size()); ++i) {
 		data[i] *= scalar;
 	}
@@ -157,7 +157,7 @@ void HostMemory<T>::operator*=(real scalar) {
 ///
 template <class T>
 void HostMemory<T>::operator-=(real scalar) {
-#pragma omp parallel for
+#pragma omp parallel for simd
     for (int i = 0; i < int(data.size()); ++i) {
 		data[i] -= scalar;
 	}
@@ -169,7 +169,7 @@ void HostMemory<T>::operator-=(real scalar) {
 ///
 template <class T>
 void HostMemory<T>::operator/=(real scalar) {
-    #pragma omp parallel for
+    #pragma omp parallel for simd
     for (int i = 0; i < int(data.size()); ++i) {
 		data[i] /= scalar;
     }
@@ -178,7 +178,7 @@ void HostMemory<T>::operator/=(real scalar) {
 template <class T>
 void HostMemory<T>::makeZero()
 {
-    #pragma omp parallel for
+    #pragma omp parallel for simd
     for (int i = 0; i < int(data.size()); ++i) {
         data[i] = 0;
     }

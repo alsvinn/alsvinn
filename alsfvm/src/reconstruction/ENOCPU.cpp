@@ -82,8 +82,9 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 		real* pointerOutRight = rightOut.getScalarMemoryArea(var)->getPointer();
 
 		for (size_t z = startZ; z < endZ; z++) {
-			for (size_t y = startY; y < endY; y++) {
 #pragma omp parallel for
+			for (size_t y = startY; y < endY; y++) {
+#pragma omp simd
                 for (int x = startX; x < int(endX); x++) {
 
 
