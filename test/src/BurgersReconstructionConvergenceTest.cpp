@@ -174,7 +174,7 @@ TEST_P(BurgersReconstructionConvergenceTest, ReconstructionTest) {
         const size_t numberOfGhostCells = wenoCUDA->getNumberOfGhostCells();
         const real dx = grid.getCellLengths().x;
         auto conservedView = conservedCPU->getScalarMemoryArea("u")->getView();
-        for (int x = 0; x < nx; ++x) {
+        for (int x = 0; x < int(nx); ++x) {
             const real a = x * dx;
             const real b = (x + 1) * dx;
 
@@ -246,6 +246,8 @@ INSTANTIATE_TEST_CASE_P(ReconstructionTests,
     ReconstructionParameters(2.99 ,  2.99, "weno2", "cpu"),
     ReconstructionParameters(1.98 ,  1.99, "eno2", "cpu"),
     ReconstructionParameters(2.95 ,  2.99, "eno3", "cpu"),
+    ReconstructionParameters(1.98 ,  1.99, "eno2", "cuda"),
+    ReconstructionParameters(2.95 ,  2.99, "eno3", "cuda"),
     ReconstructionParameters(0.999, .999, "none", "cpu"),
     ReconstructionParameters(0.999, .999, "none", "cuda")
     ));

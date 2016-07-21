@@ -79,7 +79,7 @@ namespace alsfvm {
 				}
 				
                 template<class T, class S>
-                __device__ __host__ ConservedVariables fetchConservedVariables(euler::Views<T, S>& views, size_t index) const {
+                __device__ __host__ static ConservedVariables fetchConservedVariables(euler::Views<T, S>& views, size_t index)  {
 					return ConservedVariables(views.rho.at(index),
 						views.mx.at(index),
 						views.my.at(index),
@@ -97,7 +97,7 @@ namespace alsfvm {
 				///
 				/// Writes the ConservedVariable struct back to memory
 				///
-                __device__ __host__ void setViewAt(Views& output, size_t index, const ConservedVariables& input) const  {
+                __device__ __host__ static void setViewAt(Views& output, size_t index, const ConservedVariables& input)  {
 					output.rho.at(index) = input.rho;
 					output.mx.at(index) = input.m.x;
 					output.my.at(index) = input.m.y;

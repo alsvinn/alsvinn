@@ -22,6 +22,7 @@ SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
 SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
 # Add the user's chosen flags to the build for this directory.
+set (CMAKE_CXX_STANDARD 11)
 if (NOT WIN32)
    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment -fopenmp")
 else()
@@ -58,11 +59,11 @@ find_package (Threads)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 if(CUDA_FOUND)
 	
-  IF(NOT WIN32)
+  #IF(NOT WIN32)
 	#Mostly only relevant for older versions of CUDA on Linux/Mac OS X, 
 	# Basically, we do not want to use std=c++11 on CUDA
-	  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
-  ENDIF()
+#	  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+ # ENDIF()
   SET(CUDA_COMPILE_PTX ON)
   #list(APPEND CUDA_NVCC_FLAGS -O3 --use_fast_math -gencode=arch=compute_20,code="compute_20,sm_20" -Xptxas -v )
   list(APPEND CUDA_NVCC_FLAGS_RELEASE -O3 --use_fast_math -Xptxas -v -keep  -src-in-ptx -gencode=arch=compute_30,code="compute_30,sm_30")

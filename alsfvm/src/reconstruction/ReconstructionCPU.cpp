@@ -39,8 +39,8 @@ void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(cons
 
     // Sanity check, we need at least ONE point in the interior.
     assert(int(nx) > 2 * directionVector.x * 2);
-    assert((directionVector.y == 0) || (int(ny) > ngc * directionVector.y * 2));
-    assert((directionVector.z == 0) || (int(nz) > ngc * directionVector.z * 2));
+    assert((directionVector.y == 0) || (ny > ngc * directionVector.y * 2));
+    assert((directionVector.z == 0) || (nz > ngc * directionVector.z * 2));
 
     const size_t startX = directionVector.x * (ngc - 1);
     const size_t startY = directionVector.y * (ngc - 1);

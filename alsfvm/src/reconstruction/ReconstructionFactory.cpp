@@ -4,6 +4,7 @@
 #ifdef ALSVINN_HAVE_CUDA
 #include "alsfvm/reconstruction/NoReconstructionCUDA.hpp"
 #include "alsfvm/reconstruction/ReconstructionCUDA.hpp"
+#include "alsfvm/reconstruction/ENOCUDA.hpp"
 
 #endif
 #include "alsfvm/reconstruction/WENOF2.hpp"
@@ -85,15 +86,43 @@ ReconstructionFactory::ReconstructionPtr
             reconstructor.reset(new reconstruction::NoReconstructionCUDA);
         }
         else if (name == "eno2") {
-            THROW("eno2 not supported on CUDA at the moment.")
-
+            if (equation == "euler") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::euler::Euler, 2>(memoryFactory, grid.getDimensions().x,
+                                                                                           grid.getDimensions().y,
+                                                                                           grid.getDimensions().z));
+            } else if (equation == "burgers") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::burgers::Burgers, 2>(memoryFactory, grid.getDimensions().x,
+                                                                                               grid.getDimensions().y,
+                                                                                               grid.getDimensions().z));
+            } else {
+                THROW("We do not support ENO on CUDA for equation: " << equation);
+            }
         }
         else if (name == "eno3") {
-            THROW("eno3 not supported on CUDA at the moment.")
-
+            if (equation == "euler") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::euler::Euler, 3>(memoryFactory, grid.getDimensions().x,
+                                                                                           grid.getDimensions().y,
+                                                                                           grid.getDimensions().z));
+            } else if (equation == "burgers") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::burgers::Burgers, 3>(memoryFactory, grid.getDimensions().x,
+                                                                                               grid.getDimensions().y,
+                                                                                               grid.getDimensions().z));
+            } else {
+                THROW("We do not support ENO on CUDA for equation: " << equation);
+            }
         }
         else if (name == "eno4") {
-            THROW("eno4 not supported on CUDA at the moment.")
+            if (equation == "euler") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::euler::Euler, 4>(memoryFactory, grid.getDimensions().x,
+                                                                                           grid.getDimensions().y,
+                                                                                           grid.getDimensions().z));
+            } else if (equation == "burgers") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::burgers::Burgers, 4>(memoryFactory, grid.getDimensions().x,
+                                                                                               grid.getDimensions().y,
+                                                                                               grid.getDimensions().z));
+            } else {
+                THROW("We do not support ENO on CUDA for equation: " << equation);
+            }
         }
         else if (name == "weno2") {
             if (equation == "euler") {

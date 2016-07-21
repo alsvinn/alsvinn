@@ -70,7 +70,7 @@ public:
     }
 
     template<class T, class S>
-    __device__ __host__ ConservedVariables fetchConservedVariables(burgers::Views<T, S>& views, size_t index) const {
+    __device__ __host__ static  ConservedVariables fetchConservedVariables(burgers::Views<T, S>& views, size_t index)  {
         return ConservedVariables(views.u.at(index));
     }
 
@@ -81,7 +81,7 @@ public:
     ///
     /// Writes the ConservedVariable struct back to memory
     ///
-    __device__ __host__ void setViewAt(Views& output, size_t index, const ConservedVariables& input) const  {
+    __device__ __host__ static void setViewAt(Views& output, size_t index, const ConservedVariables& input)   {
         output.u.at(index) = input.u;
     }
 
