@@ -1,8 +1,5 @@
 cmake_minimum_required (VERSION 2.8.8)
 
-# We need the thread package for GTest
-FIND_PACKAGE(Threads REQUIRED)
-FIND_PACKAGE(GTest REQUIRED)
 
 FILE(GLOB_RECURSE SRC src/ *.cpp src/*.hpp)
 
@@ -21,8 +18,10 @@ ENDIF()
 
 ADD_EXECUTABLE(alstest ${SRC} ${ALSTEST_CUDA})
 
+ADD_DEPENDENCIES(alstest GTest)
 
 TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm
+                              ${Boost_LIBRARIES}
                               ${CUDA_LIBRARIES}
                               ${CMAKE_THREAD_LIBS_INIT}
 			      ${MPI_LIBRARIES}

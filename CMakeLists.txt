@@ -1,4 +1,15 @@
-cmake_minimum_required (VERSION 2.8.8)
+cmake_minimum_required (VERSION 3.1.0)
+
+SET(HUNTER_ROOT ${CMAKE_BINARY_DIR}/hunter_root)
+
+
+include("cmake/HunterGate.cmake")
+
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/v0.15.0.tar.gz"
+    SHA1 "5ce8ae8627d94315c47a0acf246de1c0aae2b4b9"
+)
+
 project (alsvinn)
 MACRO(set_source_groups  folder_name directory source_files)
 	foreach(f ${source_files})
@@ -42,11 +53,6 @@ else()
     set(CUDA_FOUND OFF)
 endif()
 
-IF(WIN32)
-  ADD_DEFINITIONS( -DBOOST_ALL_NO_LIB )
-  ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK )
-ENDIF()
-
 
 # Python dependency could be made optional eventually, but for now it's
 # the only way of specify initial data
@@ -54,7 +60,18 @@ find_package(PythonLibs REQUIRED)
 
 # We try to limit use of boost, but we also want to avoid having to 
 # reprogram everything.
-find_package(Boost REQUIRED COMPONENTS filesystem system chrono date_time program_options)
+hunter_add_package(Boost COMPONENTS regex system filesystem chrono date_time program_options)
+find_package(Boost REQUIRED filesystem system chrono date_time program_options)
+
+
+IF(WIN32)
+  ADD_DEFINITIONS( -DBOOST_ALL_NO_LIB )
+ENDIF()
+set(Boost_USE_STATIC_LIBS ON)
+if(MSVC)
+  add_definitions(-DBOOST_ALL_NO_LIB=1)
+endif()
+
 find_package (Threads)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 if(CUDA_FOUND)
@@ -90,6 +107,36 @@ add_subdirectory("alsvinncli")
 add_subdirectory("alsmlmccli")
 add_subdirectory("validation")
 if(ALSVINN_BUILD_TESTS)
+	INCLUDE(ExternalProject)
+	ExternalProject_Add(
+    GTest
+    URL http://github.com/google/googletest/archive/release-1.7.0.zip
+    SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/gtest_source
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/gtest_binary
+    CMAKE_ARGS ${EXTERNAL_PROJECT_CMAKE_ARGS_PREFIX} -Dgtest_force_shared_crt=ON
+    INSTALL_COMMAND  ""
+    )
+
+  # We need the thread package for GTest
+  FIND_PACKAGE(Threads REQUIRED)
+
+  
+  INCLUDE_DIRECTORIES(  ${CMAKE_CURRENT_BINARY_DIR}/gtest_source/include "..")
+
+
+
+  LINK_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/gtest_binary)
+  if(WIN32)
+      LINK_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/gtest_binary/${CMAKE_BUILD_TYPE})
+  endif()
+
+  if (NOT WIN32)
+     SET(GTEST_LIBRARY_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX})
+     SET(GTEST_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/gtest_binary/${GTEST_LIBRARY_NAME})
+  else()
+     SET(GTEST_LIBRARY gtest)
+  endif()
+  SET(GTEST_LIBRARIES ${GTEST_LIBRARY})
   add_subdirectory("test")
   add_subdirectory("system_test")
 endif()
