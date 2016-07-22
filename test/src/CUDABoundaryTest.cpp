@@ -35,7 +35,7 @@ public:
 
 TEST_F(CUDABoundaryTest, TestOnes) {
 	const real baseValue = 123.123;
-	const real size = nx * ny *nz;
+	const size_t size = nx * ny *nz;
 	std::cout << size << std::endl;
 	auto volume = volumeFactory.createConservedVolume(nx, ny, nz, 0);
 	std::vector<real> inputVector(size);

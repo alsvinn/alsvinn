@@ -276,11 +276,11 @@ namespace alsfvm {
                     PrimitiveVariables primitiveVariables = computePrimitiveVariables(conserved);
 
 
-                    return TecnoVariables(sqrtf(primitiveVariables.rho/primitiveVariables.p),
-                                          sqrtf(primitiveVariables.rho/primitiveVariables.p)*primitiveVariables.u.x,
-                                          sqrtf(primitiveVariables.rho/primitiveVariables.p)*primitiveVariables.u.y,
-                                          sqrtf(primitiveVariables.rho/primitiveVariables.p)*primitiveVariables.u.z,
-                                          sqrtf(primitiveVariables.rho*primitiveVariables.p));
+                    return TecnoVariables(sqrt(primitiveVariables.rho/primitiveVariables.p),
+                                          sqrt(primitiveVariables.rho/primitiveVariables.p)*primitiveVariables.u.x,
+                                          sqrt(primitiveVariables.rho/primitiveVariables.p)*primitiveVariables.u.y,
+                                          sqrt(primitiveVariables.rho/primitiveVariables.p)*primitiveVariables.u.z,
+                                          sqrt(primitiveVariables.rho*primitiveVariables.p));
                 }
             private:
                 const real gamma;
