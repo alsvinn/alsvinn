@@ -18,7 +18,7 @@ __global__ void performEnoReconstructionKernel(typename Equation::ConstViews inp
                                                typename Equation::Views left,
                                                typename Equation::Views right,
                                                const gpu_array<real*, order - 1> dividedDifferencesPointers,
-                                               const gpu_array<gpu_array<real, order>, order> coefficients,
+                                               const gpu_array<gpu_array<real, order>, order + 1> coefficients,
                                                int numberOfXCells,
                                                int numberOfYCells,
                                                int numberOfZCells,
@@ -37,23 +37,23 @@ __global__ void performEnoReconstructionKernel(typename Equation::ConstViews inp
         return;
     }
 
-    const size_t x = xInternalFormat + (1) * directionVector[0];
-    const size_t y = yInternalFormat + (1) * directionVector[1];
-    const size_t z = zInternalFormat + (1) * directionVector[2];
-
+    const int x = xInternalFormat + (order - 1) * directionVector[0];
+    const int y = yInternalFormat + (order - 1) * directionVector[1];
+    const int z = zInternalFormat + (order - 1) * directionVector[2];
 
 
     const size_t indexRight = input.index(x, y, z);
+
+
     const size_t indexLeft = input.index( (x - directionVector.x),
                                           (y - directionVector.y),
                                           (z - directionVector.z));
-#if 0
+
     // First we determine the shift
     // We do this by looping through the levels of the divided
     // differences, and each time we go left, we increment the shift.
     int shift = 0;
-
-    for (size_t level = 0; level < order - 1; level++) {
+    for (int level = 0; level < order - 1; level++) {
         real dividedDifferenceRight = dividedDifferencesPointers[level][indexRight];
         real dividedDifferenceLeft = dividedDifferencesPointers[level][indexLeft];
 
@@ -61,11 +61,8 @@ __global__ void performEnoReconstructionKernel(typename Equation::ConstViews inp
             // Now we choose the left stencil
             shift++;
         }
-
-
     }
 
-    shift = 0;
     // Now we have the stencil enabled. We need to find the correct
     // coefficients.
 
@@ -85,9 +82,9 @@ __global__ void performEnoReconstructionKernel(typename Equation::ConstViews inp
         rightValue = rightValue + coefficientsRight[j] * value;
 
     }
-#endif
-    Equation::setViewAt(left, indexRight, Equation::fetchConservedVariables(input, indexRight)); //leftValue);
-    Equation::setViewAt(right, indexRight, Equation::fetchConservedVariables(input, indexRight)); //rightValue);
+
+    Equation::setViewAt(left, indexRight, leftValue);
+    Equation::setViewAt(right, indexRight, rightValue);
 }
 
 template<class Equation, int order>
@@ -119,7 +116,7 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
 	const ivec3 directionVector(direction == 0, direction == 1, direction == 2);
 
 	// make divided differences
-#if 0
+
 	computeDividedDifferences(*inputVariables.getScalarMemoryArea(indicatorVariable),
 		directionVector,
 		1,
@@ -129,7 +126,7 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
 		computeDividedDifferences(*dividedDifferences[i - 1],
 			directionVector, i + 1, *dividedDifferences[i]);
 	}
-#endif
+
 	// done computing divided differences
 
 	// Now we go on to do the actual reconstruction, choosing the stencil for
@@ -151,8 +148,8 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
 		dividedDifferencesPointers[i] = dividedDifferences[i]->getPointer();
 	}
 
-    gpu_array<gpu_array<real, order>, order> coefficients;
-    for (size_t i = 0; i < order; ++i) {
+    gpu_array<gpu_array<real, order>, order + 1> coefficients;
+    for (size_t i = 0; i < order + 1; ++i) {
         for (size_t j = 0; j < order; ++j) {
             coefficients[i][j] = ENOCoeffiecients<order>::coefficients[i][j];
         }
@@ -163,7 +160,7 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
 
 
 
-    const int blockSize = 1024;
+    const int blockSize = 512;
 
     const ivec3 numberOfCellsPerDimension = end - start;
 
@@ -171,14 +168,16 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
             size_t(numberOfCellsPerDimension.y) *
             size_t(numberOfCellsPerDimension.z);
 
-    const int gridSize = (totalNumberOfCells + blockSize -1 )/ blockSize;
+    const int gridSize = (totalNumberOfCells + blockSize - 1 )/ blockSize;
 
     std::cout << totalNumberOfCells << std::endl;
     typename Equation::Views viewLeft(leftOut);
     typename Equation::Views viewRight(rightOut);
     typename Equation::ConstViews viewInput(inputVariables);
-
-
+#ifndef NDEBUG
+    CUDA_SAFE_CALL(cudaDeviceSynchronize());
+    CUDA_SAFE_CALL(cudaPeekAtLastError());
+#endif
     performEnoReconstructionKernel<Equation, order><<<gridSize, blockSize>>>(viewInput,
                                                             viewLeft,
                                                             viewRight,
@@ -188,8 +187,10 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
                                                             numberOfCellsPerDimension.y,
                                                             numberOfCellsPerDimension.z,
                                                             directionVector);
-
+#ifndef NDEBUG
+    CUDA_SAFE_CALL(cudaPeekAtLastError());
     CUDA_SAFE_CALL(cudaDeviceSynchronize());
+#endif
 }
 
 
@@ -210,7 +211,6 @@ __global__ void computeDividedDifferencesKernel(real* output,
                                                 ivec3 direction,
                                                 size_t level
                                                 ) {
-
     const int index = threadIdx.x + blockIdx.x * blockDim.x;
 
     const size_t xInternalFormat = index % numberOfXCells;
@@ -220,13 +220,13 @@ __global__ void computeDividedDifferencesKernel(real* output,
     if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells || zInternalFormat >= numberOfZCells) {
         return;
     }
-    const size_t x = xInternalFormat + (level) * direction[0];
-    const size_t y = yInternalFormat + (level) * direction[1];
-    const size_t z = zInternalFormat + (level) * direction[2];
+    const int x = xInternalFormat + (level) * direction[0];
+    const int y = yInternalFormat + (level) * direction[1];
+    const int z = zInternalFormat + (level) * direction[2];
 
 
-    const size_t indexRight = z*nx*ny + y * nx + x;
-    const size_t indexLeft = (z - direction.z) * nx * ny
+    const int indexRight = z*nx*ny + y * nx + x;
+    const int indexLeft = (z - direction.z) * nx * ny
             + (y - direction.y) * nx
             + (x - direction.x);
 
