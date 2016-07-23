@@ -170,7 +170,6 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
 
     const int gridSize = (totalNumberOfCells + blockSize - 1 )/ blockSize;
 
-    std::cout << totalNumberOfCells << std::endl;
     typename Equation::Views viewLeft(leftOut);
     typename Equation::Views viewRight(rightOut);
     typename Equation::ConstViews viewInput(inputVariables);
