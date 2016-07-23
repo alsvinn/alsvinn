@@ -107,36 +107,8 @@ add_subdirectory("alsvinncli")
 add_subdirectory("alsmlmccli")
 add_subdirectory("validation")
 if(ALSVINN_BUILD_TESTS)
-	INCLUDE(ExternalProject)
-	ExternalProject_Add(
-    GTest
-    URL http://github.com/google/googletest/archive/release-1.7.0.zip
-    SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/gtest_source
-    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/gtest_binary
-    CMAKE_ARGS ${EXTERNAL_PROJECT_CMAKE_ARGS_PREFIX} -Dgtest_force_shared_crt=ON
-    INSTALL_COMMAND  ""
-    )
-
-  # We need the thread package for GTest
-  FIND_PACKAGE(Threads REQUIRED)
-
-  
-  INCLUDE_DIRECTORIES(  ${CMAKE_CURRENT_BINARY_DIR}/gtest_source/include "..")
-
-
-
-  LINK_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/gtest_binary)
-  if(WIN32)
-      LINK_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/gtest_binary/${CMAKE_BUILD_TYPE})
-  endif()
-
-  if (NOT WIN32)
-     SET(GTEST_LIBRARY_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX})
-     SET(GTEST_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/gtest_binary/${GTEST_LIBRARY_NAME})
-  else()
-     SET(GTEST_LIBRARY gtest)
-  endif()
-  SET(GTEST_LIBRARIES ${GTEST_LIBRARY})
+  hunter_add_package(GTest)
+  find_package(GTest REQUIRED)
   add_subdirectory("test")
   add_subdirectory("system_test")
 endif()

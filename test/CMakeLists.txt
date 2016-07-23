@@ -18,8 +18,6 @@ ENDIF()
 
 ADD_EXECUTABLE(alstest ${SRC} ${ALSTEST_CUDA})
 
-ADD_DEPENDENCIES(alstest GTest)
-
 TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm
                               ${Boost_LIBRARIES}
                               ${CUDA_LIBRARIES}
