@@ -87,7 +87,7 @@ def createClassTextHpp(qualifiedClassname):
     classText += "\n"
     classText += "    };" + "\n"
     # close namespaces
-    for name in splitName[0:-1]:
+    for name in reversed(splitName[0:-1]):
         classText += "} // namespace %s" % name
         classText += "\n"
 
