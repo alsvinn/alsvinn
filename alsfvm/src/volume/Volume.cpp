@@ -207,6 +207,17 @@ namespace alsfvm {
 			return nz + 2 * numberOfZGhostCells;
 		}
 
+        size_t Volume::getDimensions() const {
+            if (ny == 1) {
+                return 1;
+            }
+            else if (nz == 1) {
+                return 2;
+            }
+            else {
+                return 3;
+            }
+        }
 
 		/// 
 		/// Copies the whole volume to the other volume
