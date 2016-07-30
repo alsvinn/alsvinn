@@ -187,6 +187,9 @@ namespace alsfvm {
             ///
             void setVolume(const volume::Volume& other);
 
+            //! Gets the number of space dimensions.
+            size_t getDimensions() const;
+
         private:
             const std::vector<std::string> variableNames;
             const alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;

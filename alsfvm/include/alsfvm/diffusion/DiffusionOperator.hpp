@@ -9,7 +9,7 @@ namespace alsfvm { namespace diffusion {
     /// http://www.cscamm.umd.edu/tadmor/pub/TV+entropy/Fjordholm_Mishra_Tadmor_SINUM2012.pdf
     class DiffusionOperator {
     public:
-        virtual ~DiffusionOperator();
+        virtual ~DiffusionOperator() {};
 
         /// Applies numerical diffusion to the outputVolume given the data in conservedVolume.
         ///

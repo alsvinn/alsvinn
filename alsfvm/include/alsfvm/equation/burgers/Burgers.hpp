@@ -97,7 +97,7 @@ public:
     ///
     /// Basically sets output[index] += input
     ///
-    __device__ __host__ void addToViewAt(Views& output, size_t index, const ConservedVariables& input) const {
+    __device__ __host__ static void addToViewAt(Views& output, size_t index, const ConservedVariables& input)  {
         output.u.at(index) += input.u;
     }
 
@@ -189,6 +189,21 @@ public:
 
     __device__ __host__ PrimitiveVariables computePrimitiveVariables(const ConservedVariables& conserved) const {
         return PrimitiveVariables(conserved.u);
+    }
+
+    __device__ __host__ rvec1 computeEntropyVariables(const ConservedVariables& conserved) const {
+        return rvec1(2 / (conserved.u * (conserved.u - 2)));
+    }
+
+    __device__ __host__ matrix1 computeEigenVectorMatrix(const ConservedVariables& conserved) const {
+        
+        matrix1 matrixWithEigenVectors;
+        matrixWithEigenVectors(0, 0) = 1;
+        return matrixWithEigenVectors;
+    }
+
+    __device__ __host__ rvec1 computeEigenValues(const ConservedVariables& conserved) const {
+        return conserved.u;
     }
 
 };

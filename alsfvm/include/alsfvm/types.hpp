@@ -43,6 +43,7 @@ namespace alsfvm {
 #endif
 
 #include "alsfvm/vec.hpp"
+#include "alsfvm/mat.hpp"
 #ifdef ALSVINN_USE_QUADMATH
 #include <quadmath.h>
 #endif
@@ -56,6 +57,14 @@ namespace alsfvm {
 
 	typedef vec3<real> rvec3;
 	typedef vec3<int> ivec3;
+
+    typedef vec5<real> rvec5;
+    typedef vec5<int> ivec5;
+    
+    typedef vec1<real> rvec1;
+    typedef vec1<int> ivec1;
+
+    typedef matrix<real, 1, 1> matrix1;
 
 	///
 	/// The available types we have
