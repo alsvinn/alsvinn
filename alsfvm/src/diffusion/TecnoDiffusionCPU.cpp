@@ -2,33 +2,48 @@
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsfvm/equation/burgers/Burgers.hpp"
 #include "alsfvm/diffusion/RoeMatrix.hpp"
+#include <iostream>
 
 namespace alsfvm { namespace diffusion { 
 
     template<class Equation, class DiffusionMatrix>
     TecnoDiffusionCPU<Equation, DiffusionMatrix>::TecnoDiffusionCPU(volume::VolumeFactory& volumeFactory,
         alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
-        const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters,
-        size_t nx, size_t ny, size_t nz)
+        const simulator::SimulatorParameters& simulatorParameters)
 
         : 
-        reconstruction(reconstruction), equation(static_cast<typename Equation::Parameters&>(simulatorParameters->getEquationParameters()))
+        volumeFactory(volumeFactory), 
+        reconstruction(reconstruction), 
+        equation(static_cast<const typename Equation::Parameters&>(simulatorParameters.getEquationParameters()))
     {
-        
-        left = volumeFactory.createConservedVolume(nx, ny, nz);
-        right = volumeFactory.createConservedVolume(nx, ny, nz);
-        entropyVariables = volumeFactory.createConservedVolume(nx, ny, nz);
-
+        // empty
     }
 
     template<class Equation, class DiffusionMatrix>
     void TecnoDiffusionCPU<Equation, DiffusionMatrix>::applyDiffusion(volume::Volume& outputVolume,
         const volume::Volume& conservedVolume) 
     {
+        if (!left || left->getNumberOfXCells() != conservedVolume.getNumberOfXCells()) {
+            size_t nx = conservedVolume.getNumberOfXCells();
+            size_t ny = conservedVolume.getNumberOfYCells();
+            size_t nz = conservedVolume.getNumberOfZCells();
+
+            size_t gcx = conservedVolume.getNumberOfXGhostCells();
+            size_t gcy = conservedVolume.getNumberOfYGhostCells();
+            size_t gcz = conservedVolume.getNumberOfZGhostCells();
+
+
+
+            left = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
+            right = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
+            entropyVariables = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
+
+        }
         volume::transform_volume<typename Equation::ConservedVariables,
             typename Equation::ConservedVariables >(conservedVolume, *entropyVariables, [&](const typename Equation::ConservedVariables& in) {
-            // R^T * v
-            return (equation.computeEigenVectorMatrix(in).transposed())*equation.computeEntropyVariables(in);
+
+           
+            return equation.computeEntropyVariablesMultipliedByEigenVectorMatrix(in);// (equation.computeEigenVectorMatrix(in).transposed())*equation.computeEntropyVariables(in);
         });
 
         for (int direction = 0; direction < outputVolume.getDimensions(); ++direction) {
@@ -39,20 +54,24 @@ namespace alsfvm { namespace diffusion {
             typename Equation::ConstViews conservedView(conservedVolume);
             typename Equation::Views outputView(outputVolume);
 
-            volume::for_each_cell_index(conservedVolume, [&](size_t index) {
+            volume::for_each_cell_index_with_neighbours(direction, *left, [&](size_t leftIndex, size_t middleIndex, size_t rightIndex) {
 
-                auto leftValues = Equation::fetchConservedVariables(leftView, index);
-                auto rightValues = Equation::fetchConservedVariables(rightView, index);
+                auto leftValues = Equation::fetchConservedVariables(rightView, middleIndex);
+                auto rightValues = Equation::fetchConservedVariables(leftView, rightIndex);
 
-                auto conservedValues = Equation::fetchConservedVariables(conservedView, index);
+                auto conservedValues = Equation::fetchConservedVariables(conservedView, middleIndex);
 
                 DiffusionMatrix matrix(equation, conservedValues);
-
+              
                 auto output = equation.computeEigenVectorMatrix(conservedValues) * (matrix * (leftValues - rightValues));
-
-                Equation::addToViewAt(outputView, index, output);
+                Equation::addToViewAt(outputView, middleIndex, output);
             });
         }
+    }
+    
+    template<class Equation, class DiffusionMatrix>
+    size_t TecnoDiffusionCPU<Equation, DiffusionMatrix>::getNumberOfGhostCells() const {
+        return reconstruction->getNumberOfGhostCells();
     }
 
     template TecnoDiffusionCPU<equation::burgers::Burgers, RoeMatrix<equation::burgers::Burgers> >;

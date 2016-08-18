@@ -3,6 +3,7 @@
 #include "alsfvm/diffusion/TecnoDiffusionCPU.hpp"
 #include "alsfvm/diffusion/RoeMatrix.hpp"
 #include "alsfvm/equation/equation_list.hpp"
+#include "alsfvm/error/Exception.hpp"
 
 namespace alsfvm { namespace diffusion { 
     alsfvm::shared_ptr<DiffusionOperator> DiffusionFactory::createDiffusionOperator(const std::string& equation,
@@ -23,13 +24,24 @@ namespace alsfvm { namespace diffusion {
         if (deviceConfiguration->getPlatform() == "cpu") {
             if (equation == "burgers") {
                 if (diffusionType == "tecnoroe") {
-                    diffusionOperator.reset(new DiffusionOperator
-                        <equation::burgers::Burgers, RoeMatrix<equation::burgers::Burgers>>(volumeFactory, reconstructionFactory,
-                            simulatorParameters,
-                            )
+                    diffusionOperator.reset(new TecnoDiffusionCPU
+                        <equation::burgers::Burgers, RoeMatrix<equation::burgers::Burgers>>(volumeFactory, reconstruction,
+                            simulatorParameters));
                 }
+                else {
+                    THROW("Unknown diffusion type " << diffusionType);
+                }
+
+            }
+            else {
+                THROW("Equation not supported: " << equation);
             }
         }
+        else {
+            THROW("Platform not supported: " << deviceConfiguration->getPlatform());
+        }
+
+        return diffusionOperator;
     }
 }
 }

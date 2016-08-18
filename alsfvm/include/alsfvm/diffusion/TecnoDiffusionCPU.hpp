@@ -23,8 +23,7 @@ namespace alsfvm { namespace diffusion {
 
         TecnoDiffusionCPU(volume::VolumeFactory& volumeFactory,
             alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstructionFactory,
-            const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters,
-            size_t nx, size_t ny, size_t nz);
+            const simulator::SimulatorParameters& simulatorParameters);
 
         /// Applies numerical diffusion to the outputVolume given the data in conservedVolume.
         ///
@@ -36,7 +35,12 @@ namespace alsfvm { namespace diffusion {
         virtual void applyDiffusion(volume::Volume& outputVolume,
             const volume::Volume& conservedVolume);
 
+        /// Gets the total number of ghost cells this diffusion needs,
+        /// this is typically governed by reconstruction algorithm.
+        virtual size_t getNumberOfGhostCells() const;
+
     private:
+        alsfvm::volume::VolumeFactory volumeFactory;
         alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction;
 
         // Reconstructed values (these are basically R^{-1}v, 

@@ -77,6 +77,33 @@ namespace alsfvm {
         }
 
 
+        ///
+        /// Loops through all possible cell indexes in a cache optimal manner.
+        /// \param in the volume to loop over
+        /// \param function the function to call
+        /// \param offsetStart the triple deciding the starting index
+        /// \param offsetEnd the offset for end (must be non-negative!)
+        /// \note Untemplated version for ease of use, indirectly calls the template version
+        ///
+
+        inline void for_each_cell_index_with_neighbours(size_t direction, const Volume& in,
+            const std::function<void(size_t leftIndex, size_t middleIndex, size_t rightIndex)>& function,
+            ivec3 offsetStart = { 0,0,0 },
+            ivec3 offsetEnd = { 0,0,0 }) {
+            if (direction == 0) {
+                for_each_cell_index_with_neighbours<0>(in, function, offsetStart, offsetEnd);
+            }
+            else if (direction == 1) {
+                for_each_cell_index_with_neighbours<1>(in, function, offsetStart, offsetEnd);
+            }
+            else if (direction == 2) {
+                for_each_cell_index_with_neighbours<2>(in, function, offsetStart, offsetEnd);
+            }
+            else {
+                THROW("Unsupported direction: " << direction);
+            }
+        }
+
 
 
 

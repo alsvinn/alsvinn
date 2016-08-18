@@ -21,3 +21,5 @@ TEST(TecnoTest, TestTecnoVariables) {
     ASSERT_FLOAT_EQ(sqrt(primitive.rho * primitive.p), tecnoVariables.z[4]);
 
 }
+
+

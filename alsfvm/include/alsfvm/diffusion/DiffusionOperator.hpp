@@ -21,6 +21,11 @@ namespace alsfvm { namespace diffusion {
         virtual void applyDiffusion(volume::Volume& outputVolume, 
             const volume::Volume& conservedVolume) = 0;
 
+
+        /// Gets the total number of ghost cells this diffusion needs,
+        /// this is typically governed by reconstruction algorithm.
+        virtual size_t getNumberOfGhostCells() const = 0;
+
     };
 } // namespace alsfvm
 } // namespace diffusion
