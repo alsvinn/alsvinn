@@ -197,7 +197,7 @@ public:
     }
 
     __device__ __host__ rvec1 computeEntropyVariablesMultipliedByEigenVectorMatrix(const ConservedVariables& conserved) const {
-        return rvec1(2.0 / (conserved.u - 2));
+        return rvec1(2.0 * conserved.u / (conserved.u - 2));
     }
 
     __device__ __host__ matrix1 computeEigenVectorMatrix(const ConservedVariables& conserved) const {
@@ -208,7 +208,7 @@ public:
     }
 
     __device__ __host__ rvec1 computeEigenValues(const ConservedVariables& conserved) const {
-        return conserved.u;
+        return 1;
     }
 
 };
