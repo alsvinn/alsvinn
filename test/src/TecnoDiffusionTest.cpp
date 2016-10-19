@@ -3,6 +3,7 @@
 #include "alsfvm/diffusion/DiffusionFactory.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "utils/polyfit.hpp"
+#include "alsfvm/boundary/BoundaryFactory.hpp"
 #include <iostream>
 
 using namespace alsfvm;
@@ -53,8 +54,7 @@ public:
         volumeFactory.reset(new volume::VolumeFactory(parameters.equation, memoryFactory));
         volumeFactoryCPU.reset(new volume::VolumeFactory(parameters.equation, memoryFactoryCPU));
 
-        
-       
+        boundaryFactory.reset(new boundary::BoundaryFactory("periodic", deviceConfiguration));
     }
 
     DiffusionParameters parameters;
@@ -69,8 +69,9 @@ public:
     alsfvm::shared_ptr<volume::VolumeFactory> volumeFactoryCPU;
 
     alsfvm::simulator::SimulatorParameters simulatorParameters;
-    
 
+    alsfvm::shared_ptr<boundary::BoundaryFactory> boundaryFactory;
+  
     std::tuple<grid::Grid, alsfvm::shared_ptr<volume::Volume>, alsfvm::shared_ptr<diffusion::DiffusionOperator> > makeSetup(size_t nx) {
         auto grid = grid::Grid(rvec3(0., 0., 0.), rvec3(1., 0., 0.), ivec3(nx, 1, 1));
         
@@ -80,17 +81,19 @@ public:
             parameters.reconstruction, grid, simulatorParameters,deviceConfiguration, memoryFactory,
             *volumeFactory);
 
+        auto boundary = boundaryFactory->createBoundary(diffusionOperator->getNumberOfGhostCells());
+
         auto volumeCPU = volumeFactoryCPU->createConservedVolume(nx, 1, 1, diffusionOperator->getNumberOfGhostCells());
         volumeCPU->makeZero();
         
         auto f = [](real x) {
-            return sin(2 * M_PI * x) + 2;
+            return 0.5*sin(2 * M_PI * x) + 1;
         };
 
         // Integral of f / dx
         // where dx = b - a
         auto averageIntegralF = [](real a, real b) {
-            return (-cos(2 * M_PI * b) + cos(2 * M_PI * a)) / (2 * M_PI * (b - a)) + 2;
+            return 0.5*(-cos(2 * M_PI * b) + cos(2 * M_PI * a)) / (2 * M_PI * (b - a)) + 1;
         };
 
         double dx = grid.getCellLengths().x;
@@ -105,6 +108,8 @@ public:
         auto volume = volumeFactory->createConservedVolume(nx, 1, 1, diffusionOperator->getNumberOfGhostCells());
 
         volumeCPU->copyTo(*volume);
+
+        boundary->applyBoundaryConditions(*volume, grid);
         return std::make_tuple(grid, volume, diffusionOperator);
     }
 };
@@ -136,13 +141,12 @@ TEST_P(TecnoDiffusionTest, OrderTest) {
         double L1Norm = 0;
         volume::for_each_internal_volume_index<0>(*outputVolumeCPU, [&](size_t, size_t index, size_t) {
             for (size_t i = 0; i < outputVolumeCPU->getNumberOfVariables(); ++i) {
-                std::cout << index << ", " << std::abs(outputVolumeCPU->getScalarMemoryArea(i)->getPointer()[index]) << std::endl;
+                
                 L1Norm += std::abs(outputVolumeCPU->getScalarMemoryArea(i)->getPointer()[index]);
             }
         });
 
         errors.push_back(std::log(L1Norm/nx));
-        std::cout << L1Norm/nx << std::endl;
         resolutions.push_back(std::log(nx));
     }
 

@@ -43,7 +43,7 @@ namespace alsfvm { namespace diffusion {
             typename Equation::ConservedVariables >(conservedVolume, *entropyVariables, [&](const typename Equation::ConservedVariables& in) {
 
            
-            return equation.computeEntropyVariablesMultipliedByEigenVectorMatrix(in);// (equation.computeEigenVectorMatrix(in).transposed())*equation.computeEntropyVariables(in);
+            return equation.computeEntropyVariablesMultipliedByEigenVectorMatrix(in);
         });
 
         for (int direction = 0; direction < outputVolume.getDimensions(); ++direction) {
@@ -63,7 +63,7 @@ namespace alsfvm { namespace diffusion {
 
                 DiffusionMatrix matrix(equation, conservedValues);
               
-                auto output = leftValues - rightValues; // equation.computeEigenVectorMatrix(conservedValues) * (matrix * (leftValues - rightValues));
+                auto output = equation.computeEigenVectorMatrix(conservedValues) * (matrix * (leftValues - rightValues));
                 Equation::addToViewAt(outputView, middleIndex, output);
             });
         }

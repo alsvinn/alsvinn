@@ -11,6 +11,7 @@
 #include "alsfvm/init/PythonInitialData.hpp"
 #include <boost/filesystem.hpp>
 #include "alsfvm/equation/euler/EulerParameters.hpp"
+#include "alsfvm/diffusion/DiffusionFactory.hpp"
 #include <set>
 
 namespace alsfvm { namespace config {
@@ -66,7 +67,7 @@ alsfvm::shared_ptr<simulator::Simulator>
     std::set<std::string> supportedNodes =
     {
         "name", "platform", "boundary", "flux", "endTime", "equation", "equationParameters",
-        "reconstruction", "cfl", "integrator", "initialData", "writer", "grid"
+        "reconstruction", "cfl", "integrator", "initialData", "writer", "grid", "diffusion"
     };
 
     for (auto node : configuration.get_child("fvm")) {
@@ -105,7 +106,7 @@ alsfvm::shared_ptr<simulator::Simulator>
     auto cellComputerFactory = alsfvm::make_shared<equation::CellComputerFactory>(parameters, deviceConfiguration);
 
 
-
+    auto diffusionOperator = createDiffusion(configuration, *grid, *parameters, deviceConfiguration, memoryFactory, *volumeFactory);
 
 
 
@@ -120,7 +121,8 @@ alsfvm::shared_ptr<simulator::Simulator>
                          initialData,
                          endTime,
 						 deviceConfiguration,
-						 equation);
+						 equation,
+                         diffusionOperator);
 
     simulator->addWriter(writer);
 
@@ -266,6 +268,32 @@ void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree &configu
 
         }
     }
+}
+
+alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion(const SimulatorSetup::ptree& configuration,
+    const grid::Grid& grid,
+    const simulator::SimulatorParameters& simulatorParameters,
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration,
+    alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+    volume::VolumeFactory& volumeFactory)
+{
+    // Should look like this:
+    //   <diffusion>
+    //     <name>name</name>
+    //     <reconstruction>reconstruction</reconstruction>
+    //  </diffusion>
+    auto fvmNode = configuration.get_child("fvm");
+    std::string name = "none";
+    std::string reconstruction = "none";
+    if (fvmNode.find("diffusion") != fvmNode.not_found()) {
+        name = configuration.get<std::string>("fvm.diffusion.name");
+        reconstruction = configuration.get<std::string>("fvm.diffusion.reconstruction");
+    }
+
+    diffusion::DiffusionFactory diffusionFactory;
+
+    return diffusionFactory.createDiffusionOperator(readEquation(configuration), name, reconstruction, grid, simulatorParameters,
+        deviceConfiguration, memoryFactory, volumeFactory);
 }
 
 std::string SimulatorSetup::readFlux(const SimulatorSetup::ptree &configuration)

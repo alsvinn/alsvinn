@@ -10,6 +10,7 @@
 #include "alsfvm/simulator/SimulatorParameters.hpp"
 #include "alsfvm/init/InitialData.hpp"
 #include "alsfvm/simulator/ConservedSystem.hpp"
+#include "alsfvm/diffusion/DiffusionOperator.hpp"
 #include <vector>
 #include <memory>
 
@@ -57,7 +58,9 @@ namespace alsfvm { namespace simulator {
                   alsfvm::shared_ptr<init::InitialData>& initialData,
 				  real endTime,
 				  alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
-				  std::string& equationName);
+				  std::string& equationName,
+                  alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator
+            );
 
 
 
@@ -123,7 +126,7 @@ namespace alsfvm { namespace simulator {
         alsfvm::shared_ptr<volume::Volume> extraVolume;
         alsfvm::shared_ptr<equation::CellComputer> cellComputer;
 
-
+        alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator;
         std::vector<alsfvm::shared_ptr<io::Writer> > writers;
         alsfvm::shared_ptr<init::InitialData> initialData;
 

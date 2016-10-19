@@ -4,6 +4,7 @@
 #include "alsfvm/diffusion/RoeMatrix.hpp"
 #include "alsfvm/equation/equation_list.hpp"
 #include "alsfvm/error/Exception.hpp"
+#include "alsfvm/diffusion/NoDiffusion.hpp"
 
 namespace alsfvm { namespace diffusion { 
     alsfvm::shared_ptr<DiffusionOperator> DiffusionFactory::createDiffusionOperator(const std::string& equation,
@@ -21,7 +22,10 @@ namespace alsfvm { namespace diffusion {
             simulatorParameters, memoryFactory, grid, deviceConfiguration);
         
         alsfvm::shared_ptr<DiffusionOperator> diffusionOperator;
-        if (deviceConfiguration->getPlatform() == "cpu") {
+        if (diffusionType == "none") {
+            diffusionOperator.reset(new NoDiffusion());
+        }
+        else if (deviceConfiguration->getPlatform() == "cpu") {
             if (equation == "burgers") {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCPU
