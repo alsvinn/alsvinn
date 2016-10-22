@@ -20,6 +20,10 @@ namespace alsfvm {
             // Empty
         }
 
+        __device__ __host__ operator T() const {
+            return x;
+        }
+
         __device__ __host__ bool operator==(const vec1& other) const {
             return other.x == x;
         }
@@ -69,6 +73,10 @@ namespace alsfvm {
         __device__ __host__ static constexpr size_t size()  {
             return 1;
         }
+
+        __device__ __host__ T norm() const {
+            return abs(x);
+        }
     };
 
     ///
@@ -77,8 +85,8 @@ namespace alsfvm {
     /// \f[(a_0/b_0, a_1/b_1, a_2/b_2)\f]
     ///
     template<class T>
-    __device__ __host__ inline vec3<T> operator/(const vec1<T>& a, const vec1<T>& b) {
-        return vec3<T>(a.x / b.x);
+    __device__ __host__ inline vec1<T> operator/(const vec1<T>& a, const vec1<T>& b) {
+        return vec1<T>(a.x / b.x);
     }
 
     ///
@@ -87,7 +95,7 @@ namespace alsfvm {
     ///
     template<class T>
     __device__ __host__ inline vec1<T> operator*(T scalar, const vec1<T>& a) {
-        return vec3<T>(a.x*scalar);
+        return vec1<T>(a.x*scalar);
     }
 
     ///
@@ -96,7 +104,7 @@ namespace alsfvm {
     ///
     template<class T>
     __device__ __host__ inline vec1<T> operator-(const vec1<T>& a, const vec1<T>& b) {
-        return vec3<T>(a.x - b.x);
+        return vec1<T>(a.x - b.x);
     }
 
     ///
@@ -105,7 +113,7 @@ namespace alsfvm {
     ///
     template<class T>
     __device__ __host__ inline vec1<T> operator/(const vec1<T>& a, T scalar) {
-        return vec3<T>(a.x/scalar);
+        return vec1<T>(a.x/scalar);
     }
 
     ///
@@ -114,6 +122,6 @@ namespace alsfvm {
     ///
     template<class T>
     __device__ __host__ inline vec1<T> operator+(const vec1<T>& a, const vec1<T>& b) {
-        return vec3<T>(a.x+b.x);
+        return vec1<T>(a.x+b.x);
     }
 }

@@ -19,9 +19,9 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
                      alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator)
     :      grid(grid),
       numericalFlux(numericalFluxFactory.createNumericalFlux(*grid)),
-      system(new ConservedSystem(numericalFlux)),
+      system(new ConservedSystem(numericalFlux, diffusionOperator)),
       integrator(integratorFactory.createIntegrator(system)),
-      boundary(boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells())),
+      boundary(boundaryFactory.createBoundary(system->getNumberOfGhostCells())),
       cellComputer(cellComputerFactory.createComputer()),
       diffusionOperator(diffusionOperator),
       initialData(initialData),
@@ -37,11 +37,11 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
     for (size_t i = 0; i < integrator->getNumberOfSubsteps() + 1; ++i) {
         conservedVolumes.push_back(
                 volumeFactory.createConservedVolume(nx, ny, nz,
-                                                      numericalFlux->getNumberOfGhostCells()));
+                                                      system->getNumberOfGhostCells()));
     }
 
     extraVolume = volumeFactory.createExtraVolume(nx, ny, nz,
-                                                  numericalFlux->getNumberOfGhostCells());
+                                                  system->getNumberOfGhostCells());
 
    
 	// We need to do some extra stuff for the GPU
@@ -52,11 +52,11 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
 		auto memoryFactoryCPU = alsfvm::make_shared<memory::MemoryFactory>(deviceConfigurationCPU);
 		volume::VolumeFactory volumeFactoryCPU(equationName, memoryFactoryCPU);
 		auto primitiveVolume = volumeFactoryCPU.createPrimitiveVolume(nx, ny, nz,
-			numericalFlux->getNumberOfGhostCells());
+			system->getNumberOfGhostCells());
 		auto conservedVolumeCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz,
-			numericalFlux->getNumberOfGhostCells());
+			system->getNumberOfGhostCells());
 		auto extraVolumeCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz,
-			numericalFlux->getNumberOfGhostCells());
+			system->getNumberOfGhostCells());
 
         auto simulatorParametersCPU = alsfvm::make_shared<SimulatorParameters>(simulatorParameters);
         simulatorParametersCPU->setPlatform("cpu");
@@ -70,7 +70,7 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
 	}
 	else {
 		auto primitiveVolume = volumeFactory.createPrimitiveVolume(nx, ny, nz,
-			numericalFlux->getNumberOfGhostCells());
+			system->getNumberOfGhostCells());
 		initialData->setInitialData(*conservedVolumes[0], *extraVolume, *primitiveVolume, *cellComputer, *grid);
 	}
     

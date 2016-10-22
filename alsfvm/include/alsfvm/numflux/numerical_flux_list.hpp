@@ -7,27 +7,28 @@
 #include "alsfvm/numflux/euler/HLL3.hpp"
 #include "alsfvm/numflux/burgers/Godunov.hpp"
 #include "alsfvm/numflux/Central.hpp"
-
+#include "alsfvm/numflux/ScalarEntropyConservativeFlux.hpp"
 
 ///
 /// This file provides the list of all available fluxes for each equation
 ///
 namespace alsfvm {
 namespace numflux {
-    typedef boost::fusion::map<
+    typedef boost::fusion::map <
         // EULER
         boost::fusion::pair<equation::euler::Euler,
         boost::fusion::vector<
-            euler::HLL,
-            euler::HLL3,
-            Central<equation::euler::Euler>
+        euler::HLL,
+        euler::HLL3,
+        Central<equation::euler::Euler>
         > >,
 
         // BURGERS
-        boost::fusion::pair<equation::burgers::Burgers,
-        boost::fusion::vector<
-            Central<equation::burgers::Burgers>,
-            burgers::Godunov
+        boost::fusion::pair < equation::burgers::Burgers,
+        boost::fusion::vector <
+        Central<equation::burgers::Burgers>,
+        burgers::Godunov,
+        ScalarEntropyConservativeFlux<equation::burgers::Burgers>
         > >
         > NumericalFluxList;
 
@@ -61,4 +62,7 @@ namespace numflux {
     template class X< ::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 3>; \
     template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 1>; \
     template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 2>; \
-    template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 3>;
+    template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 3>; \
+    template class X< ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 1>; \
+    template class X< ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 2>; \
+    template class X< ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 3>;

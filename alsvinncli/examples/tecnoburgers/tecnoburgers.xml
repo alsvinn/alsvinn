@@ -1,0 +1,34 @@
+<fvm>
+    <name>
+        tecnoburgers
+    </name>
+    <platform>cpu</platform>
+    <grid>
+        <lowerCorner>0. 0 0</lowerCorner>
+        <upperCorner>1 0 0</upperCorner>
+        <dimension>64 1 1</dimension>
+    </grid>
+    <boundary>periodic</boundary>
+    <flux>tecno1</flux>
+    <endTime>0.5</endTime>
+    <equation>burgers</equation>
+    <reconstruction>none</reconstruction>
+    <cfl>0.05</cfl>
+    <diffusion>
+        <name>
+            tecnoroe
+        </name>
+        <reconstruction>
+            none
+        </reconstruction>
+    </diffusion>
+    <integrator>auto</integrator>
+    <initialData>
+        <python>tecnoburgers.py</python>
+    </initialData>
+    <writer>
+        <type>hdf5</type>
+        <basename>tecnoburgers</basename>
+        <numberOfSaves>10</numberOfSaves>
+    </writer>
+</fvm>

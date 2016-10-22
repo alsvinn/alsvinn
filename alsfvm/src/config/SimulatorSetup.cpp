@@ -163,7 +163,9 @@ std::string SimulatorSetup::readEquation(const SimulatorSetup::ptree &configurat
 
 std::string SimulatorSetup::readReconstruciton(const SimulatorSetup::ptree &configuration)
 {
-    return configuration.get<std::string>("fvm.reconstruction");
+    auto reconstruction = configuration.get<std::string>("fvm.reconstruction");
+    boost::trim(reconstruction);
+    return reconstruction;
 }
 
 real SimulatorSetup::readCFLNumber(const SimulatorSetup::ptree &configuration)
@@ -286,8 +288,11 @@ alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion
     std::string name = "none";
     std::string reconstruction = "none";
     if (fvmNode.find("diffusion") != fvmNode.not_found()) {
+
         name = configuration.get<std::string>("fvm.diffusion.name");
+        boost::trim(name);
         reconstruction = configuration.get<std::string>("fvm.diffusion.reconstruction");
+        boost::trim(reconstruction);
     }
 
     diffusion::DiffusionFactory diffusionFactory;

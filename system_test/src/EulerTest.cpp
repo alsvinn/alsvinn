@@ -18,6 +18,7 @@
 #include "alsfvm/reconstruction/ENOCPU.hpp"
 #include "alsfvm/simulator/ConservedSystem.hpp"
 #include "alsfvm/reconstruction/WENOCPU.hpp"
+#include "alsfvm/diffusion/NoDiffusion.hpp"
 #include <limits>
 #include <iomanip>
 
@@ -58,7 +59,7 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
 
     auto numericalFlux = fluxFactory.createNumericalFlux(grid);
-    alsfvm::shared_ptr<integrator::System> system(new simulator::ConservedSystem(numericalFlux));
+    alsfvm::shared_ptr<integrator::System> system(new simulator::ConservedSystem(numericalFlux, alsfvm::dynamic_pointer_cast<diffusion::DiffusionOperator>(std::make_shared<diffusion::NoDiffusion>())));
     integrator::IntegratorFactory integratorFactory(integratorName);
     auto integrator = integratorFactory.createIntegrator(system);
 

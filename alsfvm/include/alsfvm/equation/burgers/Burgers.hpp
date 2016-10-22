@@ -51,6 +51,20 @@ public:
     ///
     static const size_t  numberOfConservedVariables = 1;
 
+    ///
+    /// Gives the lower bound for the parameter the entropy functions,
+    /// corresponds to the "a" variable in the tecno variable for the Burgers
+    /// log entropy
+    ///
+    static const constexpr real entropyLowerBound = 0;
+    
+    ///
+    /// Gives the lower bound for the parameter the entropy functions,
+    /// corresponds to the "b" variable in the tecno variable for the Burgers
+    /// log entropy
+    ///
+    static const constexpr real entropyUpperBound = 3;
+
     __device__ __host__ static size_t getNumberOfConservedVariables() {
         return 1;
     }
@@ -191,13 +205,32 @@ public:
         return PrimitiveVariables(conserved.u);
     }
 
+    /// 
+    /// Computes the entropy variable \f$v(u)\f$ given by
+    /// \f[v(u) = \partial_u E(u)\f]
+    /// corresponding to the entropy
+    /// \f[E(u)-\log(b-u)-\log(u-a)\f]
+    /// where \f$b\f$ is given as entropyUpperBound and \f$a\f$ is given as entropyLowerBound.
+    ///
     __device__ __host__ rvec1 computeEntropyVariables(const ConservedVariables& conserved) const {
        
-        return conserved.u == 0 ? 0 : rvec1(2 / (conserved.u * (conserved.u - 2)));
+        return (1 / (entropyUpperBound - conserved.u)) - 1 / (conserved.u - entropyLowerBound);
+    }
+
+    ///
+    /// Computes the entropy potential \f$\psi(u)\f$ given by
+    /// \f[\psi(u) = v(u)f(u) - Q(u)\f]
+    /// where \f$Q(u)\f$ is defined through 
+    /// \f[Q'(u) = f'(u)E'(u)\f]
+    ///
+    __device__ __host__ rvec1 computeEntropyPotential(const ConservedVariables& conserved) const {
+
+        return computeEntropyVariables(conserved)*0.5*conserved.u*conserved.u - (-2 * conserved.u
+            - entropyUpperBound*log(entropyUpperBound - conserved.u) - entropyLowerBound*log(conserved.u - entropyLowerBound));
     }
 
     __device__ __host__ rvec1 computeEntropyVariablesMultipliedByEigenVectorMatrix(const ConservedVariables& conserved) const {
-        return rvec1(2.0 * conserved.u / (conserved.u - 2));
+        return rvec1(2.0 * conserved.u / (conserved.u*(conserved.u - 2)));
     }
 
     __device__ __host__ matrix1 computeEigenVectorMatrix(const ConservedVariables& conserved) const {
@@ -208,7 +241,7 @@ public:
     }
 
     __device__ __host__ rvec1 computeEigenValues(const ConservedVariables& conserved) const {
-        return 1;
+        return conserved.u;
     }
 
 };

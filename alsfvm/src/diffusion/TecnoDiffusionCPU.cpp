@@ -63,7 +63,7 @@ namespace alsfvm { namespace diffusion {
 
                 DiffusionMatrix matrix(equation, conservedValues);
               
-                auto output = equation.computeEigenVectorMatrix(conservedValues) * (matrix * (leftValues - rightValues));
+                auto output = (equation.computeEigenVectorMatrix(conservedValues) * (matrix * (leftValues - rightValues)));
                 Equation::addToViewAt(outputView, middleIndex, output);
             });
         }

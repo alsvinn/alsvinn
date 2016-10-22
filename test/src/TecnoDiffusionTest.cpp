@@ -146,6 +146,8 @@ TEST_P(TecnoDiffusionTest, OrderTest) {
             }
         });
 
+        std::cout << L1Norm << std::endl;
+
         errors.push_back(std::log(L1Norm/nx));
         resolutions.push_back(std::log(nx));
     }
