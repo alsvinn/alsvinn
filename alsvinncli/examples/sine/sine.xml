@@ -10,7 +10,7 @@
   </grid>
   <boundary>periodic</boundary>
   <flux>godunov</flux>
-  <endTime>0.5</endTime>
+  <endTime>1.2</endTime>
   <equation>burgers</equation>
   <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>

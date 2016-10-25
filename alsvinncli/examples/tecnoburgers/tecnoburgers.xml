@@ -6,11 +6,11 @@
     <grid>
         <lowerCorner>0. 0 0</lowerCorner>
         <upperCorner>1 0 0</upperCorner>
-        <dimension>64 1 1</dimension>
+        <dimension>4096 1 1</dimension>
     </grid>
     <boundary>periodic</boundary>
     <flux>tecno1</flux>
-    <endTime>0.5</endTime>
+    <endTime>1.2</endTime>
     <equation>burgers</equation>
     <reconstruction>none</reconstruction>
     <cfl>0.05</cfl>
@@ -19,7 +19,7 @@
             tecnoroe
         </name>
         <reconstruction>
-            none
+            eno2
         </reconstruction>
     </diffusion>
     <integrator>auto</integrator>
