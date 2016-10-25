@@ -8,8 +8,8 @@ namespace alsfvm { namespace simulator {
     /// 
     class ConservedSystem : public integrator::System {
     public:
-        ConservedSystem(alsfvm::shared_ptr<numflux::NumericalFlux>& numericalFlux,
-                        alsfvm::shared_ptr<diffusion::DiffusionOperator>& diffusionOperator);
+        ConservedSystem(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux,
+                        alsfvm::shared_ptr<diffusion::DiffusionOperator> diffusionOperator);
         
         ///
         /// \brief operator () computes the right hand side of the ODE. (see

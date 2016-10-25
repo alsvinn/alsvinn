@@ -22,7 +22,7 @@ public:
                                                        const typename Equation::AllVariables& right,
                                                        typename Equation::ConservedVariables& F)
     {
-        static_assert(false, "Lax-Friedrich flux not implemented");
+        static_assert(sizeof(Equation)==0, "Lax-Friedrich flux not implemented");
 //F =  0.5*(eq.f(Ul,d) + o.f(Ur,d)) - 0.5*(dx/dt).*(Ur-Ul);;
 
         // This looks a bit weird, but it is OK. The basic principle is that AllVariables

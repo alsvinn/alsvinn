@@ -7,7 +7,8 @@
 namespace alsfvm { namespace diffusion { 
 
 
-    /// Applies the Tecno diffusion to the operator. This will always take 
+    ///
+    /// Applies the Tecno diffusion to the operator. This will always take
     /// the form
     ///
     /// \f[R\Lambda R^{-1} \langle\langle v\rangle \rangle\f]
@@ -17,6 +18,7 @@ namespace alsfvm { namespace diffusion {
     /// http://www.cscamm.umd.edu/tadmor/pub/TV+entropy/Fjordholm_Mishra_Tadmor_SINUM2012.pdf
     /// 
     /// The matrix \f$\Lambda\f$ is specified through the DiffusionMatrix template argument.
+    ///
     template<class Equation, class DiffusionMatrix>
     class TecnoDiffusionCPU : public DiffusionOperator {
     public:
@@ -25,18 +27,22 @@ namespace alsfvm { namespace diffusion {
             alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstructionFactory,
             const simulator::SimulatorParameters& simulatorParameters);
 
-        /// Applies numerical diffusion to the outputVolume given the data in conservedVolume.
+        ///
+        ///  Applies numerical diffusion to the outputVolume given the data in conservedVolume.
         ///
         /// \note The numerical diffusion will be added to outputVolume, ie. the code will 
         /// essentially work like
         /// \code{.cpp}
         /// outputVolume += diffusion(conservedVolume);
         /// \endcode
+        ///
         virtual void applyDiffusion(volume::Volume& outputVolume,
             const volume::Volume& conservedVolume);
 
+        ///
         /// Gets the total number of ghost cells this diffusion needs,
         /// this is typically governed by reconstruction algorithm.
+        ///
         virtual size_t getNumberOfGhostCells() const;
 
     private:

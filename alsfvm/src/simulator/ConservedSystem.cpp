@@ -2,8 +2,8 @@
 #include <algorithm>
 namespace alsfvm { namespace simulator {
 
-ConservedSystem::ConservedSystem(alsfvm::shared_ptr<numflux::NumericalFlux> &numericalFlux,
-    alsfvm::shared_ptr<diffusion::DiffusionOperator>& diffusionOperator)
+ConservedSystem::ConservedSystem(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux,
+    alsfvm::shared_ptr<diffusion::DiffusionOperator> diffusionOperator)
     : numericalFlux(numericalFlux), diffusionOperator(diffusionOperator)
 {
 

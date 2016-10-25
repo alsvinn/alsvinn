@@ -74,6 +74,6 @@ namespace alsfvm { namespace diffusion {
         return reconstruction->getNumberOfGhostCells();
     }
 
-    template TecnoDiffusionCPU<equation::burgers::Burgers, RoeMatrix<equation::burgers::Burgers> >;
+    template class TecnoDiffusionCPU<::alsfvm::equation::burgers::Burgers, ::alsfvm::diffusion::RoeMatrix<equation::burgers::Burgers> >;
 }
 }

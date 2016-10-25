@@ -59,7 +59,8 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
 
     auto numericalFlux = fluxFactory.createNumericalFlux(grid);
-    alsfvm::shared_ptr<integrator::System> system(new simulator::ConservedSystem(numericalFlux, alsfvm::dynamic_pointer_cast<diffusion::DiffusionOperator>(std::make_shared<diffusion::NoDiffusion>())));
+    alsfvm::shared_ptr<integrator::System> system(new simulator::ConservedSystem(numericalFlux,
+                                                                                 alsfvm::dynamic_pointer_cast<diffusion::DiffusionOperator>(alsfvm::make_shared<diffusion::NoDiffusion>())));
     integrator::IntegratorFactory integratorFactory(integratorName);
     auto integrator = integratorFactory.createIntegrator(system);
 
