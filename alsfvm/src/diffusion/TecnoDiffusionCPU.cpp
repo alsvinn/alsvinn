@@ -53,7 +53,7 @@ namespace alsfvm { namespace diffusion {
             typename Equation::Views rightView(*right);
             typename Equation::ConstViews conservedView(conservedVolume);
             typename Equation::Views outputView(outputVolume);
-
+            const int ngc = getNumberOfGhostCells();
             volume::for_each_cell_index_with_neighbours(direction, *left, [&](size_t leftIndex, size_t middleIndex, size_t rightIndex) {
                 auto diffusion = [&](size_t left, size_t right) {
                     auto leftValues = Equation::fetchConservedVariables(rightView, left);
@@ -68,7 +68,7 @@ namespace alsfvm { namespace diffusion {
 
 
                 Equation::addToViewAt(outputView, middleIndex, diffusion(middleIndex, rightIndex)-diffusion(leftIndex, middleIndex));
-            });
+            }, { 1,1,1 }, { 1,1,1 });
         }
     }
     

@@ -49,7 +49,7 @@ namespace alsfvm {
             
             static constexpr bool hasStencil = true;
 
-            static ivec4 stencil() {
+            static __host__ __device__ ivec4 stencil() {
                 return{ -1, 0, 1, 2 };
             }
         };

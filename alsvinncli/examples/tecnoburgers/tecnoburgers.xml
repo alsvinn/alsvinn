@@ -1,4 +1,4 @@
-<fvm>
+<?xml version="1.0" ?><fvm>
     <name>
         tecnoburgers
     </name>
@@ -9,20 +9,16 @@
         <dimension>4096 1 1</dimension>
     </grid>
     <boundary>periodic</boundary>
-    <flux>tecno4</flux>
-    <endTime>1.2</endTime>
+    <flux>godunov</flux>
+    <endTime>0.1</endTime>
     <equation>burgers</equation>
-    <reconstruction>none</reconstruction>
-    <cfl>0.1</cfl>
+    <reconstruction>eno3</reconstruction>
+    <cfl>0.01</cfl>
     <diffusion>
-        <name>
-            tecnoroe
-        </name>
-        <reconstruction>
-            eno2
-        </reconstruction>
+        <name>none</name>
+        <reconstruction>none</reconstruction>
     </diffusion>
-    <integrator>auto</integrator>
+    <integrator>rungekutta3</integrator>
     <initialData>
         <python>tecnoburgers.py</python>
     </initialData>
