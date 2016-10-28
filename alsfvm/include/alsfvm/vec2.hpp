@@ -38,7 +38,7 @@ namespace alsfvm {
         ///
         template<class S>
         __device__ __host__ vec2<S> convert() {
-            return vec2<S>(S(x), S(y), S(z));
+            return vec2<S>(S(x), S(y));
         }
 
         ///

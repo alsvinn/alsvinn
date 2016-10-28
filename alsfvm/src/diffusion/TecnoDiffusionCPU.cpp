@@ -8,7 +8,7 @@ namespace alsfvm { namespace diffusion {
 
     template<class Equation, class DiffusionMatrix>
     TecnoDiffusionCPU<Equation, DiffusionMatrix>::TecnoDiffusionCPU(volume::VolumeFactory& volumeFactory,
-        alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
+        alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction,
         const simulator::SimulatorParameters& simulatorParameters)
 
         : 

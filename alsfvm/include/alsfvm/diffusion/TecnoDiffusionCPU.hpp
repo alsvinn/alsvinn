@@ -24,7 +24,7 @@ namespace alsfvm { namespace diffusion {
     public:
 
         TecnoDiffusionCPU(volume::VolumeFactory& volumeFactory,
-            alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstructionFactory,
+            alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction,
             const simulator::SimulatorParameters& simulatorParameters);
 
         ///
