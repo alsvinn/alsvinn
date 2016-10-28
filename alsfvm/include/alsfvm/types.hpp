@@ -54,15 +54,22 @@ namespace alsfvm {
     typedef double real;
 
 
+    typedef vec1<real> rvec1;
+    typedef vec1<int> ivec1;
+
+    typedef vec2<real> rvec2;
+    typedef vec2<int> ivec2;
 
 	typedef vec3<real> rvec3;
 	typedef vec3<int> ivec3;
 
+    typedef vec4<real> rvec4;
+    typedef vec4<int> ivec4;
+
     typedef vec5<real> rvec5;
     typedef vec5<int> ivec5;
     
-    typedef vec1<real> rvec1;
-    typedef vec1<int> ivec1;
+  
 
     typedef matrix<real, 1, 1> matrix1;
 

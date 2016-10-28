@@ -1,28 +1,24 @@
-<fvm>
+<?xml version="1.0" ?><fvm>
     <name>
         tecnoburgers
     </name>
     <platform>cpu</platform>
     <grid>
-        <lowerCorner>0. 0 0</lowerCorner>
+        <lowerCorner>-1 0 0</lowerCorner>
         <upperCorner>1 0 0</upperCorner>
-        <dimension>64 1 1</dimension>
+        <dimension>4096 1 1</dimension>
     </grid>
     <boundary>periodic</boundary>
-    <flux>tecno1</flux>
-    <endTime>0.5</endTime>
+    <flux>godunov</flux>
+    <endTime>0.1</endTime>
     <equation>burgers</equation>
-    <reconstruction>none</reconstruction>
-    <cfl>0.05</cfl>
+    <reconstruction>eno3</reconstruction>
+    <cfl>0.01</cfl>
     <diffusion>
-        <name>
-            tecnoroe
-        </name>
-        <reconstruction>
-            none
-        </reconstruction>
+        <name>none</name>
+        <reconstruction>none</reconstruction>
     </diffusion>
-    <integrator>auto</integrator>
+    <integrator>rungekutta3</integrator>
     <initialData>
         <python>tecnoburgers.py</python>
     </initialData>

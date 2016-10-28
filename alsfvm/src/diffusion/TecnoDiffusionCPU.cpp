@@ -53,19 +53,22 @@ namespace alsfvm { namespace diffusion {
             typename Equation::Views rightView(*right);
             typename Equation::ConstViews conservedView(conservedVolume);
             typename Equation::Views outputView(outputVolume);
-
+            const int ngc = getNumberOfGhostCells();
             volume::for_each_cell_index_with_neighbours(direction, *left, [&](size_t leftIndex, size_t middleIndex, size_t rightIndex) {
+                auto diffusion = [&](size_t left, size_t right) {
+                    auto leftValues = Equation::fetchConservedVariables(rightView, left);
+                    auto rightValues = Equation::fetchConservedVariables(leftView, right);
 
-                auto leftValues = Equation::fetchConservedVariables(rightView, middleIndex);
-                auto rightValues = Equation::fetchConservedVariables(leftView, rightIndex);
+                    auto conservedValues = Equation::fetchConservedVariables(conservedView, right);
 
-                auto conservedValues = Equation::fetchConservedVariables(conservedView, middleIndex);
+                    DiffusionMatrix matrix(equation, conservedValues);
 
-                DiffusionMatrix matrix(equation, conservedValues);
-              
-                auto output = (equation.computeEigenVectorMatrix(conservedValues) * (matrix * (leftValues - rightValues)));
-                Equation::addToViewAt(outputView, middleIndex, output);
-            });
+                    return 0.5*(equation.computeEigenVectorMatrix(conservedValues) * (matrix * (leftValues - rightValues)));
+                };
+
+
+                Equation::addToViewAt(outputView, middleIndex, diffusion(middleIndex, rightIndex)-diffusion(leftIndex, middleIndex));
+            }, { 1,1,1 }, { 1,1,1 });
         }
     }
     

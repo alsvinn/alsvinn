@@ -6,7 +6,7 @@
 #include <thrust/device_vector.h>
 #include <thrust/device_vector.h>
 #include <thrust/reduce.h>
-
+#include "alsfvm/numflux/numflux_util.hpp"
 #include <iostream>
 #include "alsfvm/numflux/numerical_flux_list.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
@@ -42,9 +42,19 @@ namespace alsfvm { namespace numflux {
 			equation.addToViewAt(output, rightIndex, (fluxMiddle + fluxRight));
 		}
 
+
+
 		template<class Flux, class Equation, size_t dimension, bool xDir, bool yDir, bool zDir, size_t direction>
-		__global__ void computeFluxDevice(Equation equation, typename Equation::ConstViews left, typename Equation::ConstViews right, typename Equation::Views output,
-			const size_t numberOfXCells, const size_t numberOfYCells, const size_t numberOfZCells, real* waveSpeeds, const size_t numberOfGhostCells) {
+		__global__ void computeFluxDevice(Equation equation, 
+            typename Equation::ConstViews left,
+            typename Equation::ConstViews right, 
+            typename Equation::Views output,
+			const size_t numberOfXCells, 
+            const size_t numberOfYCells, 
+            const size_t numberOfZCells, 
+            real* waveSpeeds, 
+            const size_t numberOfGhostCells) {
+
 			const size_t index = threadIdx.x + blockDim.x * blockIdx.x;
 			// We have
 			// index = z * nx * ny + y * nx + x;
@@ -60,25 +70,27 @@ namespace alsfvm { namespace numflux {
 				return;
 			}
 
+
+            auto stencil = getStencil<Flux>(Flux());
+            // Now we need to build up the stencil for this set of indices
+            decltype(stencil) indices;
+            for (int index = 0; index < stencil.size(); ++index) {
+                indices[index] = output.index(
+                    x + xDir * stencil[index],
+                    y + yDir * stencil[index],
+                    z + zDir * stencil[index]);
+            }
+
+
 			
-
-			//const size_t leftIndex = output.index(x - xDir, y - yDir, z - zDir);
-			const size_t rightIndex = output.index(x + xDir, y + yDir, z + zDir);
-			const size_t middleIndex = output.index(x, y, z);
-
-			typename Equation::AllVariables leftJpHf =  equation.fetchAllVariables(right, middleIndex);
-			typename Equation::AllVariables rightJpHf = equation.fetchAllVariables(left, rightIndex);
-
 
 			typename Equation::ConservedVariables fluxMiddleRight;
-			waveSpeeds[middleIndex] = Flux::template computeFlux<direction>(equation, leftJpHf, rightJpHf, fluxMiddleRight);
-
+            auto outputIndex = output.index(x, y, z);
+            waveSpeeds[outputIndex] = computeFluxForStencil<Flux, Equation, direction> (equation, indices, left, right, fluxMiddleRight);
 			
-			
-			equation.setViewAt(output, middleIndex, (-1.0)*fluxMiddleRight);
+          
 
-			
-
+			equation.setViewAt(output, outputIndex, (-1.0)*fluxMiddleRight);
 		}
 
 		template<class Flux, class Equation,  size_t dimension, bool xDir, bool yDir, bool zDir, size_t direction>
@@ -209,7 +221,7 @@ namespace alsfvm { namespace numflux {
 	///
 	template<class Flux, class Equation, size_t dimension>
 	size_t NumericalFluxCUDA<Flux, Equation, dimension>::getNumberOfGhostCells() {
-		return reconstruction->getNumberOfGhostCells();
+		return max(getStencil<Flux>(Flux()).size(), reconstruction->getNumberOfGhostCells());
 	}
     
     ALSFVM_FLUX_INSTANTIATE(NumericalFluxCUDA)
