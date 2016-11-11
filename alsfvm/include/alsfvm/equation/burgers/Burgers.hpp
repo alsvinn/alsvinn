@@ -1,5 +1,6 @@
 #pragma once
 #include "alsfvm/types.hpp"
+#include <cmath>
 #include "alsfvm/equation/EquationParameters.hpp"
 #include "alsfvm/equation/burgers/ConservedVariables.hpp"
 #include "alsfvm/equation/burgers/ExtraVariables.hpp"
@@ -63,7 +64,7 @@ public:
     /// corresponds to the "b" variable in the tecno variable for the Burgers
     /// log entropy
     ///
-    static const constexpr real entropyUpperBound = 3;
+    static const constexpr real entropyUpperBound = 2;
 
     __device__ __host__ static size_t getNumberOfConservedVariables() {
         return 1;
@@ -173,7 +174,7 @@ public:
         static_assert(direction >= 0, "Direction can not be negative");
         static_assert(direction < 3, "We only support dimension up to and inclusive 3");
 
-        return fabs(u.u);
+        return std::abs(u.u);
     }
 
     ///
@@ -189,7 +190,7 @@ public:
                                               const ExtraVariables& v) const
     {
 
-        return u.u < INFINITY && (u.u == u.u);
+        return u.u<INFINITY && (u.u == u.u);
     }
 
     __device__ __host__ AllVariables makeAllVariables(real u) const {
@@ -213,7 +214,7 @@ public:
     /// where \f$b\f$ is given as entropyUpperBound and \f$a\f$ is given as entropyLowerBound.
     ///
     __device__ __host__ rvec1 computeEntropyVariables(const ConservedVariables& conserved) const {
-       
+        //return conserved.u;
         return (1 / (entropyUpperBound - conserved.u)) - 1 / (conserved.u - entropyLowerBound);
     }
 
@@ -225,11 +226,13 @@ public:
     ///
     __device__ __host__ rvec1 computeEntropyPotential(const ConservedVariables& conserved) const {
 
+        //return 1.0/6.0 * (conserved.u*conserved.u*conserved.u);
         return computeEntropyVariables(conserved)*0.5*conserved.u*conserved.u - (-2 * conserved.u
             - entropyUpperBound*log(entropyUpperBound - conserved.u) - entropyLowerBound*log(conserved.u - entropyLowerBound));
     }
 
     __device__ __host__ rvec1 computeEntropyVariablesMultipliedByEigenVectorMatrix(const ConservedVariables& conserved) const {
+        //return rvec1(conserved.u);
         return rvec1(2.0 * conserved.u / (conserved.u*(conserved.u - 2)));
     }
 

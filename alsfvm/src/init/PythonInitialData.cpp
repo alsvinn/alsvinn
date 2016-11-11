@@ -8,6 +8,7 @@
 #include <Python.h>
 #endif
 
+#include "alsfvm/types.hpp"
 #include <iostream>
 #include <sstream>
 #include "alsfvm/volume/volume_foreach.hpp"
@@ -127,7 +128,8 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
             const auto& name = primitiveVolume.getName(var);
             PyObject* floatObject(PyDict_GetItemString(outputMap, name.c_str()));
             const double value = PyFloat_AsDouble(floatObject);
-            primitiveVolume.getScalarMemoryArea(var)->getPointer()[index] = value;
+            auto dx = grid.getCellLengths().x;
+            primitiveVolume.getScalarMemoryArea(var)->getPointer()[index] = value; //(cos(M_PI*(x-dx/2)) - cos(M_PI*(x+dx/2)))/(2*dx*M_PI) + 1; //value;
         }
         CHECK_PYTHON
     });

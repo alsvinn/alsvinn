@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cctype>
 #include <cstdlib>
+#include <cfloat>
 #include <memory>
 #ifndef _WIN32
 // On Linux, we can not use C++11, so we use boost
@@ -27,7 +28,8 @@ namespace alsfvm {
 #ifdef ALSVINN_HAVE_CUDA
 #include <cuda_runtime.h>
 #include <cuda.h>
-#include <math.h>
+#include <cmath>
+
 #include "alsfvm/gpu_array.hpp"
 #else 
 
@@ -69,6 +71,9 @@ namespace alsfvm {
     typedef vec5<real> rvec5;
     typedef vec5<int> ivec5;
     
+    typedef vec6<real> rvec6;
+    typedef vec6<int> ivec6;
+
   
 
     typedef matrix<real, 1, 1> matrix1;
@@ -91,7 +96,12 @@ namespace alsfvm {
 
 #ifdef ALSVINN_USE_QUADMATH
 namespace std {
+
     inline __float128 fabs(const __float128& x) {
+        return fabsq(x);
+    }
+
+    inline __float128 abs(const __float128& x) {
         return fabsq(x);
     }
 
@@ -118,6 +128,8 @@ namespace std {
     inline std::basic_ostream<char>& operator<<(std::basic_ostream<char>& os, const __float128& x) {
         return (os << (double)x);
     }
+
+
 
 
 }

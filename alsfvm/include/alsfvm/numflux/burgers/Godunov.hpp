@@ -1,8 +1,8 @@
 #pragma once
 #include "alsfvm/equation/burgers/Burgers.hpp"
 #include <iostream>
-#include <cuda.h>
-#include <cuda_runtime.h>
+
+#include <algorithm>
 
 namespace alsfvm { namespace numflux { namespace burgers { 
 
@@ -28,16 +28,16 @@ public:
     {
         using namespace equation::burgers;
         ConservedVariables fluxLeft;
-        eq.computePointFlux<direction>(AllVariables(fmax(left.u, real(0.0))), fluxLeft);
+        eq.computePointFlux<direction>(AllVariables(std::max(left.u, real(0.0))), fluxLeft);
         ConservedVariables fluxRight;
-        eq.computePointFlux<direction>(AllVariables(fmin(right.u, real(0.0))), fluxRight);
+        eq.computePointFlux<direction>(AllVariables(std::min(right.u, real(0.0))), fluxRight);
 
-        F = ConservedVariables(fmax(fluxLeft.u, fluxRight.u));
+        F = ConservedVariables(std::max(fluxLeft.u, fluxRight.u));
 
         // This looks a bit weird, but it is OK. The basic principle is that AllVariables
         // is both a conservedVariable and an extra variable, hence we need to pass
         // it twice since this function expects both.
-        return fmax(eq.computeWaveSpeed<direction>(left, left),
+        return std::max(eq.computeWaveSpeed<direction>(left, left),
                         eq.computeWaveSpeed<direction>(right, right));
     }
 };

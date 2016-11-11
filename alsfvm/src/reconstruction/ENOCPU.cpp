@@ -80,6 +80,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 		dividedDifferencesPointers[i] = dividedDifferences[i]->getPointer();
 	}
 
+
 	for (size_t var = 0; var < inputVariables.getNumberOfVariables(); var++) {
 		const real* pointerIn = inputVariables.getScalarMemoryArea(var)->getPointer();
 		real* pointerOutLeft = leftOut.getScalarMemoryArea(var)->getPointer();

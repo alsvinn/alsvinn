@@ -9,6 +9,8 @@
 #include "alsfvm/numflux/Central.hpp"
 #include "alsfvm/numflux/ScalarEntropyConservativeFlux.hpp"
 #include "alsfvm/numflux/TecnoCombined4.hpp"
+#include "alsfvm/numflux/TecnoCombined6.hpp"
+
 
 ///
 /// This file provides the list of all available fluxes for each equation
@@ -30,7 +32,11 @@ namespace numflux {
         Central<equation::burgers::Burgers>,
         burgers::Godunov,
         ScalarEntropyConservativeFlux<equation::burgers::Burgers>,
-        TecnoCombined4<equation::burgers::Burgers, ScalarEntropyConservativeFlux<equation::burgers::Burgers> >
+        TecnoCombined4<equation::burgers::Burgers, ScalarEntropyConservativeFlux<equation::burgers::Burgers> >,
+        TecnoCombined4<::alsfvm::equation::burgers::Burgers, burgers::Godunov>,
+        TecnoCombined6<equation::burgers::Burgers, ScalarEntropyConservativeFlux<equation::burgers::Burgers> >,
+        TecnoCombined6<::alsfvm::equation::burgers::Burgers, burgers::Godunov>
+
         > >
         > NumericalFluxList;
 
@@ -70,5 +76,15 @@ namespace numflux {
     template class X< ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 3>; \
     template class X< ::alsfvm::numflux::TecnoCombined4<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers> >, ::alsfvm::equation::burgers::Burgers, 1>; \
     template class X< ::alsfvm::numflux::TecnoCombined4<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers> >, ::alsfvm::equation::burgers::Burgers, 2>; \
-    template class X< ::alsfvm::numflux::TecnoCombined4<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers> >, ::alsfvm::equation::burgers::Burgers, 3>;
+    template class X< ::alsfvm::numflux::TecnoCombined4<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers> >, ::alsfvm::equation::burgers::Burgers, 3>; \
+    template class X< ::alsfvm::numflux::TecnoCombined4<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::burgers::Godunov >, ::alsfvm::equation::burgers::Burgers, 1>; \
+    template class X< ::alsfvm::numflux::TecnoCombined4<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::burgers::Godunov >, ::alsfvm::equation::burgers::Burgers, 2>; \
+    template class X< ::alsfvm::numflux::TecnoCombined4<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::burgers::Godunov >, ::alsfvm::equation::burgers::Burgers, 3>; \
+    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers> >, ::alsfvm::equation::burgers::Burgers, 1>; \
+    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers> >, ::alsfvm::equation::burgers::Burgers, 2>; \
+    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers> >, ::alsfvm::equation::burgers::Burgers, 3>; \
+    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::burgers::Godunov >, ::alsfvm::equation::burgers::Burgers, 1>; \
+    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::burgers::Godunov >, ::alsfvm::equation::burgers::Burgers, 2>; \
+    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::burgers::Godunov >, ::alsfvm::equation::burgers::Burgers, 3>;
+
 

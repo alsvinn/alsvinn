@@ -98,5 +98,31 @@ __device__ __host__ real computeFluxForStencil(const Equation& eq,
     return waveSpeed;
 }
 
+//! For higher order fluxes.
+//! \note Here we assume the left input array equals the right one
+template<class Flux, class Equation, size_t direction>
+__device__ __host__ real computeFluxForStencil(const Equation& eq,
+    ivec6 indices,
+    typename Equation::ConstViews & left,
+    typename Equation::ConstViews & right,
+    typename Equation::ConservedVariables& out)
+{
+    const ivec3 directionVector(direction == 0, direction == 1, direction == 2);
+
+    typename Equation::AllVariables u0 = eq.fetchAllVariables(left, indices[0]);
+    typename Equation::AllVariables u1 = eq.fetchAllVariables(left, indices[1]);
+    typename Equation::AllVariables u2 = eq.fetchAllVariables(left, indices[2]);
+    typename Equation::AllVariables u3 = eq.fetchAllVariables(left, indices[3]);
+    typename Equation::AllVariables u4 = eq.fetchAllVariables(left, indices[4]);
+    typename Equation::AllVariables u5 = eq.fetchAllVariables(left, indices[5]);
+
+    //
+    typename Equation::ConservedVariables fluxMiddleRight;
+    real waveSpeed = Flux::template computeFlux<direction>(eq, u0, u1, u2, u3, u4, u5, fluxMiddleRight);
+
+    out = fluxMiddleRight;
+    return waveSpeed;
+}
+
 }
 }

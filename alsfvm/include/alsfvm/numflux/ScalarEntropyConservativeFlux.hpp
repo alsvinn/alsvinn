@@ -27,7 +27,7 @@ namespace alsfvm { namespace numflux {
             auto leftEntropyVariable = eq.computeEntropyVariables(left);
             auto rightEntropyVariable = eq.computeEntropyVariables(right);
 
-            if (abs(left.u-right.u) < 1e-6 || (leftEntropyVariable - rightEntropyVariable).norm() < 1e-6) {
+            if (left.u == right.u) {// || (leftEntropyVariable - rightEntropyVariable).norm() < 1e-6) {
                 eq.template computePointFlux<direction>(left, F);
             }
             else {
