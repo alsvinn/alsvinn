@@ -2,7 +2,7 @@
     <name>
         tecnoburgers
     </name>
-    <platform>cpu</platform>
+    <platform>cuda</platform>
     <grid>
         <lowerCorner>-1 0 0</lowerCorner>
         <upperCorner>1 0 0</upperCorner>
@@ -10,13 +10,13 @@
     </grid>
     <boundary>periodic</boundary>
     <flux>tecno4</flux>
-    <endTime>0.0025</endTime>
+    <endTime>0.01</endTime>
     <equation>burgers</equation>
     <reconstruction>none</reconstruction>
     <cfl>0.1</cfl>
     <diffusion>
         <name>tecnoroe</name>
-        <reconstruction>eno3</reconstruction>
+        <reconstruction>eno2</reconstruction>
     </diffusion>
     <integrator>rungekutta3</integrator>
     <initialData>

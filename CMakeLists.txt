@@ -53,7 +53,9 @@ else()
     set(CUDA_FOUND OFF)
 endif()
 
-
+IF(WIN32)
+    ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
+ENDIF()
 # Python dependency could be made optional eventually, but for now it's
 # the only way of specify initial data
 find_package(PythonLibs REQUIRED)

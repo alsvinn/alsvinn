@@ -163,4 +163,7 @@ INSTANTIATE_TEST_CASE_P(TecnoDiffusionTests,
         DiffusionParameters("cpu", "burgers", "tecnoroe", "none", 0.9),
         DiffusionParameters("cpu", "burgers", "tecnoroe", "eno2", 1.9),
         DiffusionParameters("cpu", "burgers", "tecnoroe", "eno3", 2.9)
+        //DiffusionParameters("cuda", "burgers", "tecnoroe", "none", 0.9)
+       // DiffusionParameters("cpu", "burgers", "tecnoroe", "eno2", 1.9),
+        //DiffusionParameters("cpu", "burgers", "tecnoroe", "eno3", 2.9)
         ));

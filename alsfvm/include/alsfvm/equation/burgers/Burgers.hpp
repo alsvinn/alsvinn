@@ -10,7 +10,7 @@
 #include "alsfvm/equation/burgers/Views.hpp"
 #include "alsfvm/volume/Volume.hpp"
 #include "alsfvm/equation/burgers/ViewsExtra.hpp"
-
+#define USE_LOG_ENTROPY 1
 namespace alsfvm { namespace equation { namespace burgers { 
 
 class Burgers {
@@ -214,8 +214,12 @@ public:
     /// where \f$b\f$ is given as entropyUpperBound and \f$a\f$ is given as entropyLowerBound.
     ///
     __device__ __host__ rvec1 computeEntropyVariables(const ConservedVariables& conserved) const {
-        //return conserved.u;
+#if USE_LOG_ENTROPY
         return (1 / (entropyUpperBound - conserved.u)) - 1 / (conserved.u - entropyLowerBound);
+#else
+        return conserved.u;
+#endif
+        
     }
 
     ///
@@ -225,15 +229,22 @@ public:
     /// \f[Q'(u) = f'(u)E'(u)\f]
     ///
     __device__ __host__ rvec1 computeEntropyPotential(const ConservedVariables& conserved) const {
-
-        //return 1.0/6.0 * (conserved.u*conserved.u*conserved.u);
+#if USE_LOG_ENTROPY
         return computeEntropyVariables(conserved)*0.5*conserved.u*conserved.u - (-2 * conserved.u
             - entropyUpperBound*log(entropyUpperBound - conserved.u) - entropyLowerBound*log(conserved.u - entropyLowerBound));
+#else
+        return 1.0 / 6.0 * (conserved.u*conserved.u*conserved.u);
+#endif
+       
     }
 
     __device__ __host__ rvec1 computeEntropyVariablesMultipliedByEigenVectorMatrix(const ConservedVariables& conserved) const {
-        //return rvec1(conserved.u);
+        
+#if USE_LOG_ENTROPY
         return rvec1(2.0 * conserved.u / (conserved.u*(conserved.u - 2)));
+#else 
+        return rvec1(conserved.u);
+#endif
     }
 
     __device__ __host__ matrix1 computeEigenVectorMatrix(const ConservedVariables& conserved) const {

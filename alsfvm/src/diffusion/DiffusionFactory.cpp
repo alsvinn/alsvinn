@@ -1,6 +1,8 @@
 #include "alsfvm/diffusion/DiffusionFactory.hpp"
 #include "alsfvm/reconstruction/ReconstructionFactory.hpp"
 #include "alsfvm/diffusion/TecnoDiffusionCPU.hpp"
+#include "alsfvm/diffusion/TecnoDiffusionCUDA.hpp"
+
 #include "alsfvm/diffusion/RoeMatrix.hpp"
 #include "alsfvm/equation/equation_list.hpp"
 #include "alsfvm/error/Exception.hpp"
@@ -29,6 +31,22 @@ namespace alsfvm { namespace diffusion {
             if (equation == "burgers") {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCPU
+                        <equation::burgers::Burgers, RoeMatrix<equation::burgers::Burgers>>(volumeFactory, reconstruction,
+                            simulatorParameters));
+                }
+                else {
+                    THROW("Unknown diffusion type " << diffusionType);
+                }
+
+            }
+            else {
+                THROW("Equation not supported: " << equation);
+            }
+        }
+        else if (deviceConfiguration->getPlatform() == "cuda") {
+            if (equation == "burgers") {
+                if (diffusionType == "tecnoroe") {
+                    diffusionOperator.reset(new TecnoDiffusionCUDA
                         <equation::burgers::Burgers, RoeMatrix<equation::burgers::Burgers>>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
