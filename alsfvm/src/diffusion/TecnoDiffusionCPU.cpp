@@ -68,7 +68,7 @@ namespace alsfvm { namespace diffusion {
 
 
                 Equation::addToViewAt(outputView, middleIndex, diffusion(middleIndex, rightIndex)-diffusion(leftIndex, middleIndex));
-            }, { 1,1,1 }, { 1,1,1 });
+            }, make_direction_vector(direction), make_direction_vector(direction));
         }
     }
     

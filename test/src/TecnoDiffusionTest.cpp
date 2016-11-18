@@ -120,8 +120,8 @@ TEST_P(TecnoDiffusionTest, OrderTest) {
     std::vector<real> errors;
     std::vector<real> resolutions;
 
-    const int minK = 4;
-    const int maxK = 12;
+    const int minK = 3;
+    const int maxK = 14;
     for (int k = minK; k < maxK; ++k) {
         const int nx = 1 << k;
 
@@ -146,12 +146,12 @@ TEST_P(TecnoDiffusionTest, OrderTest) {
             }
         });
 
-        std::cout << L1Norm << std::endl;
+        std::cout << std::log(real(nx)) << ", " << L1Norm/nx << "], " << std::endl;
 
         errors.push_back(std::log(L1Norm/nx));
-        resolutions.push_back(std::log(nx));
+        resolutions.push_back(std::log(real(nx)));
     }
-
+    std::cout << -linearFit(resolutions, errors)[0] << std::endl;
     ASSERT_LE(parameters.expectedConvergenceRate, -linearFit(resolutions, errors)[0]);
 
 
@@ -162,8 +162,8 @@ INSTANTIATE_TEST_CASE_P(TecnoDiffusionTests,
     ::testing::Values(
         DiffusionParameters("cpu", "burgers", "tecnoroe", "none", 0.9),
         DiffusionParameters("cpu", "burgers", "tecnoroe", "eno2", 1.9),
-        DiffusionParameters("cpu", "burgers", "tecnoroe", "eno3", 2.9)
-        //DiffusionParameters("cuda", "burgers", "tecnoroe", "none", 0.9)
-       // DiffusionParameters("cpu", "burgers", "tecnoroe", "eno2", 1.9),
-        //DiffusionParameters("cpu", "burgers", "tecnoroe", "eno3", 2.9)
+        DiffusionParameters("cpu", "burgers", "tecnoroe", "eno3", 2.9),
+        DiffusionParameters("cuda", "burgers", "tecnoroe", "none", 0.9),
+        DiffusionParameters("cuda", "burgers", "tecnoroe", "eno2", 1.9),
+        DiffusionParameters("cuda", "burgers", "tecnoroe", "eno3", 2.9)
         ));

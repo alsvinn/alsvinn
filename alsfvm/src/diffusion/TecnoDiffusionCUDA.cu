@@ -56,6 +56,8 @@ namespace alsfvm {
                 const int y = yInternalFormat + directionVector[1];
                 const int z = zInternalFormat + directionVector[2];
 
+                const size_t middleIndex = output.index(x, y, z);
+
                 const size_t rightIndex = output.index(x + directionVector[0], 
                     y + directionVector[1], 
                     z + directionVector[2]);
@@ -76,7 +78,7 @@ namespace alsfvm {
                 };
 
 
-                Equation::addToViewAt(output, index, diffusion(index, rightIndex) - diffusion(leftIndex, index));
+                Equation::addToViewAt(output, middleIndex, diffusion(middleIndex, rightIndex) - diffusion(leftIndex, middleIndex));
 
             }
 
@@ -127,7 +129,7 @@ namespace alsfvm {
 
 
             for (int direction = 0; direction < outputVolume.getDimensions(); ++direction) {
-                const ivec3 directionVector(direction == 0, direction == 1, direction == 2);
+                const ivec3 directionVector = make_direction_vector(direction);
                 reconstruction->performReconstruction(*entropyVariables, direction, 0, *left, *right);
 
                 typename Equation::ConstViews leftView(*left);
