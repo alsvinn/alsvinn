@@ -20,7 +20,7 @@ namespace alsfvm { namespace diffusion {
         )
     {
         reconstruction::ReconstructionFactory reconstructionFactory;
-        auto reconstruction = reconstructionFactory.createReconstruction(reconstructionType, equation,
+        auto reconstruction = reconstructionFactory.createReconstruction(reconstructionType, "burgers",
             simulatorParameters, memoryFactory, grid, deviceConfiguration);
         
         alsfvm::shared_ptr<DiffusionOperator> diffusionOperator;
@@ -39,6 +39,17 @@ namespace alsfvm { namespace diffusion {
                 }
 
             }
+            else if (equation == "euler") {
+                if (diffusionType == "tecnoroe") {
+                    diffusionOperator.reset(new TecnoDiffusionCPU
+                        <equation::euler::Euler, RoeMatrix<equation::euler::Euler>>(volumeFactory, reconstruction,
+                            simulatorParameters));
+                }
+                else {
+                    THROW("Unknown diffusion type " << diffusionType);
+                }
+
+            }
             else {
                 THROW("Equation not supported: " << equation);
             }
@@ -48,6 +59,17 @@ namespace alsfvm { namespace diffusion {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCUDA
                         <equation::burgers::Burgers, RoeMatrix<equation::burgers::Burgers>>(volumeFactory, reconstruction,
+                            simulatorParameters));
+                }
+                else {
+                    THROW("Unknown diffusion type " << diffusionType);
+                }
+
+            }
+            else if (equation == "euler") {
+                if (diffusionType == "tecnoroe") {
+                    diffusionOperator.reset(new TecnoDiffusionCUDA
+                        <equation::euler::Euler, RoeMatrix<equation::euler::Euler>>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
                 else {

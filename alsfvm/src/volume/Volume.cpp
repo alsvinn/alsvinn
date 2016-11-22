@@ -4,12 +4,22 @@
 
 namespace alsfvm {
 	namespace volume {
-      
+        namespace {
+            std::vector<std::string> makeComponentNameVector(const Volume& volume,
+                const std::vector<size_t>& components) {
+                std::vector<std::string> names;
+
+                for (size_t i : components) {
+                    names.push_back(volume.getName(i));
+                }
+                return names;
+            }
+        }
 		Volume::Volume(const std::vector<std::string>& variableNames,
 			alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory,
 			size_t nx, size_t ny, size_t nz,
 			size_t numberOfGhostCells)
-			: variableNames(variableNames), memoryFactory(memoryFactory), nx(nx), ny(ny), nz(nz),
+			: variableNames(variableNames), nx(nx), ny(ny), nz(nz),
 			numberOfXGhostCells(numberOfGhostCells), 
 			numberOfYGhostCells(ny > 1 ? numberOfGhostCells : 0),
 			numberOfZGhostCells(nz > 1 ? numberOfGhostCells : 0)
@@ -21,6 +31,19 @@ namespace alsfvm {
 					nz + 2 * numberOfZGhostCells));
             }
 		}
+
+        Volume::Volume(Volume& volume, const std::vector<size_t>& components) 
+            : variableNames(makeComponentNameVector(volume, components)),
+            nx(volume.nx), ny(volume.ny), nz(volume.nz),
+            numberOfXGhostCells(volume.numberOfXGhostCells),
+            numberOfYGhostCells(volume.numberOfYGhostCells),
+            numberOfZGhostCells(volume.numberOfZGhostCells)
+        {
+            for (size_t component : components) {
+                memoryAreas.push_back(volume.memoryAreas[component]);
+            }
+
+        }
 
 
 		Volume::~Volume()

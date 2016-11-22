@@ -37,6 +37,11 @@ namespace alsfvm {
                    size_t nx, size_t ny, size_t nz,
 				   size_t numberOfGhostCells = 0);
 
+            //! Make a volume as a view of another volume.
+            //! @param volume the volume to make a view of
+            //! @param components the components to use
+            Volume(Volume& volume, const std::vector<size_t>& components);
+
             // We need a virtual destructor in case we want to inherit from this
 			virtual ~Volume();
 
@@ -44,7 +49,7 @@ namespace alsfvm {
             /// \brief getNumberOfVariables gets the number of variables used
             /// \return the number of variables
             ///
-			size_t getNumberOfVariables() const;
+            virtual size_t getNumberOfVariables() const;
 
             ///
             /// \brief getScalarMemoryArea gets the scalar memory area (real)
@@ -53,7 +58,7 @@ namespace alsfvm {
             ///
             /// \return the MemoryArea for the given index
             ///
-            alsfvm::shared_ptr<memory::Memory<real> >&
+            virtual alsfvm::shared_ptr<memory::Memory<real> >&
                 getScalarMemoryArea(size_t index);
 
             ///
@@ -63,7 +68,7 @@ namespace alsfvm {
             ///
             /// \return the MemoryArea for the given index
             ///
-            alsfvm::shared_ptr<const memory::Memory<real> >
+            virtual alsfvm::shared_ptr<const memory::Memory<real> >
                 getScalarMemoryArea(size_t index) const;
 
 			///
@@ -73,7 +78,7 @@ namespace alsfvm {
             /// \note Equivalent to calling
             ///     getScalarMemoryArea(getIndexFromName(name))
 			///
-			alsfvm::shared_ptr<memory::Memory<real> >&
+            virtual alsfvm::shared_ptr<memory::Memory<real> >&
 				getScalarMemoryArea(const std::string& name);
 
             ///
@@ -83,7 +88,7 @@ namespace alsfvm {
             /// \note Equivalent to calling
             ///     getScalarMemoryArea(getIndexFromName(name))
             ///
-            alsfvm::shared_ptr<const memory::Memory<real> >
+            virtual alsfvm::shared_ptr<const memory::Memory<real> >
                 getScalarMemoryArea(const std::string& name) const;
 
 
@@ -92,7 +97,7 @@ namespace alsfvm {
             /// \param name the name of the variable
             /// \return the index of the name.
             ///
-            size_t getIndexFromName(const std::string& name) const ;
+            virtual size_t getIndexFromName(const std::string& name) const ;
 
 			///
 			/// Gets the variable name associated to the given index
@@ -100,71 +105,71 @@ namespace alsfvm {
 			/// \returns the variable name
 			/// \note This implicitly uses the std::move-feature of C++11
 			///
-            std::string getName(size_t index) const;
+            virtual std::string getName(size_t index) const;
 
 			///
 			/// Adds each component of the other volume to this volume
 			///
-			Volume& operator+=(const Volume& other);
+            virtual Volume& operator+=(const Volume& other);
 
 
 			/// 
 			/// Multiplies each component of the volume by the scalar
 			///
-			Volume& operator*=(real scalar);
+            virtual Volume& operator*=(real scalar);
 
 			///
 			/// \returns the number of cells in X direction
 			///
-			size_t getNumberOfXCells() const;
+            virtual size_t getNumberOfXCells() const;
 
 			///
 			/// \returns the number of cells in Y direction
 			///
-			size_t getNumberOfYCells() const;
+            virtual size_t getNumberOfYCells() const;
 
 			///
 			/// \returns the number of cells in Z direction
 			///
-			size_t getNumberOfZCells() const;
+            virtual size_t getNumberOfZCells() const;
 
             ///
             /// \brief makeZero sets every element of the volume to zero (0).
             ///
-            void makeZero();
+            virtual void makeZero();
 
 			///
 			/// Gets the number of ghost cells in x direction
 			/// \note This is the number of ghost cells on one side.
 			///
-			size_t getNumberOfXGhostCells() const;
+            virtual size_t getNumberOfXGhostCells() const;
 
 			///
 			/// Gets the number of ghost cells in y direction
 			/// \note This is the number of ghost cells on one side.
 			///
-			size_t getNumberOfYGhostCells() const;
+            virtual size_t getNumberOfYGhostCells() const;
 
 			///
 			/// Gets the number of ghost cells in z direction
 			/// \note This is the number of ghost cells on one side.
 			///
-			size_t getNumberOfZGhostCells() const;
+            virtual size_t getNumberOfZGhostCells() const;
 
 			///
 			/// Returns the total number of cells in x direction, including ghost cells
 			///
-			size_t getTotalNumberOfXCells() const;
+            virtual size_t getTotalNumberOfXCells() const;
 
 			///
 			/// Returns the total number of cells in y direction, including ghost cells
 			///
-			size_t getTotalNumberOfYCells() const;
+            virtual size_t getTotalNumberOfYCells() const;
 
 			///
 			/// Returns the total number of cells in z direction, including ghost cells
 			///
-			size_t getTotalNumberOfZCells() const;
+            virtual size_t getTotalNumberOfZCells() const;
 
             ///
             /// Copies the contents of the given memory area into the buffer output.
@@ -173,26 +178,25 @@ namespace alsfvm {
             ///
             /// \note Throws an exception if outputSize < number of cells
             ///
-            void copyInternalCells(size_t memoryAreaIndex, real* output, size_t outputSize) const;
+            virtual void copyInternalCells(size_t memoryAreaIndex, real* output, size_t outputSize) const;
 
 			/// 
 			/// Copies the whole volume to the other volume
 			///
-			void copyTo(volume::Volume& other) const;
+            virtual void copyTo(volume::Volume& other) const;
 
             ///
             /// \brief setVolume sets the contents of this volume to the contenst of the other volume
             /// \param other the other volume to read from
             /// \note This does interpolation if necessary.
             ///
-            void setVolume(const volume::Volume& other);
+            virtual void setVolume(const volume::Volume& other);
 
             //! Gets the number of space dimensions.
-            size_t getDimensions() const;
+            virtual size_t getDimensions() const;
 
         private:
             const std::vector<std::string> variableNames;
-            const alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
 
             std::vector<alsfvm::shared_ptr<memory::Memory<real> > >
                 memoryAreas;

@@ -80,6 +80,8 @@ namespace alsfvm {
 
     typedef matrix<real, 1, 1> matrix1;
 
+    typedef matrix<real, 5, 5> matrix5;
+
 	///
 	/// The available types we have
 	///

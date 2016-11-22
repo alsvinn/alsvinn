@@ -282,6 +282,135 @@ namespace alsfvm {
                                           sqrt(primitiveVariables.rho/primitiveVariables.p)*primitiveVariables.u.z,
                                           sqrt(primitiveVariables.rho*primitiveVariables.p));
                 }
+
+
+                /// 
+                /// Computes the entropy variable \f$v(u)\f$ given by
+                /// \f[v(u) = \partial_u E(u)\f]
+                /// corresponding to the entropy
+                /// \f[E(u)=\frac{-\rho s}{\gamma-1}\f]
+                /// Here \f$s\f$ is the thermodynamic entropy, given as 
+                /// \f[s=\log(p)-\gamma \log (\rho)\f]
+                ///
+                /// The corresponding entropy variables are given as
+                /// \f[v(\vec{u})=\left(\begin{array}{c}\frac{\gamma-s}{\gamma-1}-\frac{\rho(u_x^2+u_y^2+u_z^2)}{2p}\\
+                ///                                      \rho u/p\\
+                ///                                      \rho v/p\\
+                ///                                      \rho w/p\\
+                ///                                      -\rho/p\end{array}\right)\f]
+                ///
+                __device__ __host__ rvec5 computeEntropyVariables(const ConservedVariables& conserved) const {
+                    auto primitive= computePrimitiveVariables(conserved);
+                    const real s = log(primitive.p) - gamma*log(conserved.rho);
+
+                    rvec5((gamma - s) / (gamma - 1) - (conserved.rho*(primitive.u.dot(primitive.u))) / (2 * primitive.p),
+                           conserved.rho * primitive.u.x / primitive.p,
+                           conserved.rho * primitive.u.y / primitive.p,
+                           conserved.rho * primitive.u.z / primitive.p,
+                           - conserved.rho/primitive.p);
+
+                }
+
+                ///
+                /// Computes the entropy potential \f$\psi(u)\f$ given by
+                /// \f[\psi(u) = v(u)f(u) - Q(u)\f]
+                /// where \f$Q(u)\f$ is defined through 
+                /// \f[Q'(u) = f'(u)E'(u)\f]
+                /// Here
+                /// \f[\psi(u) = \left(\begin{array}{c}\rho u\\ \rho v\\ \rho w\end{array}\right)=\vec{m}\f]
+                ///
+                __device__ __host__ rvec3 computeEntropyPotential(const ConservedVariables& conserved) const {
+                    return conserved.m;
+                }
+
+
+                template<int direction>
+                __device__ __host__ rvec5 computeEntropyVariablesMultipliedByEigenVectorMatrix(const ConservedVariables& conserved) const {
+
+                    return computeEigenVectorMatrix(conserved)*computeEntropyVariables(conserved);
+                }
+
+
+                //! Computes the Eigen vector matrix. See 3.2.2 for full description in http://www.springer.com/de/book/9783540252023
+                template<int direction>
+                __device__ __host__ matrix5 computeEigenVectorMatrix(const ConservedVariables& conserved) const {
+
+                   
+                    if (direction == 0) {
+                        matrix5 matrixWithEigenVectors;
+
+                        auto primitive = computePrimitiveVariables(conserved);
+                        const real a = sqrt(gamma*primitive.p / conserved.rho);
+                        const real H = (conserved.E + primitive.p) / conserved.rho;
+                        matrixWithEigenVectors(0, 0) = 1;
+                        matrixWithEigenVectors(0, 1) = 1;
+                        matrixWithEigenVectors(0, 2) = 0;
+                        matrixWithEigenVectors(0, 3) = 0;
+                        matrixWithEigenVectors(0, 4) = 1;
+
+                        matrixWithEigenVectors(1, 0) = primitive.u - a;
+                        matrixWithEigenVectors(1, 1) = primitive.u;
+                        matrixWithEigenVectors(1, 2) = 0;
+                        matrixWithEigenVectors(1, 3) = 0;
+                        matrixWithEigenVectors(1, 4) = primitive.u + a;
+
+                        matrixWithEigenVectors(2, 0) = primitive.v;
+                        matrixWithEigenVectors(2, 1) = primitive.v;
+                        matrixWithEigenVectors(2, 2) = 1;
+                        matrixWithEigenVectors(2, 3) = 0;
+                        matrixWithEigenVectors(2, 4) = primitive.v;
+
+                        matrixWithEigenVectors(3, 0) = primitive.w ;
+                        matrixWithEigenVectors(3, 1) = primitive.w;
+                        matrixWithEigenVectors(3, 2) = 0
+                        matrixWithEigenVectors(3, 3) = 1;
+                        matrixWithEigenVectors(3, 4) = primitive.w;
+
+                        matrixWithEigenVectors(4, 0) = H-primitive.u*a;
+                        matrixWithEigenVectors(4, 1) = 0.5*primtive.u.dot(primitive.u);
+                        matrixWithEigenVectors(4, 2) = primitive.v;
+                        matrixWithEigenVectors(4, 3) = pritimive.w;
+                        matrixWithEigenVectors(4, 4) = H + primitive.u*a;
+                        return matrixWithEigenVectors;
+                    }
+                    else if (direction == 1) {
+                        // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
+                        // http://www.springer.com/de/book/9783540252023
+                        conservedRotated = ConservedVariables(conserved.rho, conserved.m.y, -conserved.m.x, conserved.m.z, conserved.E);
+                        return computeEigenVectorMatrix<0>(conservedRotated);
+                    }
+                    else if (direction == 2) {
+                        // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
+                        // http://www.springer.com/de/book/9783540252023
+                        conservedRotated = ConservedVariables(conserved.rho, conserved.m.z, conserved.m.y, -conserved.m.x, conserved.E);
+                        return computeEigenVectorMatrix<0>(conservedRotated);
+                    }
+                    
+                    
+                }
+
+                //! Compute eigen values of the jacobian of \$F\f$, \f$G\f$ or \f$H\f$.
+                //! See 3.2.2 for full description in http://www.springer.com/de/book/9783540252023
+                template<int direction>
+                __device__ __host__ rvec5 computeEigenValues(const ConservedVariables& conserved) const {
+                    if (direction == 0) {
+                        const real a = sqrt(gamma*primitive.p / conserved.rho);
+                        return rvec5(conserved.u - a, conserved.u, conserved.u, conserved.u, conserved.u + a);
+                    }
+                    else if (direction == 1) {
+                        // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
+                        // http://www.springer.com/de/book/9783540252023
+                        conservedRotated = ConservedVariables(conserved.rho, conserved.m.y, -conserved.m.x, conserved.m.z, conserved.E);
+                        return computeEigenValues<0>(conservedRotated);
+                    }
+                    else if (direction == 2) {
+                        // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
+                        // http://www.springer.com/de/book/9783540252023
+                        conservedRotated = ConservedVariables(conserved.rho, conserved.m.z, conserved.m.y, -conserved.m.x, conserved.E);
+                        return computeEigenValues<0>(conservedRotated);
+                    }
+                        
+                }
             private:
                 const real gamma;
 			};

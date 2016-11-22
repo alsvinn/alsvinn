@@ -130,7 +130,10 @@ namespace alsfvm {
 
             for (int direction = 0; direction < outputVolume.getDimensions(); ++direction) {
                 const ivec3 directionVector = make_direction_vector(direction);
-                reconstruction->performReconstruction(*entropyVariables, direction, 0, *left, *right);
+                for (size_t variable = 0; variable < outputVolume.getNumberOfVariables(); ++variable) {
+                    volume::Volume variableVolume(*entropyVariables, { variable });
+                    reconstruction->performReconstruction(variableVolume, direction, 0, *left, *right);
+                }
 
                 typename Equation::ConstViews leftView(*left);
                 typename Equation::ConstViews rightView(*right);
