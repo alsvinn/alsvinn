@@ -221,7 +221,7 @@ namespace alsfvm { namespace numflux {
 	///
 	template<class Flux, class Equation, size_t dimension>
 	size_t NumericalFluxCUDA<Flux, Equation, dimension>::getNumberOfGhostCells() {
-		return max(getStencil<Flux>(Flux()).size(), reconstruction->getNumberOfGhostCells());
+		return max(getStencil<Flux>(Flux()).size()-1, reconstruction->getNumberOfGhostCells());
 	}
     
     ALSFVM_FLUX_INSTANTIATE(NumericalFluxCUDA)

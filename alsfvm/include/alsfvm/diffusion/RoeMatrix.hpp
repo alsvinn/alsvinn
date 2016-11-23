@@ -8,7 +8,7 @@ namespace alsfvm {
         //! \f[\Lambda = \mathrm{diag}(\lambda_1,\ldots, \lambda_N),\f]
         //! where \f$\{\lambda_i\}\f$ are the Eigenvalues of the flux jacobian of 
         //! the system.
-        template<class Equation>
+        template<class Equation, int direction>
         class RoeMatrix {
         public:
             
@@ -21,7 +21,7 @@ namespace alsfvm {
             template<typename VectorType> 
             __device__ __host__ VectorType operator*(const VectorType& in) {
                 VectorType out;
-                auto eigenValues = equation.computeEigenValues(conservedVariables);
+                auto eigenValues = equation.template computeEigenValues<direction>(conservedVariables);
 
                 for (size_t i = 0; i < eigenValues.size(); ++i) {
                     out[i] = eigenValues[i] * in[i];

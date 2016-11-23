@@ -155,7 +155,7 @@ namespace alsfvm { namespace numflux {
 	///
     template<class Flux, class Equation, size_t dimension>
     size_t NumericalFluxCPU<Flux, Equation, dimension>::getNumberOfGhostCells() {
-        return std::max(getStencil<Flux>(Flux()).size(), reconstruction->getNumberOfGhostCells());
+        return std::max(getStencil<Flux>(Flux()).size()-1, reconstruction->getNumberOfGhostCells());
 
     }
 

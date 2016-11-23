@@ -40,7 +40,7 @@ namespace alsfvm {
 
                     typename Equation::ConservedVariables returnValue;
                     real waveSpeed = BaseFlux::template computeFlux<direction>(eq, left, right, returnValue);
-                    maxWaveSpeed = std::max(maxWaveSpeed, waveSpeed);
+                    maxWaveSpeed = fmax(maxWaveSpeed, waveSpeed);
 
                     return returnValue;
 

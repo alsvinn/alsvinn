@@ -19,7 +19,7 @@ namespace alsfvm { namespace diffusion {
     ///
     /// @note this is for CUDA, see TecnoDiffusionCPU for the CPU version.
     ///
-    template<class Equation, class DiffusionMatrix>
+    template<class Equation, template<typename, int> class DiffusionMatrix>
     class TecnoDiffusionCUDA : public DiffusionOperator {
     public:
         TecnoDiffusionCUDA(volume::VolumeFactory& volumeFactory,

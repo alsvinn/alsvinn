@@ -31,7 +31,7 @@ namespace alsfvm { namespace diffusion {
             if (equation == "burgers") {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCPU
-                        <equation::burgers::Burgers, RoeMatrix<equation::burgers::Burgers>>(volumeFactory, reconstruction,
+                        <equation::burgers::Burgers, RoeMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
                 else {
@@ -42,7 +42,7 @@ namespace alsfvm { namespace diffusion {
             else if (equation == "euler") {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCPU
-                        <equation::euler::Euler, RoeMatrix<equation::euler::Euler>>(volumeFactory, reconstruction,
+                        <equation::euler::Euler, RoeMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
                 else {
@@ -58,7 +58,7 @@ namespace alsfvm { namespace diffusion {
             if (equation == "burgers") {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCUDA
-                        <equation::burgers::Burgers, RoeMatrix<equation::burgers::Burgers>>(volumeFactory, reconstruction,
+                        <equation::burgers::Burgers, RoeMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
                 else {
@@ -69,7 +69,7 @@ namespace alsfvm { namespace diffusion {
             else if (equation == "euler") {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCUDA
-                        <equation::euler::Euler, RoeMatrix<equation::euler::Euler>>(volumeFactory, reconstruction,
+                        <equation::euler::Euler, RoeMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
                 else {

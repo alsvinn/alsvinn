@@ -28,7 +28,7 @@ namespace alsfvm {
         //! Matrix-vector multiplication. We only support this for 
         //! quadratic matrices as of now.
         template<class VectorType>
-        __device__ __host__ VectorType operator*(const VectorType& vector) {
+        __device__ __host__ VectorType operator*(const VectorType& vector) const {
             static_assert(NumberOfColumns == NumberOfRows,
                 "Matrix-Vector multiplication only supported for quadratic matrices.");
             static_assert(VectorType::size() == NumberOfColumns, 

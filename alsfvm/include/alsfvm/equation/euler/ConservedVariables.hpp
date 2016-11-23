@@ -1,6 +1,7 @@
 #pragma once
 
 #include "alsfvm/types.hpp"
+#include <cassert>
 
 namespace alsfvm { namespace equation { namespace euler { 
 
@@ -21,6 +22,25 @@ namespace alsfvm { namespace equation { namespace euler {
 			// empty
 		}
 
+        __device__ __host__ ConservedVariables(const rvec5& in)
+            : rho(in[0]), m(in[1],in[2],in[3]), E(in[4])
+        {
+            // empty
+        }
+
+        __device__ __host__ real operator[](size_t index) const {
+            assert(index < 5);
+            return ((real*)this)[index];
+        }
+
+        __device__ __host__ real& operator[](size_t index) {
+            assert(index < 5);
+            return ((real*)this)[index];
+        }
+
+        __device__ __host__ static constexpr size_t size() {
+            return 5;
+        }
 		real rho;
 		rvec3 m;
 		real E;

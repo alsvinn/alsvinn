@@ -19,7 +19,7 @@ namespace alsfvm { namespace diffusion {
     /// 
     /// The matrix \f$\Lambda\f$ is specified through the DiffusionMatrix template argument.
     ///
-    template<class Equation, class DiffusionMatrix>
+    template<class Equation, template<class, int> class DiffusionMatrix>
     class TecnoDiffusionCPU : public DiffusionOperator {
     public:
 

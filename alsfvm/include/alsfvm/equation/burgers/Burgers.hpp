@@ -238,6 +238,7 @@ public:
        
     }
 
+    template<int direction>
     __device__ __host__ rvec1 computeEntropyVariablesMultipliedByEigenVectorMatrix(const ConservedVariables& conserved) const {
         
 #if USE_LOG_ENTROPY
@@ -247,6 +248,7 @@ public:
 #endif
     }
 
+    template<int direction>
     __device__ __host__ matrix1 computeEigenVectorMatrix(const ConservedVariables& conserved) const {
         
         matrix1 matrixWithEigenVectors;
@@ -254,6 +256,7 @@ public:
         return matrixWithEigenVectors;
     }
 
+    template<int direction>
     __device__ __host__ rvec1 computeEigenValues(const ConservedVariables& conserved) const {
         return conserved.u;
     }
