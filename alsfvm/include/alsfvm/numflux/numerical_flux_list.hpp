@@ -10,7 +10,7 @@
 #include "alsfvm/numflux/ScalarEntropyConservativeFlux.hpp"
 #include "alsfvm/numflux/TecnoCombined4.hpp"
 #include "alsfvm/numflux/TecnoCombined6.hpp"
-
+#include "alsfvm/numflux/euler/Tecno1.hpp"
 
 ///
 /// This file provides the list of all available fluxes for each equation
@@ -23,7 +23,8 @@ namespace numflux {
         boost::fusion::vector<
         euler::HLL,
         euler::HLL3,
-        Central<equation::euler::Euler>
+        Central<equation::euler::Euler>,
+        euler::Tecno1
         > >,
 
         // BURGERS
@@ -85,6 +86,16 @@ namespace numflux {
     template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers> >, ::alsfvm::equation::burgers::Burgers, 3>; \
     template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::burgers::Godunov >, ::alsfvm::equation::burgers::Burgers, 1>; \
     template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::burgers::Godunov >, ::alsfvm::equation::burgers::Burgers, 2>; \
-    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::burgers::Godunov >, ::alsfvm::equation::burgers::Burgers, 3>;
+    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::burgers::Burgers, ::alsfvm::numflux::burgers::Godunov >, ::alsfvm::equation::burgers::Burgers, 3>; \
+    template class X< ::alsfvm::numflux::euler::Tecno1, ::alsfvm::equation::euler::Euler, 1>; \
+    template class X< ::alsfvm::numflux::euler::Tecno1, ::alsfvm::equation::euler::Euler, 2>; \
+    template class X< ::alsfvm::numflux::euler::Tecno1, ::alsfvm::equation::euler::Euler, 3>; \
+    template class X< ::alsfvm::numflux::TecnoCombined4<::alsfvm::equation::euler::Euler, ::alsfvm::numflux::euler::Tecno1 >, ::alsfvm::equation::euler::Euler, 1>; \
+    template class X< ::alsfvm::numflux::TecnoCombined4<::alsfvm::equation::euler::Euler, ::alsfvm::numflux::euler::Tecno1 >, ::alsfvm::equation::euler::Euler, 2>; \
+    template class X< ::alsfvm::numflux::TecnoCombined4<::alsfvm::equation::euler::Euler, ::alsfvm::numflux::euler::Tecno1 >, ::alsfvm::equation::euler::Euler, 3>; \
+    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::euler::Euler, ::alsfvm::numflux::euler::Tecno1 >, ::alsfvm::equation::euler::Euler, 1>; \
+    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::euler::Euler, ::alsfvm::numflux::euler::Tecno1 >, ::alsfvm::equation::euler::Euler, 2>; \
+    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::euler::Euler, ::alsfvm::numflux::euler::Tecno1 >, ::alsfvm::equation::euler::Euler, 3>; \
+
 
 

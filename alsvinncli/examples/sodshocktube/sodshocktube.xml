@@ -6,18 +6,22 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>2 0 0</upperCorner>
-    <dimension>128 1 1</dimension>
+    <dimension>32 1 1</dimension>
   </grid>
   <boundary>neumann</boundary>
-  <flux>HLL</flux>
+  <flux>tecno1</flux>
   <endTime>0.5</endTime>
   <equation>euler</equation>
-  <reconstruction>weno2</reconstruction>
-  <cfl>auto</cfl>
+  <reconstruction>none</reconstruction>
+  <cfl>0.1</cfl>
   <integrator>auto</integrator>
   <initialData>
     <python>sodshocktube.py</python>
   </initialData>
+    <diffusion>
+        <name>tecnoroe</name>
+        <reconstruction>none</reconstruction>
+    </diffusion>
   <writer>
     <type>hdf5</type>
     <basename>sodtube</basename>

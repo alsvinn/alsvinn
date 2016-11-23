@@ -1,5 +1,6 @@
 #include "alsfvm/grid/Grid.hpp"
 #include <algorithm>
+#include <iostream>
 namespace alsfvm {
 	namespace grid {
 
@@ -23,7 +24,6 @@ namespace alsfvm {
 			: origin(origin), top(top), dimensions(dimensions),
             cellLengths(computeCellLengths(origin, top, dimensions))
 		{
-			
 			// Create the cell midpoints
 			cellMidpoints.resize(dimensions.x*dimensions.y*dimensions.z);
 			

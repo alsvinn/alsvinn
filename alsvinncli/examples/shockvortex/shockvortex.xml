@@ -21,6 +21,10 @@
     <initialData>
         <python>shockvortex.py</python>
     </initialData>
+    <diffusion>
+        <name>none</name>
+        <reconstruction>none</reconstruction>
+    </diffusion>
     <writer>
         <type>hdf5</type>
         <basename>shockvortex</basename>

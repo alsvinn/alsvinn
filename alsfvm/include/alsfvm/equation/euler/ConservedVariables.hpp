@@ -41,6 +41,10 @@ namespace alsfvm { namespace equation { namespace euler {
         __device__ __host__ static constexpr size_t size() {
             return 5;
         }
+
+        __device__ __host__ bool operator==(const ConservedVariables& other) const {
+            return rho == other.rho && m.x == other.m.x && m.y == other.m.y && m.z == other.m.z && E == other.E;
+        }
 		real rho;
 		rvec3 m;
 		real E;

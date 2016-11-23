@@ -327,7 +327,7 @@ namespace alsfvm {
                 template<int direction>
                 __device__ __host__ rvec5 computeEntropyVariablesMultipliedByEigenVectorMatrix(const ConservedVariables& conserved) const {
 
-                    return computeEigenVectorMatrix<direction>(conserved)*computeEntropyVariables(conserved);
+                    return computeEigenVectorMatrix<direction>(conserved).transposed()*computeEntropyVariables(conserved);
                 }
 
 

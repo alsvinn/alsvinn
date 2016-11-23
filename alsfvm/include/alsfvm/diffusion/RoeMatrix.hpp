@@ -24,7 +24,7 @@ namespace alsfvm {
                 auto eigenValues = equation.template computeEigenValues<direction>(conservedVariables);
 
                 for (size_t i = 0; i < eigenValues.size(); ++i) {
-                    out[i] = eigenValues[i] * in[i];
+                    out[i] = fabs(eigenValues[i]) * in[i];
                 }
 
                 return out;
