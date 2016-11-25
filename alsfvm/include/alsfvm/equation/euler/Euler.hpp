@@ -372,7 +372,7 @@ namespace alsfvm {
                         matrixWithEigenVectors(4, 3) = primitive.u.z;
                         matrixWithEigenVectors(4, 4) = H + primitive.u.x*a;
                         
-                        return matrixWithEigenVectors.normalized();
+                        return matrixWithEigenVectors.transposed();
                     }
                     else if (direction == 1) {
                         // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book

@@ -32,8 +32,9 @@ namespace alsfvm {
             }
 		}
 
-        Volume::Volume(Volume& volume, const std::vector<size_t>& components) 
-            : variableNames(makeComponentNameVector(volume, components)),
+        Volume::Volume(Volume& volume, const std::vector<size_t>& components,
+            const std::vector<std::string>& variableNames)
+            : variableNames(variableNames),
             nx(volume.nx), ny(volume.ny), nz(volume.nz),
             numberOfXGhostCells(volume.numberOfXGhostCells),
             numberOfYGhostCells(volume.numberOfYGhostCells),

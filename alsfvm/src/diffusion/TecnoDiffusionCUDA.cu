@@ -3,7 +3,7 @@
 #include "alsfvm/diffusion/RoeMatrix.hpp"
 #include "alsfvm/equation/equation_list.hpp"
 #include <iostream>
-
+#include "alsfvm/cuda/cuda_utils.hpp"
 namespace alsfvm {
     namespace diffusion {
         namespace {
@@ -75,7 +75,7 @@ namespace alsfvm {
 
                     DiffusionMatrix<Equation, direction> matrix(equation, conservedValues);
 
-                    return 0.5*(equation.template computeEigenVectorMatrix<direction>(conservedValues) * (matrix * (leftValues - rightValues)));
+                    return -0.5*(equation.template computeEigenVectorMatrix<direction>(conservedValues) * (matrix * (leftValues - rightValues)));
                 };
 
 
@@ -94,14 +94,20 @@ namespace alsfvm {
                     * conservedVolume.getTotalNumberOfYCells()
                     * conservedVolume.getTotalNumberOfZCells();
 
-                const size_t blockSize = 512;
-                computeEntropyVariables<Equation, direction> << <(size + blockSize - 1) / blockSize, blockSize >> >(equation, entropyVariablesView, conservedView);
+                const size_t blockSize = 128;
+                CUDA_CHECK_IF_DEBUG;
 
+                std::cout << (size + blockSize - 1) / blockSize << std::endl;
+                computeEntropyVariables<Equation, direction> << <(size + blockSize - 1) / blockSize, blockSize >> >(equation, entropyVariablesView, conservedView);
+                CUDA_CHECK_IF_DEBUG;
 
                 const ivec3 directionVector = make_direction_vector(direction);
                 for (size_t variable = 0; variable < outputVolume.getNumberOfVariables(); ++variable) {
-                    volume::Volume variableVolume(entropyVariables, { variable });
-                    reconstruction.performReconstruction(variableVolume, direction, 0, left, right);
+                    volume::Volume variableVolumeEntropy(entropyVariables, { variable }, { "u" });
+                    volume::Volume variableVolumeLeft(left, { variable }, { "u" });
+                    volume::Volume variableVolumeRight(right, { variable }, { "u" });
+
+                    reconstruction.performReconstruction(variableVolumeEntropy, direction, 0, variableVolumeLeft, variableVolumeRight);
                 }
 
                 typename Equation::ConstViews leftView(left);
@@ -126,7 +132,7 @@ namespace alsfvm {
                     size_t(numberOfCellsPerDimension.y) *
                     size_t(numberOfCellsPerDimension.z);
 
-
+                CUDA_CHECK_IF_DEBUG
                 multiplyDiffusionMatrix<Equation, DiffusionMatrix, direction>
                     << <(totalNumberOfCells + blockSize - 1) / blockSize, blockSize >> >(
                         equation, outputView,
@@ -138,6 +144,7 @@ namespace alsfvm {
                         numberOfCellsPerDimension.z,
                         directionVector
                         );
+                CUDA_CHECK_IF_DEBUG
             }
 
             
