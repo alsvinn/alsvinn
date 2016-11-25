@@ -56,6 +56,32 @@ namespace alsfvm {
             return transposedMatrix;
         }
 
+        __device__ __host__ matrix<T, NumberOfColumns, NumberOfRows> normalized() const {
+            matrix<T, NumberOfColumns, NumberOfRows> newMatrix;
+            for (int column = 0; column < NumberOfColumns; ++column) {
+                T norm = 0;
+                for (int row = 0; row < NumberOfRows; ++row) {
+                    norm += (*this)(row, column)*(*this)(row, column);
+                }
+                norm = sqrt(norm);
+                for (int row = 0; row < NumberOfRows; ++row) {
+                    newMatrix(row, column) = (*this)(row, column) /norm;
+                }
+            }
+
+            return newMatrix;
+        }
+
+        static __device__ __host__ matrix<T, NumberOfColumns, NumberOfRows> identity() {
+            static_assert(NumberOfColumns == NumberOfRows,
+                "Matrix-Vector multiplication only supported for quadratic matrices.");
+            matrix<T, NumberOfColumns, NumberOfRows> identityMatrix;
+            for (int i = 0; i < NumberOfColumns; ++i) {
+                identityMatrix(i, i) = 1;
+            }
+
+            return identityMatrix;
+        }
     private:
         T data[NumberOfColumns][NumberOfRows];
     };

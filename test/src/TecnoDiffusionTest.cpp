@@ -35,6 +35,7 @@ std::ostream& operator<<(std::ostream& os, const DiffusionParameters& parameters
     os << "\n{\n\texpectedConvergenceRate = " << parameters.expectedConvergenceRate
 
         << "\n\tdiffusion = " << parameters.diffusion
+        << "\n\tequation = " << parameters.equation
         << "\n\treconstruction = " << parameters.reconstruction
         << "\n\tplatform = " << parameters.platform << std::endl << "}" << std::endl;
     return os;
@@ -103,6 +104,11 @@ public:
             for (size_t i = 0; i < volumeCPU->getNumberOfVariables(); ++i) {
                 volumeCPU->getScalarMemoryArea(i)->getPointer()[index] = averageIntegralF(a,b);
             }
+
+            if (parameters.equation == "euler") {
+                // make sure the energy is compatible
+                volumeCPU->getScalarMemoryArea(4)->getPointer()[index] = averageIntegralF(a, b) + 20;
+            }
         });
 
         auto volume = volumeFactory->createConservedVolume(nx, 1, 1, diffusionOperator->getNumberOfGhostCells());
@@ -165,5 +171,9 @@ INSTANTIATE_TEST_CASE_P(TecnoDiffusionTests,
         DiffusionParameters("cpu", "burgers", "tecnoroe", "eno3", 2.9),
         DiffusionParameters("cuda", "burgers", "tecnoroe", "none", 0.9),
         DiffusionParameters("cuda", "burgers", "tecnoroe", "eno2", 1.9),
-        DiffusionParameters("cuda", "burgers", "tecnoroe", "eno3", 2.9)
+        DiffusionParameters("cuda", "burgers", "tecnoroe", "eno3", 2.9),
+        DiffusionParameters("cpu", "euler", "tecnoroe", "none", 0.9),
+        DiffusionParameters("cpu", "euler", "tecnoroe", "eno2", 1.9),
+        DiffusionParameters("cpu", "euler", "tecnoroe", "eno3", 2.9)
+        //DiffusionParameters("cuda", "euler", "tecnoroe", "none", 0.9)
         ));

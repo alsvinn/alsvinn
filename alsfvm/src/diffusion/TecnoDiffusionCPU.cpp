@@ -16,7 +16,7 @@ namespace alsfvm { namespace diffusion {
                 typename Equation::ConservedVariables >(conservedVolume, entropyVariables, [&](const typename Equation::ConservedVariables& in) {
 
 
-                return equation.template computeEntropyVariablesMultipliedByEigenVectorMatrix<direction>(in);
+                return equation.computeEntropyVariables(in);
             });
 
           
@@ -39,7 +39,7 @@ namespace alsfvm { namespace diffusion {
 
                         DiffusionMatrix<Equation, direction> matrix(equation, conservedValues);
 
-                        return 0.5*(equation.template computeEigenVectorMatrix<direction>(conservedValues) * (matrix * (leftValues - rightValues)));
+                        return 0.5*(equation.template computeEigenVectorMatrix<direction>(conservedValues) * (matrix * ((equation.template computeEigenVectorMatrix<direction>(conservedValues).transposed())* (leftValues - rightValues))));
                     };
 
 
