@@ -27,6 +27,9 @@ struct DiffusionParameters {
         double expectedConvergenceRate) 
         : platform(platform), equation(equation), diffusion(diffusion), reconstruction(reconstruction), expectedConvergenceRate(expectedConvergenceRate)
     {
+      #ifndef ALSVINN_HAVE_CUDA
+      this->platform = "cpu";
+#endif
         
     }
 
