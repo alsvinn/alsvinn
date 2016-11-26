@@ -1,3 +1,4 @@
+#include "alsfvm/types.hpp"
 #include "alsfvm/config/SimulatorSetup.hpp"
 #include <fstream>
 #include "alsfvm/config/XMLParser.hpp"

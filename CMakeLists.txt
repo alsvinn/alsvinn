@@ -1,14 +1,20 @@
 cmake_minimum_required (VERSION 3.1.0)
+SET(ALSVINN_USE_HUNTER ON CACHE BOOL "Use Hunter for automatic compiling of additional packages")
 
 SET(HUNTER_ROOT ${CMAKE_BINARY_DIR}/hunter_root)
 
+IF(${ALSVINN_USE_HUNTER})
+	include("cmake/HunterGate.cmake")
 
-include("cmake/HunterGate.cmake")
-
-HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.15.0.tar.gz"
-    SHA1 "5ce8ae8627d94315c47a0acf246de1c0aae2b4b9"
-)
+	HunterGate(
+	    URL "https://github.com/ruslo/hunter/archive/v0.15.0.tar.gz"
+	        SHA1 "5ce8ae8627d94315c47a0acf246de1c0aae2b4b9"
+		)
+ELSE()
+	MACRO(hunter_add_package args)
+	     # do nothing
+	ENDMACRO()
+ENDIF()
 
 project (alsvinn)
 MACRO(set_source_groups  folder_name directory source_files)

@@ -1,9 +1,14 @@
 #pragma once
+#include <iostream>
+#include <iomanip>
+#include <complex>
+#include <cmath>
 #include <cstdlib>
 #include <cctype>
 #include <cstdlib>
 #include <cfloat>
 #include <memory>
+#include <complex>
 #ifndef _WIN32
 // On Linux, we can not use C++11, so we use boost
 // on Windows, the compiler doesn't like boost that much at the moment.
