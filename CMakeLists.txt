@@ -103,6 +103,8 @@ else()
 endif()
 
 find_package(HDF5 REQUIRED)
+SET(ALSVINN_LIBRARY_DIRS "" CACHE STRING "Locations to add to the library directories")
+LINK_DIRECTORIES(${ALSVINN_LIBRARY_DIRS})
 
 if(ALSVINN_USE_MPI)
   find_package(MPI REQUIRED)

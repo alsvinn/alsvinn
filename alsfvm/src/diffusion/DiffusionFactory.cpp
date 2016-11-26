@@ -54,6 +54,7 @@ namespace alsfvm { namespace diffusion {
                 THROW("Equation not supported: " << equation);
             }
         }
+#ifdef ALSVINN_HAVE_CUDA
         else if (deviceConfiguration->getPlatform() == "cuda") {
             if (equation == "burgers") {
                 if (diffusionType == "tecnoroe") {
@@ -81,6 +82,7 @@ namespace alsfvm { namespace diffusion {
                 THROW("Equation not supported: " << equation);
             }
         }
+#endif
         else {
             THROW("Platform not supported: " << deviceConfiguration->getPlatform());
         }
