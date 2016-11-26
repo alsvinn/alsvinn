@@ -4,17 +4,20 @@
   </name>
   <platform>cpu</platform>
   <grid>
-    <lowerCorner>0 0 0</lowerCorner>
-    <upperCorner>2 0 0</upperCorner>
-    <dimension>32 1 1</dimension>
+    <lowerCorner>-5 0 0</lowerCorner>
+    <upperCorner>5 0 0</upperCorner>
+    <dimension>100 1 1</dimension>
   </grid>
   <boundary>neumann</boundary>
-  <flux>tecno1</flux>
+  <flux>tecno4</flux>
   <endTime>0.5</endTime>
   <equation>euler</equation>
   <reconstruction>none</reconstruction>
-  <cfl>0.1</cfl>
-  <integrator>auto</integrator>
+  <cfl>0.001</cfl>
+  <integrator>rungekutta2</integrator>
+    <equationParameters>
+        <gamma>1.4</gamma>
+    </equationParameters>
   <initialData>
     <python>sodshocktube.py</python>
   </initialData>

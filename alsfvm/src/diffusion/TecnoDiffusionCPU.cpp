@@ -16,13 +16,16 @@ namespace alsfvm { namespace diffusion {
                 typename Equation::ConservedVariables >(conservedVolume, entropyVariables, [&](const typename Equation::ConservedVariables& in) {
 
 
-                return equation.template computeEntropyVariablesMultipliedByEigenVectorMatrix<direction>(in);
+                return equation.computeEntropyVariables(in);
             });
 
           
                 for (size_t variable = 0; variable < outputVolume.getNumberOfVariables(); ++variable) {
-                    volume::Volume variableVolume(entropyVariables, { variable });
-                    reconstruction.performReconstruction(variableVolume, direction, 0, left, right);
+                    volume::Volume variableVolumeEntropy(entropyVariables, { variable }, { "u" });
+                    volume::Volume variableVolumeLeft(left, { variable }, { "u" });
+                    volume::Volume variableVolumeRight(right, { variable }, { "u" });
+
+                    reconstruction.performReconstruction(variableVolumeEntropy, direction, 0, variableVolumeLeft, variableVolumeRight);
                 }
 
                 typename Equation::Views leftView(left);
@@ -39,7 +42,7 @@ namespace alsfvm { namespace diffusion {
 
                         DiffusionMatrix<Equation, direction> matrix(equation, conservedValues);
 
-                        return 0.5*(equation.template computeEigenVectorMatrix<direction>(conservedValues) * (matrix * (leftValues - rightValues)));
+                        return -0.5*(equation.template computeEigenVectorMatrix<direction>(conservedValues) * (matrix * ((equation.template computeEigenVectorMatrix<direction>(conservedValues).transposed())* (leftValues - rightValues))));
                     };
 
 

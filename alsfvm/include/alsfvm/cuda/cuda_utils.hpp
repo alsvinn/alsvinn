@@ -15,6 +15,17 @@
 	} \
 }
 
+#ifdef NDEBUG
+#define CUDA_CHECK_IF_DEBUG
+#else 
+//! If in debug mode, checks if there has been any error
+//! with cuda. 
+#define CUDA_CHECK_IF_DEBUG { \
+    CUDA_SAFE_CALL(cudaGetLastError()); \
+CUDA_SAFE_CALL(cudaDeviceSynchronize()); \
+CUDA_SAFE_CALL(cudaGetLastError()); \
+}
+#endif
 namespace alsfvm {
 	namespace cuda {
 		inline dim3 calculateBlockDimensions(size_t numberOfXCells, size_t numberOfYCells, size_t numberOfZCells) {

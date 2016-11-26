@@ -5,6 +5,8 @@
 #include "utils/polyfit.hpp"
 #include "alsfvm/boundary/BoundaryFactory.hpp"
 #include <iostream>
+#include "alsfvm/equation/CellComputerFactory.hpp"
+#include "alsfvm/equation/EquationParameterFactory.hpp"
 
 using namespace alsfvm;
 
@@ -35,6 +37,7 @@ std::ostream& operator<<(std::ostream& os, const DiffusionParameters& parameters
     os << "\n{\n\texpectedConvergenceRate = " << parameters.expectedConvergenceRate
 
         << "\n\tdiffusion = " << parameters.diffusion
+        << "\n\tequation = " << parameters.equation
         << "\n\treconstruction = " << parameters.reconstruction
         << "\n\tplatform = " << parameters.platform << std::endl << "}" << std::endl;
     return os;
@@ -45,6 +48,9 @@ public:
     TecnoDiffusionTest()
      :   parameters(GetParam())
     {
+        simulatorParameters.reset(new simulator::SimulatorParameters);
+        simulatorParameters->setEquationName(parameters.equation);
+        simulatorParameters->setPlatform(parameters.platform);
         deviceConfiguration.reset(new DeviceConfiguration(parameters.platform));
         deviceConfigurationCPU.reset(new DeviceConfiguration("cpu"));
 
@@ -55,6 +61,13 @@ public:
         volumeFactoryCPU.reset(new volume::VolumeFactory(parameters.equation, memoryFactoryCPU));
 
         boundaryFactory.reset(new boundary::BoundaryFactory("periodic", deviceConfiguration));
+        equation::EquationParameterFactory equationParameterFactory;
+
+        auto equationParameters = equationParameterFactory.createDefaultEquationParameters(parameters.equation);
+        simulatorParameters->setEquationParameters( equationParameters );
+        equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
+
+        cellComputer = cellComputerFactory.createComputer();
     }
 
     DiffusionParameters parameters;
@@ -68,17 +81,17 @@ public:
     alsfvm::shared_ptr<volume::VolumeFactory> volumeFactory;
     alsfvm::shared_ptr<volume::VolumeFactory> volumeFactoryCPU;
 
-    alsfvm::simulator::SimulatorParameters simulatorParameters;
+    alsfvm::shared_ptr<alsfvm::simulator::SimulatorParameters> simulatorParameters;
 
     alsfvm::shared_ptr<boundary::BoundaryFactory> boundaryFactory;
-  
+    alsfvm::shared_ptr<alsfvm::equation::CellComputer> cellComputer;
     std::tuple<grid::Grid, alsfvm::shared_ptr<volume::Volume>, alsfvm::shared_ptr<diffusion::DiffusionOperator> > makeSetup(size_t nx) {
         auto grid = grid::Grid(rvec3(0., 0., 0.), rvec3(1., 0., 0.), ivec3(nx, 1, 1));
         
         diffusion::DiffusionFactory diffusionFactory;
 
         auto diffusionOperator = diffusionFactory.createDiffusionOperator(parameters.equation, parameters.diffusion,
-            parameters.reconstruction, grid, simulatorParameters,deviceConfiguration, memoryFactory,
+            parameters.reconstruction, grid, *simulatorParameters,deviceConfiguration, memoryFactory,
             *volumeFactory);
 
         auto boundary = boundaryFactory->createBoundary(diffusionOperator->getNumberOfGhostCells());
@@ -103,12 +116,21 @@ public:
             for (size_t i = 0; i < volumeCPU->getNumberOfVariables(); ++i) {
                 volumeCPU->getScalarMemoryArea(i)->getPointer()[index] = averageIntegralF(a,b);
             }
+
+            if (parameters.equation == "euler") {
+                // make sure the energy is compatible
+                volumeCPU->getScalarMemoryArea(4)->getPointer()[index] = averageIntegralF(a, b) + 20;
+            }
         });
+
+        
 
         auto volume = volumeFactory->createConservedVolume(nx, 1, 1, diffusionOperator->getNumberOfGhostCells());
 
         volumeCPU->copyTo(*volume);
-
+        auto extraVolume = volumeFactory->createExtraVolume(nx, 1, 1, diffusionOperator->getNumberOfGhostCells());
+        cellComputer->computeExtraVariables(*volume, *extraVolume);
+        //ASSERT_EQ(true, cellComputer->obeysConstraints(*volume, *extraVolume));
         boundary->applyBoundaryConditions(*volume, grid);
         return std::make_tuple(grid, volume, diffusionOperator);
     }
@@ -120,7 +142,7 @@ TEST_P(TecnoDiffusionTest, OrderTest) {
     std::vector<real> errors;
     std::vector<real> resolutions;
 
-    const int minK = 3;
+    const int minK = 5;
     const int maxK = 14;
     for (int k = minK; k < maxK; ++k) {
         const int nx = 1 << k;
@@ -165,5 +187,11 @@ INSTANTIATE_TEST_CASE_P(TecnoDiffusionTests,
         DiffusionParameters("cpu", "burgers", "tecnoroe", "eno3", 2.9),
         DiffusionParameters("cuda", "burgers", "tecnoroe", "none", 0.9),
         DiffusionParameters("cuda", "burgers", "tecnoroe", "eno2", 1.9),
-        DiffusionParameters("cuda", "burgers", "tecnoroe", "eno3", 2.9)
+        DiffusionParameters("cuda", "burgers", "tecnoroe", "eno3", 2.9),
+        DiffusionParameters("cpu", "euler", "tecnoroe", "none", 0.9),
+        DiffusionParameters("cpu", "euler", "tecnoroe", "eno2", 1.9),
+        DiffusionParameters("cpu", "euler", "tecnoroe", "eno3", 2.9),
+        DiffusionParameters("cuda", "euler", "tecnoroe", "none", 0.9),
+        DiffusionParameters("cuda", "euler", "tecnoroe", "eno2", 1.9),
+        DiffusionParameters("cuda", "euler", "tecnoroe", "eno3", 2.9)
         ));

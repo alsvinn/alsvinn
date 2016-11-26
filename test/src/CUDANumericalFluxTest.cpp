@@ -14,8 +14,19 @@
 using namespace alsfvm::numflux;
 using namespace alsfvm;
 using namespace alsfvm::volume;
+struct CudaNumericalFluxTestParameters {
+    std::string flux;
+    CudaNumericalFluxTestParameters(const std::string& flux)
+        : flux(flux) {
 
-class CUDANumericalFluxTest : public ::testing::Test {
+    }
+};
+
+std::ostream& operator<<(std::ostream& os, const CudaNumericalFluxTestParameters& parameters) {
+    os << "\n{\n\tflux = " << parameters.flux<<"\n}\n" << std::endl;
+    return os;
+}
+class CUDANumericalFluxTest : public ::testing::TestWithParam <CudaNumericalFluxTestParameters>{
 public:
 	std::string equation;
 	std::string flux;
@@ -37,7 +48,7 @@ public:
 	const size_t nz;
 
 	CUDANumericalFluxTest()
-		: equation("euler"), flux("HLL"), reconstruction("none"),
+		: equation("euler"), flux(GetParam().flux), reconstruction("none"),
 		deviceConfiguration(new DeviceConfiguration("cuda")),
 		deviceConfigurationCPU(new DeviceConfiguration("cpu")),
         simulatorParameters(new simulator::SimulatorParameters("euler", "cuda")),
@@ -54,22 +65,22 @@ public:
 	}
 };
 
-TEST_F(CUDANumericalFluxTest, ConstructionTest) {
+TEST_P(CUDANumericalFluxTest, ConstructionTest) {
 	auto numericalFlux = fluxFactory.createNumericalFlux(grid);
 }
 
-TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
+TEST_P(CUDANumericalFluxTest, ConsistencyTest) {
 	// This test that the flux is consistent
-
-	auto conservedVariables = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-	auto extraVariables = volumeFactory.createExtraVolume(nx, ny, nz, 1);
+    auto numericalFlux = fluxFactory.createNumericalFlux(grid);
+	auto conservedVariables = volumeFactory.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
+	auto extraVariables = volumeFactory.createExtraVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 
 	
 	boundary::BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
-
+  
 	auto boundary = boundaryFactory.createBoundary(1);
-	auto conservedVariablesCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, 1);
-	auto extraVariablesCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz, 1);
+	auto conservedVariablesCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
+	auto extraVariablesCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	volume::fill_volume<equation::euler::ConservedVariables>(*conservedVariablesCPU, grid,
 		[](real x, real y, real z, equation::euler::ConservedVariables& out) {
 		out.rho = 1;
@@ -89,7 +100,7 @@ TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
 	computer->computeExtraVariables(*conservedVariables, *extraVariables);
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
 	ASSERT_TRUE(computer->obeysConstraints(*conservedVariables, *extraVariables));
-	auto output = volumeFactory.createConservedVolume(nx, ny, nz, 1);
+	auto output = volumeFactory.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	
 	
 	for (size_t i = 0; i < output->getNumberOfVariables(); i++) {
@@ -97,9 +108,14 @@ TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
 		output->getScalarMemoryArea(i)->copyFromHost(hostOutput.data(), hostOutput.size());
 	}
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
-	auto numericalFlux = fluxFactory.createNumericalFlux(grid);
-	ASSERT_EQ(1, numericalFlux->getNumberOfGhostCells());
-	auto outputCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, 1);
+	
+    if (GetParam().flux != "tecno4") {
+        ASSERT_EQ(1, numericalFlux->getNumberOfGhostCells());
+    }
+    else if (GetParam().flux == "tecno4") {
+        ASSERT_EQ(3, numericalFlux->getNumberOfGhostCells());
+    }
+	auto outputCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	output->copyTo(*outputCPU);
 	for (size_t n = 0; n < output->getNumberOfVariables(); n++) {
 
@@ -122,12 +138,12 @@ TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
 	// Here the flux should be consistent, so we expect that 
 	// the difference f(U,Ur)-f(Ul,U) should be zero everywhere.
 	output->copyTo(*outputCPU);
-
+    int ngc = numericalFlux->getNumberOfGhostCells();
 	for (size_t n = 0; n < output->getNumberOfVariables(); n++) {
 
 		for (size_t k = 0; k < nz; k++) {
-			for (size_t j = 1; j < ny - 1; j++) {
-				for (size_t i = 1; i < nx - 1; i++) {
+			for (size_t j = ngc; j < ny - ngc; j++) {
+				for (size_t i = ngc; i < nx - ngc; i++) {
 
 					
 					ASSERT_NEAR(0, outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k), 1e-30)
@@ -140,11 +156,11 @@ TEST_F(CUDANumericalFluxTest, ConsistencyTest) {
 
 }
 
-TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
+TEST_P(CUDANumericalFluxTest, CompareAgainstCPU) {
 	// This test that the flux is consistent
-
-	auto conservedVariables = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-	auto extraVariables = volumeFactory.createExtraVolume(nx, ny, nz, 1);
+    auto numericalFlux = fluxFactory.createNumericalFlux(grid);
+	auto conservedVariables = volumeFactory.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
+	auto extraVariables = volumeFactory.createExtraVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 
 
 	boundary::BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
@@ -154,8 +170,8 @@ TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
 	boundary::BoundaryFactory boundaryFactoryCPU("neumann", deviceConfigurationCPU);
 
 	auto boundaryCPU = boundaryFactoryCPU.createBoundary(1);
-	auto conservedVariablesCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, 1);
-	auto extraVariablesCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz, 1);
+	auto conservedVariablesCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
+	auto extraVariablesCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	// We set every other var to 1,1,1,10 and 2,2,2,2,40.
 	int switchCounter = 0;
 	volume::fill_volume<equation::euler::ConservedVariables>(*conservedVariablesCPU, grid,
@@ -183,9 +199,10 @@ TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
 	equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
 
-	
-	auto output = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-	auto outputCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, 1);
+    
+    auto numericalFluxCPU = fluxFactoryCPU.createNumericalFlux(grid);
+	auto output = volumeFactory.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
+	auto outputCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	// Set default values
 	for (size_t i = 0; i < output->getNumberOfVariables(); i++) {
 		std::vector<real> hostOutput(output->getScalarMemoryArea(i)->getSize(), 44);
@@ -193,11 +210,18 @@ TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
 		outputCPU->getScalarMemoryArea(i)->copyFromHost(hostOutput.data(), hostOutput.size());
 	}
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
-	auto numericalFlux = fluxFactory.createNumericalFlux(grid);
-	auto numericalFluxCPU = fluxFactoryCPU.createNumericalFlux(grid);
-	ASSERT_EQ(1, numericalFlux->getNumberOfGhostCells());
-	ASSERT_EQ(1, numericalFluxCPU->getNumberOfGhostCells());
-	auto outputCPUfromGPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, 1);
+	
+    if (GetParam().flux != "tecno4") {
+        ASSERT_EQ(1, numericalFlux->getNumberOfGhostCells());
+        ASSERT_EQ(1, numericalFluxCPU->getNumberOfGhostCells());
+    }
+    else if (GetParam().flux == "tecno4") {
+        ASSERT_EQ(3, numericalFlux->getNumberOfGhostCells());
+        ASSERT_EQ(3, numericalFluxCPU->getNumberOfGhostCells());
+    }
+	
+	
+	auto outputCPUfromGPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	output->copyTo(*outputCPUfromGPU);
 
 
@@ -271,3 +295,12 @@ TEST_F(CUDANumericalFluxTest, CompareAgainstCPU) {
 	}
 
 }
+
+INSTANTIATE_TEST_CASE_P(CUDANumericalFluxTests,
+    CUDANumericalFluxTest,
+    ::testing::Values(
+        CudaNumericalFluxTestParameters("HLL"),
+        CudaNumericalFluxTestParameters("HLL3"),
+        CudaNumericalFluxTestParameters("tecno1"),
+        CudaNumericalFluxTestParameters("tecno4")
+        ));

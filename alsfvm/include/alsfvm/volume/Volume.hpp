@@ -40,7 +40,8 @@ namespace alsfvm {
             //! Make a volume as a view of another volume.
             //! @param volume the volume to make a view of
             //! @param components the components to use
-            Volume(Volume& volume, const std::vector<size_t>& components);
+            Volume(Volume& volume, const std::vector<size_t>& components,
+                const std::vector<std::string>& variableNames);
 
             // We need a virtual destructor in case we want to inherit from this
 			virtual ~Volume();

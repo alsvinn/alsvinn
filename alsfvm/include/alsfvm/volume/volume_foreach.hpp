@@ -48,7 +48,7 @@ namespace alsfvm {
         /// \param offsetStart the triple deciding the starting index
         /// \param offsetEnd the offset for end (must be non-negative!)
         ///
-        template<size_t direction>
+        template<size_t direction, bool parallel=false>
         inline void for_each_cell_index_with_neighbours(const Volume& in,
                                                         const std::function<void(size_t leftIndex, size_t middleIndex, size_t rightIndex)>& function,
                                                         ivec3 offsetStart={0,0,0},
@@ -63,6 +63,7 @@ namespace alsfvm {
             const size_t nx = in.getTotalNumberOfXCells() - offsetEnd[0];
             const size_t ny = in.getTotalNumberOfYCells() - offsetEnd[1];
             const size_t nz = in.getTotalNumberOfZCells() - offsetEnd[2];
+            
             for (size_t z = offsetStart[2]; z < nz; z++) {
                 for (size_t y = offsetStart[1]; y < ny; y++) {
                     for (size_t x = offsetStart[0]; x < nx; x++) {
