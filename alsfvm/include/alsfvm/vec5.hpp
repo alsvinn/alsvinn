@@ -123,3 +123,15 @@ namespace alsfvm {
 
 
 }
+template<typename T>
+inline std::ostream& operator<<(std::ostream& os, const alsfvm::vec5<T>& vec) {
+    os << "[";
+    for (int i = 0; i < 5; ++i) {
+        os << vec[i];
+        if (i < 4) {
+            os << ", ";
+        }
+    }
+    os << "]";
+    return os;
+}

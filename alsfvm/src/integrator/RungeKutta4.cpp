@@ -66,12 +66,13 @@ namespace alsfvm {
                 output += *inputConserved[0];
             }
             
+            
             if (substep == 3) {
-                output.addLinearCombination((1.0 / 6.0)*cellScaling.x,
+                output.addLinearCombination((1.0 /6.0)*cellScaling.x,
                     1.0 / 3.0, *inputConserved[1],
                     2.0 / 3.0, *inputConserved[2],
                     1.0 / 3.0, *inputConserved[3],
-                    -1.0 / 3.0, *inputConserved[0]);
+                    -1.0/3.0 , *inputConserved[0]);
 
             }
 

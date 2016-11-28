@@ -13,8 +13,8 @@
   <endTime>0.5</endTime>
   <equation>euler</equation>
   <reconstruction>none</reconstruction>
-  <cfl>0.1</cfl>
-  <integrator>rungekutta2</integrator>
+  <cfl>0.001</cfl>
+  <integrator>rungekutta4</integrator>
     <equationParameters>
         <gamma>1.4</gamma>
     </equationParameters>

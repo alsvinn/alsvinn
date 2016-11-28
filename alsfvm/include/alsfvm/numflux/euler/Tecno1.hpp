@@ -2,6 +2,7 @@
 #include "alsfvm/types.hpp"
 #include "alsfvm/numflux/tecno_utils.hpp"
 #include "alsfvm/equation/equation_list.hpp"
+#include "alsfvm/numflux/euler/HLL3.hpp"
 namespace alsfvm { namespace numflux { namespace euler { 
 
     
@@ -43,8 +44,10 @@ namespace alsfvm { namespace numflux { namespace euler {
                 F[4] = 1.0 / (2 * bar(leftZ[0], rightZ[0])) * ((gamma + 1) / (gamma - 1)*divLn(leftZ[0], rightZ[0], (F[0])) + bar(leftZ[1], rightZ[1])*F[1] + bar(leftZ[2], rightZ[2])*F[2]);
             }
 
-
-            return fmax(eq.computeWaveSpeed<direction>(left, left), eq.computeWaveSpeed<direction>(right, right));
+            real leftSpeed=0, rightSpeed=0;
+            real cs = 0;
+            HLL3::computeHLLSpeeds<direction>(eq, left, right, leftSpeed, rightSpeed, cs);
+            return fmax(fabs(leftSpeed), fabs(rightSpeed));
         }
     };
 } // namespace euler

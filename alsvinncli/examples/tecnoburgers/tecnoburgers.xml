@@ -18,7 +18,7 @@
         <name>tecnoroe</name>
         <reconstruction>eno2</reconstruction>
     </diffusion>
-    <integrator>rungekutta3</integrator>
+    <integrator>rungekutta4</integrator>
     <initialData>
         <python>tecnoburgers.py</python>
     </initialData>
