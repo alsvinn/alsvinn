@@ -25,7 +25,8 @@ namespace numflux {
         euler::HLL3,
         Central<equation::euler::Euler>,
         euler::Tecno1,
-        TecnoCombined4<equation::euler::Euler, euler::Tecno1 >
+        TecnoCombined4<equation::euler::Euler, euler::Tecno1 >,
+        TecnoCombined6<equation::euler::Euler, euler::Tecno1 >
         > >,
 
         // BURGERS

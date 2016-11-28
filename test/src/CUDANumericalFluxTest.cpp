@@ -61,7 +61,7 @@ public:
 		volumeFactory(equation, memoryFactory), volumeFactoryCPU(equation, memoryFactoryCPU), 
 		nx(10), ny(10), nz(1)
 	{
-
+        
 	}
 };
 
@@ -78,7 +78,7 @@ TEST_P(CUDANumericalFluxTest, ConsistencyTest) {
 	
 	boundary::BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
   
-	auto boundary = boundaryFactory.createBoundary(1);
+	auto boundary = boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells());
 	auto conservedVariablesCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	auto extraVariablesCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	volume::fill_volume<equation::euler::ConservedVariables>(*conservedVariablesCPU, grid,
@@ -109,11 +109,18 @@ TEST_P(CUDANumericalFluxTest, ConsistencyTest) {
 	}
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
 	
-    if (GetParam().flux != "tecno4") {
+    
+    if (GetParam().flux != "tecno4" && GetParam().flux != "tecno6") {
         ASSERT_EQ(1, numericalFlux->getNumberOfGhostCells());
+        
     }
     else if (GetParam().flux == "tecno4") {
         ASSERT_EQ(3, numericalFlux->getNumberOfGhostCells());
+       
+    }
+    else if (GetParam().flux == "tecno6") {
+        ASSERT_EQ(5, numericalFlux->getNumberOfGhostCells());
+       
     }
 	auto outputCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	output->copyTo(*outputCPU);
@@ -165,11 +172,11 @@ TEST_P(CUDANumericalFluxTest, CompareAgainstCPU) {
 
 	boundary::BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
 
-	auto boundary = boundaryFactory.createBoundary(1);
+	auto boundary = boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells());
 
 	boundary::BoundaryFactory boundaryFactoryCPU("neumann", deviceConfigurationCPU);
 
-	auto boundaryCPU = boundaryFactoryCPU.createBoundary(1);
+	auto boundaryCPU = boundaryFactoryCPU.createBoundary(numericalFlux->getNumberOfGhostCells());
 	auto conservedVariablesCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	auto extraVariablesCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	// We set every other var to 1,1,1,10 and 2,2,2,2,40.
@@ -211,13 +218,17 @@ TEST_P(CUDANumericalFluxTest, CompareAgainstCPU) {
 	}
 	CUDA_SAFE_CALL(cudaDeviceSynchronize());
 	
-    if (GetParam().flux != "tecno4") {
+    if (GetParam().flux != "tecno4" && GetParam().flux != "tecno6") {
         ASSERT_EQ(1, numericalFlux->getNumberOfGhostCells());
         ASSERT_EQ(1, numericalFluxCPU->getNumberOfGhostCells());
     }
     else if (GetParam().flux == "tecno4") {
         ASSERT_EQ(3, numericalFlux->getNumberOfGhostCells());
         ASSERT_EQ(3, numericalFluxCPU->getNumberOfGhostCells());
+    }
+    else if (GetParam().flux == "tecno6") {
+        ASSERT_EQ(5, numericalFlux->getNumberOfGhostCells());
+        ASSERT_EQ(5, numericalFluxCPU->getNumberOfGhostCells());
     }
 	
 	
@@ -302,5 +313,6 @@ INSTANTIATE_TEST_CASE_P(CUDANumericalFluxTests,
         CudaNumericalFluxTestParameters("HLL"),
         CudaNumericalFluxTestParameters("HLL3"),
         CudaNumericalFluxTestParameters("tecno1"),
-        CudaNumericalFluxTestParameters("tecno4")
+        CudaNumericalFluxTestParameters("tecno4"),
+        CudaNumericalFluxTestParameters("tecno6")
         ));
