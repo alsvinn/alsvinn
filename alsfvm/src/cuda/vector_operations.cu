@@ -76,6 +76,20 @@ namespace {
 		}
 	}
 
+    template<class T>
+    __global__ void linear_combination_device(T a1, T* v1,
+        T a2, const T* v2,
+        T a3, const T* v3,
+        T a4, const T* v4,
+        T a5, const T* v5,
+        size_t size) {
+        size_t index = blockIdx.x*blockDim.x + threadIdx.x;
+
+        if (index < size) {
+            v1[index] = a1*v1[index] + a2*v2[index] + a3*v3[index] + a4*v4[index] + a5*v5[index];
+        }
+    }
+
 }
 
 // Since we use templates, we must instatiate.
@@ -193,15 +207,32 @@ namespace alsfvm {
 			divideKernel <<<(size + threadCount - 1)/threadCount, threadCount >>>(result, a, scalar, size);
 		}
 
-		INSTANTIATE_VECTOR_OPERATION(add)
-		INSTANTIATE_VECTOR_OPERATION(subtract)
-		INSTANTIATE_VECTOR_OPERATION(multiply)
-		INSTANTIATE_VECTOR_OPERATION(divide)
+        template<class T>
+        void add_linear_combination(T a1, T* v1,
+            T a2, const T* v2,
+            T a3, const T* v3,
+            T a4, const T* v4,
+            T a5, const T* v5,
+            size_t size) {
+            const size_t threadCount = 1024;
+            linear_combination_device << <(size + threadCount - 1) / threadCount, threadCount >> >(a1, v1, a2, v2, a3,v3, a4,v4,a5,v5, size);
+        }
 
-		INSTANTIATE_VECTOR_SCALAR_OPERATION(add)
-		INSTANTIATE_VECTOR_SCALAR_OPERATION(subtract)
-		INSTANTIATE_VECTOR_SCALAR_OPERATION(multiply)
-		INSTANTIATE_VECTOR_SCALAR_OPERATION(divide)
+        INSTANTIATE_VECTOR_OPERATION(add)
+            INSTANTIATE_VECTOR_OPERATION(subtract)
+            INSTANTIATE_VECTOR_OPERATION(multiply)
+            INSTANTIATE_VECTOR_OPERATION(divide)
+
+            INSTANTIATE_VECTOR_SCALAR_OPERATION(add)
+            INSTANTIATE_VECTOR_SCALAR_OPERATION(subtract)
+            INSTANTIATE_VECTOR_SCALAR_OPERATION(multiply)
+            INSTANTIATE_VECTOR_SCALAR_OPERATION(divide)
+
+            template void add_linear_combination<real>(real a1, real* v1, real a2, const real* v2,
+                real a3, const real* v3,
+                real a4, const real* v4,
+                real a5, const real* v5,
+                size_t size);
 
 	}
 }

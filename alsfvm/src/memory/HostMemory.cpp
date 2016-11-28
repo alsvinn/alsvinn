@@ -3,7 +3,14 @@
 #include <cassert>
 #include <algorithm>
 #include "alsfvm/error/Exception.hpp"
-
+#define CHECK_SIZE_AND_HOST(x) { \
+    if (!x.isOnHost()) {\
+        THROW(#x << " is not on host."); \
+    } \
+    if (this->getSize() != x.getSize()) { \
+        THROW("Size mismatch: \n\tthis->getSize() = " << this->getSize() <<"\n\t"<<#x<<".getSize() = " << x.getSize()); \
+    } \
+}
 namespace alsfvm {
 namespace memory {
 
@@ -201,6 +208,27 @@ void HostMemory<T>::copyInternalCells(size_t startX, size_t endX, size_t startY,
                 output[indexOut] = data[indexIn];
              }
         }
+    }
+}
+
+template<class T>
+void HostMemory<T>::addLinearCombination(T a1,
+    T a2, const Memory<T>& v2,
+    T a3, const Memory<T>& v3,
+    T a4, const Memory<T>& v4,
+    T a5, const Memory<T>& v5) {
+    CHECK_SIZE_AND_HOST(v2);
+    CHECK_SIZE_AND_HOST(v3);
+    CHECK_SIZE_AND_HOST(v4);
+    CHECK_SIZE_AND_HOST(v5);
+    const auto& d1 = data;
+    auto d2 = v2.getPointer();
+    auto d3 = v3.getPointer();
+    auto d4 = v4.getPointer();
+    auto d5 = v5.getPointer();
+#pragma omp parallel for
+    for (size_t i = 0; i < data.size(); ++i) {
+        data[i] = a1*d1[i] + a2*d2[i] + a3*d3[i] + a4*d4[i] + a5*d5[i];
     }
 }
 

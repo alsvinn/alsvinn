@@ -7,6 +7,14 @@
 #include "alsfvm/memory/memory_utils.hpp"
 #include "alsfvm/cuda/vector_operations.hpp"
 #include "alsfvm/error/Exception.hpp"
+#define CHECK_SIZE_AND_HOST(x) { \
+    if (x.isOnHost()) {\
+        THROW(#x << " is on host."); \
+    } \
+    if (this->getSize() != x.getSize()) { \
+        THROW("Size mismatch: \n\tthis->getSize() = " << this->getSize() <<"\n\t"<<#x<<".getSize() = " << x.getSize()); \
+    } \
+}
 using namespace alsfvm::memory;
 namespace alsfvm {
 	namespace cuda {
@@ -204,6 +212,24 @@ namespace alsfvm {
 				}
 			}
 		}
+
+        template<class T>
+        void CudaMemory<T>::addLinearCombination(T a1,
+            T a2, const Memory<T>& v2,
+            T a3, const Memory<T>& v3,
+            T a4, const Memory<T>& v4,
+            T a5, const Memory<T>& v5) {
+            CHECK_SIZE_AND_HOST(v2);
+            CHECK_SIZE_AND_HOST(v3);
+            CHECK_SIZE_AND_HOST(v4);
+            CHECK_SIZE_AND_HOST(v5);
+            auto d1 = getPointer();
+            auto d2 = v2.getPointer();
+            auto d3 = v3.getPointer();
+            auto d4 = v4.getPointer();
+            auto d5 = v5.getPointer();
+            
+        }
 
 		INSTANTIATE_MEMORY(CudaMemory)
 	}

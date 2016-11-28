@@ -92,6 +92,16 @@ namespace alsfvm {
             virtual alsfvm::shared_ptr<const memory::Memory<real> >
                 getScalarMemoryArea(const std::string& name) const;
 
+            ///
+            /// \brief getScalarMemoryArea gets the scalar memory area (real)
+            /// \param index the index of the variable
+            /// \return the MemoryArea for the given name
+            /// \note Equivalent to calling
+            ///     getScalarMemoryArea(index)
+            ///
+            virtual alsfvm::shared_ptr<const memory::Memory<real> >
+                operator[](size_t index) const;
+
 
             ///
             /// \brief getIndexFromName returns the given index from the name
@@ -196,6 +206,12 @@ namespace alsfvm {
             //! Gets the number of space dimensions.
             virtual size_t getDimensions() const;
 
+
+            //! Adds the volumes with coefficients to this volume
+            //! Here we compute the sum
+            //! \f[ v_1^{\mathrm{new}}=a_1v_1+a_2v_2+a_3v_3+a_4v_4+a_5v_5+a_6v_6\]
+            //! where \f$v_1\f$ is the volume being operated on.
+            void addLinearCombination(real a1, real a2, const Volume& v2, real a3, const Volume& v3, real a4, const Volume& v4, real a5, const Volume& v5);
         private:
             const std::vector<std::string> variableNames;
 
@@ -210,5 +226,7 @@ namespace alsfvm {
 			size_t numberOfYGhostCells;
 			size_t numberOfZGhostCells;
 		};
+
+        
 	}
 }
