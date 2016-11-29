@@ -161,7 +161,18 @@ namespace alsfvm {
 					F.m[direction] += u.p;
 					F.E = (u.E + u.p) * u.u[direction];
 				}
-
+                
+                //! Utility function that calls 
+                //! \code{.cpp}
+                //! computePointFlux<direction>(const AllVariables& u, ConservedVariables& F);
+                //! \endcode
+                template<size_t direction>
+                __device__ __host__ ConservedVariables computePointFlux(const ConservedVariables& u) const {
+                    auto all = makeAllVariables(u.rho, u.m.x, u.m.y, u.m.z, u.E);
+                    ConservedVariables F;
+                    computePointFlux<direction>(all, F);
+                    return F;
+                }
 
 
 				///

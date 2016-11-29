@@ -85,4 +85,24 @@ namespace alsfvm {
     private:
         T data[NumberOfColumns][NumberOfRows];
     };
+
+
 }
+
+template<class T, size_t NumberOfRows, size_t NumberOfColumns>
+inline std::ostream& operator<<(std::ostream& os, const alsfvm::matrix<T, NumberOfRows, NumberOfColumns>& mat) {
+    os << "[" << std::endl;
+    for (int i = 0; i < NumberOfRows; ++i) {
+        for (int j = 0; j < NumberOfColumns; ++j) {
+            os << mat(i, j);
+            if (j < NumberOfColumns - 1) {
+                os << ", ";
+            }
+        }
+        os << std::endl;
+    }
+    os << "]";
+    return os;
+}
+
+
