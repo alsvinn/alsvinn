@@ -142,12 +142,16 @@ public:
 
 TEST_P(TecnoDiffusionTest, OrderTest) {
 
-    std::vector<real> errors;
-    std::vector<real> resolutions;
+    // we check for each component, to make sure none
+    // of the components are always zero eg.
+    std::vector<std::vector<real>> errors;
+    std::vector<std::vector<real>> resolutions;
 
     const int minK = 5;
     const int maxK = 14;
+
     for (int k = minK; k < maxK; ++k) {
+        
         const int nx = 1 << k;
 
         auto data = makeSetup(nx);
@@ -163,38 +167,54 @@ TEST_P(TecnoDiffusionTest, OrderTest) {
 
         outputVolume->copyTo(*outputVolumeCPU);
 
-        double L1Norm = 0;
-        volume::for_each_internal_volume_index<0>(*outputVolumeCPU, [&](size_t, size_t index, size_t) {
-            for (size_t i = 0; i < outputVolumeCPU->getNumberOfVariables(); ++i) {
-                
+        if (errors.size() == 0) {
+            errors.resize(outputVolume->getNumberOfVariables());
+            resolutions.resize(outputVolume->getNumberOfVariables());
+        }
+
+        for (size_t i = 0; i < outputVolumeCPU->getNumberOfVariables(); ++i) {
+           
+            double L1Norm = 0;
+            volume::for_each_internal_volume_index<0>(*outputVolumeCPU, [&](size_t, size_t index, size_t) {
+
+
                 L1Norm += std::abs(outputVolumeCPU->getScalarMemoryArea(i)->getPointer()[index]);
-            }
-        });
 
-        std::cout << std::log(real(nx)) << ", " << L1Norm/nx << "], " << std::endl;
+            });
 
-        errors.push_back(std::log(L1Norm/nx));
-        resolutions.push_back(std::log(real(nx)));
+
+            errors[i].push_back(std::log(L1Norm / nx));
+            resolutions[i].push_back(std::log(real(nx)));
+        }
     }
-    std::cout << -linearFit(resolutions, errors)[0] << std::endl;
-    ASSERT_LE(parameters.expectedConvergenceRate, -linearFit(resolutions, errors)[0]);
+
+    for (size_t i = 0; i < errors.size(); ++i) {
+       
+        ASSERT_LE(parameters.expectedConvergenceRate, -linearFit(resolutions[i], errors[i])[0]);
+    }
 
 
 }
 
+
+
 INSTANTIATE_TEST_CASE_P(TecnoDiffusionTests,
     TecnoDiffusionTest,
     ::testing::Values(
-        DiffusionParameters("cpu", "burgers", "tecnoroe", "none", 0.9),
-        DiffusionParameters("cpu", "burgers", "tecnoroe", "eno2", 1.9),
-        DiffusionParameters("cpu", "burgers", "tecnoroe", "eno3", 2.9),
-        DiffusionParameters("cuda", "burgers", "tecnoroe", "none", 0.9),
-        DiffusionParameters("cuda", "burgers", "tecnoroe", "eno2", 1.9),
-        DiffusionParameters("cuda", "burgers", "tecnoroe", "eno3", 2.9),
-        DiffusionParameters("cpu", "euler", "tecnoroe", "none", 0.9),
-        DiffusionParameters("cpu", "euler", "tecnoroe", "eno2", 1.9),
-        DiffusionParameters("cpu", "euler", "tecnoroe", "eno3", 2.9),
-        DiffusionParameters("cuda", "euler", "tecnoroe", "none", 0.9),
-        DiffusionParameters("cuda", "euler", "tecnoroe", "eno2", 1.9),
-        DiffusionParameters("cuda", "euler", "tecnoroe", "eno3", 2.9)
+        DiffusionParameters("cpu", "burgers", "tecnoroe", "none", 1.9),
+        DiffusionParameters("cpu", "burgers", "tecnoroe", "eno2", 2.9),
+        DiffusionParameters("cpu", "burgers", "tecnoroe", "eno3", 3.8),
+        DiffusionParameters("cpu", "burgers", "tecnoroe", "eno4", 3.9),
+        DiffusionParameters("cuda", "burgers", "tecnoroe", "none", 1.9),
+        DiffusionParameters("cuda", "burgers", "tecnoroe", "eno2", 2.9),
+        DiffusionParameters("cuda", "burgers", "tecnoroe", "eno3", 3.8),
+        DiffusionParameters("cuda", "burgers", "tecnoroe", "eno4", 3.9),
+        DiffusionParameters("cpu", "euler", "tecnoroe", "none", 1.9),
+        DiffusionParameters("cpu", "euler", "tecnoroe", "eno2", 2.9),
+        DiffusionParameters("cpu", "euler", "tecnoroe", "eno3", 3.8),
+        DiffusionParameters("cpu", "euler", "tecnoroe", "eno4", 3.9),
+        DiffusionParameters("cuda", "euler", "tecnoroe", "none", 1.9),
+        DiffusionParameters("cuda", "euler", "tecnoroe", "eno2", 2.9),
+        DiffusionParameters("cuda", "euler", "tecnoroe", "eno3", 3.8), 
+        DiffusionParameters("cuda", "euler", "tecnoroe", "eno4", 3.9)
         ));

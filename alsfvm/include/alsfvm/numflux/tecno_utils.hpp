@@ -12,7 +12,7 @@ namespace alsfvm {
             return right - left;
         }
         inline __device__ __host__ real ln(real left, real right) {
-            if (diff(left, right) == 0) {
+            if (diff(left, right) == 0 || diff(log(left), log(right)) == 0) {
                 return 0;
             }
             return diff(left, right) / diff(log(left), log(right));

@@ -4,6 +4,7 @@
 #include "alsfvm/diffusion/RoeMatrix.hpp"
 #include "alsfvm/equation/equation_list.hpp"
 #include <iostream>
+#include <fstream>
 
 namespace alsfvm { namespace diffusion { 
     namespace {
@@ -27,7 +28,9 @@ namespace alsfvm { namespace diffusion {
 
                     reconstruction.performReconstruction(variableVolumeEntropy, direction, 0, variableVolumeLeft, variableVolumeRight);
                 }
-
+                //static int counter = 0;
+                //counter++;
+                //std::ofstream outFile("blah_" + std::to_string(counter) + ".txt");
                 typename Equation::Views leftView(left);
                 typename Equation::Views rightView(right);
                 typename Equation::ConstViews conservedView(conservedVolume);
@@ -42,10 +45,10 @@ namespace alsfvm { namespace diffusion {
 
                         DiffusionMatrix<Equation, direction> matrix(equation, conservedValues);
 
-                        return -0.5*(equation.template computeEigenVectorMatrix<direction>(conservedValues) * (matrix * ((equation.template computeEigenVectorMatrix<direction>(conservedValues).transposed())* (leftValues - rightValues))));
+                        return 0.5*(equation.template computeEigenVectorMatrix<direction>(conservedValues) * (matrix * ((equation.template computeEigenVectorMatrix<direction>(conservedValues).transposed())* (rightValues - leftValues))));
                     };
 
-
+                    //outFile << (diffusion(middleIndex, rightIndex) - diffusion(leftIndex, middleIndex))[1] << std::endl;
                     equation.addToViewAt(outputView, middleIndex, diffusion(middleIndex, rightIndex) - diffusion(leftIndex, middleIndex));
                 }, make_direction_vector(direction), make_direction_vector(direction));
             

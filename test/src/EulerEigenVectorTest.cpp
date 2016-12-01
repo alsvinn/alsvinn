@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "utils/polyfit.hpp"
+#include "alsfvm/diffusion/RoeMatrix.hpp"
 using namespace alsfvm;
 using namespace alsfvm::equation::euler;
 
@@ -38,8 +39,11 @@ struct EulerEigenVectorTest : public ::testing::Test {
         A(3, 2) = 0;
         A(3, 3) = u;
         A(3, 4) = 0;
-
-        A(4, 0) = 0.5*u*((gamma - 3)*H - a*a);
+        auto m1 = conservedVariables.m.x;
+        auto m2 = conservedVariables.m.y;
+        auto m3 = conservedVariables.m.z;
+        A(4, 0) = 0.5*(gamma-1)*m1*(m1*m1+m2*m2+m3*m3)/(rho*rho*rho)-(m1*(E+(gamma-1)*(E-0.5*(m1*m1+m2*m2+m3*m3)/(rho))))/(rho*rho); //0.5*u*((gamma - 3)*H - a*a);
+        //A(4, 0) = 0.5*u*((gamma - 3)*H - a*a);
         A(4, 1) = H - gammaHat*u*u;
         A(4, 2) = -gammaHat*u*v;
         A(4, 3) = -gammaHat*u*w;
@@ -72,7 +76,7 @@ TEST_F(EulerEigenVectorTest, JacobianTest) {
     std::vector<real> resolutions;
     std::vector<real> errors;
 
-    for (int k = 3; k < 30; ++k) {
+    for (int k = 3; k < 25; ++k) {
         real error = 0;
         int N = 2 << k;
         real h = 1.0 / N;
@@ -90,11 +94,11 @@ TEST_F(EulerEigenVectorTest, JacobianTest) {
                 approx(j, d) = diff[j];
             }
         }
-        if (k == 5 || k == 10 || k == 29) {
-            std::cout << "Approx = " << approx << std::endl;
-            std::cout << "Real   = " << A << std::endl;
+        if (k == 5 || k == 10 || k == 24) {
+          //  std::cout << "Approx = " << approx << std::endl;
+           // std::cout << "Real   = " << A << std::endl;
         }
-        std::cout << "error = " << error << std::endl;
+        //std::cout << "error = " << error << std::endl;
         resolutions.push_back(std::log(h));
         errors.push_back(std::log(sqrtf(error)));
 
@@ -135,7 +139,7 @@ TEST_F(EulerEigenVectorTest, EigenValuesEigenVectors) {
             }
         }
         for (int j = 0; j < 5; ++j) {
-            EXPECT_NEAR(eigenValues[i] * eigenVector[j], eigenVectorMultipliedByA[j], 1e-5)
+            EXPECT_NEAR(eigenValues[i] * eigenVector[j], eigenVectorMultipliedByA[j], 1e-6)
                 << "Mismatch eigenvector " << i << ", component " << j << std::endl
                 << "\teigenVector = " << eigenVector << std::endl
                 << "\teigenValue  = " << eigenValues[i] << std::endl
@@ -143,5 +147,69 @@ TEST_F(EulerEigenVectorTest, EigenValuesEigenVectors) {
                 << "\tresult      = " << eigenVectorMultipliedByA << std::endl
                 << "\tscalings    = " << scaling << std::endl;
         }
+    }
+}
+
+TEST_F(EulerEigenVectorTest, PositiveDefiniteTest) {
+    auto eigenVectors = equation.computeEigenVectorMatrix<0>(conservedVariables);
+    alsfvm::diffusion::RoeMatrix<alsfvm::equation::euler::Euler, 0> roeMatrix(equation, conservedVariables);
+    auto eigenVectorsTransposed = eigenVectors.transposed();
+    matrix5 roeMatrixTimesEigenVectors;
+
+    for (int column = 0; column < 5; ++column) {
+        rvec5 columnVector;
+        for (int row = 0; row < 5; ++row) {
+            columnVector[row] = eigenVectorsTransposed(row, column);
+        }
+
+        auto multiplied = roeMatrix * columnVector;
+
+        for (int row = 0; row < 5; ++row) {
+            roeMatrixTimesEigenVectors(row, column) = multiplied[row];
+        }
+    }
+
+    auto finalMatrix = eigenVectors * roeMatrixTimesEigenVectors;
+
+    // check symmetric:
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < i; ++j) {
+            ASSERT_FLOAT_EQ(finalMatrix(i, j), finalMatrix(j, i));
+        }
+    }
+
+
+}
+
+TEST_F(EulerEigenVectorTest, ProductTest) {
+    auto eigenVectors = equation.computeEigenVectorMatrix<0>(conservedVariables);
+    alsfvm::diffusion::RoeMatrix<alsfvm::equation::euler::Euler, 0> roeMatrix(equation, conservedVariables);
+    auto eigenVectorsTransposed = eigenVectors.transposed();
+    matrix5 roeMatrixTimesEigenVectors;
+
+    for (int column = 0; column < 5; ++column) {
+        rvec5 columnVector;
+        for (int row = 0; row < 5; ++row) {
+            columnVector[row] = eigenVectorsTransposed(row, column);
+        }
+
+        auto multiplied = roeMatrix * columnVector;
+
+        for (int row = 0; row < 5; ++row) {
+            roeMatrixTimesEigenVectors(row, column) = multiplied[row];
+        }
+    }
+
+    auto finalMatrix = eigenVectors * roeMatrixTimesEigenVectors;
+
+    rvec5 vector{ 1,2,3,4,5 };
+
+    // check that (A*D*A.T v = (A*D*A.T)*v)
+
+    auto vectorMultiplied1 = equation.template computeEigenVectorMatrix<0>(conservedVariables) * (roeMatrix * ((equation.template computeEigenVectorMatrix<0>(conservedVariables).transposed())*vector));
+    auto vectorMultiplied2 = finalMatrix * vector;
+
+    for (int i = 0; i < 5; ++i) {
+        ASSERT_FLOAT_EQ(vectorMultiplied1[i], vectorMultiplied2[i]);
     }
 }

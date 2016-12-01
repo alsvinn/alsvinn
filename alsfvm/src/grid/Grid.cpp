@@ -11,7 +11,17 @@ namespace alsfvm {
             int dimensionY = dimensions[1];
             int dimensionZ = dimensions[2];
 
-            return (top-origin) / rvec3(dimensionX, dimensionY, dimensionZ);
+            auto lengths = (top-origin) / rvec3(dimensionX, dimensionY, dimensionZ);
+
+            if (dimensionY == 1) {
+                lengths[1] = 1;
+            }
+
+            if (dimensionZ == 1) {
+                lengths[2] = 1;
+            }
+
+            return lengths;
         }
     }
 		/// 

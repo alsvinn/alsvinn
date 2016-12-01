@@ -97,7 +97,7 @@ namespace alsfvm {
                 const size_t blockSize = 128;
                 CUDA_CHECK_IF_DEBUG;
 
-                std::cout << (size + blockSize - 1) / blockSize << std::endl;
+                
                 computeEntropyVariables<Equation, direction> << <(size + blockSize - 1) / blockSize, blockSize >> >(equation, entropyVariablesView, conservedView);
                 CUDA_CHECK_IF_DEBUG;
 

@@ -74,6 +74,12 @@ bool CPUCellComputer<Equation>::obeysConstraints(const volume::Volume& conserved
         for (size_t i = 0; i < sizeof(conserved)/sizeof(real); i++) {
             if (std::isnan(conservedAsRealPtr[i]) || std::isinf(conservedAsRealPtr[i])) {
                 obeys = false;
+                std::cerr << "Component (conserved)" << i << " isnan or inf" << " at index " << index << std::endl;
+                std::cerr << "values are: " << std::endl;
+                for (size_t j = 0; j < sizeof(conserved) / sizeof(real); j++) {
+                    std::cout << conservedAsRealPtr[j] << std::endl;
+                }
+                std::cout << std::endl << std::endl;
             }
         }
 
@@ -86,6 +92,7 @@ bool CPUCellComputer<Equation>::obeysConstraints(const volume::Volume& conserved
             }
         }
         if (!eq.obeysConstraints(conserved, extra)) {
+            std::cerr << "Does not obey constraint at" << index << std::endl;
 			obeys = false;
 		}
 	});

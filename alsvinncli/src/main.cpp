@@ -3,7 +3,22 @@
 #include <boost/chrono.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <omp.h>
+#ifdef _WIN32 
+#ifndef NDEBUG
+#include <float.h> // enable floating point exceptions on windows.
+// see https://msdn.microsoft.com/en-us/library/aa289157(VS.71).aspx#floapoint_topic8
+#endif
+#endif
 int main(int argc, char** argv) {
+#ifdef _WIN32 
+#ifndef NDEBUG
+    // see https://msdn.microsoft.com/en-us/library/aa289157(VS.71).aspx#floapoint_topic8
+    _clearfp();
+    unsigned int fp_control_state = _controlfp(_EM_ZERODIVIDE, _MCW_EM);//_controlfp(_EM_INEXACT, _MCW_EM);
+    //feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+    
+#endif
+#endif
 	try {
 	        auto wallStart = boost::posix_time::second_clock::local_time();
 		auto timeStart = boost::chrono::thread_clock::now();
@@ -28,7 +43,9 @@ int main(int argc, char** argv) {
 
 		int lastPercentSeen = -1;
         size_t timestepsPerformed = 0;
+        
 		while (!simulator->atEnd()) {
+
 			simulator->performStep();
             timestepsPerformed++;
 			int percentDone = std::round(100.0 * simulator->getCurrentTime() / simulator->getEndTime());

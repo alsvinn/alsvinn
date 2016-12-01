@@ -250,7 +250,7 @@ namespace alsfvm {
                     const ExtraVariables& v) const
 				{
 
-                    return u.rho < INFINITY && (u.rho == u.rho) && (u.rho > 0) && (v.p > 0);
+                    return isfinite( u.rho ) && (u.rho == u.rho) && (u.rho > 0) && (v.p > 0);
 				}
 
                 __device__ __host__ AllVariables makeAllVariables(real rho, real mx, real my, real mz, real E) const {
@@ -383,7 +383,7 @@ namespace alsfvm {
                         matrixWithEigenVectors(4, 3) = primitive.u.z;
                         matrixWithEigenVectors(4, 4) = H + primitive.u.x*a;
                         
-                        return matrixWithEigenVectors;
+                        return matrixWithEigenVectors.normalized();
                     }
                     else if (direction == 1) {
                         // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
