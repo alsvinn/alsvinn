@@ -6,9 +6,9 @@ using namespace alsfvm::equation::euler;
 
 TEST(TecnoTest, TestTecnoVariables) {
     EulerParameters parameters;
-    Euler equation(parameters);
+    Euler<3> equation(parameters);
 
-    ConservedVariables conserved(10,0,0,0,14);
+    ConservedVariables<3> conserved(10, rvec3{ 0,0,0 }, 14);
 
     auto primitive = equation.computePrimitiveVariables(conserved);
 

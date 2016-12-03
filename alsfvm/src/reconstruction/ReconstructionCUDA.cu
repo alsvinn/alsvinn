@@ -148,8 +148,14 @@ namespace alsfvm {
 
         }
 
-        template class ReconstructionCUDA < WENOF2<equation::euler::Euler>, equation::euler::Euler>;
-        template class ReconstructionCUDA < WENO2<equation::euler::Euler>, equation::euler::Euler>;
+        template class ReconstructionCUDA < WENOF2<equation::euler::Euler<1> >, equation::euler::Euler<1> >;
+        template class ReconstructionCUDA <  WENO2<equation::euler::Euler<1> >, equation::euler::Euler<1> >;
+
+        template class ReconstructionCUDA < WENOF2<equation::euler::Euler<2> >, equation::euler::Euler<2> >;
+        template class ReconstructionCUDA <  WENO2<equation::euler::Euler<2> >, equation::euler::Euler<2> >;
+
+        template class ReconstructionCUDA < WENOF2<equation::euler::Euler<3> >, equation::euler::Euler<3> >;
+        template class ReconstructionCUDA <  WENO2<equation::euler::Euler<3> >, equation::euler::Euler<3> >;
         template class ReconstructionCUDA < WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>;
     }
 }

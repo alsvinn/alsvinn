@@ -16,11 +16,11 @@ TEST(PythonInitialDataTest, AnswerToEverything) {
 
 
     alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(new DeviceConfiguration);
-    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler", "cpu");
+    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler3", "cpu");
     equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
     auto cellComputer = cellComputerFactory.createComputer();
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
-    volume::VolumeFactory volumeFactory("euler", memoryFactory);
+    volume::VolumeFactory volumeFactory("euler3", memoryFactory);
     size_t nx = 10;
     size_t ny = 10;
     size_t nz = 1;
@@ -54,11 +54,11 @@ TEST(PythonInitialDataTest, AnswerToEverything) {
 TEST(PythonInitialDataTest, RiemannProblem) {
 
     alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(new DeviceConfiguration);
-    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler", "cpu");
+    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler3", "cpu");
     equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
     auto cellComputer = cellComputerFactory.createComputer();
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
-    volume::VolumeFactory volumeFactory("euler", memoryFactory);
+    volume::VolumeFactory volumeFactory("euler3", memoryFactory);
     size_t nx = 10;
     size_t ny = 10;
     size_t nz = 1;
@@ -109,11 +109,11 @@ TEST(PythonInitialDataTest, RiemannProblem) {
 TEST(PythonInitialDataTest, SineCosineExp) {
 
     alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(new DeviceConfiguration);
-    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler", "cpu");
+    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler3", "cpu");
     equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
     auto cellComputer = cellComputerFactory.createComputer();
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
-    volume::VolumeFactory volumeFactory("euler", memoryFactory);
+    volume::VolumeFactory volumeFactory("euler3", memoryFactory);
     size_t nx = 10;
     size_t ny = 10;
     size_t nz = 1;

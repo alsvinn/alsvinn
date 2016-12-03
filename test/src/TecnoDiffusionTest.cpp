@@ -120,7 +120,7 @@ public:
                 volumeCPU->getScalarMemoryArea(i)->getPointer()[index] = averageIntegralF(a,b);
             }
 
-            if (parameters.equation == "euler") {
+            if (parameters.equation == "euler1" || parameters.equation == "euler2" || parameters.equation == "euler3") {
                 // make sure the energy is compatible
                 volumeCPU->getScalarMemoryArea(4)->getPointer()[index] = averageIntegralF(a, b) + 20;
             }
@@ -209,12 +209,28 @@ INSTANTIATE_TEST_CASE_P(TecnoDiffusionTests,
         DiffusionParameters("cuda", "burgers", "tecnoroe", "eno2", 2.9),
         DiffusionParameters("cuda", "burgers", "tecnoroe", "eno3", 3.8),
         DiffusionParameters("cuda", "burgers", "tecnoroe", "eno4", 3.9),
-        DiffusionParameters("cpu", "euler", "tecnoroe", "none", 1.9),
-        DiffusionParameters("cpu", "euler", "tecnoroe", "eno2", 2.9),
-        DiffusionParameters("cpu", "euler", "tecnoroe", "eno3", 3.8),
-        DiffusionParameters("cpu", "euler", "tecnoroe", "eno4", 3.9),
-        DiffusionParameters("cuda", "euler", "tecnoroe", "none", 1.9),
-        DiffusionParameters("cuda", "euler", "tecnoroe", "eno2", 2.9),
-        DiffusionParameters("cuda", "euler", "tecnoroe", "eno3", 3.8), 
-        DiffusionParameters("cuda", "euler", "tecnoroe", "eno4", 3.9)
+        DiffusionParameters("cpu",  "euler1", "tecnoroe", "none", 1.9),
+        DiffusionParameters("cpu",  "euler1", "tecnoroe", "eno2", 2.9),
+        DiffusionParameters("cpu",  "euler1", "tecnoroe", "eno3", 3.8),
+        DiffusionParameters("cpu",  "euler1", "tecnoroe", "eno4", 3.9),
+        DiffusionParameters("cuda", "euler1", "tecnoroe", "none", 1.9),
+        DiffusionParameters("cuda", "euler1", "tecnoroe", "eno2", 2.9),
+        DiffusionParameters("cuda", "euler1", "tecnoroe", "eno3", 3.8), 
+        DiffusionParameters("cuda", "euler1", "tecnoroe", "eno4", 3.9),
+        DiffusionParameters("cpu",  "euler2", "tecnoroe", "none", 1.9),
+        DiffusionParameters("cpu",  "euler2", "tecnoroe", "eno2", 2.9),
+        DiffusionParameters("cpu",  "euler2", "tecnoroe", "eno3", 3.8),
+        DiffusionParameters("cpu",  "euler2", "tecnoroe", "eno4", 3.9),
+        DiffusionParameters("cuda", "euler2", "tecnoroe", "none", 1.9),
+        DiffusionParameters("cuda", "euler2", "tecnoroe", "eno2", 2.9),
+        DiffusionParameters("cuda", "euler2", "tecnoroe", "eno3", 3.8),
+        DiffusionParameters("cuda", "euler2", "tecnoroe", "eno4", 3.9), 
+        DiffusionParameters("cpu",  "euler3", "tecnoroe", "none", 1.9),
+        DiffusionParameters("cpu",  "euler3", "tecnoroe", "eno2", 2.9),
+        DiffusionParameters("cpu",  "euler3", "tecnoroe", "eno3", 3.8),
+        DiffusionParameters("cpu",  "euler3", "tecnoroe", "eno4", 3.9),
+        DiffusionParameters("cuda", "euler3", "tecnoroe", "none", 1.9),
+        DiffusionParameters("cuda", "euler3", "tecnoroe", "eno2", 2.9),
+        DiffusionParameters("cuda", "euler3", "tecnoroe", "eno3", 3.8),
+        DiffusionParameters("cuda", "euler3", "tecnoroe", "eno4", 3.9)
         ));

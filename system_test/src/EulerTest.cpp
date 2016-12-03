@@ -30,7 +30,7 @@ using namespace alsfvm::numflux;
 using namespace alsfvm::equation::euler;
 using namespace alsfvm::equation;
 using namespace alsfvm::boundary;
-void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, ExtraVariables& v)> initialData, size_t N,
+void runTest(std::function<void(real x, real y, real z, ConservedVariables<2>& u, ExtraVariables<2>& v)> initialData, size_t N,
              const std::string& reconstruction, const real T, const std::string& name) {
     const real cfl = reconstruction.find("eno") != reconstruction.npos? 0.475 : 0.9;
     std::cout << "using cfl = " << cfl << std::endl;
@@ -48,10 +48,10 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
-    VolumeFactory volumeFactory("euler", memoryFactory);
+    VolumeFactory volumeFactory("euler2", memoryFactory);
 
-    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler", "cpu");
-    NumericalFluxFactory fluxFactory("euler", "HLL", reconstruction, simulatorParameters, deviceConfiguration);
+    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler2", "cpu");
+    NumericalFluxFactory fluxFactory("euler2", "HLL", reconstruction, simulatorParameters, deviceConfiguration);
     CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
     BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
 
@@ -74,7 +74,7 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
     auto extra2 = volumeFactory.createExtraVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
 
 
-    fill_volume<ConservedVariables, ExtraVariables>(*conservedVolumes[0], *extra1, grid,
+    fill_volume<ConservedVariables<2>, ExtraVariables<2>>(*conservedVolumes[0], *extra1, grid,
             initialData);
 
 
@@ -192,7 +192,7 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables& u, E
 }
 TEST(EulerTest, ShockTubeTest) {
     equation::euler::EulerParameters parameters;
-    runTest([&](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
+    runTest([&](real x, real y, real z, ConservedVariables<2>& u, ExtraVariables<2>& v) {
 
 		if (x < 0.04) {
 			u.rho = 3.86859;
@@ -218,7 +218,7 @@ TEST(EulerTest, ShockTubeTest) {
 
 TEST(EulerTest, ShockVortex) {
     equation::euler::EulerParameters parameters;
-    runTest([&](real x, real y, real z, ConservedVariables& u, ExtraVariables& v) {
+    runTest([&](real x, real y, real z, ConservedVariables<2>& u, ExtraVariables<2>& v) {
         real epsilon = 0.3, r_c = 0.05, alpha = 0.204, x_c = 0.25, y_c = 0.5;
 
 		// shock part

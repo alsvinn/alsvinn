@@ -28,14 +28,14 @@ public:
     CellComputerFactory cellComputerFactory;
     TestExtraComputation()
         : deviceConfiguration(new DeviceConfiguration("cpu")),
-          equation("euler"),
+          equation("euler3"),
           platform("cpu"),
           nx(10), ny(10), nz(10),
           memoryFactory(new MemoryFactory(deviceConfiguration)),
-          volumeFactory("euler", memoryFactory),
+          volumeFactory("euler3", memoryFactory),
           conservedVolume(volumeFactory.createConservedVolume(nx, ny, nz)),
           extraVolume(volumeFactory.createExtraVolume(nx, ny, nz)),
-          simulatorParameters(new simulator::SimulatorParameters("euler", "cpu")),
+          simulatorParameters(new simulator::SimulatorParameters("euler3", "cpu")),
           cellComputerFactory(simulatorParameters, deviceConfiguration)
     {
 
@@ -50,15 +50,15 @@ TEST_F(TestExtraComputation, CheckExtraCalculation) {
 	auto cellComputer = cellComputerFactory.createComputer();
 
 	// Fill up volume
-	transform_volume<euler::ConservedVariables, euler::ConservedVariables>
-		(*conservedVolume, *conservedVolume, [](const euler::ConservedVariables& in) -> euler::ConservedVariables {
-		return euler::ConservedVariables(0.5, 1, 1, 1, 4.4);
+	transform_volume<euler::ConservedVariables<3>, euler::ConservedVariables<3>>
+		(*conservedVolume, *conservedVolume, [](const euler::ConservedVariables<3>& in) -> euler::ConservedVariables<3> {
+        return euler::ConservedVariables<3>(0.5, rvec3{ 1, 1, 1 }, 4.4);
 	});
 
 	cellComputer->computeExtraVariables(*conservedVolume, *extraVolume);
 
     auto& eulerParameters = static_cast<euler::EulerParameters&> (simulatorParameters->getEquationParameters());
-    for_each_cell<euler::ExtraVariables>(*extraVolume, [&](const euler::ExtraVariables& in, size_t index) {
+    for_each_cell<euler::ExtraVariables<3>>(*extraVolume, [&](const euler::ExtraVariables<3>& in, size_t index) {
 		ASSERT_EQ(in.u, rvec3(2, 2, 2));
         ASSERT_EQ(in.p, (eulerParameters.getGamma() - 1)*(4.4 - 0.5 * 3 / 0.5));
 	});
@@ -69,9 +69,9 @@ TEST_F(TestExtraComputation, CheckMaximumWaveSpeed) {
 	auto cellComputer = cellComputerFactory.createComputer();
     auto& eulerParameters = static_cast<euler::EulerParameters&> (simulatorParameters->getEquationParameters());
 	// Fill up volume
-	transform_volume<euler::ConservedVariables, euler::ConservedVariables>
-		(*conservedVolume, *conservedVolume, [](const euler::ConservedVariables& in) -> euler::ConservedVariables {
-		return euler::ConservedVariables(0.5, 1, 1, 1, 4.4);
+	transform_volume<euler::ConservedVariables<3>, euler::ConservedVariables<3>>
+		(*conservedVolume, *conservedVolume, [](const euler::ConservedVariables<3>& in) -> euler::ConservedVariables<3> {
+        return euler::ConservedVariables<3>(0.5, rvec3{ 1, 1, 1 }, 4.4);
 	});
 
     const real gamma = eulerParameters.getGamma();
@@ -100,9 +100,9 @@ TEST_F(TestExtraComputation, CheckConstraints) {
 	auto cellComputer = cellComputerFactory.createComputer();
 
 	// Fill up volume
-	transform_volume<euler::ConservedVariables, euler::ConservedVariables>
-		(*conservedVolume, *conservedVolume, [](const euler::ConservedVariables& in) -> euler::ConservedVariables {
-		return euler::ConservedVariables(0.5, 1, 1, 1, 4.4);
+	transform_volume<euler::ConservedVariables<3>, euler::ConservedVariables<3>>
+		(*conservedVolume, *conservedVolume, [](const euler::ConservedVariables<3>& in) -> euler::ConservedVariables<3> {
+        return euler::ConservedVariables<3>(0.5, rvec3{ 1, 1, 1 }, 4.4);
 	});
 
 	cellComputer->computeExtraVariables(*conservedVolume, *extraVolume);

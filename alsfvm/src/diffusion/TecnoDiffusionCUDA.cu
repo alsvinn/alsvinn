@@ -215,6 +215,8 @@ namespace alsfvm {
         }
 
         template class TecnoDiffusionCUDA<::alsfvm::equation::burgers::Burgers, ::alsfvm::diffusion::RoeMatrix >;
-        template class TecnoDiffusionCUDA<::alsfvm::equation::euler::Euler, ::alsfvm::diffusion::RoeMatrix >;
+        template class TecnoDiffusionCUDA<::alsfvm::equation::euler::Euler<1>, ::alsfvm::diffusion::RoeMatrix >;
+        template class TecnoDiffusionCUDA<::alsfvm::equation::euler::Euler<2>, ::alsfvm::diffusion::RoeMatrix >;
+        template class TecnoDiffusionCUDA<::alsfvm::equation::euler::Euler<3>, ::alsfvm::diffusion::RoeMatrix >;
     }
 }

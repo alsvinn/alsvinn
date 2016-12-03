@@ -277,9 +277,17 @@ void ENOCUDA<Equation, order>::computeDividedDifferences(const memory::Memory<re
                                                              level);
 }
 
-template class ENOCUDA<alsfvm::equation::euler::Euler, 2>;
-template class ENOCUDA<alsfvm::equation::euler::Euler, 3>;
-template class ENOCUDA<alsfvm::equation::euler::Euler, 4>;
+template class ENOCUDA<alsfvm::equation::euler::Euler<1>, 2>;
+template class ENOCUDA<alsfvm::equation::euler::Euler<1>, 3>;
+template class ENOCUDA<alsfvm::equation::euler::Euler<1>, 4>;
+
+template class ENOCUDA<alsfvm::equation::euler::Euler<2>, 2>;
+template class ENOCUDA<alsfvm::equation::euler::Euler<2>, 3>;
+template class ENOCUDA<alsfvm::equation::euler::Euler<2>, 4>;
+
+template class ENOCUDA<alsfvm::equation::euler::Euler<3>, 2>;
+template class ENOCUDA<alsfvm::equation::euler::Euler<3>, 3>;
+template class ENOCUDA<alsfvm::equation::euler::Euler<3>, 4>;
 
 template class ENOCUDA<alsfvm::equation::burgers::Burgers, 2>;
 template class ENOCUDA<alsfvm::equation::burgers::Burgers, 3>;

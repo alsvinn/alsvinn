@@ -12,15 +12,15 @@ TEST(HLLTest, ConsistencyTest) {
 
 
     EulerParameters parameters;
-    Euler equation(parameters);
-	AllVariables input(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    Euler<3> equation(parameters);
+    AllVariables<3> input(1, rvec3{ 2, 3, 4 }, 5, 6, rvec3{ 7, 8, 9 });
 	// Test for each direction
 	{
 
-		ConservedVariables output(1, 1, 1, 1, 1);
-        HLL::computeFlux<0>(equation, input, input, output);
+        ConservedVariables<3> output(1, rvec3{ 1, 1, 1 }, 1);
+        HLL<3>::computeFlux<0>(equation, input, input, output);
 
-		ConservedVariables pointFlux(0, 0, 0, 0, 0);
+        ConservedVariables<3> pointFlux(0, rvec3{ 0, 0, 0 }, 0);
 
         equation.computePointFlux<0>(input, pointFlux);
 
@@ -31,9 +31,9 @@ TEST(HLLTest, ConsistencyTest) {
 
 	{
 
-		ConservedVariables output(1, 1, 1, 1, 1);
-        HLL::computeFlux<1>(equation, input, input, output);
-		ConservedVariables pointFlux(0, 0, 0, 0, 0);
+        ConservedVariables<3> output(1, rvec3{ 1, 1, 1 }, 1);
+        HLL<3>::computeFlux<1>(equation, input, input, output);
+        ConservedVariables<3> pointFlux(0, rvec3{ 0, 0, 0 }, 0);
 
         equation.computePointFlux<1>(input, pointFlux);
 
@@ -43,9 +43,9 @@ TEST(HLLTest, ConsistencyTest) {
 	}
 
 	{
-		ConservedVariables output(1, 1, 1, 1, 1);
-        HLL::computeFlux<2>(equation, input, input, output);
-		ConservedVariables pointFlux(0, 0, 0, 0, 0);
+        ConservedVariables<3> output(1, rvec3{ 1, 1, 1 }, 1);
+        HLL<3>::computeFlux<2>(equation, input, input, output);
+        ConservedVariables<3> pointFlux(0, rvec3{ 0, 0, 0 }, 0);
 	
         equation.computePointFlux<2>(input, pointFlux);
 

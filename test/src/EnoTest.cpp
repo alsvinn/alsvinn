@@ -34,7 +34,7 @@ TEST(EnoTest, ConstantZeroTestSecondOrder) {
     auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
-    VolumeFactory volumeFactory("euler", memoryFactory);
+    VolumeFactory volumeFactory("euler3", memoryFactory);
 	ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
 
     auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
@@ -69,7 +69,7 @@ TEST(EnoTest, ConstantZeroTestThirdOrder) {
     auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
-    VolumeFactory volumeFactory("euler", memoryFactory);
+    VolumeFactory volumeFactory("euler3", memoryFactory);
     ENOCPU<3> enoCPU(memoryFactory, nx, ny, nz);
 
     auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
@@ -104,7 +104,7 @@ TEST(EnoTest, ConstantOneTestSecondOrder) {
     auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
-    VolumeFactory volumeFactory("euler", memoryFactory);
+    VolumeFactory volumeFactory("euler3", memoryFactory);
 	ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
 	auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
 	auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
@@ -144,7 +144,7 @@ TEST(EnoTest, ConstantOneTestThirdOrder) {
     auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
-    VolumeFactory volumeFactory("euler", memoryFactory);
+    VolumeFactory volumeFactory("euler3", memoryFactory);
     ENOCPU<3> enoCPU(memoryFactory, nx, ny, nz);
     auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
     auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
@@ -183,7 +183,7 @@ TEST(EnoTest, ReconstructionSimple) {
     auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
-    VolumeFactory volumeFactory("euler", memoryFactory);
+    VolumeFactory volumeFactory("euler3", memoryFactory);
     ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
     auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
     auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
@@ -216,7 +216,7 @@ TEST(EnoTest, ReconstructionSimpleReverse) {
     auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
-    VolumeFactory volumeFactory("euler", memoryFactory);
+    VolumeFactory volumeFactory("euler3", memoryFactory);
     ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
     auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
     auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
@@ -249,7 +249,7 @@ TEST(EnoTest, ReconstructionSimpleReverseYDirection) {
     auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>();
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
-    VolumeFactory volumeFactory("euler", memoryFactory);
+    VolumeFactory volumeFactory("euler3", memoryFactory);
     ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
     auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
     auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());

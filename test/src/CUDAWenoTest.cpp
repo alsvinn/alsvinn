@@ -47,10 +47,10 @@ public:
         : grid({ 0, 0, 0 }, { 1, 1, 1 }, ivec3( nx, ny, nz )),
         deviceConfiguration(new DeviceConfiguration("cuda")),
         memoryFactory(new MemoryFactory(deviceConfiguration)),
-        volumeFactory("euler", memoryFactory),
+        volumeFactory("euler3", memoryFactory),
         deviceConfigurationCPU(new DeviceConfiguration("cpu")),
         memoryFactoryCPU(new MemoryFactory(deviceConfigurationCPU)),
-        volumeFactoryCPU("euler", memoryFactoryCPU)
+        volumeFactoryCPU("euler3", memoryFactoryCPU)
     {
         auto eulerParameters = alsfvm::make_shared<equation::euler::EulerParameters>();
 
@@ -68,7 +68,7 @@ public:
     }
 
     void makeReconstruction(const std::string& name) {
-        wenoCUDA = reconstructionFactory.createReconstruction(name, "euler", simulatorParameters, memoryFactory, grid, deviceConfiguration);
+        wenoCUDA = reconstructionFactory.createReconstruction(name, "euler3", simulatorParameters, memoryFactory, grid, deviceConfiguration);
 
         conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
         left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());

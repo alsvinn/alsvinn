@@ -60,7 +60,7 @@ TEST(VolumeTest, WriteToMemoryArea) {
 
 }
 
-TEST(VolumeTest, FactoryTestEuler) {
+TEST(VolumeTest, FactoryTestEuler3) {
 	const size_t nx = 10;
 	const size_t ny = 10;
 	const size_t nz = 10;
@@ -69,7 +69,7 @@ TEST(VolumeTest, FactoryTestEuler) {
 
 	auto factory = alsfvm::make_shared<alsfvm::memory::MemoryFactory>(configuration);
 
-	VolumeFactory volumeFactory("euler", factory);
+	VolumeFactory volumeFactory("euler3", factory);
 
 	auto eulerConserved = volumeFactory.createConservedVolume(nx, ny, nz);
 
@@ -100,4 +100,71 @@ TEST(VolumeTest, FactoryTestEuler) {
 	ASSERT_EQ(2, eulerExtra->getIndexFromName("uy"));
 	ASSERT_EQ(3, eulerExtra->getIndexFromName("uz"));
 	
+}
+
+TEST(VolumeTest, FactoryTestEuler2) {
+    const size_t nx = 10;
+    const size_t ny = 10;
+
+    auto configuration = alsfvm::make_shared<alsfvm::DeviceConfiguration>("cpu");
+
+    auto factory = alsfvm::make_shared<alsfvm::memory::MemoryFactory>(configuration);
+
+    VolumeFactory volumeFactory("euler2", factory);
+
+    auto eulerConserved = volumeFactory.createConservedVolume(nx, ny, 1);
+
+    ASSERT_EQ(4, eulerConserved->getNumberOfVariables());
+
+    ASSERT_EQ(nx, eulerConserved->getNumberOfXCells());
+
+    ASSERT_EQ(ny, eulerConserved->getNumberOfYCells());
+
+    ASSERT_EQ(0, eulerConserved->getIndexFromName("rho"));
+    ASSERT_EQ(1, eulerConserved->getIndexFromName("mx"));
+    ASSERT_EQ(2, eulerConserved->getIndexFromName("my"));
+    ASSERT_EQ(3, eulerConserved->getIndexFromName("E"));
+
+    auto eulerExtra = volumeFactory.createExtraVolume(nx, ny, 1);
+
+    ASSERT_EQ(3, eulerExtra->getNumberOfVariables());
+
+    ASSERT_EQ(nx, eulerExtra->getNumberOfXCells());
+
+    ASSERT_EQ(ny, eulerExtra->getNumberOfYCells());
+
+    ASSERT_EQ(0, eulerExtra->getIndexFromName("p"));
+    ASSERT_EQ(1, eulerExtra->getIndexFromName("ux"));
+    ASSERT_EQ(2, eulerExtra->getIndexFromName("uy"));
+}
+
+
+TEST(VolumeTest, FactoryTestEuler1) {
+    const size_t nx = 10;
+
+    auto configuration = alsfvm::make_shared<alsfvm::DeviceConfiguration>("cpu");
+
+    auto factory = alsfvm::make_shared<alsfvm::memory::MemoryFactory>(configuration);
+
+    VolumeFactory volumeFactory("euler1", factory);
+
+    auto eulerConserved = volumeFactory.createConservedVolume(nx, 1, 1);
+
+    ASSERT_EQ(4, eulerConserved->getNumberOfVariables());
+
+    ASSERT_EQ(nx, eulerConserved->getNumberOfXCells());
+
+
+    ASSERT_EQ(0, eulerConserved->getIndexFromName("rho"));
+    ASSERT_EQ(1, eulerConserved->getIndexFromName("mx"));
+    ASSERT_EQ(2, eulerConserved->getIndexFromName("E"));
+
+    auto eulerExtra = volumeFactory.createExtraVolume(nx, 1, 1);
+
+    ASSERT_EQ(2, eulerExtra->getNumberOfVariables());
+
+    ASSERT_EQ(nx, eulerExtra->getNumberOfXCells());
+
+    ASSERT_EQ(0, eulerExtra->getIndexFromName("p"));
+    ASSERT_EQ(1, eulerExtra->getIndexFromName("ux"));
 }

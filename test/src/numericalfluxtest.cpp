@@ -31,7 +31,7 @@ public:
 	const size_t nz;
 
     NumericalFluxTest()
-        : equation("euler"), flux("HLL"), reconstruction("none"),
+        : equation("euler3"), flux("HLL"), reconstruction("none"),
           deviceConfiguration(new DeviceConfiguration("cpu")),
           simulatorParameters(new simulator::SimulatorParameters(equation, "cpu")),
           fluxFactory(equation, flux, reconstruction, simulatorParameters, deviceConfiguration),
@@ -58,8 +58,8 @@ TEST_F(NumericalFluxTest, ConsistencyTest) {
 
     auto boundary = boundaryFactory.createBoundary(1);
 
-    volume::fill_volume<equation::euler::ConservedVariables>(*conservedVariables, grid,
-                                                             [](real x, real y, real z, equation::euler::ConservedVariables& out) {
+    volume::fill_volume<equation::euler::ConservedVariables<3>>(*conservedVariables, grid,
+                                                             [](real x, real y, real z, equation::euler::ConservedVariables<3>& out) {
         out.rho = 1;
         out.m.x = 1;
         out.m.y = 1;

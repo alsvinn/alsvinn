@@ -8,12 +8,12 @@ TEST(EulerEquationTest, FluxTest) {
 
 	// First we check that we get the correct output if everything is one
 
-	AllVariables input(1, 1, 1, 1, 1, 1, 1, 1, 1);
+    AllVariables<3> input(1, rvec3{ 1, 1, 1 }, 1, 1, rvec3{ 1, 1, 1 });
 
     EulerParameters parameters;
-    Euler equation(parameters);
+    Euler<3> equation(parameters);
 	{
-		ConservedVariables output(0, 0, 0, 0, 0);
+        ConservedVariables<3> output(0, rvec3{ 0, 0, 0 }, 0);
 
         equation.computePointFlux < 0 >(input, output);
 
@@ -24,7 +24,7 @@ TEST(EulerEquationTest, FluxTest) {
 
 		
 	{
-		ConservedVariables output(0, 0, 0, 0, 0);
+        ConservedVariables<3> output(0, rvec3{ 0, 0, 0 }, 0);
         equation.computePointFlux < 1 >(input, output);
 		ASSERT_EQ(output.E, 2);
 		ASSERT_EQ(output.m, rvec3(1, 2, 1));
@@ -32,7 +32,7 @@ TEST(EulerEquationTest, FluxTest) {
 	}
 
 	{
-		ConservedVariables output(0, 0, 0, 0, 0);
+        ConservedVariables<3> output(0, rvec3{ 0, 0, 0 }, 0);
 
         equation.computePointFlux < 2 >(input, output);
 

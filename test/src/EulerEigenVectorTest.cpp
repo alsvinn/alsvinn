@@ -10,7 +10,7 @@ struct EulerEigenVectorTest : public ::testing::Test {
         : equation(parameters),
         gamma(parameters.getGamma()),
         gammaHat(gamma-1),
-        primitiveVariables(rho, u, v, w, p),
+        primitiveVariables(rho, rvec3{ u, v, w }, p),
         conservedVariables(equation.computeConserved(primitiveVariables)),
         E(conservedVariables.E),
         H((E + p) / rho),
@@ -51,7 +51,7 @@ struct EulerEigenVectorTest : public ::testing::Test {
     }
 
     EulerParameters parameters;
-    Euler equation;
+    Euler<3> equation;
     const real gamma;
     const real gammaHat;
 
@@ -62,8 +62,8 @@ struct EulerEigenVectorTest : public ::testing::Test {
     const double rho = 3;
     const double p = 5;
 
-    PrimitiveVariables primitiveVariables;
-    ConservedVariables conservedVariables;
+    PrimitiveVariables<3> primitiveVariables;
+    ConservedVariables<3> conservedVariables;
     real E;
     real H;
     real a;
@@ -82,7 +82,7 @@ TEST_F(EulerEigenVectorTest, JacobianTest) {
         real h = 1.0 / N;
         matrix5 approx;
         for (int d = 0; d < 5; ++d) {
-            ConservedVariables delta;
+            ConservedVariables<3> delta;
             delta[d] = h;
             auto uPlusDelta = conservedVariables + delta;
 
@@ -152,7 +152,7 @@ TEST_F(EulerEigenVectorTest, EigenValuesEigenVectors) {
 
 TEST_F(EulerEigenVectorTest, PositiveDefiniteTest) {
     auto eigenVectors = equation.computeEigenVectorMatrix<0>(conservedVariables);
-    alsfvm::diffusion::RoeMatrix<alsfvm::equation::euler::Euler, 0> roeMatrix(equation, conservedVariables);
+    alsfvm::diffusion::RoeMatrix<alsfvm::equation::euler::Euler<3>, 0> roeMatrix(equation, conservedVariables);
     auto eigenVectorsTransposed = eigenVectors.transposed();
     matrix5 roeMatrixTimesEigenVectors;
 
@@ -183,7 +183,7 @@ TEST_F(EulerEigenVectorTest, PositiveDefiniteTest) {
 
 TEST_F(EulerEigenVectorTest, ProductTest) {
     auto eigenVectors = equation.computeEigenVectorMatrix<0>(conservedVariables);
-    alsfvm::diffusion::RoeMatrix<alsfvm::equation::euler::Euler, 0> roeMatrix(equation, conservedVariables);
+    alsfvm::diffusion::RoeMatrix<alsfvm::equation::euler::Euler<3>, 0> roeMatrix(equation, conservedVariables);
     auto eigenVectorsTransposed = eigenVectors.transposed();
     matrix5 roeMatrixTimesEigenVectors;
 

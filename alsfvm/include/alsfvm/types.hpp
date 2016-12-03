@@ -84,14 +84,62 @@ namespace alsfvm {
 
     typedef matrix<real, 1, 1> matrix1;
 
+    typedef matrix<real, 2, 2> matrix2;
+    typedef matrix<real, 3, 3> matrix3;
+    typedef matrix<real, 4, 4> matrix4;
     typedef matrix<real, 5, 5> matrix5;
 
-	///
-	/// The available types we have
-	///
-	enum Types {
-		REAL
+	template<int nsd>
+	struct Types {
+		// empty
 	};
+
+    template<>
+    struct Types<1> {
+        typedef rvec1 rvec;
+        typedef ivec1 ivec;
+        template<class T>
+        using vec = vec1<T>;
+        typedef matrix1 matrix;
+    };
+
+    template<>
+    struct Types<2> {
+        typedef rvec2 rvec;
+        typedef ivec2 ivec;
+        template<class T>
+        using vec = vec2<T>;
+        typedef matrix2 matrix;
+    };
+
+    template<>
+    struct Types<3> {
+        typedef rvec3 rvec;
+        typedef ivec3 ivec;
+        template<class T>
+        using vec = vec3<T>;
+        typedef matrix3 matrix;
+    };
+
+    template<>
+    struct Types<4> {
+        typedef rvec4 rvec;
+        typedef ivec4 ivec;
+        template<class T>
+        using vec = vec4<T>;
+        typedef matrix4 matrix;
+    };
+
+    template<>
+    struct Types<5> {
+        typedef rvec5 rvec;
+        typedef ivec5 ivec;
+        template<class T>
+        using vec = vec5<T>;
+        typedef matrix5 matrix;
+    };
+
+
 
     ///
     /// Computes the square of x
@@ -100,6 +148,8 @@ namespace alsfvm {
     inline __host__ __device__ real square(const real& x) {
         return x * x;
     }
+
+
 }
 
 #ifdef ALSVINN_USE_QUADMATH

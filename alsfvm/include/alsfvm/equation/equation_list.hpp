@@ -17,7 +17,9 @@ namespace alsfvm { namespace equation {
 ///
 /// \brief EquationList is a type list of all equations available.
 ///
-    typedef boost::fusion::vector<EquationInformation<euler::Euler>,
+    typedef boost::fusion::vector<EquationInformation<euler::Euler<1>>,
+        EquationInformation<euler::Euler<2>>,
+        EquationInformation<euler::Euler<3>>,
                        EquationInformation<burgers::Burgers> > EquationList;
 
 ///
@@ -48,5 +50,7 @@ namespace alsfvm { namespace equation {
 /// Macro to instantiate a class for every equation available.
 ///
 #define ALSFVM_EQUATION_INSTANTIATE(X) \
-    template class X< ::alsfvm::equation::euler::Euler>; \
+    template class X< ::alsfvm::equation::euler::Euler<1> >; \
+    template class X< ::alsfvm::equation::euler::Euler<2> >; \
+    template class X< ::alsfvm::equation::euler::Euler<3> >; \
     template class X< ::alsfvm::equation::burgers::Burgers>;

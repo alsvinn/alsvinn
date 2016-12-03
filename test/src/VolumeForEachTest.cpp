@@ -25,11 +25,11 @@ public:
 
 	VolumeForEachTest()
 		: deviceConfiguration(new DeviceConfiguration("cpu")),
-		equation("euler"),
+		equation("euler3"),
 		platform("cpu"),
 		nx(10), ny(10), nz(10),
 		memoryFactory(new MemoryFactory(deviceConfiguration)),
-		volumeFactory("euler", memoryFactory),
+		volumeFactory("euler3", memoryFactory),
 		conservedVolume(volumeFactory.createConservedVolume(nx, ny, nz)),
 		extraVolume(volumeFactory.createExtraVolume(nx, ny, nz))
 	{

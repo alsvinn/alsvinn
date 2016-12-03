@@ -12,7 +12,7 @@ using namespace alsfvm::boundary;
 struct BoundaryTest : public ::testing::Test {
     alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
 	alsfvm::shared_ptr<MemoryFactory> memoryFactory;
-    std::string equation = "euler";
+    std::string equation = "euler3";
 	alsfvm::shared_ptr<VolumeFactory> volumeFactory;
     size_t nx = 10, ny=11, nz=12;
     size_t ghostCells = 2;
@@ -41,7 +41,7 @@ TEST_F(BoundaryTest, NeumannTest2CellsConstant) {
     auto volume = volumeFactory->createConservedVolume(nx, ny, nz, ghostCells);
     volume->makeZero();
     const real C = 10;
-    fill_volume<equation::euler::ConservedVariables>(*volume, grid, [&](real x, real y, real z, equation::euler::ConservedVariables& out) {
+    fill_volume<equation::euler::ConservedVariables<3>>(*volume, grid, [&](real x, real y, real z, equation::euler::ConservedVariables<3>& out) {
         out.E = C;
         out.m.x = C;
         out.m.y = C;
@@ -176,7 +176,7 @@ TEST_F(BoundaryTest, PeriodicTest2CellsConstant) {
     auto volume = volumeFactory->createConservedVolume(nx, ny, nz, ghostCells);
     volume->makeZero();
     const real C = 10;
-    fill_volume<equation::euler::ConservedVariables>(*volume, grid, [&](real x, real y, real z, equation::euler::ConservedVariables& out) {
+    fill_volume<equation::euler::ConservedVariables<3>>(*volume, grid, [&](real x, real y, real z, equation::euler::ConservedVariables<3>& out) {
         out.E = C;
         out.m.x = C;
         out.m.y = C;

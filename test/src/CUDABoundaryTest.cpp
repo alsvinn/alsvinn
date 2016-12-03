@@ -22,7 +22,7 @@ public:
 	CUDABoundaryTest()
         :
 		nx(10), ny(10), nz(1),
-        equation("euler"),
+        equation("euler3"),
         deviceConfiguration(new DeviceConfiguration("cuda")),
 		grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(nx, ny, nz)),
 		memoryFactory(new memory::MemoryFactory(deviceConfiguration)),

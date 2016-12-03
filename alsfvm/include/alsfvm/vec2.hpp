@@ -15,6 +15,13 @@ namespace alsfvm {
         {
 
         }
+
+        __device__ __host__ vec2(T t) :
+            x(t), y(t)
+        {
+
+        }
+
         __device__ __host__ vec2(T x, T y)
             : x(x), y(y)
         {

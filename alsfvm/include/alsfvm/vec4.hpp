@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "alsfvm/vec2.hpp"
 namespace alsfvm {
 
     ///
@@ -19,6 +20,18 @@ namespace alsfvm {
         }
         __device__ __host__ vec4(T x, T y, T z, T v)
             : x(x), y(y), z(z), v(v)
+        {
+            // Empty
+        }
+
+        __device__ __host__ vec4(T t) :
+            x(t), y(t), z(t),v(t)
+        {
+
+        }
+
+        __device__ __host__ vec4(T x, vec2<T> y, T z)
+            : x(x), y(y.x), z(y.y), v(z)
         {
             // Empty
         }

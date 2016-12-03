@@ -260,7 +260,7 @@ void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree &configu
     auto fvmNode = configuration.get_child("fvm");
     if (fvmNode.find("equationParameters") != fvmNode.not_found()) {
         const auto equationName = readEquation(configuration);
-        if (equationName== "euler") {
+        if (equationName== "euler1" || equationName == "euler2" || equationName == "euler3") {
 
             auto& eulerParameters = static_cast<equation::euler::EulerParameters&>(equationParameters);
 

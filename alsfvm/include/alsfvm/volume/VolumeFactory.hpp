@@ -15,7 +15,7 @@ namespace alsfvm { namespace volume {
 
 		/// 
 		/// Constructs the factory.
-		/// \param equation the equation name ("euler", "sw", etc.)
+		/// \param equation the equation name ("euler1", "euler2", "euler3", "sw", etc.)
 		/// \param memoryFactory the memory factory to use
 		///
 		VolumeFactory(const std::string& equation,

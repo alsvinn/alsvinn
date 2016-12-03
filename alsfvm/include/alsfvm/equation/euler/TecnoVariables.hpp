@@ -13,16 +13,40 @@ namespace alsfvm { namespace equation { namespace euler {
     //!
     //! \f[\vec{z} = \left(\begin{array}{l} \sqrt{\frac{\rho}{p}}\\ \sqrt{\frac{\rho}{p}}u\\ \sqrt{\frac{\rho}{p}}v\\ \sqrt{\rho p}\end{array}\right).\f]
     //!
+    template<int nsd>
     class TecnoVariables {
     public:
-        __device__ __host__ TecnoVariables(real z1, real z2, real z3, real z4, real z5) :
-            z(z1, z2, z3, z4, z5)
-        {
-            // empty
-        }
+        typedef typename Types<nsd + 2>::rvec state_vector;
+        typedef typename Types<nsd>::rvec rvec;
 
-        vec5<real> z;
+
+        __device__ __host__ TecnoVariables(real z1, rvec zu, real z5);
+
+        state_vector z;
     };
+
+    template<>
+    __device__ __host__ TecnoVariables<1>::TecnoVariables(real z1, rvec1 zu, real z5)
+        : z(z1, zu.x, z5)
+    {
+        // empty
+    }
+
+    template<>
+    __device__ __host__ TecnoVariables<2>::TecnoVariables(real z1, rvec2 zu, real z5)
+        : z(z1, zu.x, zu.y, z5)
+    {
+        // empty
+    }
+
+
+    template<>
+    __device__ __host__ TecnoVariables<3>::TecnoVariables(real z1, rvec3 zu, real z5)
+        : z(z1, zu.x, zu.y, zu.z, z5)
+    {
+        // empty
+    }
+
 } // namespace alsfvm
 } // namespace equation
 } // namespace euler

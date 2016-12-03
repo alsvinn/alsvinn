@@ -74,8 +74,14 @@ size_t ReconstructionCPU<ReconstructionType, Equation>::getNumberOfGhostCells()
     return ReconstructionType::getNumberOfGhostCells();
 }
 
-template class ReconstructionCPU<WENO2<equation::euler::Euler>, equation::euler::Euler>;
-template class ReconstructionCPU<WENOF2<equation::euler::Euler>, equation::euler::Euler>;
+template class ReconstructionCPU<WENO2 <equation::euler::Euler<1>>, equation::euler::Euler<1>>;
+template class ReconstructionCPU<WENOF2<equation::euler::Euler<1>>, equation::euler::Euler<1>>;
+
+template class ReconstructionCPU<WENO2 <equation::euler::Euler<2>>, equation::euler::Euler<2>>;
+template class ReconstructionCPU<WENOF2<equation::euler::Euler<2>>, equation::euler::Euler<2>>;
+
+template class ReconstructionCPU<WENO2 <equation::euler::Euler<3>>, equation::euler::Euler<3>>;
+template class ReconstructionCPU<WENOF2<equation::euler::Euler<3>>, equation::euler::Euler<3>>;
 
 
 template class ReconstructionCPU<WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>;

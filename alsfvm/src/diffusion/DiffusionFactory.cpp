@@ -39,10 +39,32 @@ namespace alsfvm { namespace diffusion {
                 }
 
             }
-            else if (equation == "euler") {
+            else if (equation == "euler1") {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCPU
-                        <equation::euler::Euler, RoeMatrix>(volumeFactory, reconstruction,
+                        <equation::euler::Euler<1>, RoeMatrix>(volumeFactory, reconstruction,
+                            simulatorParameters));
+                }
+                else {
+                    THROW("Unknown diffusion type " << diffusionType);
+                }
+
+            }
+            else if (equation == "euler2") {
+                if (diffusionType == "tecnoroe") {
+                    diffusionOperator.reset(new TecnoDiffusionCPU
+                        <equation::euler::Euler<2>, RoeMatrix>(volumeFactory, reconstruction,
+                            simulatorParameters));
+                }
+                else {
+                    THROW("Unknown diffusion type " << diffusionType);
+                }
+
+            }
+            else if (equation == "euler3") {
+                if (diffusionType == "tecnoroe") {
+                    diffusionOperator.reset(new TecnoDiffusionCPU
+                        <equation::euler::Euler<3>, RoeMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
                 else {
@@ -67,10 +89,32 @@ namespace alsfvm { namespace diffusion {
                 }
 
             }
-            else if (equation == "euler") {
+            else if (equation == "euler1") {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCUDA
-                        <equation::euler::Euler, RoeMatrix>(volumeFactory, reconstruction,
+                        <equation::euler::Euler<1>, RoeMatrix>(volumeFactory, reconstruction,
+                            simulatorParameters));
+                }
+                else {
+                    THROW("Unknown diffusion type " << diffusionType);
+                }
+
+            }
+            else if (equation == "euler2") {
+                if (diffusionType == "tecnoroe") {
+                    diffusionOperator.reset(new TecnoDiffusionCUDA
+                        <equation::euler::Euler<2>, RoeMatrix>(volumeFactory, reconstruction,
+                            simulatorParameters));
+                }
+                else {
+                    THROW("Unknown diffusion type " << diffusionType);
+                }
+
+            }
+            else if (equation == "euler3") {
+                if (diffusionType == "tecnoroe") {
+                    diffusionOperator.reset(new TecnoDiffusionCUDA
+                        <equation::euler::Euler<3>, RoeMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
                 else {

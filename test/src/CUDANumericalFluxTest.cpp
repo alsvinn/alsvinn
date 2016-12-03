@@ -48,11 +48,11 @@ public:
 	const size_t nz;
 
 	CUDANumericalFluxTest()
-		: equation("euler"), flux(GetParam().flux), reconstruction("none"),
+		: equation("euler3"), flux(GetParam().flux), reconstruction("none"),
 		deviceConfiguration(new DeviceConfiguration("cuda")),
 		deviceConfigurationCPU(new DeviceConfiguration("cpu")),
-        simulatorParameters(new simulator::SimulatorParameters("euler", "cuda")),
-        simulatorParametersCPU(new simulator::SimulatorParameters("euler", "cpu")),
+        simulatorParameters(new simulator::SimulatorParameters("euler3", "cuda")),
+        simulatorParametersCPU(new simulator::SimulatorParameters("euler3", "cpu")),
 		fluxFactory(equation, flux, reconstruction, simulatorParameters, deviceConfiguration),
         fluxFactoryCPU(equation, flux, reconstruction, simulatorParametersCPU, deviceConfigurationCPU),
 		grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(10, 10, 1)),
@@ -81,8 +81,8 @@ TEST_P(CUDANumericalFluxTest, ConsistencyTest) {
 	auto boundary = boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells());
 	auto conservedVariablesCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	auto extraVariablesCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
-	volume::fill_volume<equation::euler::ConservedVariables>(*conservedVariablesCPU, grid,
-		[](real x, real y, real z, equation::euler::ConservedVariables& out) {
+	volume::fill_volume<equation::euler::ConservedVariables<3> >(*conservedVariablesCPU, grid,
+		[](real x, real y, real z, equation::euler::ConservedVariables<3> & out) {
 		out.rho = 1;
 		out.m.x = 1;
 		out.m.y = 1;
@@ -181,8 +181,8 @@ TEST_P(CUDANumericalFluxTest, CompareAgainstCPU) {
 	auto extraVariablesCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz, numericalFlux->getNumberOfGhostCells());
 	// We set every other var to 1,1,1,10 and 2,2,2,2,40.
 	int switchCounter = 0;
-	volume::fill_volume<equation::euler::ConservedVariables>(*conservedVariablesCPU, grid,
-		[&switchCounter](real x, real y, real z, equation::euler::ConservedVariables& out) {
+	volume::fill_volume<equation::euler::ConservedVariables<3> >(*conservedVariablesCPU, grid,
+		[&switchCounter](real x, real y, real z, equation::euler::ConservedVariables<3> & out) {
 		
 		if (switchCounter++ % 2) {
 			out.rho = 1;

@@ -123,6 +123,8 @@ namespace alsfvm { namespace diffusion {
     }
 
     template class TecnoDiffusionCPU<::alsfvm::equation::burgers::Burgers, ::alsfvm::diffusion::RoeMatrix>;
-    template class TecnoDiffusionCPU<::alsfvm::equation::euler::Euler, ::alsfvm::diffusion::RoeMatrix>;
+    template class TecnoDiffusionCPU<::alsfvm::equation::euler::Euler<1>, ::alsfvm::diffusion::RoeMatrix>;
+    template class TecnoDiffusionCPU<::alsfvm::equation::euler::Euler<2>, ::alsfvm::diffusion::RoeMatrix>;
+    template class TecnoDiffusionCPU<::alsfvm::equation::euler::Euler<3>, ::alsfvm::diffusion::RoeMatrix>;
 }
 }

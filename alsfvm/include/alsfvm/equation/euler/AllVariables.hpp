@@ -5,19 +5,23 @@
 #include <cassert>
 #include <cmath>
 namespace alsfvm { namespace equation { namespace euler { 
-    class AllVariables : public ConservedVariables, public ExtraVariables {
+
+    template<int nsd>
+    class AllVariables : public ConservedVariables<nsd>, public ExtraVariables<nsd> {
     public:
-		__device__ __host__ AllVariables(real rho, real mx, real my, real mz, real E, real p, real ux, real uy, real uz) :
-			ConservedVariables(rho, mx, my, mz, E), ExtraVariables(p, ux, uy, uz)
+
+        typedef typename Types<nsd>::rvec rvec;
+		__device__ __host__ AllVariables(real rho, rvec m, real E, real p, rvec u) :
+			ConservedVariables<nsd>(rho, m, E), ExtraVariables<nsd>(p, u)
 		{
 		}
 
-		__device__ __host__ const ConservedVariables& conserved() const {
+		__device__ __host__ const ConservedVariables<nsd>& conserved() const {
 			return *this;
 		}
 
-		__device__ __host__ AllVariables(const ConservedVariables& conserved, const ExtraVariables& extra)
-            : ConservedVariables(conserved), ExtraVariables(extra)
+		__device__ __host__ AllVariables(const ConservedVariables<nsd>& conserved, const ExtraVariables<nsd>& extra)
+            : ConservedVariables<nsd>(conserved), ExtraVariables<nsd>(extra)
         {
         }
 		

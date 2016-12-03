@@ -90,10 +90,10 @@ public:
         grid({ 0, 0, 0 }, { 1, 1, 0 }, ivec3(nx, ny, nz)),
         deviceConfiguration(new DeviceConfiguration(parameters.platform)),
         memoryFactory(new MemoryFactory(deviceConfiguration)),
-        volumeFactory("euler", memoryFactory),
+        volumeFactory("euler3", memoryFactory),
         deviceConfigurationCPU(new DeviceConfiguration("cpu")),
         memoryFactoryCPU(new MemoryFactory(deviceConfigurationCPU)),
-        volumeFactoryCPU("euler", memoryFactoryCPU)
+        volumeFactoryCPU("euler3", memoryFactoryCPU)
 
     {
         auto eulerParameters = alsfvm::make_shared<equation::euler::EulerParameters>();
@@ -114,7 +114,7 @@ public:
     }
 
     void makeReconstruction(const std::string& name) {
-        wenoCUDA = reconstructionFactory.createReconstruction(name, "euler", simulatorParameters, memoryFactory, grid, deviceConfiguration);
+        wenoCUDA = reconstructionFactory.createReconstruction(name, "euler3", simulatorParameters, memoryFactory, grid, deviceConfiguration);
 
         conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
         left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
@@ -176,13 +176,13 @@ TEST_P(ReconstructionConvergenceTest, ReconstructionTest) {
             const real b = (x + 1) * dx;
 
             const size_t index = conservedView.index(x + numberOfGhostCells, 0, 0);
-            equation::euler::PrimitiveVariables primitiveVariables;
+            equation::euler::PrimitiveVariables<3> primitiveVariables;
 
             primitiveVariables.rho = averageIntegralF(a, b);
             primitiveVariables.p = 2.5;
 
             equation::euler::EulerParameters eulerParameters;
-            equation::euler::Euler eq(eulerParameters);
+            equation::euler::Euler<3> eq(eulerParameters);
             auto conservedVariables = eq.computeConserved(primitiveVariables);
 
                  
