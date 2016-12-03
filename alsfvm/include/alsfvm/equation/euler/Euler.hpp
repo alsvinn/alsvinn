@@ -462,7 +462,7 @@ namespace alsfvm {
                     matrixWithEigenVectors(3, 2) = primitive.u.y;
                     matrixWithEigenVectors(3, 3) = H + primitive.u.x*a;
 
-                    return matrixWithEigenVectors;
+                    return matrixWithEigenVectors.normalized();
                 }
                 else if (direction == 1) {
                     // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
@@ -505,17 +505,17 @@ namespace alsfvm {
                     const real H = (conserved.E + primitive.p) / conserved.rho;
                     matrixWithEigenVectors(0, 0) = 1;
                     matrixWithEigenVectors(0, 1) = 1;
-                    matrixWithEigenVectors(0, 3) = 1;
+                    matrixWithEigenVectors(0, 2) = 1;
 
                     matrixWithEigenVectors(1, 0) = primitive.u.x - a;
                     matrixWithEigenVectors(1, 1) = primitive.u.x;
-                    matrixWithEigenVectors(1, 3) = primitive.u.x + a;
+                    matrixWithEigenVectors(1, 2) = primitive.u.x + a;
 
                     matrixWithEigenVectors(2, 0) = H - primitive.u.x*a;
                     matrixWithEigenVectors(2, 1) = 0.5*primitive.u.dot(primitive.u);
-                    matrixWithEigenVectors(2, 3) = H + primitive.u.x*a;
+                    matrixWithEigenVectors(2, 2) = H + primitive.u.x*a;
 
-                    return matrixWithEigenVectors;
+                    return matrixWithEigenVectors.normalized();
                 }
 
                 assert(false);
