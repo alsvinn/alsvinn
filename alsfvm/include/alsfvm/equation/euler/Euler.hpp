@@ -91,7 +91,7 @@ namespace alsfvm {
 
                 __device__ __host__ ExtraVariables fetchExtraVariables(ConstViewsExtra& views, size_t index) const {
                     return ExtraVariables(views.p.at(index),
-                        views.u(index)
+                        views.u(index).template convert<real>()
                         );
                 }
 
@@ -462,7 +462,7 @@ namespace alsfvm {
                     matrixWithEigenVectors(3, 2) = primitive.u.y;
                     matrixWithEigenVectors(3, 3) = H + primitive.u.x*a;
 
-                    return matrixWithEigenVectors.normalized();
+                    return matrixWithEigenVectors;
                 }
                 else if (direction == 1) {
                     // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
@@ -515,7 +515,7 @@ namespace alsfvm {
                     matrixWithEigenVectors(2, 1) = 0.5*primitive.u.dot(primitive.u);
                     matrixWithEigenVectors(2, 3) = H + primitive.u.x*a;
 
-                    return matrixWithEigenVectors.normalized();
+                    return matrixWithEigenVectors;
                 }
 
                 assert(false);

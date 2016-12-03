@@ -70,7 +70,7 @@ namespace alsfvm {
                 }
 
 
-                __device__ __host__ 
+             
 				ViewType p;
 				ViewType ux;
 				ViewType uy;

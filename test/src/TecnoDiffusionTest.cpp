@@ -122,7 +122,7 @@ public:
 
             if (parameters.equation == "euler1" || parameters.equation == "euler2" || parameters.equation == "euler3") {
                 // make sure the energy is compatible
-                volumeCPU->getScalarMemoryArea(4)->getPointer()[index] = averageIntegralF(a, b) + 20;
+                volumeCPU->getScalarMemoryArea("E")->getPointer()[index] = averageIntegralF(a, b) + 20;
             }
         });
 
@@ -176,13 +176,11 @@ TEST_P(TecnoDiffusionTest, OrderTest) {
            
             double L1Norm = 0;
             volume::for_each_internal_volume_index<0>(*outputVolumeCPU, [&](size_t, size_t index, size_t) {
-
-
                 L1Norm += std::abs(outputVolumeCPU->getScalarMemoryArea(i)->getPointer()[index]);
 
             });
 
-
+            std::cout << "[" << nx << ", " << L1Norm / nx << "]" << std::endl;
             errors[i].push_back(std::log(L1Norm / nx));
             resolutions[i].push_back(std::log(real(nx)));
         }

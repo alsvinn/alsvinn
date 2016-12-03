@@ -150,7 +150,7 @@ TEST(VolumeTest, FactoryTestEuler1) {
 
     auto eulerConserved = volumeFactory.createConservedVolume(nx, 1, 1);
 
-    ASSERT_EQ(4, eulerConserved->getNumberOfVariables());
+    ASSERT_EQ(3, eulerConserved->getNumberOfVariables());
 
     ASSERT_EQ(nx, eulerConserved->getNumberOfXCells());
 
