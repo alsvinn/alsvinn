@@ -15,13 +15,18 @@ namespace alsfvm {
 			template<class VolumeType, class ViewType, int nsd>
             class ViewsExtra {
             public:
-                typedef typename Types<nsd>::rvec rvec;
-                typedef typename Types<nsd>::vec<real&> reference_vec;
+
             };
 
             template<class VolumeType, class ViewType>
             class ViewsExtra<VolumeType, ViewType, 3> {
 			public:
+                typedef typename Types<3>::rvec rvec;
+                typedef typename std::conditional<std::is_const<VolumeType>::value,
+                const real&,
+                real&>::type reference_type;
+
+                typedef typename Types<3>::template vec<reference_type> reference_vec;
                 
 				ViewsExtra(VolumeType& volume)
 					: p(volume.getScalarMemoryArea("p")->getView()),
@@ -75,6 +80,13 @@ namespace alsfvm {
             template<class VolumeType, class ViewType>
             class ViewsExtra<VolumeType, ViewType, 2> {
             public:
+                typedef typename Types<2>::rvec rvec;
+                typedef typename std::conditional<std::is_const<VolumeType>::value,
+                const real&,
+                real&>::type reference_type;
+
+                typedef typename Types<2>::template vec<reference_type> reference_vec;
+
 
                 ViewsExtra(VolumeType& volume)
                     : p(volume.getScalarMemoryArea("p")->getView()),
@@ -122,6 +134,13 @@ namespace alsfvm {
             template<class VolumeType, class ViewType>
             class ViewsExtra<VolumeType, ViewType, 1> {
             public:
+                typedef typename Types<1>::rvec rvec;
+                typedef typename std::conditional<std::is_const<VolumeType>::value,
+                const real&,
+                real&>::type reference_type;
+
+                typedef typename Types<1>::template vec<reference_type> reference_vec;
+
 
                 ViewsExtra(VolumeType& volume)
                     : p(volume.getScalarMemoryArea("p")->getView()),

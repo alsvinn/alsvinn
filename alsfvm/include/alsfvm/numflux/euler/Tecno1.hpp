@@ -34,7 +34,7 @@ namespace alsfvm {
             //!
             template<>
             template<int direction>
-            __device__ __host__ inline static real Tecno1<3>::computeFlux(const equation::euler::Euler<3>& eq, const equation::euler::AllVariables<3>& left,
+            __device__ __host__ inline  real Tecno1<3>::computeFlux(const equation::euler::Euler<3>& eq, const equation::euler::AllVariables<3>& left,
                 const equation::euler::AllVariables<3>& right, equation::euler::ConservedVariables<3>& F)
             {
                 real gamma = eq.getGamma();
@@ -71,7 +71,7 @@ namespace alsfvm {
             //!
             template<>
             template<int direction>
-            __device__ __host__ inline static real Tecno1<2>::computeFlux(const equation::euler::Euler<2>& eq, const equation::euler::AllVariables<2>& left,
+            __device__ __host__ inline  real Tecno1<2>::computeFlux(const equation::euler::Euler<2>& eq, const equation::euler::AllVariables<2>& left,
                 const equation::euler::AllVariables<2>& right, equation::euler::ConservedVariables<2>& F)
             {
                 real gamma = eq.getGamma();
@@ -105,7 +105,7 @@ namespace alsfvm {
 
             template<>
             template<int direction>
-            __device__ __host__ inline static real Tecno1<1>::computeFlux(const equation::euler::Euler<1>& eq, const equation::euler::AllVariables<1>& left,
+            __device__ __host__ inline  real Tecno1<1>::computeFlux(const equation::euler::Euler<1>& eq, const equation::euler::AllVariables<1>& left,
                 const equation::euler::AllVariables<1>& right, equation::euler::ConservedVariables<1>& F)
             {
                 real gamma = eq.getGamma();

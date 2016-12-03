@@ -78,10 +78,10 @@ ReconstructionFactory::ReconstructionPtr
                 reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENOF2<equation::euler::Euler<1> >, equation::euler::Euler<1> >(simulatorParameters));
             }
             else if (equation == "euler2") {
-                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENOF2<equation::euler::Euler<2> >, equation::euler::Euler<3> >(simulatorParameters));
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENOF2<equation::euler::Euler<2> >, equation::euler::Euler<2> >(simulatorParameters));
             }
             else if (equation == "euler3") {
-                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENOF2<equation::euler::Euler<2> >, equation::euler::Euler<3> >(simulatorParameters));
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENOF2<equation::euler::Euler<3> >, equation::euler::Euler<3> >(simulatorParameters));
             }
             else {
                 THROW("We do not support WENO2F for Burgers.");

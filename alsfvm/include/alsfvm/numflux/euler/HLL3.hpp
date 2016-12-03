@@ -44,8 +44,8 @@ public:
         equation::euler::ConservedVariables<nsd> fluxLeft, fluxRight;
 
         computeHLLSpeeds<direction>(eq, left, right, speedLeft, speedRight, cs);
-        eq.computePointFlux<direction>(left, fluxLeft);
-        eq.computePointFlux<direction>(right, fluxRight);
+        eq.template computePointFlux<direction>(left, fluxLeft);
+        eq.template computePointFlux<direction>(right, fluxRight);
 
         const real pressureLeft = left.p;
         const real pressureRight = right.p;
@@ -60,7 +60,7 @@ public:
         us[direction] = sm;
 
         if (speedLeft == 0) {
-            F = equation::euler::ConservedVariables(0, rvec(0), 0);
+            F = equation::euler::ConservedVariables<nsd>(0, rvec(0), 0);
         }
         else if (speedLeft > 0) {
             F = fluxLeft;
@@ -69,14 +69,14 @@ public:
             F = fluxRight;
         }
         else if (sm >= 0) {
-            equation::euler::ConservedVariables middle;
+            equation::euler::ConservedVariables<nsd> middle;
             middle.rho = left.rho*udl/(sm-speedLeft);
             middle.m = middle.rho * us;
             const real p = pressureLeft + left.rho*(left.u[direction]-sm)*udl;
             middle.E = (udl*left.E + pressureLeft*left.u[direction] - p*sm) / (sm-speedLeft);
             F = fluxLeft + speedLeft * (middle-left.conserved());
         } else {
-            equation::euler::ConservedVariables middle;
+            equation::euler::ConservedVariables<nsd> middle;
             middle.rho = right.rho*udr/(sm-speedRight);
             middle.m = middle.rho * us;
             real p = pressureRight + right.rho*(right.u[direction]-sm)*udr;

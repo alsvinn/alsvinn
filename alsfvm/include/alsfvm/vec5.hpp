@@ -37,6 +37,24 @@ namespace alsfvm {
             // Empty
         }
 
+        __device__ __host__ vec5(const vec5<T&>& other)
+            : x(other.x), y(other.y), z(other.z), v(other.v), w(other.w)
+        {
+
+        }
+
+
+        template<class S>
+        __device__ __host__ vec5& operator=(const vec5<S>& other) {
+            x = other.x;
+            y = other.y;
+            z = other.z;
+            v = other.v;
+            w = other.w;
+
+            return *this;
+        }
+
         __device__ __host__ bool operator==(const vec5& other) const {
             return other.x == x && other.y == y && other.z == z && other.v == v && other.w == w;
         }
@@ -86,6 +104,16 @@ namespace alsfvm {
         __device__ __host__ static constexpr size_t size() {
             return 5;
         }
+
+        template<class S>
+        __device__ __host__ inline vec5<T>& operator+=( const vec5<S>& b) {
+            x+= b.x;
+            y+= b.y;
+            z+=b.z;
+            v+= b.v;
+            w+= b.w;
+            return *this;
+        }
     };
 
     ///
@@ -129,10 +157,13 @@ namespace alsfvm {
     /// Computes the product \f$\vec{a}+\vec{b}\f$
     /// \note Creates a new vector instance.
     ///
-    template<class T>
-    __device__ __host__ inline vec5<T> operator+(const vec5<T>& a, const vec5<T>& b) {
-        return vec5<T>(a.x + b.x, a.y + b.y, a.z + b.z.a.v + b.v, a.w + b.w);
+    template<class T, class S>
+    __device__ __host__ inline vec5<T> operator+(const vec5<T>& a, const vec5<S>& b) {
+        return vec5<T>(a.x + b.x, a.y + b.y, a.z + b.z, a.v + b.v, a.w + b.w);
     }
+
+
+
 
 
 }

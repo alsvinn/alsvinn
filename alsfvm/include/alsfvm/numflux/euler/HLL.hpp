@@ -43,16 +43,16 @@ namespace alsfvm { namespace numflux { namespace euler {
             computeHLLSpeeds<direction>(eq, left, right, speedLeft, speedRight);
 
 			if (speedLeft == 0) {
-				F = equation::euler::ConservedVariables(0, rvec(0), 0);
+                F = equation::euler::ConservedVariables<nsd>(0, rvec(0), 0);
 			}
 			else if (speedLeft > 0) {
-                eq.computePointFlux<direction>(left, F);
+                eq.template computePointFlux<direction>(left, F);
 			}
 			else if (speedRight < 0) {
-                eq.computePointFlux<direction>(right, F);
+                eq.template computePointFlux<direction>(right, F);
 			}
 			else {
-                equation::euler::ConservedVariables leftFlux, rightFlux;
+                equation::euler::ConservedVariables<nsd> leftFlux, rightFlux;
                 eq.template computePointFlux<direction>(left, leftFlux);
                 eq.template computePointFlux<direction>(right, rightFlux);
 				F = (speedRight*leftFlux - speedLeft*rightFlux + speedRight*speedLeft*(right.conserved() - left.conserved())) / (speedRight - speedLeft);
@@ -80,7 +80,7 @@ namespace alsfvm { namespace numflux { namespace euler {
             const real waveRight = sqrt(right.rho);
 
 			const real rho = (left.rho + right.rho) / 2;
-			const rvec3 u = (waveLeft * left.u + waveRight * right.u) / (waveLeft + waveRight);
+            const rvec u = (waveLeft * left.u + waveRight * right.u) / (waveLeft + waveRight);
 
 			const real p = (left.p * waveLeft + right.p * waveRight) / (waveLeft + waveRight);
 

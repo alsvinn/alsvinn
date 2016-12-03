@@ -1,6 +1,8 @@
 #pragma once
 #include "alsfvm/types.hpp"
 #include <cassert>
+
+#include <type_traits>
 namespace alsfvm { namespace equation { namespace euler { 
 
 	///
@@ -14,13 +16,20 @@ namespace alsfvm { namespace equation { namespace euler {
     class Views {
     public:
 
-        typedef typename Types<nsd>::rvec rvec;
-        typedef typename Types<nsd>::vec<real&> reference_vec;
+
     };
 
     template<class VolumeType, class ViewType>
     class Views<VolumeType, ViewType, 3> {
     public:
+        typedef typename Types<3>::rvec rvec;
+        typedef typename std::conditional<std::is_const<VolumeType>::value,
+        const real&,
+        real&>::type reference_type;
+
+        typedef typename Types<3>::template vec<reference_type> reference_vec;
+
+
 		Views(VolumeType& volume) 
 			: rho(volume.getScalarMemoryArea("rho")->getView()), 
 			mx(volume.getScalarMemoryArea("mx")->getView()),
@@ -97,6 +106,14 @@ namespace alsfvm { namespace equation { namespace euler {
     template<class VolumeType, class ViewType>
     class Views<VolumeType, ViewType, 2> {
     public:
+        typedef typename Types<2>::rvec rvec;
+        typedef typename std::conditional<std::is_const<VolumeType>::value,
+        const real&,
+        real&>::type reference_type;
+
+        typedef typename Types<2>::template vec<reference_type> reference_vec;
+
+
         Views(VolumeType& volume)
             : rho(volume.getScalarMemoryArea("rho")->getView()),
             mx(volume.getScalarMemoryArea("mx")->getView()),
@@ -165,6 +182,14 @@ namespace alsfvm { namespace equation { namespace euler {
     template<class VolumeType, class ViewType>
     class Views<VolumeType, ViewType, 1> {
     public:
+        typedef typename Types<1>::rvec rvec;
+        typedef typename std::conditional<std::is_const<VolumeType>::value,
+        const real&,
+        real&>::type reference_type;
+
+        typedef typename Types<1>::template vec<reference_type> reference_vec;
+
+
         Views(VolumeType& volume)
             : rho(volume.getScalarMemoryArea("rho")->getView()),
             mx(volume.getScalarMemoryArea("mx")->getView()),

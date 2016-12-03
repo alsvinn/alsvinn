@@ -25,6 +25,20 @@ public:
         // empty
     }
 
+    template<class T>
+    __device__ __host__ PrimitiveVariables(T rho, T ux, T uy, T uz, T p)
+        : rho(rho), u(rvec3{ux, uy, uz}), p(p)
+    {
+        static_assert(nsd==3 ||sizeof(T)==0, "Only for 3 dimensions!");
+    }
+
+    template<class T>
+    __device__ __host__ PrimitiveVariables(T rho, T ux, T uy, T p)
+        : rho(rho), u(rvec2{ux, uy}), p(p)
+    {
+        static_assert(nsd==2 ||sizeof(T)==0, "Only for 3 dimensions!");
+    }
+
     ///
     /// \brief rho is the density
     ///
@@ -65,7 +79,7 @@ __device__ __host__ inline PrimitiveVariables<nsd> operator+(const PrimitiveVari
 ///
 template<int nsd>
 __device__ __host__ inline PrimitiveVariables<nsd> operator*(real a, const PrimitiveVariables<nsd>& b) {
-    return PrimitiveVariables(a*b.rho, a*b.u, a*b.p);
+    return PrimitiveVariables<nsd>(a*b.rho, a*b.u, a*b.p);
 }
 
 ///
@@ -74,6 +88,6 @@ __device__ __host__ inline PrimitiveVariables<nsd> operator*(real a, const Primi
 ///
 template<int nsd>
 __device__ __host__ inline PrimitiveVariables<nsd> operator/(const PrimitiveVariables<nsd>& a, real b) {
-    return PrimitiveVariables(a.rho / b, a.u / b, a.p / b);
+    return PrimitiveVariables<nsd>(a.rho / b, a.u / b, a.p / b);
 }
 }}}

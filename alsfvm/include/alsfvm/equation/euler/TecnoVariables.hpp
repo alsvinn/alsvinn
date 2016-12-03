@@ -26,14 +26,14 @@ namespace alsfvm { namespace equation { namespace euler {
     };
 
     template<>
-    __device__ __host__ TecnoVariables<1>::TecnoVariables(real z1, rvec1 zu, real z5)
+    __device__ __host__ inline TecnoVariables<1>::TecnoVariables(real z1, rvec1 zu, real z5)
         : z(z1, zu.x, z5)
     {
         // empty
     }
 
     template<>
-    __device__ __host__ TecnoVariables<2>::TecnoVariables(real z1, rvec2 zu, real z5)
+    __device__ __host__ inline TecnoVariables<2>::TecnoVariables(real z1, rvec2 zu, real z5)
         : z(z1, zu.x, zu.y, z5)
     {
         // empty
@@ -41,7 +41,7 @@ namespace alsfvm { namespace equation { namespace euler {
 
 
     template<>
-    __device__ __host__ TecnoVariables<3>::TecnoVariables(real z1, rvec3 zu, real z5)
+    __device__ __host__ inline TecnoVariables<3>::TecnoVariables(real z1, rvec3 zu, real z5)
         : z(z1, zu.x, zu.y, zu.z, z5)
     {
         // empty

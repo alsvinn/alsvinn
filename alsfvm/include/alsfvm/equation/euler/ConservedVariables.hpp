@@ -14,35 +14,66 @@ namespace alsfvm { namespace equation { namespace euler {
     public:
         typedef typename Types<nsd>::rvec rvec;
         typedef typename Types<nsd + 2>::rvec state_vector;
-		__device__ __host__ ConservedVariables()
+
+        inline __device__ __host__ ConservedVariables()
 			:rho(0), m(0), E(0)
 		{
 			 // empty
 		}
-		__device__ __host__ ConservedVariables(real rho_, rvec m, real E_)
-			: rho(rho_), m(m), E(E_)
+
+
+
+        template<class ValueType>
+        inline __device__ __host__ ConservedVariables(real rho_,
+
+                                               const typename Types<nsd>::template vec<ValueType>& m_, real E_)
+            : rho(rho_), m(m_.template convert<real>()), E(E_)
 		{
 			// empty
 		}
 
+
+        template<class T>
+        inline __device__ __host__ ConservedVariables(T rho_, T mx, T my, T mz, T E)
+            : rho(rho_), m(rvec3{mx, my, mz}), E(E)
+        {
+            static_assert(nsd==3 ||sizeof(T)==0, "Only for 3 dimensions!");
+        }
+
+        template<class T>
+        inline __device__ __host__ ConservedVariables(T rho_, T mx, T my, T E)
+            : rho(rho_), m(rvec2{mx, my}), E(E)
+        {
+            static_assert(nsd==2 ||sizeof(T)==0, "Only for 3 dimensions!");
+        }
+
+        template<class T>
+        inline __device__ __host__ ConservedVariables(T rho_, T mx, T E)
+            : rho(rho_), m(rvec1{mx}), E(E)
+        {
+            static_assert(nsd==1 ||sizeof(T)==0, "Only for 3 dimensions!");
+        }
+
+
+
         __device__ __host__ ConservedVariables(const state_vector& in);
         
 
-        __device__ __host__ real operator[](size_t index) const {
+        inline __device__ __host__ real operator[](size_t index) const {
             assert(index < nsd + 2);
             return ((real*)this)[index];
         }
 
-        __device__ __host__ real& operator[](size_t index) {
+        inline __device__ __host__ real& operator[](size_t index) {
             assert(index < nsd + 2);
             return ((real*)this)[index];
         }
 
-        __device__ __host__ static constexpr size_t size() {
-            return 5;
+        inline __device__ __host__ static constexpr size_t size() {
+            return nsd + 2;
         }
 
-        __device__ __host__ bool operator==(const ConservedVariables& other) const {
+        inline __device__ __host__ bool operator==(const ConservedVariables& other) const {
             return rho == other.rho && m == other.m && E == other.E;
         }
 		real rho;
@@ -75,7 +106,7 @@ namespace alsfvm { namespace equation { namespace euler {
 	////
     template<int nsd>
 	__device__ __host__ inline ConservedVariables<nsd> operator*(real a, const ConservedVariables<nsd>& b) {
-		return ConservedVariables(a*b.rho, a*b.m, a*b.E);
+        return ConservedVariables<nsd>(a*b.rho, a*b.m, a*b.E);
 	}
 
 	///
@@ -88,21 +119,21 @@ namespace alsfvm { namespace equation { namespace euler {
 	}
 
     template<>
-    __device__ __host__ ConservedVariables<3>::ConservedVariables(const rvec5& in)
+    __device__ __host__ inline ConservedVariables<3>::ConservedVariables(const rvec5& in)
     : rho(in[0]), m(in[1], in[2], in[3]), E(in[4])
     {
         // empty
     }
 
     template<>
-    __device__ __host__ ConservedVariables<2>::ConservedVariables(const rvec4& in)
+    __device__ __host__ inline ConservedVariables<2>::ConservedVariables(const rvec4& in)
         : rho(in[0]), m(in[1], in[2]), E(in[4])
     {
         // e
     }
 
     template<>
-    __device__ __host__ ConservedVariables<1>::ConservedVariables(const rvec3& in)
+    __device__ __host__ inline ConservedVariables<1>::ConservedVariables(const rvec3& in)
         : rho(in[0]), m(in[1]), E(in[4])
     {
         // e

@@ -121,6 +121,17 @@ namespace alsfvm {
         }
 
 
+        template<class VariableStruct>
+        inline VariableStruct expandVariableStruct(const std::array<const real*, 3>& in, size_t index) {
+            return VariableStruct(in[0][index], in[1][index], in[2][index]);
+        }
+
+
+        template<class VariableStruct>
+        inline VariableStruct expandVariableStruct(const std::array<const real*, 2>& in, size_t index) {
+            return VariableStruct(in[0][index], in[1][index]);
+        }
+
 		template<class VariableStruct>
 		inline VariableStruct expandVariableStruct(const std::array<const real*, 5>& in, size_t index) {
 			return VariableStruct(in[0][index], in[1][index], in[2][index], in[3][index], in[4][index]);
@@ -156,6 +167,27 @@ namespace alsfvm {
 			out[2][index] = inAsRealPointer[2];
 			out[3][index] = inAsRealPointer[3];
 		}
+
+
+        template<class VariableStruct>
+        inline void saveVariableStruct(const VariableStruct& in, size_t index, std::array<real*, 3>& out) {
+            real* inAsRealPointer = (real*)&in;
+
+            out[0][index] = inAsRealPointer[0];
+            out[1][index] = inAsRealPointer[1];
+            out[2][index] = inAsRealPointer[2];
+
+        }
+
+        template<class VariableStruct>
+        inline void saveVariableStruct(const VariableStruct& in, size_t index, std::array<real*, 2>& out) {
+            real* inAsRealPointer = (real*)&in;
+
+            out[0][index] = inAsRealPointer[0];
+            out[1][index] = inAsRealPointer[1];
+
+        }
+
 
 
 		template<class VariableStruct>

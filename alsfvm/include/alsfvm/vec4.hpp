@@ -36,6 +36,23 @@ namespace alsfvm {
             // Empty
         }
 
+
+        __device__ __host__ vec4(const vec4<T&>& other)
+            : x(other.x), y(other.y), z(other.z), v(other.v)
+        {
+
+        }
+
+        template<class S>
+        __device__ __host__ vec4& operator=(const vec4<S>& other) {
+            x = other.x;
+            y = other.y;
+            z = other.z;
+            v = other.v;
+
+
+            return *this;
+        }
         __device__ __host__ bool operator==(const vec4& other) const {
             return other.x == x && other.y == y && other.z == z && other.v == v;
         }
@@ -85,6 +102,16 @@ namespace alsfvm {
         __device__ __host__ static constexpr size_t size() {
             return 4;
         }
+
+        template<class S>
+        __device__ __host__ inline vec4<T>& operator+=( const vec4<S>& b) {
+            x+= b.x;
+            y+= b.y;
+            z+=b.z;
+            v+= b.v;
+
+            return *this;
+        }
     };
 
     ///
@@ -128,10 +155,12 @@ namespace alsfvm {
     /// Computes the product \f$\vec{a}+\vec{b}\f$
     /// \note Creates a new vector instance.
     ///
-    template<class T>
-    __device__ __host__ inline vec4<T> operator+(const vec4<T>& a, const vec4<T>& b) {
+    template<class T, class S>
+    __device__ __host__ inline vec4<T> operator+(const vec4<T>& a, const vec4<S>& b) {
         return vec4<T>(a.x + b.x, a.y + b.y, a.z + b.z.a.v + b.v);
     }
+
+
 
 
 }

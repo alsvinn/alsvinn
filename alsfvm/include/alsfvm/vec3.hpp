@@ -35,6 +35,21 @@ namespace alsfvm {
             // Empty
         }
 
+        __device__ __host__ vec3(const vec3<T&>& other)
+            : x(other.x), y(other.y), z(other.z)
+        {
+
+        }
+
+        template<class S>
+        __device__ __host__ vec3& operator=(const vec3<S>& other) {
+            x = other.x;
+            y = other.y;
+            z = other.z;
+
+            return *this;
+        }
+
         __device__ __host__ bool operator==(const vec3& other) const {
             return other.x == x && other.y == y && other.z == z;
         }
@@ -51,7 +66,7 @@ namespace alsfvm {
         /// Converts the vector to the other type
         ///
         template<class S>
-        __device__ __host__ vec3<S> convert() {
+        __device__ __host__ vec3<S> convert() const  {
             return vec3<S>(S(x), S(y), S(z));
         }
 
@@ -83,6 +98,15 @@ namespace alsfvm {
         ///
         __device__ __host__ static constexpr size_t size()  {
             return 3;
+        }
+
+        template<class S>
+        __device__ __host__ inline vec3<T>& operator+=( const vec3<S>& b) {
+            x+= b.x;
+            y+= b.y;
+            z+=b.z;
+
+            return *this;
         }
     };
 
@@ -127,8 +151,11 @@ namespace alsfvm {
     /// Computes the product \f$\vec{a}+\vec{b}\f$
     /// \note Creates a new vector instance.
     ///
-    template<class T>
-    __device__ __host__ inline vec3<T> operator+(const vec3<T>& a, const vec3<T>& b) {
+    template<class T, class S>
+    __device__ __host__ inline vec3<T> operator+(const vec3<T>& a, const vec3<S>& b) {
         return vec3<T>(a.x+b.x, a.y + b.y,  a.z + b.z);
     }
+
+
+
 }
