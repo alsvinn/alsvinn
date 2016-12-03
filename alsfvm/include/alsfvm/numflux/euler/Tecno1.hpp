@@ -48,6 +48,9 @@ namespace alsfvm { namespace numflux { namespace euler {
             real cs = 0;
             HLL3::computeHLLSpeeds<direction>(eq, left, right, leftSpeed, rightSpeed, cs);
             return fmax(fabs(leftSpeed), fabs(rightSpeed));
+
+            //return fmax(eq.template computeWaveSpeed<direction>(left, left),
+            //    eq.template computeWaveSpeed<direction>(right, right));
         }
     };
 } // namespace euler

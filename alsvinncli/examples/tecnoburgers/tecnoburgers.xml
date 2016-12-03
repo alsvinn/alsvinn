@@ -2,18 +2,18 @@
     <name>
         tecnoburgers
     </name>
-    <platform>cuda</platform>
+    <platform>cpu</platform>
     <grid>
         <lowerCorner>-1 0 0</lowerCorner>
         <upperCorner>1 0 0</upperCorner>
         <dimension>4096 1 1</dimension>
     </grid>
     <boundary>periodic</boundary>
-    <flux>tecno4</flux>
-    <endTime>0.01</endTime>
+    <flux>tecno1</flux>
+    <endTime>0.2</endTime>
     <equation>burgers</equation>
     <reconstruction>none</reconstruction>
-    <cfl>0.1</cfl>
+    <cfl>0.2</cfl>
     <diffusion>
         <name>tecnoroe</name>
         <reconstruction>eno2</reconstruction>

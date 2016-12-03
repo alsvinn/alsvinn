@@ -13,8 +13,9 @@ int main(int argc, char** argv) {
 #ifdef _WIN32 
 #ifndef NDEBUG
     // see https://msdn.microsoft.com/en-us/library/aa289157(VS.71).aspx#floapoint_topic8
-    _clearfp();
-    unsigned int fp_control_state = _controlfp(_EM_ZERODIVIDE, _MCW_EM);//_controlfp(_EM_INEXACT, _MCW_EM);
+    //_clearfp();
+    //unsigned int fp_control_state = _controlfp(_EM_ZERODIVIDE, _MCW_EM);
+    //_controlfp(_EM_INEXACT,0);
     //feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
     
 #endif

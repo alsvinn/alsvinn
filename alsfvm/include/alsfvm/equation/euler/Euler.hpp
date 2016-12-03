@@ -367,20 +367,20 @@ namespace alsfvm {
 
                         matrixWithEigenVectors(2, 0) = primitive.u.y;
                         matrixWithEigenVectors(2, 1) = primitive.u.y;
-                        matrixWithEigenVectors(2, 2) = 1;
+                        matrixWithEigenVectors(2, 2) = 0;// 1;
                         matrixWithEigenVectors(2, 3) = 0;
                         matrixWithEigenVectors(2, 4) = primitive.u.y;
 
                         matrixWithEigenVectors(3, 0) = primitive.u.z ;
                         matrixWithEigenVectors(3, 1) = primitive.u.z;
                         matrixWithEigenVectors(3, 2) = 0;
-                        matrixWithEigenVectors(3, 3) = 1;
+                        matrixWithEigenVectors(3, 3) = 0;// 1;
                         matrixWithEigenVectors(3, 4) = primitive.u.z;
 
                         matrixWithEigenVectors(4, 0) = H-primitive.u.x*a;
                         matrixWithEigenVectors(4, 1) = 0.5*primitive.u.dot(primitive.u);
-                        matrixWithEigenVectors(4, 2) = primitive.u.y;
-                        matrixWithEigenVectors(4, 3) = primitive.u.z;
+                        matrixWithEigenVectors(4, 2) = 0;// primitive.u.y;
+                        matrixWithEigenVectors(4, 3) = 0;// primitive.u.z;
                         matrixWithEigenVectors(4, 4) = H + primitive.u.x*a;
                         
                         return matrixWithEigenVectors.normalized();
