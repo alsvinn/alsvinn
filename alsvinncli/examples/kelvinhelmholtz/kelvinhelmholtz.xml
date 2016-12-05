@@ -2,27 +2,27 @@
   <name>
     kh
   </name>
-  <platform>cuda</platform>
+  <platform>cpu</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
     <dimension>1024 1024 1</dimension>
   </grid>
   <boundary>periodic</boundary>
-  <flux>HLL3</flux>
-  <endTime>0.01</endTime>
-  <equation>euler</equation>
+  <flux>tecno1</flux>
+  <endTime>1</endTime>
+  <equation>euler2</equation>
   <equationParameters>
     <gamma>1.4</gamma>
   </equationParameters>
-  <reconstruction>eno3</reconstruction>
-  <cfl>0.075</cfl>
+  <reconstruction>none</reconstruction>
+  <cfl>0.4</cfl>
   <integrator>auto</integrator>
   <initialData>
     <python>kelvinhelmholtz.py</python>
   </initialData>
     <diffusion>
-        <name>none</name>
+        <name>tecnoroe</name>
         <reconstruction>none</reconstruction>
     </diffusion>
   <writer>

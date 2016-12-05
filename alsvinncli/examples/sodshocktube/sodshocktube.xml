@@ -11,12 +11,12 @@
   <boundary>neumann</boundary>
   <flux>tecno1</flux>
   <endTime>0.0003</endTime>
-  <equation>euler</equation>
+  <equation>euler1</equation>
   <reconstruction>none</reconstruction>
-  <cfl>0.2</cfl>
-  <integrator>rungekutta2</integrator>
+  <cfl>0.4</cfl>
+  <integrator>rungekutta4</integrator>
     <equationParameters>
-        <gamma>1.4</gamma>
+        <gamma>1.7</gamma>
     </equationParameters>
   <initialData>
     <python>sodshocktube.py</python>

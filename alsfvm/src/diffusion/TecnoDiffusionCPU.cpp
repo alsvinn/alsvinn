@@ -2,6 +2,7 @@
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsfvm/equation/burgers/Burgers.hpp"
 #include "alsfvm/diffusion/RoeMatrix.hpp"
+#include "alsfvm/diffusion/RusanovMatrix.hpp"
 #include "alsfvm/equation/equation_list.hpp"
 #include <iostream>
 #include <fstream>
@@ -40,12 +41,15 @@ namespace alsfvm { namespace diffusion {
                     auto diffusion = [&](size_t left, size_t right) {
                         auto leftValues = Equation::fetchConservedVariables(rightView, left);
                         auto rightValues = Equation::fetchConservedVariables(leftView, right);
+                        
 
-                        auto conservedValues = Equation::fetchConservedVariables(conservedView, right);
+                        //auto conservedValues = Equation::fetchConservedVariables(conservedView, right);
+                        auto conservedValues = 0.5*(Equation::fetchConservedVariables(conservedView, left) + Equation::fetchConservedVariables(conservedView, right));
 
-                        DiffusionMatrix<Equation, direction> matrix(equation, conservedValues);
+                        DiffusionMatrix<Equation, direction> lambda(equation, conservedValues);
 
-                        return 0.5*(equation.template computeEigenVectorMatrix<direction>(conservedValues) * (matrix * ((equation.template computeEigenVectorMatrix<direction>(conservedValues).transposed())* (rightValues - leftValues))));
+                        auto R = equation.template computeEigenVectorMatrix<direction>(conservedValues);
+                        return 0.5*(R*(lambda*(R.transposed() * (rightValues - leftValues))));
                     };
 
                     //outFile << (diffusion(middleIndex, rightIndex) - diffusion(leftIndex, middleIndex))[1] << std::endl;
@@ -126,5 +130,10 @@ namespace alsfvm { namespace diffusion {
     template class TecnoDiffusionCPU<::alsfvm::equation::euler::Euler<1>, ::alsfvm::diffusion::RoeMatrix>;
     template class TecnoDiffusionCPU<::alsfvm::equation::euler::Euler<2>, ::alsfvm::diffusion::RoeMatrix>;
     template class TecnoDiffusionCPU<::alsfvm::equation::euler::Euler<3>, ::alsfvm::diffusion::RoeMatrix>;
+
+    template class TecnoDiffusionCPU<::alsfvm::equation::burgers::Burgers, ::alsfvm::diffusion::RusanovMatrix>;
+    template class TecnoDiffusionCPU<::alsfvm::equation::euler::Euler<1>,  ::alsfvm::diffusion::RusanovMatrix>;
+    template class TecnoDiffusionCPU<::alsfvm::equation::euler::Euler<2>,  ::alsfvm::diffusion::RusanovMatrix>;
+    template class TecnoDiffusionCPU<::alsfvm::equation::euler::Euler<3>,  ::alsfvm::diffusion::RusanovMatrix>;
 }
 }

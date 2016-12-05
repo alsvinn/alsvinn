@@ -4,6 +4,9 @@
 #include "alsfvm/equation/equation_list.hpp"
 #include <iostream>
 #include "alsfvm/cuda/cuda_utils.hpp"
+#include "alsfvm/diffusion/RusanovMatrix.hpp"
+
+
 namespace alsfvm {
     namespace diffusion {
         namespace {
@@ -218,5 +221,10 @@ namespace alsfvm {
         template class TecnoDiffusionCUDA<::alsfvm::equation::euler::Euler<1>, ::alsfvm::diffusion::RoeMatrix >;
         template class TecnoDiffusionCUDA<::alsfvm::equation::euler::Euler<2>, ::alsfvm::diffusion::RoeMatrix >;
         template class TecnoDiffusionCUDA<::alsfvm::equation::euler::Euler<3>, ::alsfvm::diffusion::RoeMatrix >;
+
+        template class TecnoDiffusionCUDA<::alsfvm::equation::burgers::Burgers, ::alsfvm::diffusion::RusanovMatrix >;
+        template class TecnoDiffusionCUDA<::alsfvm::equation::euler::Euler<1>,  ::alsfvm::diffusion::RusanovMatrix >;
+        template class TecnoDiffusionCUDA<::alsfvm::equation::euler::Euler<2>,  ::alsfvm::diffusion::RusanovMatrix >;
+        template class TecnoDiffusionCUDA<::alsfvm::equation::euler::Euler<3>,  ::alsfvm::diffusion::RusanovMatrix >;
     }
 }

@@ -7,6 +7,7 @@
 #include "alsfvm/equation/equation_list.hpp"
 #include "alsfvm/error/Exception.hpp"
 #include "alsfvm/diffusion/NoDiffusion.hpp"
+#include "alsfvm/diffusion/RusanovMatrix.hpp"
 
 namespace alsfvm { namespace diffusion { 
     alsfvm::shared_ptr<DiffusionOperator> DiffusionFactory::createDiffusionOperator(const std::string& equation,
@@ -33,6 +34,10 @@ namespace alsfvm { namespace diffusion {
                     diffusionOperator.reset(new TecnoDiffusionCPU
                         <equation::burgers::Burgers, RoeMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
+                } else if (diffusionType == "tecnorusanov") {
+                    diffusionOperator.reset(new TecnoDiffusionCPU
+                        <equation::burgers::Burgers, RusanovMatrix>(volumeFactory, reconstruction,
+                            simulatorParameters));
                 }
                 else {
                     THROW("Unknown diffusion type " << diffusionType);
@@ -43,6 +48,10 @@ namespace alsfvm { namespace diffusion {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCPU
                         <equation::euler::Euler<1>, RoeMatrix>(volumeFactory, reconstruction,
+                            simulatorParameters));
+                } else if (diffusionType == "tecnorusanov") {
+                    diffusionOperator.reset(new TecnoDiffusionCPU
+                        <equation::euler::Euler<1>, RusanovMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
                 else {
@@ -56,6 +65,11 @@ namespace alsfvm { namespace diffusion {
                         <equation::euler::Euler<2>, RoeMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
+                if (diffusionType == "tecnorusanov") {
+                    diffusionOperator.reset(new TecnoDiffusionCPU
+                        <equation::euler::Euler<2>, RusanovMatrix>(volumeFactory, reconstruction,
+                            simulatorParameters));
+                }
                 else {
                     THROW("Unknown diffusion type " << diffusionType);
                 }
@@ -65,6 +79,10 @@ namespace alsfvm { namespace diffusion {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCPU
                         <equation::euler::Euler<3>, RoeMatrix>(volumeFactory, reconstruction,
+                            simulatorParameters));
+                } else if (diffusionType == "tecnorusanov") {
+                    diffusionOperator.reset(new TecnoDiffusionCPU
+                        <equation::euler::Euler<3>, RusanovMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
                 else {
@@ -83,6 +101,10 @@ namespace alsfvm { namespace diffusion {
                     diffusionOperator.reset(new TecnoDiffusionCUDA
                         <equation::burgers::Burgers, RoeMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
+                } else if (diffusionType == "tecnorusanov") {
+                    diffusionOperator.reset(new TecnoDiffusionCUDA
+                        <equation::burgers::Burgers, RusanovMatrix>(volumeFactory, reconstruction,
+                            simulatorParameters));
                 }
                 else {
                     THROW("Unknown diffusion type " << diffusionType);
@@ -93,6 +115,10 @@ namespace alsfvm { namespace diffusion {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCUDA
                         <equation::euler::Euler<1>, RoeMatrix>(volumeFactory, reconstruction,
+                            simulatorParameters));
+                } else if (diffusionType == "tecnorusanov") {
+                    diffusionOperator.reset(new TecnoDiffusionCUDA
+                        <equation::euler::Euler<1>, RusanovMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
                 else {
@@ -105,6 +131,10 @@ namespace alsfvm { namespace diffusion {
                     diffusionOperator.reset(new TecnoDiffusionCUDA
                         <equation::euler::Euler<2>, RoeMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
+                } else if (diffusionType == "tecnorusanov") {
+                    diffusionOperator.reset(new TecnoDiffusionCUDA
+                        <equation::euler::Euler<2>, RusanovMatrix>(volumeFactory, reconstruction,
+                            simulatorParameters));
                 }
                 else {
                     THROW("Unknown diffusion type " << diffusionType);
@@ -115,6 +145,10 @@ namespace alsfvm { namespace diffusion {
                 if (diffusionType == "tecnoroe") {
                     diffusionOperator.reset(new TecnoDiffusionCUDA
                         <equation::euler::Euler<3>, RoeMatrix>(volumeFactory, reconstruction,
+                            simulatorParameters));
+                } else if (diffusionType == "tecnorusanov") {
+                    diffusionOperator.reset(new TecnoDiffusionCUDA
+                        <equation::euler::Euler<3>, RusanovMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
                 else {

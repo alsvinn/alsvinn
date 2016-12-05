@@ -499,6 +499,38 @@ namespace alsfvm {
 
                 if (direction == 0) {
                     matrix3 matrixWithEigenVectors;
+#if 1
+                    const double rho = conserved.rho;
+                    
+                    const auto primitive = computePrimitiveVariables(conserved);
+                    const double p = primitive.p;
+                    const double u = primitive.u.x;
+                    const real a = sqrt(gamma*primitive.p / conserved.rho);
+                    const real H = (conserved.E + primitive.p) / conserved.rho;
+                    const double a1 = sqrt(rho / (2 * gamma));
+                    const double a2 = sqrt(rho*(gamma - 1) / gamma);
+                    const double a3 = sqrt(p);
+                    const double a4 = a1;
+
+                    
+
+                    matrixWithEigenVectors(0, 0) = a1;
+                    matrixWithEigenVectors(0, 1) = a2;
+                    matrixWithEigenVectors(0, 2) = a4;
+
+                    matrixWithEigenVectors(1, 0) = a1*(primitive.u.x - a);
+                    matrixWithEigenVectors(1, 1) = a2*primitive.u.x;
+                    matrixWithEigenVectors(1, 2) = a4*(primitive.u.x + a);
+
+                    matrixWithEigenVectors(2, 0) = a1*(H - primitive.u.x*a);
+                    matrixWithEigenVectors(2, 1) = 0.5*a2*(primitive.u.dot(primitive.u));
+                    matrixWithEigenVectors(2, 2) = a4*(H + primitive.u.x);
+
+                   
+                    return matrixWithEigenVectors;
+
+#else 
+                    
 
                     auto primitive = computePrimitiveVariables(conserved);
                     const real a = sqrt(gamma*primitive.p / conserved.rho);
@@ -514,8 +546,9 @@ namespace alsfvm {
                     matrixWithEigenVectors(2, 0) = H - primitive.u.x*a;
                     matrixWithEigenVectors(2, 1) = 0.5*primitive.u.dot(primitive.u);
                     matrixWithEigenVectors(2, 2) = H + primitive.u.x*a;
-
                     return matrixWithEigenVectors.normalized();
+#endif
+                   
                 }
 
                 assert(false);
