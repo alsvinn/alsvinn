@@ -2,6 +2,7 @@
 #include "alsfvm/volume/Volume.hpp"
 #include "alsfvm/grid/Grid.hpp"
 #include "alsfvm/equation/CellComputer.hpp"
+#include "alsfvm/init/Parameters.hpp"
 namespace alsfvm { namespace init { 
 
     class InitialData {

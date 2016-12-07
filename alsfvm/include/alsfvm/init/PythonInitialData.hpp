@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/init/InitialData.hpp"
-#include  "alsfvm/equation/CellComputer.hpp"
+#include "alsfvm/equation/CellComputer.hpp"
+#include "alsfvm/init/Parameters.hpp"
 namespace alsfvm { namespace init { 
 
 ///
@@ -26,7 +27,8 @@ namespace alsfvm { namespace init {
         ///
         /// The momentum (m) and energy will be computed automatically.
         ///
-        PythonInitialData(const std::string& programString);
+        PythonInitialData(const std::string& programString,
+            const Parameters& parameters);
 
 
         ///
@@ -47,7 +49,9 @@ namespace alsfvm { namespace init {
                             equation::CellComputer& cellComputer,
                             grid::Grid& grid);
 
+
     private:
+        Parameters parameters;
         std::string programString;
 
     };

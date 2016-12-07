@@ -35,7 +35,7 @@ TEST(PythonInitialDataTest, AnswerToEverything) {
     // Fill every variable with 42
     const std::string pythonCode = "rho = 42\nux=42\nuy=42\nuz=42\np=42";
 
-    PythonInitialData initialData(pythonCode);
+    PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
                                *volumeExtra,
@@ -47,6 +47,51 @@ TEST(PythonInitialDataTest, AnswerToEverything) {
         for(size_t var = 0; var < volumePrimitive->getNumberOfVariables(); ++var) {
             ASSERT_EQ(42, volumePrimitive->getScalarMemoryArea(var)->getPointer()[index]);
         }
+    });
+
+}
+
+TEST(PythonInitialDataTest, ParameterTest) {
+
+
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(new DeviceConfiguration);
+    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler3", "cpu");
+    equation::CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
+    auto cellComputer = cellComputerFactory.createComputer();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
+    volume::VolumeFactory volumeFactory("euler3", memoryFactory);
+    size_t nx = 10;
+    size_t ny = 10;
+    size_t nz = 1;
+
+    grid::Grid grid({ 0.,0.,0. }, { 1,1,1 }, { int(nx), int(ny), int(nz) });
+
+
+    auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
+    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
+    auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
+    Parameters parameters;
+    parameters.addParameter("nonVector", { 43. });
+    parameters.addParameter("vectorParameter", { 44., 45., 45.5, 46 });
+    // Fill every variable with 42
+    const std::string pythonCode = "rho = nonVector\nux=vectorParameter[0]\nuy=vectorParameter[1]\nuz=vectorParameter[2]\np=vectorParameter[3]+len(vectorParameter)";
+
+    PythonInitialData initialData(pythonCode, parameters);
+
+    initialData.setInitialData(*volumeConserved,
+        *volumeExtra,
+        *volumePrimitive,
+        *cellComputer,
+        grid);
+
+    volume::for_each_midpoint(*volumePrimitive, grid, [&](real x, real y, real z, size_t index) {
+       
+        ASSERT_EQ(43, volumePrimitive->getScalarMemoryArea("rho")->getPointer()[index]);
+        ASSERT_EQ(44, volumePrimitive->getScalarMemoryArea("ux")->getPointer()[index]);
+        ASSERT_EQ(45, volumePrimitive->getScalarMemoryArea("uy")->getPointer()[index]);
+        ASSERT_EQ(45.5, volumePrimitive->getScalarMemoryArea("uz")->getPointer()[index]);
+        ASSERT_EQ(46 + 4, volumePrimitive->getScalarMemoryArea("p")->getPointer()[index]);
+        
     });
 
 }
@@ -85,7 +130,7 @@ TEST(PythonInitialDataTest, RiemannProblem) {
                                    "    p=2\n";
 
 
-    PythonInitialData initialData(pythonCode);
+    PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
                                *volumeExtra,
@@ -134,7 +179,7 @@ TEST(PythonInitialDataTest, SineCosineExp) {
         "p=y\n";
         
 
-    PythonInitialData initialData(pythonCode);
+    PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
         *volumeExtra,

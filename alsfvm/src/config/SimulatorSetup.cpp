@@ -214,8 +214,8 @@ alsfvm::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(const Si
         std::string pythonProgram((std::istreambuf_iterator<char>(file)),
                          std::istreambuf_iterator<char>());
 
-
-        return alsfvm::shared_ptr<init::InitialData>(new init::PythonInitialData(pythonProgram));
+        auto parameters = readParameters(configuration);
+        return alsfvm::shared_ptr<init::InitialData>(new init::PythonInitialData(pythonProgram, parameters));
     }
 
     THROW("Unknown initial data.");
@@ -250,6 +250,54 @@ std::string SimulatorSetup::readPlatform(const SimulatorSetup::ptree &configurat
 std::string SimulatorSetup::readBoundary(const SimulatorSetup::ptree &configuration)
 {
     return configuration.get<std::string>("fvm.boundary");
+}
+
+init::Parameters SimulatorSetup::readParameters(const SimulatorSetup::ptree& configuration)
+{
+    init::Parameters parameters;
+    auto fvmNode = configuration.get_child("fvm");
+    // first read in all equation parameters:
+    if (fvmNode.find("equationParameters") != fvmNode.not_found()) {
+        auto equationParameters = fvmNode.get_child("equationParameters");
+        for (auto equationParameter : equationParameters) {
+            parameters.addParameter(equationParameter.first, { std::atof(equationParameter.second.data().c_str()) });
+        }
+    }
+
+    auto initial = fvmNode.get_child("initialData");
+    if (initial.find("parameters") != initial.not_found()) {
+        auto initParameters = initial.get_child("parameters");
+
+        for (auto parameter : initParameters) {
+            auto name = parameter.second.get<std::string>("name");
+            auto length = parameter.second.get<int>("length");
+            std::vector<double> value;
+
+            if (length == 1) {
+                value.resize(1);
+                value[0] = parameter.second.get<real>("value");
+            }
+            else {
+                auto valueAsString = parameter.second.get<std::string>("value");
+                boost::trim(valueAsString);
+
+                if (valueAsString[0] == '[') {
+                    // We are given an array, and we read everything in
+                    for (auto valueItem : parameter.second.get_child("value")) {
+                        value.push_back(valueItem.second.get_value<real>());
+                    }
+                }
+                else {
+                    // We only got a single value
+                    auto valueAsDouble = parameter.second.get<real>("value");
+                    value.resize(length, valueAsDouble);
+                }
+            }
+           
+            parameters.addParameter(name, value);
+        }
+    }
+    return parameters;
 }
 
 void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree &configuration, simulator::SimulatorParameters &parameters)

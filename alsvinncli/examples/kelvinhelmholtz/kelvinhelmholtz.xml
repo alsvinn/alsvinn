@@ -1,33 +1,41 @@
 <fvm>
-  <name>
-    kh
-  </name>
-  <platform>cpu</platform>
-  <grid>
-    <lowerCorner>0 0 0</lowerCorner>
-    <upperCorner>1 1 0</upperCorner>
-    <dimension>1024 1024 1</dimension>
-  </grid>
-  <boundary>periodic</boundary>
-  <flux>tecno1</flux>
-  <endTime>1</endTime>
-  <equation>euler2</equation>
-  <equationParameters>
-    <gamma>1.4</gamma>
-  </equationParameters>
-  <reconstruction>none</reconstruction>
-  <cfl>0.4</cfl>
-  <integrator>auto</integrator>
-  <initialData>
-    <python>kelvinhelmholtz.py</python>
-  </initialData>
+    <name>
+        kh
+    </name>
+    <platform>cpu</platform>
+    <grid>
+        <lowerCorner>0 0 0</lowerCorner>
+        <upperCorner>1 1 0</upperCorner>
+        <dimension>1024 1024 1</dimension>
+    </grid>
+    <boundary>periodic</boundary>
+    <flux>tecno1</flux>
+    <endTime>1</endTime>
+    <equation>euler2</equation>
+    <equationParameters>
+        <gamma>1.4</gamma>
+    </equationParameters>
+    <reconstruction>none</reconstruction>
+    <cfl>0.4</cfl>
+    <integrator>auto</integrator>
+
+    <initialData>
+        <python>kelvinhelmholtz.py</python>
+        <parameters>
+            <parameter>
+                <name>a</name>
+                <length>40</length>
+                <value>0</value>
+            </parameter>
+        </parameters>
+    </initialData>
     <diffusion>
         <name>tecnoroe</name>
         <reconstruction>none</reconstruction>
     </diffusion>
-  <writer>
-    <type>hdf5</type>
-    <basename>kh</basename>
-    <numberOfSaves>10</numberOfSaves>
-  </writer>
+    <writer>
+        <type>hdf5</type>
+        <basename>kh</basename>
+        <numberOfSaves>10</numberOfSaves>
+    </writer>
 </fvm>

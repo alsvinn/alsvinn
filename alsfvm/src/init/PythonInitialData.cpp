@@ -39,8 +39,8 @@ namespace {
         }
     }
 }
-PythonInitialData::PythonInitialData(const std::string &programString)
-    : programString(programString)
+PythonInitialData::PythonInitialData(const std::string &programString, const Parameters& parameters)
+    : programString(programString), parameters(parameters)
 {
 
 }
@@ -78,6 +78,33 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     for(size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
         // We set them to None, that way we can check at the end if they are checked.
         addIndent(primitiveVolume.getName(i) + " = 0.0", functionStringStream);
+    }
+
+    // Then we add the parameters
+    for (auto parameterName : parameters.getParameterNames()) {
+        auto parameter = parameters.getParameter(parameterName);
+        // See http://stackoverflow.com/questions/3001239/define-a-global-in-a-python-module-from-a-c-api
+        // and https://docs.python.org/3/c-api/object.html#PyObject_SetAttrString
+        if (parameter.size() == 1) {
+            PyObject* parameterValue = PyFloat_FromDouble(parameter[0]);
+            PyObject_SetAttrString(moduleLocal, parameterName.c_str(), parameterValue);
+            Py_DECREF(parameterValue);
+            //addIndent(parameterName + " = " + std::to_string(parameter[0]), functionStringStream);
+        }
+        else {
+            PyObject* parameterValueList = PyList_New(parameter.size());
+           
+            for (size_t i = 0; i < parameter.size(); ++i) {
+                
+
+                PyObject* parameterValue = PyFloat_FromDouble(parameter[i]);
+                PyList_SetItem(parameterValueList, i, parameterValue);
+                //Py_DECREF(parameterValue);
+            }
+
+            PyObject_SetAttrString(moduleLocal, parameterName.c_str(), parameterValueList);
+            Py_DECREF(parameterValueList);
+        }
     }
 
     addIndent(programString, functionStringStream);

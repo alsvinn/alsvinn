@@ -65,7 +65,7 @@ namespace alsfvm { namespace diffusion {
                         <equation::euler::Euler<2>, RoeMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
                 }
-                if (diffusionType == "tecnorusanov") {
+                else if (diffusionType == "tecnorusanov") {
                     diffusionOperator.reset(new TecnoDiffusionCPU
                         <equation::euler::Euler<2>, RusanovMatrix>(volumeFactory, reconstruction,
                             simulatorParameters));
