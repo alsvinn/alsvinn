@@ -24,6 +24,8 @@ public:
     ///
     HDF5Writer(const std::string& basefileName);
 
+    virtual ~HDF5Writer() {}
+
     ///
     /// \brief write writes the data to disk
     /// \param conservedVariables the conservedVariables to write
@@ -55,6 +57,8 @@ protected:
     ///
     void writeVolume(const volume::Volume& volume, hid_t file);
 
+
+
     ///
     /// \brief writeMemory writes a memory area to disk
     /// \param volume the volume to read from
@@ -64,6 +68,27 @@ protected:
     ///
     void writeMemory(const volume::Volume& volume, size_t index, const std::string& name,
                      hid_t file);
+
+    ///
+    /// \brief createDatasetForMemroy creates a dataset for the given memory
+    /// \param volume the volume to read from
+    /// \param index the index of the memory area to read from
+    /// \param name the name of the memory (variable name)
+    /// \param file the file to write to
+    ///
+    virtual hid_t createDatasetForMemory(const volume::Volume& volume, size_t index, const std::string& name,
+                     hid_t file);
+
+    ///
+    /// \brief createDatasetForMemroy creates a dataset for the given memory
+    /// \param volume the volume to read from
+    /// \param index the index of the memory area to read from
+    /// \param name the name of the memory (variable name)
+    /// \param file the file to write to
+    ///
+    void writeMemoryToDataset(const volume::Volume& volume, size_t index, const std::string& name,
+                     hid_t dataset);
+
 
 
     ///
@@ -91,7 +116,7 @@ protected:
     ///
     void writeIntegers(hid_t object, const std::string& name, const std::vector<int>& values);
 
-private:
+
     size_t snapshotNumber;
     const std::string basefileName;
 };

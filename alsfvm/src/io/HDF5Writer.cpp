@@ -3,7 +3,7 @@
 #include <memory>
 #include <cassert>
 #include "alsfvm/io/hdf5_utils.hpp"
-
+#include "alsfvm/io/io_utils.hpp"
 #include <mutex>
 
 // It seems like HDF5 doesn't like to be accessed from different threads...
@@ -80,11 +80,16 @@ void HDF5Writer::writeVolume(const volume::Volume &volume, hid_t file)
     }
 }
 
-void HDF5Writer::writeMemory(const volume::Volume& volume, size_t index,
-                             const std::string& name,
-                             hid_t file)
-{
-	// The comment below is from https://ice.txcorp.com/trac/vizschema/wiki/WikiStart
+///
+/// \brief createDatasetForMemroy creates a dataset for the given memory
+/// \param volume the volume to read from
+/// \param index the index of the memory area to read from
+/// \param name the name of the memory (variable name)
+/// \param file the file to write to
+///
+hid_t HDF5Writer::createDatasetForMemory(const volume::Volume& volume, size_t index, const std::string& name,
+                 hid_t file) {
+    // The comment below is from https://ice.txcorp.com/trac/vizschema/wiki/WikiStart
     //   GROUP "/" {
     //   Group "A" {
     //     Dataset "phi" {
@@ -104,17 +109,30 @@ void HDF5Writer::writeMemory(const volume::Volume& volume, size_t index,
     HDF5Resource filespace(H5Screate_simple(3, dimensions, NULL), H5Sclose);
 
 
-    HDF5Resource dataset(H5Dcreate(file, name.c_str(), H5T_IEEE_F64LE,
+    hid_t dataset = H5Dcreate(file, name.c_str(), H5T_IEEE_F64LE,
                                    filespace.hid(),
-                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT), H5Dclose);
+                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
 
+    return dataset;
+}
 
+///
+/// \brief createDatasetForMemroy creates a dataset for the given memory
+/// \param volume the volume to read from
+/// \param index the index of the memory area to read from
+/// \param name the name of the memory (variable name)
+/// \param file the file to write to
+///
+void HDF5Writer::writeMemoryToDataset(const volume::Volume& volume, size_t index, const std::string& name,
+                 hid_t dataset)
+{
     // Now we will write the portion of data that our process is responsible
     // for (if we are not running MPI, this will default to the whole data)
     // See https://www.hdfgroup.org/HDF5/Tutor/phypecont.html for details on how
     // this works. And also check the C++ example
     // https://www.hdfgroup.org/ftp/HDF5/current/src/unpacked/c++/examples/h5tutr_subset.cpp
+
 
     // The number of elements we will write in each direction
     hsize_t count[] = {volume.getNumberOfXCells(),
@@ -124,34 +142,48 @@ void HDF5Writer::writeMemory(const volume::Volume& volume, size_t index,
     // The offset (where we will start writing data
     hsize_t offset[] = {0, 0, 0};
 
-    // We need a temporary memory space to hold the data
-    HDF5Resource memspace(H5Screate_simple(3, count, NULL), H5Sclose);
-
-
+    HDF5Resource filespace(H5Dget_space(dataset), H5Sclose);
 
     // Last two arguments are NULL since we accept the default value
     HDF5_SAFE_CALL(H5Sselect_hyperslab(filespace.hid(), H5S_SELECT_SET, offset, NULL, count,
             NULL));
 
+    // We need a temporary memory space to hold the data
+    HDF5Resource memspace(H5Screate_simple(3, count, NULL), H5Sclose);
+
 
     // Here we only support double writing at the moment
     //static_assert(std::is_same<real, double>::value, "HDF5 only supports double for now");
 
-    
+
 
 
     std::vector<real> dataTmp(volume.getNumberOfXCells() * volume.getNumberOfYCells() * volume.getNumberOfZCells());
     volume.copyInternalCells(index, dataTmp.data(), dataTmp.size());
-	std::vector<double> data(volume.getNumberOfXCells() * volume.getNumberOfYCells() * volume.getNumberOfZCells());
-	std::copy(dataTmp.begin(), dataTmp.end(), data.begin());
+    std::vector<double> data(volume.getNumberOfXCells() * volume.getNumberOfYCells() * volume.getNumberOfZCells());
+    std::copy(dataTmp.begin(), dataTmp.end(), data.begin());
     // Then we write the data as we normally would.
-    HDF5_SAFE_CALL(H5Dwrite(dataset.hid(), H5T_NATIVE_DOUBLE,
+    HDF5_SAFE_CALL(H5Dwrite(dataset, H5T_NATIVE_DOUBLE,
                 memspace.hid(), filespace.hid(), H5P_DEFAULT,
                 data.data()));
 
-    writeString(dataset.hid(), "vsType", "variable");
-    writeString(dataset.hid(), "vsMesh", "grid");
-    writeString(dataset.hid(), "vsCentering", "zonal");
+    writeString(dataset, "vsType", "variable");
+    writeString(dataset, "vsMesh", "grid");
+    writeString(dataset, "vsCentering", "zonal");
+}
+
+
+void HDF5Writer::writeMemory(const volume::Volume& volume, size_t index,
+                             const std::string& name,
+                             hid_t file)
+{
+
+
+
+    hid_t dataset = createDatasetForMemory(volume, index, name, file);
+    writeMemoryToDataset(volume, index, name, dataset);
+    HDF5_SAFE_CALL(H5Dclose(dataset));
+
 
 }
 
