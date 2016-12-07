@@ -2,7 +2,7 @@
 #include "alsfvm/memory/memory_utils.hpp"
 #include <cassert>
 #include <algorithm>
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #define CHECK_SIZE_AND_HOST(x) { \
     if (!x.isOnHost()) {\
         THROW(#x << " is not on host."); \

@@ -1,61 +1,71 @@
 #pragma once
 #include <vector>
-namespace alsfvm {
+namespace alsutils {
 
     ///
     /// Small vector class to hold 3D data
     ///
     template<class T>
-    struct vec1 {
+    struct vec2 {
         T x;
-
-        __device__ __host__ vec1()
-            : x(0)
+        T y;
+      
+        __device__ __host__ vec2()
+            : x(0), y(0)
         {
 
         }
-        __device__ __host__ vec1(T x)
-        : x(x)
+
+        __device__ __host__ vec2(T t) :
+            x(t), y(t)
+        {
+
+        }
+
+        __device__ __host__ vec2(T x, T y)
+            : x(x), y(y)
         {
             // Empty
         }
 
-        __device__ __host__ operator T() const {
-            return x;
-        }
 
-        __device__ __host__ vec1(const vec1<T&>& other)
-            : x(other.x)
+
+        __device__ __host__ vec2(const vec2<T&>& other)
+            : x(other.x), y(other.y)
         {
 
+
+
         }
 
-
         template<class S>
-        __device__ __host__ vec1& operator=(const vec1<S>& other) {
+        __device__ __host__ vec2& operator=(const vec2<S>& other) {
             x = other.x;
+            y = other.y;
+
 
             return *this;
         }
 
-        __device__ __host__ bool operator==(const vec1& other) const {
-            return other.x == x;
+
+        __device__ __host__ bool operator==(const vec2& other) const {
+            return other.x == x && other.y == y;
         }
 #if __cplusplus > 199711L || WIN32
         ///
         /// Converts the vector to an std::vector<T>
-        /// output is {x, y, z}
+        /// output is {x, y}
         ///
         std::vector<T> toStdVector() {
-            return std::vector<T>({ x});
+            return std::vector<T>({ x, y });
         }
 #endif
         ///
         /// Converts the vector to the other type
         ///
         template<class S>
-        __device__ __host__ vec1<S> convert() const {
-            return vec1<S>(S(x));
+        __device__ __host__ vec2<S> convert() const {
+            return vec2<S>(S(x), S(y));
         }
 
         ///
@@ -77,24 +87,21 @@ namespace alsfvm {
         ///
         /// Computes the dot (scalar) product
         ///
-        __device__ __host__ T dot(const vec1<T>& other) const {
-            return x*other.x;
+        __device__ __host__ T dot(const vec2<T>& other) const {
+            return x*other.x + y*other.y;
         }
 
         ///
         /// Returns 3 (number of components)
         ///
-        __device__ __host__ static constexpr size_t size()  {
-            return 1;
-        }
-
-        __device__ __host__ T norm() const {
-            return abs(x);
+        __device__ __host__ static constexpr size_t size() {
+            return 2;
         }
 
         template<class S>
-        __device__ __host__ inline vec1<T>& operator+=( const vec1<S>& b) {
+        __device__ __host__ inline vec2<T>& operator+=( const vec2<S>& b) {
             x+= b.x;
+            y+= b.y;
 
             return *this;
         }
@@ -106,8 +113,8 @@ namespace alsfvm {
     /// \f[(a_0/b_0, a_1/b_1, a_2/b_2)\f]
     ///
     template<class T>
-    __device__ __host__ inline vec1<T> operator/(const vec1<T>& a, const vec1<T>& b) {
-        return vec1<T>(a.x / b.x);
+    __device__ __host__ inline vec2<T> operator/(const vec2<T>& a, const vec2<T>& b) {
+        return vec2<T>(a.x / b.x, a.y / b.y);
     }
 
     ///
@@ -115,8 +122,8 @@ namespace alsfvm {
     /// \note Creates a new vector instance
     ///
     template<class T>
-    __device__ __host__ inline vec1<T> operator*(T scalar, const vec1<T>& a) {
-        return vec1<T>(a.x*scalar);
+    __device__ __host__ inline vec2<T> operator*(T scalar, const vec2<T>& a) {
+        return vec2<T>(a.x*scalar, a.y*scalar);
     }
 
     ///
@@ -124,8 +131,8 @@ namespace alsfvm {
     /// \note Creates a new vector instance
     ///
     template<class T>
-    __device__ __host__ inline vec1<T> operator-(const vec1<T>& a, const vec1<T>& b) {
-        return vec1<T>(a.x - b.x);
+    __device__ __host__ inline vec2<T> operator-(const vec2<T>& a, const vec2<T>& b) {
+        return vec2<T>(a.x - b.x, a.y - b.y);
     }
 
     ///
@@ -133,8 +140,8 @@ namespace alsfvm {
     /// \note Creates a new vector instance
     ///
     template<class T>
-    __device__ __host__ inline vec1<T> operator/(const vec1<T>& a, T scalar) {
-        return vec1<T>(a.x/scalar);
+    __device__ __host__ inline vec2<T> operator/(const vec2<T>& a, T scalar) {
+        return vec2<T>(a.x / scalar, a.y / scalar);
     }
 
     ///
@@ -142,7 +149,8 @@ namespace alsfvm {
     /// \note Creates a new vector instance.
     ///
     template<class T, class S>
-    __device__ __host__ inline vec1<T> operator+(const vec1<T>& a, const vec1<S>& b) {
-        return vec1<T>(a.x+b.x);
+    __device__ __host__ inline vec2<T> operator+(const vec2<T>& a, const vec2<S>& b) {
+        return vec2<T>(a.x + b.x, a.y + b.y);
     }
+
 }

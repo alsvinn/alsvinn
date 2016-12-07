@@ -114,6 +114,8 @@ if(ALSVINN_USE_MPI)
 else()
   set(MPI_LIBRARIES "")
 endif()
+include_directories(${CMAKE_SOURCE_DIR}/alsutils/include)
+add_subdirectory("alsutils")
 
 add_subdirectory("alsfvm")
 add_subdirectory("alsvinncli")

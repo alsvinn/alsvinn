@@ -1,5 +1,5 @@
 #include "alsfvm/simulator/Simulator.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include <iostream>
 
 namespace alsfvm { namespace simulator {

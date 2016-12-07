@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-namespace alsfvm {
+namespace alsutils {
 
     ///
     /// Small vector class to hold 3D data

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "alsfvm/vec2.hpp"
-namespace alsfvm {
+#include "alsutils/vec2.hpp"
+namespace alsutils {
 
     ///
     /// Small vector class to hold 3D data

@@ -1,5 +1,5 @@
 #include "alsfvm/init/Parameters.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 namespace alsfvm { namespace init { 
     //! Add a a parameter to the parameters.
     void Parameters::addParameter(const std::string& name, const std::vector<real>& value) {

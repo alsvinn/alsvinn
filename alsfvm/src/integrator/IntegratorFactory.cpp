@@ -3,7 +3,7 @@
 #include "alsfvm/integrator/RungeKutta2.hpp"
 #include "alsfvm/integrator/RungeKutta3.hpp"
 #include "alsfvm/integrator/RungeKutta4.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 
 namespace alsfvm { namespace integrator {
 

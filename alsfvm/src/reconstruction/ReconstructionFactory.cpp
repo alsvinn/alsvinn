@@ -16,7 +16,7 @@
 
 #include "alsfvm/reconstruction/WENOCPU.hpp"
 
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 
 namespace alsfvm { namespace reconstruction {
 

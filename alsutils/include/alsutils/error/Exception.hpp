@@ -1,5 +1,4 @@
 #pragma once
-#include "alsfvm/types.hpp"
 #include <sstream>
 #include <exception>
 #include <stdexcept>

@@ -5,7 +5,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include "alsfvm/init/PythonInitialData.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include "alsfvm/io/HDF5Writer.hpp"
 #include "alsfvm/io/FixedIntervalWriter.hpp"
 #include <boost/property_tree/xml_parser.hpp>

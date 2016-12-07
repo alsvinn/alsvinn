@@ -3,7 +3,7 @@
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/reconstruction/WENO2.hpp"
 #include "alsfvm/reconstruction/WENOF2.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 
 namespace alsfvm { namespace reconstruction {
 

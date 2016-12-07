@@ -1,6 +1,6 @@
 #pragma once
 #include <cassert>
-namespace alsfvm {
+namespace alsutils {
 
     template<class T, size_t NumberOfRows, size_t NumberOfColumns>
     class matrix {
@@ -117,7 +117,7 @@ namespace alsfvm {
 }
 
 template<class T, size_t NumberOfRows, size_t NumberOfColumns>
-inline std::ostream& operator<<(std::ostream& os, const alsfvm::matrix<T, NumberOfRows, NumberOfColumns>& mat) {
+inline std::ostream& operator<<(std::ostream& os, const alsutils::matrix<T, NumberOfRows, NumberOfColumns>& mat) {
     os << "[" << std::endl;
     for (int i = 0; i < NumberOfRows; ++i) {
         for (int j = 0; j < NumberOfColumns; ++j) {

@@ -1,5 +1,5 @@
 #include "alsfvm/memory/MemoryFactory.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include "alsfvm/memory/HostMemory.hpp"
 #ifdef  ALSVINN_HAVE_CUDA
 #include "alsfvm/cuda/CudaMemory.hpp"

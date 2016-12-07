@@ -1,7 +1,7 @@
 #include "alsfvm/volume/Volume.hpp"
 
 
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include "alsfvm/volume/interpolate.hpp"
 #define CHECK_SIZE_THIS(x) { \
     if (this->getNumberOfVariables() != x.getNumberOfVariables()) { \

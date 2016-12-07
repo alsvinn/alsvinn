@@ -1,5 +1,5 @@
 #include "alsfvm/equation/CellComputerFactory.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/equation/CPUCellComputer.hpp"
 #ifdef ALSVINN_HAVE_CUDA

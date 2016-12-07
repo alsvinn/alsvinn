@@ -5,7 +5,7 @@
 
 #include "alsfvm/diffusion/RoeMatrix.hpp"
 #include "alsfvm/equation/equation_list.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include "alsfvm/diffusion/NoDiffusion.hpp"
 #include "alsfvm/diffusion/RusanovMatrix.hpp"
 

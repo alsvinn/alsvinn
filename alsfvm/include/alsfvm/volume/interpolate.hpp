@@ -1,6 +1,6 @@
 #pragma once
 #include "alsfvm/volume/Volume.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 
 
 namespace alsfvm {

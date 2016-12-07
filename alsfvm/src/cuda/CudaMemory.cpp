@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "alsfvm/memory/memory_utils.hpp"
 #include "alsfvm/cuda/vector_operations.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #define CHECK_SIZE_AND_HOST(x) { \
     if (x.isOnHost()) {\
         THROW(#x << " is on host."); \

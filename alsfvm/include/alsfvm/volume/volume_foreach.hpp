@@ -2,7 +2,7 @@
 #include "alsfvm/volume/Volume.hpp"
 #include <functional>
 #include <array>
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include "alsfvm/grid/Grid.hpp"
 ///
 /// This file contains for_each functions for volumes

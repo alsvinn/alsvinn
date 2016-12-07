@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "alsfvm/vec3.hpp"
-namespace alsfvm {
+#include "alsutils/vec3.hpp"
+namespace alsutils {
 
     ///
     /// Small vector class to hold 3D data
@@ -168,7 +168,7 @@ namespace alsfvm {
 
 }
 template<typename T>
-inline std::ostream& operator<<(std::ostream& os, const alsfvm::vec5<T>& vec) {
+inline std::ostream& operator<<(std::ostream& os, const alsutils::vec5<T>& vec) {
     os << "[";
     for (int i = 0; i < 5; ++i) {
         os << vec[i];
