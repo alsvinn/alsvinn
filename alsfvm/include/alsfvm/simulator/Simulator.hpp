@@ -55,7 +55,6 @@ namespace alsfvm { namespace simulator {
                   numflux::NumericalFluxFactory& numericalFluxFactory,
                   equation::CellComputerFactory& cellComputerFactory,
                   alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-                  alsfvm::shared_ptr<init::InitialData>& initialData,
 				  real endTime,
 				  alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
 				  std::string& equationName,
@@ -111,12 +110,16 @@ namespace alsfvm { namespace simulator {
         std::string getPlatformName() const;
 
         std::string getEquationName() const;
+
+        void setInitialValue(alsfvm::shared_ptr<init::InitialData>& initialData);
     private:
 
         real computeTimestep();
         void checkConstraints();
         void incrementSolution();
 
+        SimulatorParameters simulatorParameters;
+        volume::VolumeFactory volumeFactory;
         TimestepInformation timestepInformation;
         alsfvm::shared_ptr<grid::Grid> grid;
         alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;
@@ -135,6 +138,7 @@ namespace alsfvm { namespace simulator {
         const real endTime;
         const std::string equationName;
         const std::string platformName;
+        alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration;
     };
 } // namespace alsfvm
 } // namespace simulator

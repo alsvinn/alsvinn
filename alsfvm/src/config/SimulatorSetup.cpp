@@ -53,7 +53,9 @@ namespace {
 
     }
 }
-alsfvm::shared_ptr<simulator::Simulator>
+
+std::pair<alsfvm::shared_ptr<simulator::Simulator>,
+alsfvm::shared_ptr<init::InitialData> >
     SimulatorSetup::readSetupFromFile(const std::string &filename)
 {
     basePath = boost::filesystem::path(boost::filesystem::absolute(filename)).parent_path().string();
@@ -119,7 +121,6 @@ alsfvm::shared_ptr<simulator::Simulator>
                          *numericalFluxFactory,
                          *cellComputerFactory,
                          memoryFactory,
-                         initialData,
                          endTime,
 						 deviceConfiguration,
 						 equation,
@@ -132,7 +133,7 @@ alsfvm::shared_ptr<simulator::Simulator>
         simulator->addTimestepAdjuster(timestepAdjuster);
     }
 
-    return simulator;
+    return std::make_pair(simulator, initialData);
 }
 
 
