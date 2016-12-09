@@ -70,22 +70,35 @@ hid_t HDF5MPIWriter::createDatasetForMemory(const volume::Volume &volume, size_t
         hsize_t dimensions[] = {volume.getNumberOfXCells(),
                                 volume.getNumberOfYCells(),
                                 volume.getNumberOfZCells()};
-        auto groupExistsStatus = H5Gget_objinfo (file, groupName.c_str(), 0, NULL);
+        //auto groupExistsStatus = H5Gget_objinfo (file, groupName.c_str(), 0, NULL);
 
+        // see https://support.hdfgroup.org/HDF5/doc/RM/RM_H5L.html#Link-Exists
+        auto groupExistsStatus = H5Lexists(file, groupName.c_str(), H5P_DEFAULT);
         // check if the group exists or not
         hid_t groupHid;
-        if (groupExistsStatus == 0) {
+        if (groupExistsStatus > 0) {
             groupHid = H5Gopen1(file, groupName.c_str());
+        } else if (groupExistsStatus == 0) {
+            groupHid = H5Gcreate2(file, groupName.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         } else {
-            groupHid = H5Gcreate2(file, name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+            THROW("HDF5 failure in checking if group name " << groupName << " exists.");
         }
         HDF5Resource group(groupHid, H5Gclose);
-        HDF5Resource filespace(H5Screate_simple(3, dimensions, NULL), H5Sclose);
 
+        auto datasetExistsStatus = H5Lexists(group.hid(), name.c_str(), H5P_DEFAULT);
+        hid_t dataset_tmp;
+        if (datasetExistsStatus > 0) {
+            dataset_tmp = H5Dopen(group.hid(), name.c_str(), H5P_DEFAULT);
+        } else if (datasetExistsStatus == 0) {
+            HDF5Resource filespace(H5Screate_simple(3, dimensions, NULL), H5Sclose);
 
-        hid_t dataset_tmp = H5Dcreate(group.hid(), name.c_str(), H5T_IEEE_F64LE,
-                                       filespace.hid(),
-                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+            dataset_tmp= H5Dcreate(group.hid(), name.c_str(), H5T_IEEE_F64LE,
+                                           filespace.hid(),
+                          H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        } else {
+             THROW("HDF5 failure in checking if dataset name " << name << " exists. (group = " << groupName << ").");
+        }
+
 
         if (groupName == groupNames[groupIndex]) {
             dataset = dataset_tmp;

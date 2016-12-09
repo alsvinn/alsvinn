@@ -21,16 +21,19 @@ int main(int argc, char** argv) {
 #endif
 #endif
     try {
+
         auto wallStart = boost::posix_time::second_clock::local_time();
         auto timeStart = boost::chrono::thread_clock::now();
         if (argc != 2) {
             std::cout << "Usage:\n\t" << argv[0] << " <inputfile.xml>" << std::endl;
             return EXIT_FAILURE;
         }
+
+        MPI_Init(&argc, &argv);
         std::cout << "omp max threads= " << omp_get_max_threads() << std::endl;
         std::string inputfile = argv[1];
 
-        alsuq::mpi::Config mpiConfig(argc, argv);
+        alsuq::mpi::Config mpiConfig;
         alsuq::config::Setup setup;
         auto runner = setup.makeRunner(inputfile, mpiConfig);
 
@@ -54,5 +57,8 @@ int main(int argc, char** argv) {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
     }
+
+    MPI_Finalize();
+
     return EXIT_SUCCESS;
 }

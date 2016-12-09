@@ -4,7 +4,7 @@ namespace alsuq { namespace mpi {
 
     class Config {
     public:
-        Config(int argc, char** argv);
+        Config();
 
         MPI_Comm getCommunicator();
         MPI_Info getInfo();

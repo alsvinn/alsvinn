@@ -2,10 +2,10 @@
 #include <mpi.h>
 namespace alsuq { namespace mpi {
 
-Config::Config(int argc, char **argv)
+Config::Config()
 {
 
-    MPI_Init(&argc, &argv);
+
     communicator = MPI_COMM_WORLD;
     info = MPI_INFO_NULL;
     MPI_Comm_size(communicator, &numberOfProcesses);
