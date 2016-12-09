@@ -1,5 +1,6 @@
 #pragma once
 #include "alsuq/mpi/Config.hpp"
+#include <vector>
 namespace alsuq { namespace mpi { 
 
     class SimpleLoadBalancer {

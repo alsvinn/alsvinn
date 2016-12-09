@@ -5,7 +5,7 @@ namespace alsuq { namespace mpi {
 Config::Config(int argc, char **argv)
 {
 
-    MPI_Init(&argc, argv);
+    MPI_Init(&argc, &argv);
     communicator = MPI_COMM_WORLD;
     info = MPI_INFO_NULL;
     MPI_Comm_size(communicator, &numberOfProcesses);
@@ -22,12 +22,12 @@ MPI_Info Config::getInfo()
     return info;
 }
 
-size_t Config::getNumberOfProcesses() const
+int Config::getNumberOfProcesses() const
 {
     return numberOfProcesses;
 }
 
-size_t Config::getRank() const
+int Config::getRank() const
 {
     return rank;
 }

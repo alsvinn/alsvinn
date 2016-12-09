@@ -9,11 +9,11 @@ namespace alsuq { namespace mpi {
         MPI_Comm getCommunicator();
         MPI_Info getInfo();
 
-        size_t getNumberOfProcesses() const;
-        size_t getRank() const;
+        int getNumberOfProcesses() const;
+        int getRank() const;
     private:
-        size_t numberOfProcesses;
-        size_t rank;
+        int numberOfProcesses;
+        int rank;
         MPI_Comm communicator;
         MPI_Info info;
     };

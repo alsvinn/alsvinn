@@ -21,7 +21,7 @@ void Runner::run()
 
         for (auto parameterName : parameterNames) {
             auto samples = sampleGenerator->generate(parameterName, sample);
-            parameters.addParameter(name,
+            parameters.addParameter(parameterName,
                                     samples);
 
         }

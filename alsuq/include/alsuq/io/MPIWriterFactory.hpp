@@ -3,7 +3,7 @@
 #include <mpi.h>
 namespace alsuq { namespace io { 
 
-    class MPIWriterFactory : alsfvm::io::WriterFactory {
+    class MPIWriterFactory : public alsfvm::io::WriterFactory {
     public:
 
         MPIWriterFactory(const std::vector<std::string>& groupNames,

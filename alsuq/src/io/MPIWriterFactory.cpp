@@ -18,7 +18,7 @@ alsfvm::shared_ptr<alsfvm::io::Writer> MPIWriterFactory::createWriter(const std:
     if (name == "hdf5") {
         writer.reset(new alsfvm::io::HDF5MPIWriter(baseFilename, groupNames,
                                                    groupIndex, mpiCommunicator,
-                                                   mpiInfo);
+                                                   mpiInfo));
     } else {
         THROW("Unknown writer " << name);
     }

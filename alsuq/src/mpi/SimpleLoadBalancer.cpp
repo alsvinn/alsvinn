@@ -26,8 +26,8 @@ std::vector<size_t> SimpleLoadBalancer::getSamples(const Config &mpiConfig)
 
 
     std::vector<size_t> samplesForProcess;
-    samplesForProcess.reservice(numberOfSamplesForThisProcess);
-    for (size_t i = numberOfSamplesPerProcessr*rank; i < numberOfSamplesPerProcess*rank + numberOfSamplesForThisProcess;
+    samplesForProcess.reserve(numberOfSamplesForThisProcess);
+    for (size_t i = numberOfSamplesPerProcess*rank; i < numberOfSamplesPerProcess*rank + numberOfSamplesForThisProcess;
          ++i) {
         samplesForProcess.push_back(samples[i]);
     }
