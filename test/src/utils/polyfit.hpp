@@ -1,5 +1,5 @@
 #include <array>
-
+#include "alsfvm/types.hpp"
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/lu.hpp>
 #include "alsutils/error/Exception.hpp"

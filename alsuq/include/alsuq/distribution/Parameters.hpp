@@ -1,17 +1,17 @@
 #pragma once
-#include "alsutils/types.hpp"
+#include "alsuq/types.hpp"
 #include <string>
 #include <map>
-namespace alsuq { namespace generator { 
+namespace alsuq { namespace distribution {
 
     class Parameters {
     public:
-        double getParameter(std::string& name) const;
+        double getParameter(const std::string& name) const;
 
         void setParameter(const std::string& name, real value);
 
     private:
         std::map<std::string, real> parameters;
     };
-} // namespace generator
+} // namespace distribution
 } // namespace alsuq

@@ -115,6 +115,8 @@ else()
   set(MPI_LIBRARIES "")
 endif()
 include_directories(${CMAKE_SOURCE_DIR}/alsutils/include)
+include_directories(${CMAKE_SOURCE_DIR}/alsuq/include)
+include_directories(${CMAKE_SOURCE_DIR}/alsfvm/include)
 add_subdirectory("alsutils")
 
 add_subdirectory("alsfvm")

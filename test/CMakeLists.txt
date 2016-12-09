@@ -4,6 +4,7 @@ cmake_minimum_required (VERSION 2.8.8)
 FILE(GLOB_RECURSE SRC src/ *.cpp src/*.hpp)
 
 INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS} "../alsfvm/include")
+INCLUDE_DIRECTORIES("src")
 IF(ALSVINN_HAVE_CUDA) 
 	CUDA_INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS} "../alsfvm/include")
 	FILE(GLOB_RECURSE CUDA_SRC src/*.cu)
@@ -18,9 +19,10 @@ ENDIF()
 
 ADD_EXECUTABLE(alstest ${SRC} ${ALSTEST_CUDA})
 
-TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm
+TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm alsuq
                               ${Boost_LIBRARIES}
                               ${CUDA_LIBRARIES}
                               ${CMAKE_THREAD_LIBS_INIT}
 			      ${MPI_LIBRARIES}
+
                               )
