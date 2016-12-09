@@ -61,7 +61,6 @@ namespace alsfvm { namespace simulator {
                   alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator
             );
 
-        void setInitialValue(alsfvm::shared_ptr<init::InitialData>& initialData);
 
 
         ///

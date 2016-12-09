@@ -49,6 +49,7 @@ namespace alsfvm { namespace init {
                             equation::CellComputer& cellComputer,
                             grid::Grid& grid);
 
+        virtual void setParameters(const Parameters& parameters);
 
     private:
         Parameters parameters;

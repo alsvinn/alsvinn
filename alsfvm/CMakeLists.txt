@@ -29,7 +29,7 @@ set_source_groups( "Source Files" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SRC}")
 set_source_groups( "Header Files" "${CMAKE_CURRENT_SOURCE_DIR}/include/alsfvm" "${HEADERS}")
 
 
-INCLUDE_DIRECTORIES("include" ${CUDA_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES("include" ${CUDA_INCLUDE_DIRS}  ${PYTHON_INCLUDE_DIRS})
 
 
 IF(ALSVINN_HAVE_CUDA) 

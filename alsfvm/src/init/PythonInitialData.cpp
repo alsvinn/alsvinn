@@ -163,7 +163,14 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
 
 
     CHECK_PYTHON
-    cellComputer.computeFromPrimitive(primitiveVolume, conservedVolume, extraVolume);
+            cellComputer.computeFromPrimitive(primitiveVolume, conservedVolume, extraVolume);
+}
+
+void PythonInitialData::setParameters(const Parameters &parameters)
+{
+
+    this->parameters = parameters;
+
 }
 
 

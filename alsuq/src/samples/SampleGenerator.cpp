@@ -47,5 +47,16 @@ std::vector<real> SampleGenerator::generate(const std::string &parameter, const 
     return samples;
 }
 
+std::vector<std::string> SampleGenerator::getParameterList() const
+{
+    std::vector<std::string> parameters;
+
+    for (auto pair : generators) {
+        parameters.push_back(pair.first);
+    }
+
+    return parameters;
+}
+
 }
 }

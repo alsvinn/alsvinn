@@ -136,6 +136,11 @@ alsfvm::shared_ptr<init::InitialData> >
     return std::make_pair(simulator, initialData);
 }
 
+void SimulatorSetup::setWriterFactory(std::shared_ptr<io::WriterFactory> writerFactory)
+{
+    this->writerFactory = writerFactory;
+}
+
 
 alsfvm::shared_ptr<grid::Grid> SimulatorSetup::createGrid(const SimulatorSetup::ptree &configuration)
 {
@@ -226,12 +231,7 @@ alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(const SimulatorSetup
 {
     std::string type = configuration.get<std::string>("fvm.writer.type");
     std::string basename = configuration.get<std::string>("fvm.writer.basename");
-    alsfvm::shared_ptr<io::Writer> baseWriter;
-    if (type == "hdf5") {
-        baseWriter.reset(new io::HDF5Writer(basename));
-    } else {
-        THROW("Unknown writer: " << type);
-    }
+    auto baseWriter = writerFactory->createWriter(type, basename);
 
     const auto& writerNode = configuration.get_child("fvm.writer");
     if ( writerNode.find("numberOfSaves") != writerNode.not_found() ) {

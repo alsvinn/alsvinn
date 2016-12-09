@@ -21,6 +21,7 @@ namespace alsuq { namespace samples {
 
         std::vector<real> generate(const std::string& parameter, const size_t sampleIndex);
 
+        std::vector<std::string> getParameterList() const;
     private:
         size_t currentSample{0};
 

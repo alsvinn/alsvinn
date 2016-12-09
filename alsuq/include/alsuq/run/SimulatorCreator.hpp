@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/simulator/Simulator.hpp"
 #include "alsfvm/init/Parameters.hpp"
+#include <mpi.h>
 
 namespace alsuq { namespace run { 
 //!
@@ -8,13 +9,22 @@ namespace alsuq { namespace run {
 //!
     class SimulatorCreator {
     public:
-        SimulatorCreator(const std::string& configurationFile);
+        SimulatorCreator(const std::string& configurationFile,
+                         const std::vector<size_t>& samples,
+                         MPI_Comm mpiCommunicator,
+                         MPI_Info mpiInfo
+                         );
 
         alsfvm::shared_ptr<alsfvm::simulator::Simulator>
-        createSimulator(const alsfvm::init::Parameters& initialDataParameters);
+        createSimulator(const alsfvm::init::Parameters& initialDataParameters,
+                        size_t sampleNumber);
 
     private:
         const std::string filename;
+        MPI_Comm mpiCommunicator;
+        MPI_Info mpiInfo;
+
+        std::vector<std::string> groupNames;
     };
 } // namespace run
 } // namespace alsuq

@@ -26,6 +26,8 @@ namespace alsfvm { namespace init {
                                     equation::CellComputer& cellComputer,
                                     grid::Grid& grid) = 0;
 
+
+        virtual void setParameters(const Parameters& parameters) = 0;
     };
 } // namespace alsfvm
 } // namespace init

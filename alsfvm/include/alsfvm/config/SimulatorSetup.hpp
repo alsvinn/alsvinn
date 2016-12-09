@@ -5,6 +5,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include "alsfvm/diffusion/DiffusionOperator.hpp"
 #include "alsfvm/init/Parameters.hpp"
+#include "alsfvm/io/WriterFactory.hpp"
 namespace alsfvm { namespace config { 
 
     class SimulatorSetup {
@@ -14,7 +15,11 @@ namespace alsfvm { namespace config {
         alsfvm::shared_ptr<init::InitialData> >
             readSetupFromFile(const std::string& filename);
 
+
+        void setWriterFactory(std::shared_ptr<io::WriterFactory> writerFactory);
+
     protected:
+
         alsfvm::shared_ptr<init::InitialData> createInitialData(const ptree& configuration);
         alsfvm::shared_ptr<grid::Grid> createGrid(const ptree& configuration);
         real readEndTime(const ptree& configuration);
@@ -38,6 +43,7 @@ namespace alsfvm { namespace config {
 
         std::string readFlux(const ptree& configuration);
 
+        std::shared_ptr<io::WriterFactory> writerFactory{new io::WriterFactory};
         std::string basePath;
     };
 } // namespace alsfvm
