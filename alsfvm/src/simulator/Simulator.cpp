@@ -12,23 +12,24 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
                      numflux::NumericalFluxFactory &numericalFluxFactory,
                      equation::CellComputerFactory &cellComputerFactory,
                      alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-                     alsfvm::shared_ptr<init::InitialData>& initialData,
                      real endTime,
 					 alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
 					 std::string& equationName,
                      alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator)
-    :      grid(grid),
+    :      simulatorParameters(simulatorParameters),
+      volumeFactory(volumeFactory),
+      grid(grid),
       numericalFlux(numericalFluxFactory.createNumericalFlux(*grid)),
       system(new ConservedSystem(numericalFlux, diffusionOperator)),
       integrator(integratorFactory.createIntegrator(system)),
       boundary(boundaryFactory.createBoundary(system->getNumberOfGhostCells())),
       cellComputer(cellComputerFactory.createComputer()),
       diffusionOperator(diffusionOperator),
-      initialData(initialData),
       cflNumber(simulatorParameters.getCFLNumber()),
       endTime(endTime),
       equationName(equationName),
-      platformName(deviceConfiguration->getPlatform())
+      platformName(deviceConfiguration->getPlatform()),
+      deviceConfiguration(deviceConfiguration)
 {
     const size_t nx = grid->getDimensions().x;
     const size_t ny = grid->getDimensions().y;
@@ -43,40 +44,7 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
     extraVolume = volumeFactory.createExtraVolume(nx, ny, nz,
                                                   system->getNumberOfGhostCells());
 
-   
-	// We need to do some extra stuff for the GPU
-	// Here we will create the volumes on the CPU, initialize the data on the 
-	// cpu, then copy it to the GPU
-	if (deviceConfiguration->getPlatform() == "cuda") {
-		auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
-		auto memoryFactoryCPU = alsfvm::make_shared<memory::MemoryFactory>(deviceConfigurationCPU);
-		volume::VolumeFactory volumeFactoryCPU(equationName, memoryFactoryCPU);
-		auto primitiveVolume = volumeFactoryCPU.createPrimitiveVolume(nx, ny, nz,
-			system->getNumberOfGhostCells());
-		auto conservedVolumeCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz,
-			system->getNumberOfGhostCells());
-		auto extraVolumeCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz,
-			system->getNumberOfGhostCells());
 
-        auto simulatorParametersCPU = alsfvm::make_shared<SimulatorParameters>(simulatorParameters);
-        simulatorParametersCPU->setPlatform("cpu");
-        equation::CellComputerFactory cellComputerFactoryCPU(simulatorParametersCPU, deviceConfigurationCPU);
-		auto cellComputerCPU = cellComputerFactoryCPU.createComputer();
-		initialData->setInitialData(*conservedVolumeCPU, *extraVolumeCPU, *primitiveVolume, *cellComputerCPU, *grid);
-		
-		conservedVolumeCPU->copyTo(*conservedVolumes[0]);
-		extraVolumeCPU->copyTo(*extraVolume);
-		
-	}
-	else {
-		auto primitiveVolume = volumeFactory.createPrimitiveVolume(nx, ny, nz,
-			system->getNumberOfGhostCells());
-		initialData->setInitialData(*conservedVolumes[0], *extraVolume, *primitiveVolume, *cellComputer, *grid);
-	}
-    
-
-    boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
-    cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
 
 }
 
@@ -126,6 +94,50 @@ std::string Simulator::getPlatformName() const
 std::string Simulator::getEquationName() const
 {
     return equationName;
+}
+
+void Simulator::setInitialValue(alsfvm::shared_ptr<init::InitialData> &initialData)
+{
+
+
+    const size_t nx = grid->getDimensions().x;
+    const size_t ny = grid->getDimensions().y;
+    const size_t nz = grid->getDimensions().z;
+
+
+    // We need to do some extra stuff for the GPU
+    // Here we will create the volumes on the CPU, initialize the data on the
+    // cpu, then copy it to the GPU
+    if (deviceConfiguration->getPlatform() == "cuda") {
+        auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
+        auto memoryFactoryCPU = alsfvm::make_shared<memory::MemoryFactory>(deviceConfigurationCPU);
+        volume::VolumeFactory volumeFactoryCPU(equationName, memoryFactoryCPU);
+        auto primitiveVolume = volumeFactoryCPU.createPrimitiveVolume(nx, ny, nz,
+            system->getNumberOfGhostCells());
+        auto conservedVolumeCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz,
+            system->getNumberOfGhostCells());
+        auto extraVolumeCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz,
+            system->getNumberOfGhostCells());
+
+        auto simulatorParametersCPU = alsfvm::make_shared<SimulatorParameters>(simulatorParameters);
+        simulatorParametersCPU->setPlatform("cpu");
+        equation::CellComputerFactory cellComputerFactoryCPU(simulatorParametersCPU, deviceConfigurationCPU);
+        auto cellComputerCPU = cellComputerFactoryCPU.createComputer();
+        initialData->setInitialData(*conservedVolumeCPU, *extraVolumeCPU, *primitiveVolume, *cellComputerCPU, *grid);
+
+        conservedVolumeCPU->copyTo(*conservedVolumes[0]);
+        extraVolumeCPU->copyTo(*extraVolume);
+
+    }
+    else {
+        auto primitiveVolume = volumeFactory.createPrimitiveVolume(nx, ny, nz,
+            system->getNumberOfGhostCells());
+        initialData->setInitialData(*conservedVolumes[0], *extraVolume, *primitiveVolume, *cellComputer, *grid);
+    }
+
+
+    boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
+    cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
 }
 
 void Simulator::callWriters()

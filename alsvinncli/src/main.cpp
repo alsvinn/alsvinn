@@ -32,7 +32,10 @@ int main(int argc, char** argv) {
 
 		alsfvm::config::SimulatorSetup setup;
 
-		auto simulator = setup.readSetupFromFile(inputfile);
+        auto simulatorPair = setup.readSetupFromFile(inputfile);
+
+        auto simulator = simulatorPair.first;
+        simulator->setInitialValue(simulatorPair.second);
 
 		std::cout << "Running simulator... " << std::endl;
 		std::cout << std::endl << std::endl;

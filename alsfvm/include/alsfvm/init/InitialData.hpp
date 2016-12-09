@@ -2,6 +2,7 @@
 #include "alsfvm/volume/Volume.hpp"
 #include "alsfvm/grid/Grid.hpp"
 #include "alsfvm/equation/CellComputer.hpp"
+
 namespace alsfvm { namespace init { 
 
     class InitialData {
@@ -24,6 +25,7 @@ namespace alsfvm { namespace init {
                                     volume::Volume& primitiveVolume,
                                     equation::CellComputer& cellComputer,
                                     grid::Grid& grid) = 0;
+
     };
 } // namespace alsfvm
 } // namespace init
