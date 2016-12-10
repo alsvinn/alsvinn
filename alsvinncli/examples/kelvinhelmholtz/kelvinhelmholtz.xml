@@ -9,14 +9,14 @@
         <dimension>128 128 1</dimension>
     </grid>
     <boundary>periodic</boundary>
-    <flux>tecno1</flux>
+    <flux>hll3</flux>
     <endTime>2</endTime>
     <equation>euler2</equation>
     <equationParameters>
         <gamma>1.4</gamma>
     </equationParameters>
-    <reconstruction>none</reconstruction>
-    <cfl>0.4</cfl>
+    <reconstruction>weno2</reconstruction>
+    <cfl>auto</cfl>
     <integrator>auto</integrator>
 
     <initialData>
@@ -30,7 +30,7 @@
         </parameters>
     </initialData>
     <diffusion>
-        <name>tecnoroe</name>
+        <name>none</name>
         <reconstruction>none</reconstruction>
     </diffusion>
     <writer>

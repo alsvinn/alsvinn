@@ -30,7 +30,7 @@ void HDF5MPIWriter::write(const volume::Volume &conservedVariables,
                           const grid::Grid &grid,
                           const simulator::TimestepInformation &timestepInformation)
 {
-    MPI_Barrier(mpiCommunicator);
+
     // for hdf5, often the version we use is not thread safe.
     std::unique_lock<std::mutex> lock(mutex);
     std::string name = getOutputname(basefileName, snapshotNumber);
