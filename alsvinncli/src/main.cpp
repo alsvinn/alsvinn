@@ -27,7 +27,9 @@ int main(int argc, char** argv) {
 			std::cout << "Usage:\n\t" << argv[0] << " <inputfile.xml>" << std::endl;
 			return EXIT_FAILURE;
 		}
+#ifdef _OPENMP
 		std::cout << "omp max threads= " << omp_get_max_threads() << std::endl;
+#endif
 		std::string inputfile = argv[1];
 
 		alsfvm::config::SimulatorSetup setup;

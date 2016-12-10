@@ -41,7 +41,8 @@ SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
 # Add the user's chosen flags to the build for this directory.
 set (CMAKE_CXX_STANDARD 11)
 if (NOT WIN32)
-   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment -fopenmp")
+   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment")
+   SET(CMAKE_CXX_FLAGS_RELEASE "-fopenmp")
 else()
     # On debug in Windows we want to get floating point execeptions.
     SET(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}  " /fp:strict ")
@@ -70,7 +71,7 @@ find_package(PythonLibs REQUIRED)
 
 # We try to limit use of boost, but we also want to avoid having to 
 # reprogram everything.
-hunter_add_package(Boost COMPONENTS regex system filesystem chrono date_time program_options)
+hunter_add_package(Boost COMPONENTS regex system filesystem chrono date_time program_options )
 find_package(Boost REQUIRED filesystem system chrono date_time program_options)
 
 

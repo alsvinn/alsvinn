@@ -20,7 +20,10 @@ alsfvm::shared_ptr<alsfvm::simulator::Simulator>
 SimulatorCreator::createSimulator(const alsfvm::init::Parameters &initialDataParameters,
                                                                                    size_t sampleNumber)
 {
-    std::shared_ptr<alsfvm::io::WriterFactory> writerFactory(new io::MPIWriterFactory(groupNames, sampleNumber, mpiCommunicator, mpiInfo));
+    std::shared_ptr<alsfvm::io::WriterFactory> writerFactory(
+                new io::MPIWriterFactory(groupNames, sampleNumber, firstCall, mpiCommunicator, mpiInfo));
+
+    firstCall = false;
     alsfvm::config::SimulatorSetup simulatorSetup;
     simulatorSetup.setWriterFactory(writerFactory);
     auto simulatorPair = simulatorSetup.readSetupFromFile(filename);

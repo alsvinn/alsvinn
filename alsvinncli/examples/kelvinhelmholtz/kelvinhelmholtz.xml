@@ -6,11 +6,11 @@
     <grid>
         <lowerCorner>0 0 0</lowerCorner>
         <upperCorner>1 1 0</upperCorner>
-        <dimension>1024 1024 1</dimension>
+        <dimension>128 128 1</dimension>
     </grid>
     <boundary>periodic</boundary>
     <flux>tecno1</flux>
-    <endTime>0.001</endTime>
+    <endTime>2</endTime>
     <equation>euler2</equation>
     <equationParameters>
         <gamma>1.4</gamma>
@@ -40,7 +40,7 @@
     </writer>
 </fvm>
 <uq>
-<samples>10</samples>
+<samples>16</samples>
 <generator>auto</auto>
 <parameters>
 <parameter>

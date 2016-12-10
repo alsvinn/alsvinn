@@ -31,7 +31,7 @@ void HDF5Writer::write(const volume::Volume &conservedVariables,
                                 H5F_ACC_TRUNC, H5P_DEFAULT,
                                 H5P_DEFAULT), H5Fclose);
 
-	writeGrid(file.hid(), grid);
+    writeGrid(file.hid(), grid);
     writeVolume(conservedVariables, file.hid());
     writeVolume(extraVariables, file.hid());
     snapshotNumber++;
@@ -72,11 +72,11 @@ void HDF5Writer::writeTimeGroup(hid_t object, const simulator::TimestepInformati
     
 }
 
-void HDF5Writer::writeVolume(const volume::Volume &volume, hid_t file)
+void HDF5Writer::writeVolume(const volume::Volume &volume, hid_t file, hid_t accessList)
 {
     for(size_t i = 0; i < volume.getNumberOfVariables(); i++)
     {
-        writeMemory(volume, i, volume.getName(i), file);
+        writeMemory(volume, i, volume.getName(i), file, accessList);
     }
 }
 
@@ -125,7 +125,7 @@ hid_t HDF5Writer::createDatasetForMemory(const volume::Volume& volume, size_t in
 /// \param file the file to write to
 ///
 void HDF5Writer::writeMemoryToDataset(const volume::Volume& volume, size_t index, const std::string& name,
-                 hid_t dataset)
+                 hid_t dataset, hid_t accessList)
 {
     // Now we will write the portion of data that our process is responsible
     // for (if we are not running MPI, this will default to the whole data)
@@ -164,7 +164,7 @@ void HDF5Writer::writeMemoryToDataset(const volume::Volume& volume, size_t index
     std::copy(dataTmp.begin(), dataTmp.end(), data.begin());
     // Then we write the data as we normally would.
     HDF5_SAFE_CALL(H5Dwrite(dataset, H5T_NATIVE_DOUBLE,
-                memspace.hid(), filespace.hid(), H5P_DEFAULT,
+                memspace.hid(), filespace.hid(), accessList,
                 data.data()));
 
     writeString(dataset, "vsType", "variable");
@@ -175,13 +175,13 @@ void HDF5Writer::writeMemoryToDataset(const volume::Volume& volume, size_t index
 
 void HDF5Writer::writeMemory(const volume::Volume& volume, size_t index,
                              const std::string& name,
-                             hid_t file)
+                             hid_t file, hid_t accessList)
 {
 
 
 
     hid_t dataset = createDatasetForMemory(volume, index, name, file);
-    writeMemoryToDataset(volume, index, name, dataset);
+    writeMemoryToDataset(volume, index, name, dataset, accessList);
     HDF5_SAFE_CALL(H5Dclose(dataset));
 
 

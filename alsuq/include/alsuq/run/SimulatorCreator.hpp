@@ -20,6 +20,7 @@ namespace alsuq { namespace run {
                         size_t sampleNumber);
 
     private:
+        bool firstCall{true};
         const std::string filename;
         MPI_Comm mpiCommunicator;
         MPI_Info mpiInfo;

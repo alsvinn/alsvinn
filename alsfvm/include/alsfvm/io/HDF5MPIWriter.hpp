@@ -28,6 +28,7 @@ public:
     HDF5MPIWriter(const std::string& basefileName,
                   const std::vector<std::string>& groupNames,
                   size_t groupIndex,
+                  bool newFile,
                   MPI_Comm mpiCommunicator,
                   MPI_Info mpiInfo);
 
@@ -58,8 +59,10 @@ protected:
     virtual hid_t createDatasetForMemory(const volume::Volume& volume, size_t index, const std::string& name,
                      hid_t file);
 private:
-    std::vector<std::string> groupNames;
-    size_t groupIndex;
+
+    const std::vector<std::string> groupNames;
+    const size_t groupIndex;
+    const bool newFile;
     MPI_Comm mpiCommunicator;
     MPI_Info mpiInfo;
 

@@ -17,6 +17,7 @@ Runner::Runner(std::shared_ptr<SimulatorCreator> simulatorCreator,
 void Runner::run()
 {
     for(size_t sample : sampleNumbers) {
+        std::cout << "Running sample: " << sample << std::endl;
         alsfvm::init::Parameters parameters;
 
         for (auto parameterName : parameterNames) {

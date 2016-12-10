@@ -44,13 +44,15 @@ namespace io {
             // empty
         }
 
-        inline ~HDF5Resource() {
-            HDF5_SAFE_CALL(deleter(hdf5Resource));
+        inline ~HDF5Resource() noexcept(false) {
+             HDF5_SAFE_CALL(deleter(hdf5Resource));
         }
 
         inline hid_t hid() {
             return hdf5Resource;
         }
+
+
 
     private:
         // We do not want to be able to copy this

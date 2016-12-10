@@ -55,7 +55,7 @@ protected:
     /// \param volume the volume to read from
     /// \param file the file to write to
     ///
-    void writeVolume(const volume::Volume& volume, hid_t file);
+    void writeVolume(const volume::Volume& volume, hid_t file, hid_t accessList=H5P_DEFAULT);
 
 
 
@@ -67,7 +67,7 @@ protected:
     /// \param file the file to write to
     ///
     void writeMemory(const volume::Volume& volume, size_t index, const std::string& name,
-                     hid_t file);
+                     hid_t file, hid_t accessList=H5P_DEFAULT);
 
     ///
     /// \brief createDatasetForMemroy creates a dataset for the given memory
@@ -87,7 +87,7 @@ protected:
     /// \param file the file to write to
     ///
     void writeMemoryToDataset(const volume::Volume& volume, size_t index, const std::string& name,
-                     hid_t dataset);
+                     hid_t dataset, hid_t accessList=H5P_DEFAULT);
 
 
 

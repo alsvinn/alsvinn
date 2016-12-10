@@ -3,6 +3,8 @@
 #include <boost/chrono.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <omp.h>
+
+
 #ifdef _WIN32
 #ifndef NDEBUG
 #include <float.h> // enable floating point exceptions on windows.
@@ -20,6 +22,7 @@ int main(int argc, char** argv) {
 
 #endif
 #endif
+
     try {
 
         auto wallStart = boost::posix_time::second_clock::local_time();
@@ -30,7 +33,10 @@ int main(int argc, char** argv) {
         }
 
         MPI_Init(&argc, &argv);
+
+#ifdef _OPENMPI
         std::cout << "omp max threads= " << omp_get_max_threads() << std::endl;
+#endif
         std::string inputfile = argv[1];
 
         alsuq::mpi::Config mpiConfig;

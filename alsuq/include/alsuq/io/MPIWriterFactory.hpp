@@ -8,6 +8,7 @@ namespace alsuq { namespace io {
 
         MPIWriterFactory(const std::vector<std::string>& groupNames,
                          size_t groupIndex,
+                         bool createFile,
                          MPI_Comm mpiCommunicator,
                          MPI_Info mpiInfo);
 
@@ -18,6 +19,7 @@ namespace alsuq { namespace io {
     private:
          std::vector<std::string> groupNames;
          size_t groupIndex;
+         bool createFile;
          MPI_Comm mpiCommunicator;
          MPI_Info mpiInfo;
     };
