@@ -36,7 +36,7 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string &inputFilename,
     }
 
     auto simulatorCreator = std::make_shared<run::SimulatorCreator>(inputFilename, samples,
-                                                                    mpiConfig.getCommunicator(), mpiConfig.getInfo());
+                                                                    mpiConfig);
 
     mpi::SimpleLoadBalancer loadBalancer(samples);
 

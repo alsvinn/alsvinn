@@ -10,7 +10,7 @@
     </grid>
     <boundary>periodic</boundary>
     <flux>hll3</flux>
-    <endTime>2</endTime>
+    <endTime>.0002</endTime>
     <equation>euler2</equation>
     <equationParameters>
         <gamma>1.4</gamma>
@@ -40,7 +40,7 @@
     </writer>
 </fvm>
 <uq>
-<samples>16</samples>
+<samples>256</samples>
 <generator>auto</auto>
 <parameters>
 <parameter>

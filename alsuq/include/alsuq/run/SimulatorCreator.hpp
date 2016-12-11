@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/simulator/Simulator.hpp"
 #include "alsfvm/init/Parameters.hpp"
+#include "alsuq/mpi/Config.hpp"
 #include <mpi.h>
 
 namespace alsuq { namespace run { 
@@ -11,8 +12,7 @@ namespace alsuq { namespace run {
     public:
         SimulatorCreator(const std::string& configurationFile,
                          const std::vector<size_t>& samples,
-                         MPI_Comm mpiCommunicator,
-                         MPI_Info mpiInfo
+                         mpi::Config& config
                          );
 
         alsfvm::shared_ptr<alsfvm::simulator::Simulator>
@@ -20,12 +20,17 @@ namespace alsuq { namespace run {
                         size_t sampleNumber);
 
     private:
+        mpi::Config mpiConfig;
+        //! Gathers all the current samples from all current mpi procs
+        //! and creates a list of names of the samples now being computed
+        std::vector<std::string> makeGroupNames(size_t sampleNumber);
+
         bool firstCall{true};
         const std::string filename;
         MPI_Comm mpiCommunicator;
         MPI_Info mpiInfo;
 
-        std::vector<std::string> groupNames;
+
     };
 } // namespace run
 } // namespace alsuq
