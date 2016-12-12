@@ -137,7 +137,7 @@ namespace alsfvm { namespace simulator {
         const real endTime;
         const std::string equationName;
         const std::string platformName;
-        alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration;
+        alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
     };
 } // namespace alsfvm
 } // namespace simulator

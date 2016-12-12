@@ -3,25 +3,10 @@
 #include <boost/chrono.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <omp.h>
+#include "alsutils/log.hpp"
 
 
-#ifdef _WIN32
-#ifndef NDEBUG
-#include <float.h> // enable floating point exceptions on windows.
-// see https://msdn.microsoft.com/en-us/library/aa289157(VS.71).aspx#floapoint_topic8
-#endif
-#endif
 int main(int argc, char** argv) {
-#ifdef _WIN32
-#ifndef NDEBUG
-    // see https://msdn.microsoft.com/en-us/library/aa289157(VS.71).aspx#floapoint_topic8
-    //_clearfp();
-    //unsigned int fp_control_state = _controlfp(_EM_ZERODIVIDE, _MCW_EM);
-    //_controlfp(_EM_INEXACT,0);
-    //feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
-
-#endif
-#endif
 
     try {
 
@@ -34,18 +19,22 @@ int main(int argc, char** argv) {
 
         MPI_Init(&argc, &argv);
 
-#ifdef _OPENMPI
-        std::cout << "omp max threads= " << omp_get_max_threads() << std::endl;
-#endif
         std::string inputfile = argv[1];
 
         alsuq::mpi::Config mpiConfig;
+
+        alsutils::log::setLogFile("alsuqcli_mpi_log_" + std::to_string(mpiConfig.getRank())
+                                  + ".txt");
+
+
+#ifdef _OPENMPI
+        ALSVINN_LOG(info) << "omp max threads= " << omp_get_max_threads() << std::endl;
+#endif
         alsuq::config::Setup setup;
         auto runner = setup.makeRunner(inputfile, mpiConfig);
 
-        std::cout << "Running simulator... " << std::endl;
-        std::cout << std::endl << std::endl;
-        std::cout << std::numeric_limits<long double>::digits10 + 1;
+        ALSVINN_LOG(INFO, "Running simulator... ");
+
 
         runner->run();
 
@@ -53,14 +42,14 @@ int main(int argc, char** argv) {
         auto timeEnd = boost::chrono::thread_clock::now();
         auto wallEnd = boost::posix_time::second_clock::local_time();
 
-        std::cout << "Simulation finished!" << std::endl;
-        std::cout << "Duration: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeEnd - timeStart).count() << " ms" << std::endl;
-        std::cout << "Duration (wall time): " << (wallEnd - wallStart) << std::endl;
+        ALSVINN_LOG(INFO, "Simulation finished!" << std::endl);
+        ALSVINN_LOG(INFO, "Duration: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeEnd - timeStart).count() << " ms" << std::endl);
+        ALSVINN_LOG(INFO, "Duration (wall time): " << (wallEnd - wallStart) << std::endl);
 
     }
     catch (std::runtime_error& e) {
-        std::cerr << "Error!" << std::endl;
-        std::cerr << e.what() << std::endl;
+        ALSVINN_LOG(ERROR, "Error!");
+        ALSVINN_LOG(ERROR, e.what());
         return EXIT_FAILURE;
     }
 

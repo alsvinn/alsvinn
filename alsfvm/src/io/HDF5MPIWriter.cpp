@@ -4,6 +4,7 @@
 #include "alsfvm/io/hdf5_utils.hpp"
 #include "alsfvm/io/io_utils.hpp"
 #include <boost/filesystem.hpp>
+#include "alsutils/log.hpp"
 
 // It seems like HDF5 doesn't like to be accessed from different threads...
 static std::mutex mutex;
@@ -43,13 +44,14 @@ void HDF5MPIWriter::write(const volume::Volume &conservedVariables,
 
     if (!newFile) {
         //HDF5_SAFE_CALL(H5Pset_fapl_stdio (plist.hid()));
-
+        ALSVINN_LOG(INFO, "Creating new file " << h5name)
         file.reset(new HDF5Resource(H5Fopen(h5name.c_str(),
                               // H5F_ACC_TRUNC,
                                H5F_ACC_RDWR,
                                plist.hid()), H5Fclose));
 
     } else {
+        ALSVINN_LOG(INFO, "Opening file " << h5name)
         file.reset(new HDF5Resource(H5Fcreate(h5name.c_str(),
                             H5F_ACC_TRUNC,
                             H5P_DEFAULT,
@@ -58,11 +60,12 @@ void HDF5MPIWriter::write(const volume::Volume &conservedVariables,
     }
 
     if (newFile) {
+        ALSVINN_LOG(INFO, "Writing grid to file " << h5name);
         writeGrid(file->hid(), grid);
     }
 
     HDF5Resource accessList(H5Pcreate(H5P_DATASET_XFER), H5Pclose);
-    H5Pset_dxpl_mpio(accessList.hid(), H5FD_MPIO_INDEPENDENT);
+    H5Pset_dxpl_mpio(accessList.hid(), H5FD_MPIO_COLLECTIVE);
 
     writeVolume(conservedVariables, file->hid(), accessList.hid());
     writeVolume(extraVariables, file->hid(), accessList.hid());
