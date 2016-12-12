@@ -7,7 +7,7 @@
 
 
 int main(int argc, char** argv) {
-
+    int rank = 0;
     try {
 
         auto wallStart = boost::posix_time::second_clock::local_time();
@@ -23,6 +23,7 @@ int main(int argc, char** argv) {
 
         alsuq::mpi::Config mpiConfig;
 
+        rank = mpiConfig.getRank();
         alsutils::log::setLogFile("alsuqcli_mpi_log_" + std::to_string(mpiConfig.getRank())
                                   + ".txt");
 
@@ -50,6 +51,10 @@ int main(int argc, char** argv) {
     catch (std::runtime_error& e) {
         ALSVINN_LOG(ERROR, "Error!");
         ALSVINN_LOG(ERROR, e.what());
+        if (rank ==0 ){
+            std::cerr << "Error occured in rank 0" << std::endl;
+            std::cerr << e.what() << std::endl;
+        }
         return EXIT_FAILURE;
     }
 
