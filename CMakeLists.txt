@@ -73,7 +73,7 @@ find_package(PythonLibs REQUIRED)
 # reprogram everything.
 hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log)
 find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup)
-
+add_definitions(-DBOOST_LOG_DYN_LINK)
 
 IF(WIN32)
   ADD_DEFINITIONS( -DBOOST_ALL_NO_LIB )
