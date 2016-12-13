@@ -3,7 +3,7 @@
 #include "cuda_runtime.h"
 #include <iostream>
 #include <exception>
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 
 #define CUDA_SAFE_CALL(x) { \
 	cudaError_t error = x; \

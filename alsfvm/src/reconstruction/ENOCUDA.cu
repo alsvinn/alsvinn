@@ -1,5 +1,5 @@
 #include "alsfvm/reconstruction/ENOCUDA.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include <cassert>
 #include <cmath>
 #include "alsfvm/reconstruction/ENOCoefficients.hpp"

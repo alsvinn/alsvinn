@@ -16,22 +16,20 @@ int main(int argc, char** argv) {
             std::cout << "Usage:\n\t" << argv[0] << " <inputfile.xml>" << std::endl;
             return EXIT_FAILURE;
         }
-
-        MPI_Init(&argc, &argv);
-
         std::string inputfile = argv[1];
 
-        alsuq::mpi::Config mpiConfig;
 
+        MPI_Init(&argc, &argv);
+        alsuq::mpi::Config mpiConfig;
         rank = mpiConfig.getRank();
         alsutils::log::setLogFile("alsuqcli_mpi_log_" + std::to_string(mpiConfig.getRank())
                                   + ".txt");
-
 
 #ifdef _OPENMPI
         ALSVINN_LOG(info) << "omp max threads= " << omp_get_max_threads() << std::endl;
 #endif
         alsuq::config::Setup setup;
+
         auto runner = setup.makeRunner(inputfile, mpiConfig);
 
         ALSVINN_LOG(INFO, "Running simulator... ");

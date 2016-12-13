@@ -1,4 +1,5 @@
 #include "alsuq/generator/Well512A.hpp"
+#include <array>
 /* ***************************************************************************** */
 /* Copyright:      Francois Panneton and Pierre L'Ecuyer, University of Montreal */
 /*                 Makoto Matsumoto, Hiroshima University                        */

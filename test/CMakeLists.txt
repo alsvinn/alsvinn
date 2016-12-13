@@ -1,7 +1,8 @@
 cmake_minimum_required (VERSION 2.8.8)
 
 
-FILE(GLOB_RECURSE SRC src/ *.cpp src/*.hpp)
+FILE(GLOB_RECURSE SRC src/ *.cpp)
+FILE(GLOB_RECURSE HEADESRS src/ *.hpp)
 
 INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS} "../alsfvm/include")
 INCLUDE_DIRECTORIES("src")
@@ -17,9 +18,24 @@ ELSE()
    SET(ALSTEST_CUDA "")
 ENDIF()
 
-ADD_EXECUTABLE(alstest ${SRC} ${ALSTEST_CUDA})
+IF (NOT ALSVINN_USE_MPI)
+    FILE(GLOB_RECURSE MPI_SRC src/*MPI*.cpp src/uq/*)
+    LIST(REMOVE_ITEM SRC ${MPI_SRC})
+ENDIF()
 
-TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm alsuq
+
+set_source_groups( "Source Files" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SRC}")
+set_source_groups( "Header Files" "${CMAKE_CURRENT_SOURCE_DIR}/include/alsfvm" "${HEADERS}")
+
+ADD_EXECUTABLE(alstest ${SRC} ${HEADERS} ${ALSTEST_CUDA})
+
+if(${ALSVINN_USE_MPI})
+    SET(ALSUQ_LIBRARY alsuq)
+else()
+    SET(ALSUQ_LIBRARY "")
+endif()
+
+TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm ${ALSUQ_LIBRARY}
                               ${Boost_LIBRARIES}
                               ${CUDA_LIBRARIES}
                               ${CMAKE_THREAD_LIBS_INIT}
