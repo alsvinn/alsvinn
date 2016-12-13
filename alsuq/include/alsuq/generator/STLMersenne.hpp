@@ -16,7 +16,7 @@ namespace alsuq { namespace generator {
          // Singleton
          STLMersenne() {}
 
-         std::default_random_engine generator;
+         std::mt19937_64 generator;
          std::uniform_real_distribution<real> distribution{0.0,1.0};
     };
 } // namespace generator

@@ -6,7 +6,7 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 0 0</upperCorner>
-    <dimension>32 1 1</dimension>
+    <dimension>1024 1 1</dimension>
   </grid>
   <boundary>neumann</boundary>
   <flux>godunov</flux>
@@ -33,8 +33,8 @@
   </writer>
 </fvm>
 <uq>
-  <samples>1024</samples>
-  <generator>auto</auto>
+  <samples>16</samples>
+  <generator>stlmersenne</auto>
   <parameters>
     <parameter>
       <name>X</name>

@@ -40,7 +40,7 @@
     </writer>
 </fvm>
 <uq>
-<samples>256</samples>
+<samples>1048576</samples>
 <generator>auto</auto>
 <parameters>
 <parameter>
