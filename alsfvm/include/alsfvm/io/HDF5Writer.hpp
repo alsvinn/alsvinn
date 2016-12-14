@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/io/Writer.hpp"
 #include "hdf5.h"
+#include "alsfvm/io/hdf5_utils.hpp"
 
 namespace alsfvm {
 namespace io {
@@ -76,7 +77,7 @@ protected:
     /// \param name the name of the memory (variable name)
     /// \param file the file to write to
     ///
-    virtual hid_t createDatasetForMemory(const volume::Volume& volume, size_t index, const std::string& name,
+    virtual std::unique_ptr<HDF5Resource> createDatasetForMemory(const volume::Volume& volume, size_t index, const std::string& name,
                      hid_t file);
 
     ///

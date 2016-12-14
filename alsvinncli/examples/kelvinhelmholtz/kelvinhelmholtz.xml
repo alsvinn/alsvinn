@@ -1,58 +1,57 @@
 <fvm>
-    <name>
-        kh
-    </name>
-    <platform>cpu</platform>
-    <grid>
-        <lowerCorner>0 0 0</lowerCorner>
-        <upperCorner>1 1 0</upperCorner>
-        <dimension>128 128 1</dimension>
-    </grid>
-    <boundary>periodic</boundary>
-    <flux>hll3</flux>
-    <endTime>.0002</endTime>
-    <equation>euler2</equation>
-    <equationParameters>
-        <gamma>1.4</gamma>
-    </equationParameters>
-    <reconstruction>weno2</reconstruction>
-    <cfl>auto</cfl>
-    <integrator>auto</integrator>
+  <name>
+    kh
+  </name>
+  <platform>cpu</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>1 1 0</upperCorner>
+    <dimension>128 128 1</dimension>
+  </grid>
+  <boundary>periodic</boundary>
+  <flux>hll3</flux>
+  <endTime>.0002</endTime>
+  <equation>euler2</equation>
+  <equationParameters>
+    <gamma>1.4</gamma>
+  </equationParameters>
+  <reconstruction>weno2</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
 
-    <initialData>
-        <python>kelvinhelmholtz.py</python>
-        <parameters>
-            <parameter>
-                <name>a</name>
-                <length>40</length>
-                <value>0</value>
-            </parameter>
-        </parameters>
-    </initialData>
-    <diffusion>
-        <name>none</name>
-        <reconstruction>none</reconstruction>
-    </diffusion>
-    <writer>
-        <type>hdf5</type>
-        <basename>kh</basename>
-        <numberOfSaves>10</numberOfSaves>
-    </writer>
+  <initialData>
+    <python>kelvinhelmholtz.py</python>
+    <parameters>
+      <parameter>
+        <name>a</name>
+        <length>40</length>
+        <value>0</value>
+      </parameter>
+    </parameters>
+  </initialData>
+  <diffusion>
+    <name>none</name>
+    <reconstruction>none</reconstruction>
+  </diffusion>
+  <writer>
+    <type>hdf5</type>
+    <basename>kh</basename>
+    <numberOfSaves>10</numberOfSaves>
+  </writer>
 </fvm>
 <uq>
-<samples>1048576</samples>
-<generator>auto</auto>
-<parameters>
-<parameter>
-<name>a</name>
-<length>40</length>
-<type>uniform</type>
-</parameter>
-</parameters>
-<stats>
-<stat>
-meanvar
-</stat>
-</stats>
-
+  <samples>1024</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>a</name>
+      <length>40</length>
+      <type>uniform</type>
+    </parameter>
+  </parameters>
+  <stats>
+    <stat>
+      meanvar
+    </stat>
+  </stats>
 </uq>

@@ -87,7 +87,7 @@ void HDF5Writer::writeVolume(const volume::Volume &volume, hid_t file, hid_t acc
 /// \param name the name of the memory (variable name)
 /// \param file the file to write to
 ///
-hid_t HDF5Writer::createDatasetForMemory(const volume::Volume& volume, size_t index, const std::string& name,
+std::unique_ptr<HDF5Resource> HDF5Writer::createDatasetForMemory(const volume::Volume& volume, size_t index, const std::string& name,
                  hid_t file) {
     // The comment below is from https://ice.txcorp.com/trac/vizschema/wiki/WikiStart
     //   GROUP "/" {
@@ -106,12 +106,15 @@ hid_t HDF5Writer::createDatasetForMemory(const volume::Volume& volume, size_t in
                             volume.getNumberOfYCells(),
                             volume.getNumberOfZCells()};
 
-    HDF5Resource filespace(H5Screate_simple(3, dimensions, NULL), H5Sclose);
+    std::unique_ptr<HDF5Resource> filespace;
+
+    HDF5_MAKE_RESOURCE(filespace, H5Screate_simple(3, dimensions, NULL), H5Sclose);
 
 
-    hid_t dataset = H5Dcreate(file, name.c_str(), H5T_IEEE_F64LE,
-                                   filespace.hid(),
-                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    std::unique_ptr<HDF5Resource> dataset;
+    HDF5_MAKE_RESOURCE(dataset, H5Dcreate(file, name.c_str(), H5T_IEEE_F64LE,
+                                   filespace->hid(),
+                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT), H5Dclose);
 
 
     return dataset;
@@ -125,7 +128,7 @@ hid_t HDF5Writer::createDatasetForMemory(const volume::Volume& volume, size_t in
 /// \param file the file to write to
 ///
 void HDF5Writer::writeMemoryToDataset(const volume::Volume& volume, size_t index, const std::string& name,
-                 hid_t dataset, hid_t accessList)
+                hid_t dataset, hid_t accessList)
 {
     // Now we will write the portion of data that our process is responsible
     // for (if we are not running MPI, this will default to the whole data)
@@ -180,10 +183,8 @@ void HDF5Writer::writeMemory(const volume::Volume& volume, size_t index,
 
 
 
-    hid_t dataset = createDatasetForMemory(volume, index, name, file);
-    writeMemoryToDataset(volume, index, name, dataset, accessList);
-    HDF5_SAFE_CALL(H5Dclose(dataset));
-
+    auto dataset = createDatasetForMemory(volume, index, name, file);
+    writeMemoryToDataset(volume, index, name, dataset->hid(), accessList);
 
 }
 

@@ -25,8 +25,9 @@ namespace alsuq { namespace config {
 std::shared_ptr<run::Runner> Setup::makeRunner(const std::string &inputFilename, mpi::Config &mpiConfig)
 {
     std::ifstream stream(inputFilename);
-    ptree configuration;
-    boost::property_tree::read_xml(stream, configuration);
+    ptree configurationBase;
+    boost::property_tree::read_xml(stream, configurationBase);
+    auto configuration = configurationBase.get_child("config");
     auto sampleGenerator = makeSampleGenerator(configuration);
     auto numberOfSamples = readNumberOfSamples(configuration);
 

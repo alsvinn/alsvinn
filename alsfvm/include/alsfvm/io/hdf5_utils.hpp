@@ -12,6 +12,19 @@
     } \
 }
 
+//! Convience macro. Runs expression, test the return value
+//! Throws an exception if return value is negative
+#define HDF5_MAKE_RESOURCE(holder, expression, closer) { \
+    auto hidValue = expression; \
+    if (hidValue < 0) { \
+        THROW("HDF5 error in running\n\t" << #expression \
+              <<"\n\n" << __FILE__ << ": " << __LINE__); \
+    } \
+    else { \
+        holder.reset(new HDF5Resource(hidValue, closer)); \
+    } \
+}
+
 namespace alsfvm {
 namespace io {
 

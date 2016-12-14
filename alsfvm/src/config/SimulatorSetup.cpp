@@ -63,8 +63,9 @@ alsfvm::shared_ptr<init::InitialData> >
     XMLParser parser;
 
 
-    XMLParser::ptree configuration;
-    parser.parseFile(file, configuration);
+    XMLParser::ptree configurationBase;
+    parser.parseFile(file, configurationBase);
+    auto configuration = configurationBase.get_child("config");
 
 
     std::set<std::string> supportedNodes =
