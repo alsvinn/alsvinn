@@ -215,10 +215,10 @@ namespace alsfvm {
 
         template<class T>
         void CudaMemory<T>::addLinearCombination(T a1,
-            T a2, const Memory<T>& v2,
-            T a3, const Memory<T>& v3,
-            T a4, const Memory<T>& v4,
-            T a5, const Memory<T>& v5) {
+            T a2, const memory::Memory<T>& v2,
+            T a3, const memory::Memory<T>& v3,
+            T a4, const memory::Memory<T>& v4,
+            T a5, const memory::Memory<T>& v5) {
             CHECK_SIZE_AND_HOST(v2);
             CHECK_SIZE_AND_HOST(v3);
             CHECK_SIZE_AND_HOST(v4);
