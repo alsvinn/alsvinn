@@ -1,5 +1,6 @@
 <?xml version="1.0" ?><fvm>
-    <name>
+<config>
+<name>
         tecnoburgers
     </name>
     <platform>cpu</platform>
@@ -28,3 +29,4 @@
         <numberOfSaves>10</numberOfSaves>
     </writer>
 </fvm>
+</config>

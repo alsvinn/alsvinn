@@ -1,3 +1,4 @@
+<config>
 <fvm>
   <name>
     sodtube
@@ -31,3 +32,4 @@
     <numberOfSaves>1</numberOfSaves>
   </writer>
 </fvm>
+</config>
