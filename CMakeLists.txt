@@ -113,7 +113,7 @@ if(CUDA_FOUND)
  # ENDIF()
   SET(CUDA_COMPILE_PTX ON)
   #list(APPEND CUDA_NVCC_FLAGS -O3 --use_fast_math -gencode=arch=compute_30,code="compute_30,sm_30" -Xptxas -v )
-  list(APPEND CUDA_NVCC_FLAGS_RELEASE -O3 --use_fast_math -Xptxas -v -keep  -src-in-ptx -gencode=arch=compute_30,code="compute_30,sm_30")
+  list(APPEND CUDA_NVCC_FLAGS_RELEASE " -O3 --use_fast_math -Xptxas -v -keep -src-in-ptx -arch=compute_60 -code=sm_60")
   list(APPEND CUDA_NVCC_FLAGS_DEBUG -G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0)
   set(ALSVINN_HAVE_CUDA On)
   add_definitions(-DALSVINN_HAVE_CUDA)
@@ -126,7 +126,9 @@ endif()
 
 find_package(HDF5 REQUIRED)
 SET(ALSVINN_LIBRARY_DIRS "" CACHE STRING "Locations to add to the library directories")
-
+IF(NOT HDF5_C_LIBRARY) 
+       SET(HDF5_C_LIBRARY ${HDF5_C_LIBRARIES})
+ENDIF()
 LINK_DIRECTORIES(${ALSVINN_LIBRARY_DIRS})
 
 # This is a bit complicated, but we want to make sure we add the proper
