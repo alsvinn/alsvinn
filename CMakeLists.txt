@@ -52,15 +52,18 @@ else()
     SET(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}  " /fp:strict ")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS}  /MP")
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+            MESSAGE(STATUS "Enabling openmp with flag ${OpenMP_CXX_FLAGS}")
             # We only want to enable openmp if we are running intel
-            SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-            SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+            
 
             if (ALSVINN_PROFILE)
                 MESSAGE(STATUS "Enabling profiling for the intel compiler")
                 MESSAGE(STATUS "See  https://software.intel.com/en-us/node/605666 for explanation")
                 # See https://software.intel.com/en-us/node/605666
-                SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} /Zi /MD /Qparallel-source-info=2 /debug:inline-debug-info)
+                SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD /Qopenmp /Zi /Qparallel-source-info=2 /debug:inline-debug-info")
+            else()
+                SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp ")
+                SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /openmp")
             endif()
     endif()
 endif()
