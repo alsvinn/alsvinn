@@ -14,7 +14,7 @@
 #include "alsfvm/equation/euler/EulerParameters.hpp"
 #include "alsfvm/diffusion/DiffusionFactory.hpp"
 #include <set>
-
+#include "alsutils/log.hpp"
 namespace alsfvm { namespace config {
 // Example xml:
 // <fvm>
@@ -280,19 +280,19 @@ init::Parameters SimulatorSetup::readParameters(const SimulatorSetup::ptree& con
                 value[0] = parameter.second.get<real>("value");
             }
             else {
-                auto valueAsString = parameter.second.get<std::string>("value");
-                boost::trim(valueAsString);
+		ALSVINN_LOG(INFO, "Reading parameter array");
+		// We are given an array, and we read everything in
+		for (auto valueItem : parameter.second.get_child("values")) {
 
-                if (valueAsString[0] == '[') {
-                    // We are given an array, and we read everything in
-                    for (auto valueItem : parameter.second.get_child("value")) {
-                        value.push_back(valueItem.second.get_value<real>());
-                    }
+		  if (boost::iequals(valueItem.first, "value")) {
+		    value.push_back(valueItem.second.get_value<real>());
+		    ALSVINN_LOG(INFO, "Read value " << value.back());
+		  }
                 }
-                else {
+
+		if (value.size() == 1) {
                     // We only got a single value
-                    auto valueAsDouble = parameter.second.get<real>("value");
-                    value.resize(length, valueAsDouble);
+                    value.resize(length, value[0]);
                 }
             }
            
