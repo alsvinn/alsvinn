@@ -35,7 +35,7 @@ else()
     SET(ALSUQ_LIBRARY "")
 endif()
 
-TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm ${ALSUQ_LIBRARY}
+TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm ${ALSUQ_LIBRARY} ${HDF5_LIBRARIES}
                               ${Boost_LIBRARIES}
                               ${CUDA_LIBRARIES}
                               ${CMAKE_THREAD_LIBS_INIT}

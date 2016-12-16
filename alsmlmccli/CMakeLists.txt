@@ -5,7 +5,7 @@ FILE(GLOB_RECURSE SRC src/*.cpp)
 FILE(GLOB_RECURSE EXAMPLES examples/*.py examples/*.xml)
 INCLUDE_DIRECTORIES("../alsfvm/include")
 ADD_EXECUTABLE(alsmlmccli ${SRC} ${EXAMPLES})
-TARGET_LINK_LIBRARIES(alsmlmccli ${Boost_LIBRARIES} alsfvm
+TARGET_LINK_LIBRARIES(alsmlmccli ${Boost_LIBRARIES} alsfvm ${HDF5_LIBRARIES}
                               ${Boost_LIBRARIES}
                               ${CUDA_LIBRARIES}
                               ${CMAKE_THREAD_LIBS_INIT}

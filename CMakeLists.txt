@@ -38,15 +38,31 @@ SET(ALSVINN_USE_MPI OFF CACHE BOOL "Build with MPI")
 SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
 SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
+SET(ALSVINN_PROFILE OFF CACHE BOOL "Add profiling information")
 # Add the user's chosen flags to the build for this directory.
 set (CMAKE_CXX_STANDARD 11)
+
+FIND_PACKAGE(OpenMP)
 if (NOT WIN32)
-   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment -fopenmp")
+   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment ${OpenMP_CXX_FLAGS}")
+   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 
 else()
     # On debug in Windows we want to get floating point execeptions.
     SET(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}  " /fp:strict ")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS}  /MP")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+            # We only want to enable openmp if we are running intel
+            SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+            SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+
+            if (ALSVINN_PROFILE)
+                MESSAGE(STATUS "Enabling profiling for the intel compiler")
+                MESSAGE(STATUS "See  https://software.intel.com/en-us/node/605666 for explanation")
+                # See https://software.intel.com/en-us/node/605666
+                SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} /Zi /MD /Qparallel-source-info=2 /debug:inline-debug-info)
+            endif()
+    endif()
 endif()
 
 IF(WIN32) 
@@ -76,6 +92,7 @@ find_package(Boost REQUIRED filesystem thread system chrono date_time program_op
 if (NOT ALSVINN_USE_HUNTER)
    add_definitions(-DBOOST_LOG_DYN_LINK)
 endif()
+
 
 IF(WIN32)
   ADD_DEFINITIONS( -DBOOST_ALL_NO_LIB )
@@ -109,7 +126,15 @@ endif()
 
 find_package(HDF5 REQUIRED)
 SET(ALSVINN_LIBRARY_DIRS "" CACHE STRING "Locations to add to the library directories")
+
 LINK_DIRECTORIES(${ALSVINN_LIBRARY_DIRS})
+
+# This is a bit complicated, but we want to make sure we add the proper
+# hdf5 incude dirs (Cmake doesn't give us one...)
+get_filename_component(HDF5_LIB_DIR ${HDF5_C_LIBRARY} PATH)
+get_filename_component(HDF5_ROOT_DIR ${HDF5_LIB_DIR} PATH)
+INCLUDE_DIRECTORIES("${HDF5_ROOT_DIR}/include")
+
 
 if(ALSVINN_USE_MPI)
   find_package(MPI REQUIRED)
@@ -122,6 +147,7 @@ if(ALSVINN_USE_MPI)
   IF (NOT MPI_LIBRARIES)
     SET(MPI_LIBRARIES ${MPI_C_LIBRARIES})
   ENDIF()
+  SET(MPI_LIBRARIES ${MPI_LIBRARIES} ${MPI_C_LIBRARIES})
 else()
   set(MPI_LIBRARIES "")
   INCLUDE_DIRECTORIES(${HDF5_INCLUDE_DIRS})

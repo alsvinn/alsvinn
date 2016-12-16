@@ -7,11 +7,11 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>128 128 1</dimension>
+    <dimension>512 512 1</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>hll3</flux>
-  <endTime>.0002</endTime>
+  <endTime>2</endTime>
   <equation>euler2</equation>
   <equationParameters>
     <gamma>1.4</gamma>
@@ -41,7 +41,7 @@
   </writer>
 </fvm>
 <uq>
-  <samples>1024</samples>
+  <samples>4</samples>
   <generator>auto</generator>
   <parameters>
     <parameter>

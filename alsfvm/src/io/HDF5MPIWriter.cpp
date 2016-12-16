@@ -5,6 +5,8 @@
 #include "alsfvm/io/io_utils.hpp"
 #include <boost/filesystem.hpp>
 #include "alsutils/log.hpp"
+#include <H5FDmpi.h>
+#include <H5FDmpio.h>
 
 // It seems like HDF5 doesn't like to be accessed from different threads...
 static std::mutex mutex;

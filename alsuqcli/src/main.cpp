@@ -25,9 +25,13 @@ int main(int argc, char** argv) {
         alsutils::log::setLogFile("alsuqcli_mpi_log_" + std::to_string(mpiConfig.getRank())
                                   + ".txt");
 
-#ifdef _OPENMPI
-        ALSVINN_LOG(info) << "omp max threads= " << omp_get_max_threads() << std::endl;
-#endif
+
+        ALSVINN_LOG(INFO, "omp max threads= " << omp_get_max_threads());
+
+        if (rank == 0) {
+            std::cout << "omp max threads= " << omp_get_max_threads() << std::endl;
+        }
+
         alsuq::config::Setup setup;
 
         auto runner = setup.makeRunner(inputfile, mpiConfig);
