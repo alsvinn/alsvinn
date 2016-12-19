@@ -51,8 +51,10 @@ endif()
 
 find_path (NETCDF_INCLUDE_DIR netcdf.h
   HINTS "${NETCDF_DIR}/include")
-mark_as_advanced (NETCDF_INCLUDE_DIR)
-set (NETCDF_C_INCLUDE_DIRS ${NETCDF_INCLUDE_DIR})
+find_path (PNETCDF_INCLUDE_DIR pnetcdf.h
+  HINTS "${NETCDF_DIR}/include")
+mark_as_advanced (PNETCDF_INCLUDE_DIR)
+set (NETCDF_C_INCLUDE_DIRS ${NETCDF_INCLUDE_DIR} ${PNETCDF_INCLUDE_DIR})
 
 find_library (NETCDF_LIBRARY NAMES netcdf
   HINTS "${NETCDF_DIR}/lib")
