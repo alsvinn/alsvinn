@@ -23,12 +23,12 @@
       <parameter>
         <name>X</name>
         <length>10000</length>
-        <value>0</value>
+        <values><value>0</value></values>
       </parameter>
     </parameters>
   </initialData>
   <writer>
-    <type>hdf5</type>
+    <type>netcdf</type>
     <basename>brownian</basename>
     <numberOfSaves>2</numberOfSaves>
   </writer>

@@ -1,5 +1,6 @@
 #include "alsuq/io/MPIWriterFactory.hpp"
 #include "alsfvm/io/HDF5MPIWriter.hpp"
+#include "alsfvm/io/NetCDFMPIWriter.hpp"
 namespace alsuq { namespace io {
 
 MPIWriterFactory::MPIWriterFactory(const std::vector<std::string> &groupNames, size_t groupIndex,
@@ -21,6 +22,11 @@ alsfvm::shared_ptr<alsfvm::io::Writer> MPIWriterFactory::createWriter(const std:
         writer.reset(new alsfvm::io::HDF5MPIWriter(baseFilename, groupNames,
                                                    groupIndex, createFile, mpiCommunicator,
                                                    mpiInfo));
+    } else if (name == "netcdf") {
+        writer.reset(new alsfvm::io::NetCDFMPIWriter(baseFilename, groupNames,
+                                                   groupIndex, createFile, mpiCommunicator,
+                                                   mpiInfo));
+
     } else {
         THROW("Unknown writer " << name);
     }

@@ -23,6 +23,10 @@ namespace alsfvm { namespace io {
                            const grid::Grid& grid,
                            const simulator::TimestepInformation& timestepInformation);
     protected:
+        virtual void writeToFile(netcdf_raw_ptr file, const volume::Volume& conservedVariables,
+                                 const volume::Volume& extraVariables,
+                                 const grid::Grid& grid,
+                                 const simulator::TimestepInformation& timestepInformation);
         virtual std::array<netcdf_raw_ptr, 3> createDimensions(netcdf_raw_ptr basegroup, const volume::Volume &volume);
         virtual void writeMemory(netcdf_raw_ptr baseGroup, netcdf_raw_ptr dataset,  const volume::Volume &volume, size_t memoryIndex);
 

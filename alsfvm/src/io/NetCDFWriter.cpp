@@ -19,12 +19,21 @@ void NetCDFWriter::write(const volume::Volume &conservedVariables,
     netcdf_raw_ptr file;
     auto filename = getFilename();
     NETCDF_SAFE_CALl(nc_create(filename.c_str(),  NC_CLOBBER|NC_NETCDF4, &file));
+    writeToFile(file, conservedVariables, extraVariables, grid, timestepInformation);
+    NETCDF_SAFE_CALl(nc_close(file));
+}
+
+void NetCDFWriter::writeToFile(netcdf_raw_ptr file,
+                               const volume::Volume &conservedVariables,
+                               const volume::Volume &extraVariables,
+                               const grid::Grid &grid,
+                               const simulator::TimestepInformation &timestepInformation)
+{
 
     auto dimensions = createDimensions(file, conservedVariables);
     writeVolume(file, conservedVariables, dimensions);
     writeVolume(file, extraVariables, dimensions);
 
-    NETCDF_SAFE_CALl(nc_close(file));
 }
 
 std::array<netcdf_raw_ptr, 3> NetCDFWriter::createDimensions(netcdf_raw_ptr baseGroup, const volume::Volume &volume)
@@ -38,8 +47,6 @@ std::array<netcdf_raw_ptr, 3> NetCDFWriter::createDimensions(netcdf_raw_ptr base
                                 &xdim));
     NETCDF_SAFE_CALl(nc_def_dim(baseGroup, "y", volume.getNumberOfYCells(),
                                 &ydim));
-
-
     NETCDF_SAFE_CALl(nc_def_dim(baseGroup, "z", volume.getNumberOfZCells(),
                                 &zdim));
 

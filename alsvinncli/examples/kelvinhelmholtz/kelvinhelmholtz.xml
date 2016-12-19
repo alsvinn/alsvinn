@@ -7,7 +7,7 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>512 512 1</dimension>
+    <dimension>128 128 1</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>hll3</flux>
@@ -26,7 +26,7 @@
       <parameter>
         <name>a</name>
         <length>40</length>
-        <value>0</value>
+        <values><value>0</value></values>
       </parameter>
     </parameters>
   </initialData>
@@ -35,7 +35,7 @@
     <reconstruction>none</reconstruction>
   </diffusion>
   <writer>
-    <type>hdf5</type>
+    <type>netcdf</type>
     <basename>kh</basename>
     <numberOfSaves>10</numberOfSaves>
   </writer>

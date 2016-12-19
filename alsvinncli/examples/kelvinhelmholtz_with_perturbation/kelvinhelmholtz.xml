@@ -3,15 +3,15 @@
     <name>
       kh
     </name>
-    <platform>cuda</platform>
+    <platform>cpu</platform>
     <grid>
       <lowerCorner>0 0 0</lowerCorner>
       <upperCorner>1 1 0</upperCorner>
-      <dimension>2048 2048 1</dimension>
+      <dimension>128 128 1</dimension>
     </grid>
     <boundary>periodic</boundary>
     <flux>hll3</flux>
-    <endTime>4</endTime>
+    <endTime>2</endTime>
     <equation>euler2</equation>
     <equationParameters>
       <gamma>1.4</gamma>
@@ -76,7 +76,7 @@
       <reconstruction>none</reconstruction>
     </diffusion>
     <writer>
-      <type>hdf5</type>
+      <type>netcdf</type>
       <basename>kh_low</basename>
       <numberOfSaves>4</numberOfSaves>
     </writer>
