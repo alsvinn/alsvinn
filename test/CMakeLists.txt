@@ -39,6 +39,7 @@ TARGET_LINK_LIBRARIES(alstest ${GTEST_LIBRARIES} alsfvm ${ALSUQ_LIBRARY} ${HDF5_
                               ${Boost_LIBRARIES}
                               ${CUDA_LIBRARIES}
                               ${CMAKE_THREAD_LIBS_INIT}
-			      ${MPI_LIBRARIES}
+                              ${MPI_LIBRARIES}
+                              ${NETCDF_LIBRARIES}
 
                               )

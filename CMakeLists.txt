@@ -33,6 +33,8 @@ MACRO(set_source_groups  folder_name directory source_files)
 		source_group("${SRCGR}" FILES ${f})
 	endforeach()
 ENDMACRO(set_source_groups)
+
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/Modules)
 SET(ALSVINN_BUILD_TESTS ON CACHE BOOL "Build unittests (requires Gtest). HIGHLY recommended!")
 SET(ALSVINN_USE_MPI OFF CACHE BOOL "Build with MPI")
 SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
@@ -73,6 +75,8 @@ IF(WIN32)
         # fixed on 2015, but cuda doesn't work there...
 	ADD_DEFINITIONS(-DBOOST_NO_CXX11_ALLOCATOR)
 ENDIF()
+
+
 
 
 if (ALSVINN_USE_CUDA)
@@ -136,11 +140,14 @@ LINK_DIRECTORIES(${ALSVINN_LIBRARY_DIRS})
 
 # This is a bit complicated, but we want to make sure we add the proper
 # hdf5 incude dirs (Cmake doesn't give us one...)
-get_filename_component(HDF5_LIB_DIR ${HDF5_C_LIBRARY} PATH)
+LIST(GET HDF5_C_LIBRARY 0 HDF5_SINGLE_LIBRARY)
+
+get_filename_component(HDF5_LIB_DIR ${HDF5_SINGLE_LIBRARY} PATH)
 get_filename_component(HDF5_ROOT_DIR ${HDF5_LIB_DIR} PATH)
 INCLUDE_DIRECTORIES("${HDF5_ROOT_DIR}/include")
 
-
+FIND_PACKAGE(NetCDF REQUIRED)
+INCLUDE_DIRECTORIES(${NETCDF_INCLUDE_DIRS})
 if(ALSVINN_USE_MPI)
   find_package(MPI REQUIRED)
   add_definitions(-DALSVINN_USE_MPI)

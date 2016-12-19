@@ -33,7 +33,10 @@ namespace alsutils {
             error,
             critical
         };
+
+
         BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(alsvinnLogger, boost::log::sources::severity_logger_mt<severity_level>)
+
 
         void inline setLogFile(const std::string& filename) {
             boost::log::add_file_log(filename, boost::log::keywords::auto_flush = true );

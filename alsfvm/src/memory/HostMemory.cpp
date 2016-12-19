@@ -204,7 +204,7 @@ void HostMemory<T>::copyInternalCells(size_t startX, size_t endX, size_t startY,
             for(size_t x = startX; x < endX; x++) {
                 size_t indexIn = z * nx * ny + y * nx + x;
                 size_t indexOut = (z-startZ) * numberOfX * numberOfY
-                      + (y - startY) * numberOfY + (x - startX);
+                      + (y - startY) * numberOfX + (x - startX);
                 output[indexOut] = data[indexIn];
              }
         }
