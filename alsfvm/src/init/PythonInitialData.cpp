@@ -60,7 +60,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
 
     auto globalNamespace = interpreter.getGlobalNamespace();
     PyObject* moduleLocal(PyImport_AddModule("__main__"));
-    PythonObjectHolder localNamespace(PyModule_GetDict(moduleLocal));
+    PyObject* localNamespace(PyModule_GetDict(moduleLocal));
     CHECK_PYTHON
     // This will hold the inputs for our function. We allocate this once,
     // and use it several times.
@@ -118,7 +118,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
 
 
     PyRun_String(functionStringStream.str().c_str(),
-                 Py_file_input, globalNamespace, localNamespace.object);
+                 Py_file_input, globalNamespace, localNamespace);
     CHECK_PYTHON
 
 
