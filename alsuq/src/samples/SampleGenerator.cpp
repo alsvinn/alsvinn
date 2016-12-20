@@ -27,7 +27,7 @@ std::vector<real> SampleGenerator::generate(const std::string &parameter, const 
     auto distribution =  generators[parameter].second.second;
     // now we throw away samples we do not need
     while (currentSample < sampleIndex) {
-        for (int i = 0; i < dimension; ++i) {
+        for (size_t i = 0; i < dimension; ++i) {
             distribution->generate(*generator, i);
         }
 
@@ -39,7 +39,7 @@ std::vector<real> SampleGenerator::generate(const std::string &parameter, const 
 
 
     std::vector<real> samples(dimension);
-    for (int i = 0; i < dimension; ++i) {
+    for (size_t i = 0; i < dimension; ++i) {
         samples[i] = distribution->generate(*generator, i);
     }
 

@@ -138,16 +138,10 @@ IF(NOT HDF5_C_LIBRARY)
 ENDIF()
 LINK_DIRECTORIES(${ALSVINN_LIBRARY_DIRS})
 
-# This is a bit complicated, but we want to make sure we add the proper
-# hdf5 incude dirs (Cmake doesn't give us one...)
-LIST(GET HDF5_C_LIBRARY 0 HDF5_SINGLE_LIBRARY)
 
-get_filename_component(HDF5_LIB_DIR ${HDF5_SINGLE_LIBRARY} PATH)
-get_filename_component(HDF5_ROOT_DIR ${HDF5_LIB_DIR} PATH)
-INCLUDE_DIRECTORIES("${HDF5_ROOT_DIR}/include")
 
 FIND_PACKAGE(NetCDF REQUIRED)
-INCLUDE_DIRECTORIES(${NETCDF_C_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(AFTER ${NETCDF_C_INCLUDE_DIRS})
 if(ALSVINN_USE_MPI)
   find_package(MPI REQUIRED)
   add_definitions(-DALSVINN_USE_MPI)
@@ -164,6 +158,16 @@ else()
   set(MPI_LIBRARIES "")
   INCLUDE_DIRECTORIES(${HDF5_INCLUDE_DIRS})
 endif()
+
+
+# This is a bit complicated, but we want to make sure we add the proper
+# hdf5 incude dirs (Cmake doesn't give us one...)
+LIST(GET HDF5_C_LIBRARY 0 HDF5_SINGLE_LIBRARY)
+
+get_filename_component(HDF5_LIB_DIR ${HDF5_SINGLE_LIBRARY} PATH)
+get_filename_component(HDF5_ROOT_DIR ${HDF5_LIB_DIR} PATH)
+INCLUDE_DIRECTORIES(BEFORE "${HDF5_ROOT_DIR}/include")
+
 include_directories(${CMAKE_SOURCE_DIR}/alsutils/include)
 include_directories(${CMAKE_SOURCE_DIR}/alsuq/include)
 include_directories(${CMAKE_SOURCE_DIR}/alsfvm/include)

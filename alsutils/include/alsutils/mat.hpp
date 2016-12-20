@@ -119,8 +119,8 @@ namespace alsutils {
 template<class T, size_t NumberOfRows, size_t NumberOfColumns>
 inline std::ostream& operator<<(std::ostream& os, const alsutils::matrix<T, NumberOfRows, NumberOfColumns>& mat) {
     os << "[" << std::endl;
-    for (int i = 0; i < NumberOfRows; ++i) {
-        for (int j = 0; j < NumberOfColumns; ++j) {
+    for (size_t i = 0; i < NumberOfRows; ++i) {
+        for (size_t j = 0; j < NumberOfColumns; ++j) {
             os << mat(i, j);
             if (j < NumberOfColumns - 1) {
                 os << ", ";
