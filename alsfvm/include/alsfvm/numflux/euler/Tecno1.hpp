@@ -59,8 +59,6 @@ namespace alsfvm {
                 }
 
                 real leftSpeed = 0, rightSpeed = 0;
-                real cs = 0;
-                //HLL3<3>::computeHLLSpeeds<direction>(eq, left, right, leftSpeed, rightSpeed, cs);
                 return fmax(fabs(leftSpeed), fabs(rightSpeed));
 
                 return fmax(eq.template computeWaveSpeed<direction>(left, left),

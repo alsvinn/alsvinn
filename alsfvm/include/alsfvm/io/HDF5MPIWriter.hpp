@@ -22,6 +22,16 @@ public:
     ///        (this is especially useful for MPI)
     /// \param groupIndex the groupIndex to write to
     ///
+    /// \param mpiCommunicator the given mpiCommunicator (used for pNETCDF)
+    ///
+    /// \param newFile creates a new file if true, otherwise tries to open
+    ///                an already existing file (will fail if it does not exist
+    ///                or does not agree with our format). When in doubt,
+    ///                set it true for first sample save, then false
+    ///
+    /// \param mpiInfo the mpiInfo (passed to pNetCDF)
+    ///
+    ///
     /// \note Timestep information will be added to the filename, as well as
     ///       proper extension (.h5).
     ///

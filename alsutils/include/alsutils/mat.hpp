@@ -43,8 +43,8 @@ namespace alsutils {
 
             VectorType product;
 
-            for (int column = 0; column < NumberOfColumns; ++column) {
-                for (int row = 0; row < NumberOfRows; ++row) {
+            for (size_t column = 0; column < NumberOfColumns; ++column) {
+                for (size_t row = 0; row < NumberOfRows; ++row) {
                     product[row] += (*this)(row, column) *  vector[column];
                 }
             }
@@ -59,9 +59,9 @@ namespace alsutils {
             
             self_type product;
 
-            for (int row = 0; row < NumberOfRows; ++row) {
-                for (int column = 0; column < NumberOfColumns; ++column) {
-                    for (int i = 0; i < NumberOfRows; ++i) {
+            for (size_t row = 0; row < NumberOfRows; ++row) {
+                for (size_t column = 0; column < NumberOfColumns; ++column) {
+                    for (size_t i = 0; i < NumberOfRows; ++i) {
                         product(row, column) += (*this)(row, i)*matrix(i, column);
                     }
                 }
@@ -72,8 +72,8 @@ namespace alsutils {
 
         __device__ __host__ matrix<T, NumberOfColumns, NumberOfRows> transposed() const {
             matrix<T, NumberOfColumns, NumberOfRows> transposedMatrix;
-            for (int column = 0; column < NumberOfColumns; ++column) {
-                for (int row = 0; row < NumberOfRows; ++row) {
+            for (size_t column = 0; column < NumberOfColumns; ++column) {
+                for (size_t row = 0; row < NumberOfRows; ++row) {
                     transposedMatrix(row, column) = (*this)(column, row);
                 }
             }
@@ -83,13 +83,13 @@ namespace alsutils {
 
         __device__ __host__ matrix<T, NumberOfColumns, NumberOfRows> normalized() const {
             matrix<T, NumberOfColumns, NumberOfRows> newMatrix;
-            for (int column = 0; column < NumberOfColumns; ++column) {
+            for (size_t column = 0; column < NumberOfColumns; ++column) {
                 T norm = 0;
-                for (int row = 0; row < NumberOfRows; ++row) {
+                for (size_t row = 0; row < NumberOfRows; ++row) {
                     norm += (*this)(row, column)*(*this)(row, column);
                 }
                 norm = sqrt(norm);
-                for (int row = 0; row < NumberOfRows; ++row) {
+                for (size_t row = 0; row < NumberOfRows; ++row) {
                     newMatrix(row, column) = (*this)(row, column) /norm;
                 }
             }
@@ -101,7 +101,7 @@ namespace alsutils {
             static_assert(NumberOfColumns == NumberOfRows,
                 "Matrix-Vector multiplication only supported for quadratic matrices.");
             matrix<T, NumberOfColumns, NumberOfRows> identityMatrix;
-            for (int i = 0; i < NumberOfColumns; ++i) {
+            for (size_t i = 0; i < NumberOfColumns; ++i) {
                 identityMatrix(i, i) = 1;
             }
 

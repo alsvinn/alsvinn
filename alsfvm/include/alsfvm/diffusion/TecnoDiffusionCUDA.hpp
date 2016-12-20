@@ -12,7 +12,7 @@ namespace alsfvm { namespace diffusion {
     /// \f[R\Lambda R^{-1} \langle\langle v\rangle \rangle\f]
     ///
     /// where \f$R\f$ is the matrix of eigenvalues of the flux jacobian, and 
-    /// $f\Lambda\f$ is either the Rusanov or Roe matrix. See
+    /// \f$\Lambda\f$ is either the Rusanov or Roe matrix. See
     /// http://www.cscamm.umd.edu/tadmor/pub/TV+entropy/Fjordholm_Mishra_Tadmor_SINUM2012.pdf
     /// 
     /// The matrix \f$\Lambda\f$ is specified through the DiffusionMatrix template argument.

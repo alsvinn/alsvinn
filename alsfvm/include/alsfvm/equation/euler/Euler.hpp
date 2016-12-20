@@ -338,7 +338,7 @@ namespace alsfvm {
                 template<int direction>
                 __device__ __host__ state_matrix computeEigenVectorMatrix(const ConservedVariables& conserved) const;
 
-                //! Compute eigen values of the jacobian of \$F\f$, \f$G\f$ or \f$H\f$.
+                //! Compute eigen values of the jacobian of \f$F\f$, \f$G\f$ or \f$H\f$.
                 //! See 3.2.2 for full description in http://www.springer.com/de/book/9783540252023
                 template<int direction>
                 __device__ __host__ state_vector computeEigenValues(const ConservedVariables& conserved) const;
@@ -503,13 +503,10 @@ namespace alsfvm {
                     const double rho = conserved.rho;
                     
                     const auto primitive = computePrimitiveVariables(conserved);
-                    const double p = primitive.p;
-                    const double u = primitive.u.x;
                     const real a = sqrt(gamma*primitive.p / conserved.rho);
                     const real H = (conserved.E + primitive.p) / conserved.rho;
                     const double a1 = sqrt(rho / (2 * gamma));
                     const double a2 = sqrt(rho*(gamma - 1) / gamma);
-                    const double a3 = sqrt(p);
                     const double a4 = a1;
 
                     

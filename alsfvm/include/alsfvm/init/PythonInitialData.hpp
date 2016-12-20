@@ -13,6 +13,8 @@ namespace alsfvm { namespace init {
         ///
         /// \brief PythonInitialData constructs the object
         /// \param programString the string containing the full python program.
+        /// \param parameters a list of parameters to give to the python code
+        ///        this could eg be the adiabatic constant (gamma), some uq parameters, etc
         ///
         /// The programString should be in the following format:
         /// \code{.py}

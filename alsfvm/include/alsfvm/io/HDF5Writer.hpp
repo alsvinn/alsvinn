@@ -55,6 +55,7 @@ protected:
     /// \brief writeVolume takes each variable of the volume and writes it
     /// \param volume the volume to read from
     /// \param file the file to write to
+    /// \param accessList used for parallel hdf5
     ///
     void writeVolume(const volume::Volume& volume, hid_t file, hid_t accessList=H5P_DEFAULT);
 
@@ -66,6 +67,7 @@ protected:
     /// \param index the index of the memory area to read from
     /// \param name the name of the memory (variable name)
     /// \param file the file to write to
+    /// \param accessList used for parallel hdf5
     ///
     void writeMemory(const volume::Volume& volume, size_t index, const std::string& name,
                      hid_t file, hid_t accessList=H5P_DEFAULT);
@@ -85,7 +87,8 @@ protected:
     /// \param volume the volume to read from
     /// \param index the index of the memory area to read from
     /// \param name the name of the memory (variable name)
-    /// \param file the file to write to
+    /// \param dataset the dataset to write to
+    /// \param accessList the accesslist to used (used for parallel hdf5)
     ///
     void writeMemoryToDataset(const volume::Volume& volume, size_t index, const std::string& name,
                      hid_t dataset, hid_t accessList=H5P_DEFAULT);

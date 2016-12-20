@@ -14,6 +14,9 @@ namespace alsfvm { namespace boundary {
         virtual void applyBoundaryConditions(volume::Volume& volume,
 			const grid::Grid& grid) = 0;
 
+        //! Since we inherit, we have an empty virtual constructor
+        virtual ~Boundary() {}
+
     };
 } // namespace alsfvm
 } // namespace boundary

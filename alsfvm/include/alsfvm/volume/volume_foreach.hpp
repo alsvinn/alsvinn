@@ -84,9 +84,9 @@ namespace alsfvm {
         /// \param function the function to call
         /// \param offsetStart the triple deciding the starting index
         /// \param offsetEnd the offset for end (must be non-negative!)
+        /// \param direction the direction to use
         /// \note Untemplated version for ease of use, indirectly calls the template version
         ///
-
         inline void for_each_cell_index_with_neighbours(size_t direction, const Volume& in,
             const std::function<void(size_t leftIndex, size_t middleIndex, size_t rightIndex)>& function,
             ivec3 offsetStart = { 0,0,0 },

@@ -49,7 +49,7 @@ namespace alsfvm { namespace numflux {
                     
                     // Now we need to build up the stencil for this set of indices
                     decltype(stencil) indices;
-                    for (int index = 0; index < stencil.size(); ++index) {
+                    for (size_t index = 0; index < stencil.size(); ++index) {
 
                         indices[index] = outViews.index(
                             x + xDir * stencil[index],

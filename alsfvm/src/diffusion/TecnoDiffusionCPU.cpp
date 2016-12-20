@@ -36,7 +36,6 @@ namespace alsfvm { namespace diffusion {
                 typename Equation::Views rightView(right);
                 typename Equation::ConstViews conservedView(conservedVolume);
                 typename Equation::Views outputView(outputVolume);
-                const int ngc = reconstruction.getNumberOfGhostCells();
                 volume::for_each_cell_index_with_neighbours(direction, left, [&](size_t leftIndex, size_t middleIndex, size_t rightIndex) {
                     auto diffusion = [&](size_t left, size_t right) {
                         auto leftValues = Equation::fetchConservedVariables(rightView, left);
@@ -84,9 +83,6 @@ namespace alsfvm { namespace diffusion {
             size_t nz = conservedVolume.getNumberOfZCells();
 
             size_t gcx = conservedVolume.getNumberOfXGhostCells();
-            size_t gcy = conservedVolume.getNumberOfYGhostCells();
-            size_t gcz = conservedVolume.getNumberOfZGhostCells();
-
 
 
             left = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
@@ -97,7 +93,7 @@ namespace alsfvm { namespace diffusion {
 
 
 
-        for (int direction = 0; direction < outputVolume.getDimensions(); ++direction) {
+        for (size_t direction = 0; direction < outputVolume.getDimensions(); ++direction) {
             if (direction == 0) {
                 applyDiffusionCPU<Equation, DiffusionMatrix, 0>(equation, outputVolume, *reconstruction,
                     *left, *right,

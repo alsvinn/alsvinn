@@ -42,10 +42,10 @@ namespace alsfvm { namespace simulator {
         /// \param numericalFluxFactory
         /// \param cellComputerFactory
         /// \param memoryFactory
-        /// \param initialData
         /// \param endTime
         /// \param deviceConfiguration
         /// \param equationName
+        /// \param diffusionOperator the diffusion operator to use
         ///
         Simulator(const SimulatorParameters& simulatorParameters,
                   alsfvm::shared_ptr<grid::Grid> & grid,

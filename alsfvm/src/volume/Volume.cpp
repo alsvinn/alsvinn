@@ -315,7 +315,7 @@ namespace alsfvm {
 
         //! Adds the volumes with coefficients to this volume
         //! Here we compute the sum
-        //! \f[ v_1^{\mathrm{new}}=a_1v_1+a_2v_2+a_3v_3+a_4v_4+a_5v_5+a_6v_6\]
+        //! \f[ v_1^{\mathrm{new}}=a_1v_1+a_2v_2+a_3v_3+a_4v_4+a_5v_5+a_6v_6\f]
         //! where \f$v_1\f$ is the volume being operated on.
         void Volume::addLinearCombination(real a1, real a2, const Volume& v2, real a3, const Volume& v3, real a4, const Volume& v4, real a5, const Volume& v5)
         {

@@ -120,13 +120,6 @@ std::unique_ptr<HDF5Resource> HDF5Writer::createDatasetForMemory(const volume::V
     return dataset;
 }
 
-///
-/// \brief createDatasetForMemroy creates a dataset for the given memory
-/// \param volume the volume to read from
-/// \param index the index of the memory area to read from
-/// \param name the name of the memory (variable name)
-/// \param file the file to write to
-///
 void HDF5Writer::writeMemoryToDataset(const volume::Volume& volume, size_t index, const std::string& name,
                 hid_t dataset, hid_t accessList)
 {

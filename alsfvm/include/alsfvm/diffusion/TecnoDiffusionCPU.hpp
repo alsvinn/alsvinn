@@ -13,10 +13,11 @@ namespace alsfvm { namespace diffusion {
     ///
     /// \f[R\Lambda R^{-1} \langle\langle v\rangle \rangle\f]
     ///
-    /// where \f$R\f$ is the matrix of eigenvalues of the flux jacobian, and 
-    /// $f\Lambda\f$ is either the Rusanov or Roe matrix. See
+    /// where \f$R\f$ is the matrix of eigenvalues of the flux jacobian, and
+    /// \f$\Lambda\f$ is either the Rusanov or Roe matrix. See
+    ///
     /// http://www.cscamm.umd.edu/tadmor/pub/TV+entropy/Fjordholm_Mishra_Tadmor_SINUM2012.pdf
-    /// 
+    ///
     /// The matrix \f$\Lambda\f$ is specified through the DiffusionMatrix template argument.
     ///
     template<class Equation, template<class, int> class DiffusionMatrix>
@@ -28,13 +29,15 @@ namespace alsfvm { namespace diffusion {
             const simulator::SimulatorParameters& simulatorParameters);
 
         ///
-        ///  Applies numerical diffusion to the outputVolume given the data in conservedVolume.
+        /// Applies numerical diffusion to the outputVolume given the data in conservedVolume.
         ///
-        /// \note The numerical diffusion will be added to outputVolume, ie. the code will 
+        /// The numerical diffusion will be added to outputVolume, ie. the code will
         /// essentially work like
-        /// \code{.cpp}
+        ///
+        /// \code
         /// outputVolume += diffusion(conservedVolume);
         /// \endcode
+        ///
         ///
         virtual void applyDiffusion(volume::Volume& outputVolume,
             const volume::Volume& conservedVolume);
