@@ -3,7 +3,7 @@
 #include "alsutils/log.hpp"
 namespace alsfvm { namespace io {
 
-NetCDFMPIWriter::NetCDFMPIWriter(const std::__cxx11::string &basefileName,
+NetCDFMPIWriter::NetCDFMPIWriter(const std::string &basefileName,
                                  const std::vector<std::string> &groupNames,
                                  size_t groupIndex, bool newFile,
                                  MPI_Comm mpiCommunicator, MPI_Info mpiInfo)
