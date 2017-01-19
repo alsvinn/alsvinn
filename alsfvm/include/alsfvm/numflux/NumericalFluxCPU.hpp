@@ -4,6 +4,7 @@
 #include "alsfvm/reconstruction/Reconstruction.hpp"
 #include "alsfvm/simulator/SimulatorParameters.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
+#include "alsfvm/volume/VolumeFactory.hpp"
 
 namespace alsfvm { namespace numflux {
 
@@ -51,6 +52,8 @@ public:
 
 private:
 
+    void createVolumes(size_t nx, size_t ny, size_t nz, size_t ngc);
+    volume::VolumeFactory volumeFactory;
     alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction;
     alsfvm::shared_ptr<volume::Volume> left;
     alsfvm::shared_ptr<volume::Volume> right;

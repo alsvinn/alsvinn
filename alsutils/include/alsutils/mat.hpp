@@ -74,7 +74,7 @@ namespace alsutils {
             matrix<T, NumberOfColumns, NumberOfRows> transposedMatrix;
             for (size_t column = 0; column < NumberOfColumns; ++column) {
                 for (size_t row = 0; row < NumberOfRows; ++row) {
-                    transposedMatrix(row, column) = (*this)(column, row);
+                    transposedMatrix(column, row) = (*this)(row, column);
                 }
             }
 

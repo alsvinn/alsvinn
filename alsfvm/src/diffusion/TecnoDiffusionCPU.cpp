@@ -10,56 +10,66 @@
 namespace alsfvm { namespace diffusion { 
     namespace {
         template<class Equation, template<class, int> class DiffusionMatrix, int direction>
-        void applyDiffusionCPU(Equation equation, volume::Volume& outputVolume, reconstruction::Reconstruction& reconstruction,
+        void applyDiffusionCPU(Equation equation, volume::Volume& outputVolume, reconstruction::tecno::TecnoReconstruction& reconstruction,
             volume::Volume& left, volume::Volume& right,
-            volume::Volume& entropyVariables,
+            volume::Volume& entropyVariablesLeft,
+            volume::Volume& entropyVariablesRight,
             const volume::Volume& conservedVolume) {
-            volume::transform_volume<typename Equation::ConservedVariables,
-                typename Equation::ConservedVariables >(conservedVolume, entropyVariables, [&](const typename Equation::ConservedVariables& in) {
+
+            typename Equation::Views entropyLeftView(entropyVariablesLeft);
+            typename Equation::Views entropyRightView(entropyVariablesRight);
+            typename Equation::Views leftView(left);
+            typename Equation::Views rightView(right);
+            typename Equation::ConstViews conservedView(conservedVolume);
+            typename Equation::Views outputView(outputVolume);
+
+            volume::for_each_cell_index_with_neighbours(direction, left, [&](size_t leftIndex, size_t middleIndex, size_t rightIndex) {
 
 
-                return equation.computeEntropyVariables(in);
-            });
+
+                auto conservedValuesMiddle = Equation::fetchConservedVariables(conservedView, middleIndex);
+                auto conservedValuesLeft = Equation::fetchConservedVariables(conservedView, leftIndex);
+
+                auto conservedValues = 0.5*(conservedValuesMiddle + conservedValuesLeft);
+
+                auto RT = equation.template computeEigenVectorMatrix<direction>(conservedValues).transposed();
+
+
+                equation.setViewAt(entropyLeftView, middleIndex, RT*equation.computeEntropyVariables(conservedValuesMiddle));
+                equation.setViewAt(entropyRightView, leftIndex, RT*equation.computeEntropyVariables(conservedValuesLeft));
+
+            }, make_direction_vector(direction), make_direction_vector(direction));
 
           
-                for (size_t variable = 0; variable < outputVolume.getNumberOfVariables(); ++variable) {
-                    volume::Volume variableVolumeEntropy(entropyVariables, { variable }, { "u" });
-                    volume::Volume variableVolumeLeft(left, { variable }, { "u" });
-                    volume::Volume variableVolumeRight(right, { variable }, { "u" });
 
-                    reconstruction.performReconstruction(variableVolumeEntropy, direction, 0, variableVolumeLeft, variableVolumeRight);
-                }
-                //static int counter = 0;
-                //counter++;
-                //std::ofstream outFile("blah_" + std::to_string(counter) + ".txt");
-                typename Equation::Views leftView(left);
-                typename Equation::Views rightView(right);
-                typename Equation::ConstViews conservedView(conservedVolume);
-                typename Equation::Views outputView(outputVolume);
-                volume::for_each_cell_index_with_neighbours(direction, left, [&](size_t leftIndex, size_t middleIndex, size_t rightIndex) {
-                    auto diffusion = [&](size_t left, size_t right) {
-                        auto leftValues = Equation::fetchConservedVariables(rightView, left);
-                        auto rightValues = Equation::fetchConservedVariables(leftView, right);
-                        
+            reconstruction.performReconstruction(entropyVariablesLeft, entropyVariablesRight, direction, left, right);
 
-                        //auto conservedValues = Equation::fetchConservedVariables(conservedView, right);
-                        auto conservedValues = 0.5*(Equation::fetchConservedVariables(conservedView, left) + Equation::fetchConservedVariables(conservedView, right));
 
-                        DiffusionMatrix<Equation, direction> lambda(equation, conservedValues);
 
-                        auto R = equation.template computeEigenVectorMatrix<direction>(conservedValues);
-                        return 0.5*(R*(lambda*(R.transposed() * (rightValues - leftValues))));
-                    };
+            volume::for_each_cell_index_with_neighbours(direction, left, [&](size_t leftIndexOuter, size_t middleIndexOuter, size_t rightIndexOuter) {
+                auto diffusion = [&](size_t leftIndex, size_t rightIndex) {
+                    auto leftValues = Equation::fetchConservedVariables(rightView, leftIndex);
+                    auto rightValues = Equation::fetchConservedVariables(leftView, rightIndex);
 
-                    //outFile << (diffusion(middleIndex, rightIndex) - diffusion(leftIndex, middleIndex))[1] << std::endl;
-                    equation.addToViewAt(outputView, middleIndex, diffusion(middleIndex, rightIndex) - diffusion(leftIndex, middleIndex));
-                }, make_direction_vector(direction), make_direction_vector(direction));
+
+                    //auto conservedValues = Equation::fetchConservedVariables(conservedView, rightIndex);
+                    auto conservedValues = 0.5*(Equation::fetchConservedVariables(conservedView, leftIndex) + Equation::fetchConservedVariables(conservedView, rightIndex));
+
+                    DiffusionMatrix<Equation, direction> lambda(equation, conservedValues);
+
+                    auto R = equation.template computeEigenVectorMatrix<direction>(conservedValues);
+                    return 0.5*(R*(lambda*(rightValues - leftValues)));
+                };
+
+                //outFile << (diffusion(middleIndex, rightIndex) - diffusion(leftIndex, middleIndex))[1] << std::endl;
+                equation.addToViewAt(outputView, middleIndexOuter, diffusion(middleIndexOuter, rightIndexOuter) - diffusion(leftIndexOuter, middleIndexOuter));
+            }, make_direction_vector(direction), make_direction_vector(direction));
             
         }
     }
     template<class Equation, template<class, int> class DiffusionMatrix>
     TecnoDiffusionCPU<Equation, DiffusionMatrix>::TecnoDiffusionCPU(volume::VolumeFactory& volumeFactory,
-        alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction,
+        alsfvm::shared_ptr<reconstruction::tecno::TecnoReconstruction> reconstruction,
         const simulator::SimulatorParameters& simulatorParameters)
 
         : 
@@ -87,7 +97,10 @@ namespace alsfvm { namespace diffusion {
 
             left = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
             right = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
-            entropyVariables = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
+            entropyVariablesLeft = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
+            entropyVariablesRight = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
+
+
 
         }
 
@@ -97,20 +110,23 @@ namespace alsfvm { namespace diffusion {
             if (direction == 0) {
                 applyDiffusionCPU<Equation, DiffusionMatrix, 0>(equation, outputVolume, *reconstruction,
                     *left, *right,
-                    *entropyVariables,
+                    *entropyVariablesLeft,
+                    *entropyVariablesRight,
                     conservedVolume);
             }
             else if (direction == 1) {
                 applyDiffusionCPU<Equation, DiffusionMatrix, 1>(equation, outputVolume, *reconstruction,
-                    *left, *right,
-                    *entropyVariables,
-                    conservedVolume);
+                                                                *left, *right,
+                                                                *entropyVariablesLeft,
+                                                                *entropyVariablesRight,
+                                                                conservedVolume);
             }
             else if (direction == 2) {
                 applyDiffusionCPU<Equation, DiffusionMatrix, 2>(equation, outputVolume, *reconstruction,
-                    *left, *right,
-                    *entropyVariables,
-                    conservedVolume);
+                                                                *left, *right,
+                                                                *entropyVariablesLeft,
+                                                                *entropyVariablesRight,
+                                                                conservedVolume);
             }
         }
       

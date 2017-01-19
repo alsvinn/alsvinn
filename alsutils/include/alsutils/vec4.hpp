@@ -164,3 +164,15 @@ namespace alsutils {
 
 
 }
+template<typename T>
+inline std::ostream& operator<<(std::ostream& os, const alsutils::vec4<T>& vec) {
+    os << "[";
+    for (int i = 0; i < 4; ++i) {
+        os << vec[i];
+        if (i < 3) {
+            os << ", ";
+        }
+    }
+    os << "]";
+    return os;
+}

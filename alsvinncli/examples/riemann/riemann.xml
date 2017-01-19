@@ -3,11 +3,11 @@
   <name>
     riemann
   </name>
-  <platform>cuda</platform>
+  <platform>cpu</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 0 0</upperCorner>
-    <dimension>32768 1 1</dimension>
+    <dimension>2048 1 1</dimension>
   </grid>
   <boundary>neumann</boundary>
   <flux>godunov</flux>
@@ -18,11 +18,35 @@
   <integrator>auto</integrator>
   <initialData>
     <python>riemann.py</python>
+
+    <parameters>
+      <parameter>
+        <name>X</name>
+        <length>1</length>
+        <value>0</value>
+      </parameter>
+    </parameters>
   </initialData>
   <writer>
-    <type>hdf5</type>
+    <type>netcdf</type>
     <basename>riemann</basename>
     <numberOfSaves>10</numberOfSaves>
   </writer>
 </fvm>
+<uq>
+  <samples>1024</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>X</name>
+      <length>1</length>
+      <type>uniform</type>
+    </parameter>
+  </parameters>
+  <stats>
+    <stat>
+      meanvar
+    </stat>
+  </stats>
+</uq>
 </config>

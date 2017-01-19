@@ -1,5 +1,5 @@
 #include "alsfvm/diffusion/DiffusionFactory.hpp"
-#include "alsfvm/reconstruction/ReconstructionFactory.hpp"
+#include "alsfvm/reconstruction/tecno/ReconstructionFactory.hpp"
 #include "alsfvm/diffusion/TecnoDiffusionCPU.hpp"
 #include "alsfvm/diffusion/TecnoDiffusionCUDA.hpp"
 
@@ -8,6 +8,7 @@
 #include "alsutils/error/Exception.hpp"
 #include "alsfvm/diffusion/NoDiffusion.hpp"
 #include "alsfvm/diffusion/RusanovMatrix.hpp"
+
 
 namespace alsfvm { namespace diffusion { 
     alsfvm::shared_ptr<DiffusionOperator> DiffusionFactory::createDiffusionOperator(const std::string& equation,
@@ -20,8 +21,8 @@ namespace alsfvm { namespace diffusion {
         volume::VolumeFactory& volumeFactory
         )
     {
-        reconstruction::ReconstructionFactory reconstructionFactory;
-        auto reconstruction = reconstructionFactory.createReconstruction(reconstructionType, "burgers",
+        reconstruction::tecno::ReconstructionFactory reconstructionFactory;
+        auto reconstruction = reconstructionFactory.createReconstruction(reconstructionType, equation,
             simulatorParameters, memoryFactory, grid, deviceConfiguration);
         
         alsfvm::shared_ptr<DiffusionOperator> diffusionOperator;

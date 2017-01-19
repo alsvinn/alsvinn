@@ -1,5 +1,6 @@
-<?xml version="1.0" ?><fvm>
+<?xml version="1.0" ?>
 <config>
+<fvm>
 <name>
         tecnoburgers
     </name>
@@ -7,11 +8,11 @@
     <grid>
         <lowerCorner>-1 0 0</lowerCorner>
         <upperCorner>1 0 0</upperCorner>
-        <dimension>4096 1 1</dimension>
+        <dimension>64 1 1</dimension>
     </grid>
     <boundary>periodic</boundary>
     <flux>tecno1</flux>
-    <endTime>0.2</endTime>
+    <endTime>0.002</endTime>
     <equation>burgers</equation>
     <reconstruction>none</reconstruction>
     <cfl>0.2</cfl>

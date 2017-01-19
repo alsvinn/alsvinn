@@ -2,7 +2,7 @@
 #include "alsfvm/diffusion/DiffusionOperator.hpp"
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/simulator/SimulatorParameters.hpp"
-#include "alsfvm/reconstruction/ReconstructionFactory.hpp"
+#include "alsfvm/reconstruction/tecno/ReconstructionFactory.hpp"
 
 namespace alsfvm { namespace diffusion { 
 
@@ -25,7 +25,7 @@ namespace alsfvm { namespace diffusion {
     public:
 
         TecnoDiffusionCPU(volume::VolumeFactory& volumeFactory,
-            alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction,
+            alsfvm::shared_ptr<reconstruction::tecno::TecnoReconstruction> reconstruction,
             const simulator::SimulatorParameters& simulatorParameters);
 
         ///
@@ -50,7 +50,7 @@ namespace alsfvm { namespace diffusion {
 
     private:
         alsfvm::volume::VolumeFactory volumeFactory;
-        alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction;
+        alsfvm::shared_ptr<reconstruction::tecno::TecnoReconstruction> reconstruction;
 
         // Reconstructed values (these are basically R^{-1}v, 
         // where v is the entropy variables and R^{-1} is the inverse of the 
@@ -58,7 +58,8 @@ namespace alsfvm { namespace diffusion {
         alsfvm::shared_ptr<volume::Volume> left;
         alsfvm::shared_ptr<volume::Volume> right;
 
-        alsfvm::shared_ptr<volume::Volume> entropyVariables;
+        alsfvm::shared_ptr<volume::Volume> entropyVariablesLeft;
+        alsfvm::shared_ptr<volume::Volume> entropyVariablesRight;
 
         Equation equation;
     };

@@ -127,14 +127,14 @@ namespace alsfvm { namespace equation { namespace euler {
 
     template<>
     __device__ __host__ inline ConservedVariables<2>::ConservedVariables(const rvec4& in)
-        : rho(in[0]), m(in[1], in[2]), E(in[4])
+        : rho(in[0]), m(in[1], in[2]), E(in[3])
     {
         // e
     }
 
     template<>
     __device__ __host__ inline ConservedVariables<1>::ConservedVariables(const rvec3& in)
-        : rho(in[0]), m(in[1]), E(in[4])
+        : rho(in[0]), m(in[1]), E(in[2])
     {
         // e
     }

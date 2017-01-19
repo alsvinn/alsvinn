@@ -309,7 +309,7 @@ namespace alsfvm {
                     const real s = log(primitive.p) - gamma*log(conserved.rho);
 
                     return state_vector((gamma - s) / (gamma - 1) - (conserved.rho*(primitive.u.dot(primitive.u))) / (2 * primitive.p),
-                        conserved.rho / primitive.p * primitive.u,
+                        conserved.m / primitive.p,
                         -conserved.rho / primitive.p);
 
                 }
@@ -427,6 +427,8 @@ namespace alsfvm {
                     return computeEigenValues<0>(conservedRotated);
                 }
                 assert(false);
+
+                return rvec5{0,0,0};
             }
 
 
@@ -487,7 +489,11 @@ namespace alsfvm {
                     auto conservedRotated = ConservedVariables(conserved.rho, rvec2{conserved.m.y, -conserved.m.x}, conserved.E);
                     return computeEigenValues<0>(conservedRotated);
                 }
+
+
                 assert(false);
+
+                return rvec4{0,0,0};
             }
 
 
@@ -521,7 +527,7 @@ namespace alsfvm {
 
                     matrixWithEigenVectors(2, 0) = a1*(H - primitive.u.x*a);
                     matrixWithEigenVectors(2, 1) = 0.5*a2*(primitive.u.dot(primitive.u));
-                    matrixWithEigenVectors(2, 2) = a4*(H + primitive.u.x);
+                    matrixWithEigenVectors(2, 2) = a4*(H + primitive.u.x*a);
 
                    
                     return matrixWithEigenVectors;
@@ -561,6 +567,8 @@ namespace alsfvm {
                 }
 
                 assert(false);
+
+                return rvec3{0,0,0};
             }
         } 
 } // namespace alsfvm

@@ -82,7 +82,7 @@ namespace alsfvm { namespace volume {
 	/// \param memoryFactory the memory factory to use
 	///
 	VolumeFactory::VolumeFactory(const std::string& equation,
-		alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory) 
+        alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory)
 		: equation(equation), memoryFactory(memoryFactory)
 	{
 

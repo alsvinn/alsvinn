@@ -180,9 +180,25 @@ TEST_P(TecnoDiffusionTest, OrderTest) {
 
             });
 
-            //std::cout << "[" << nx << ", " << L1Norm / nx << "]" << std::endl;
+
+            if (i == 0) {
+                std::cout << "[" << nx ;
+            }
+            std::cout << ", ["<< L1Norm / nx;
+            if (k > minK) {
+                auto rate = (std::log(L1Norm/nx) - errors[i].back())/(std::log(real(nx))-resolutions[i].back());
+                std::cout << ", " << rate;
+            }
+            std::cout << "]";
+
+            if (i == outputVolumeCPU->getNumberOfVariables() - 1) {
+                std::cout << "]\n";
+            }
+
             errors[i].push_back(std::log(L1Norm / nx));
             resolutions[i].push_back(std::log(real(nx)));
+
+
         }
     }
 
