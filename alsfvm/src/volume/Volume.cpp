@@ -327,6 +327,13 @@ namespace alsfvm {
                 this->getScalarMemoryArea(i)->addLinearCombination(a1, a2, *v2[i], a3, *v3[i], a4, *v4[i], a5, *v5[i]);
             }
         }
+
+        ivec3 Volume::getTotalDimensions() const
+        {
+            return {getTotalNumberOfXCells(),
+                    getTotalNumberOfYCells(),
+                    getNumberOfZCells()};
+        }
 	}
 
 }

@@ -1,6 +1,8 @@
 #include "alsfvm/reconstruction/tecno/ReconstructionFactory.hpp"
 #include "alsfvm/reconstruction/tecno/ENOCPU.hpp"
 #include "alsfvm/reconstruction/tecno/NoReconstruction.hpp"
+#include "alsfvm/reconstruction/tecno/ENOCUDA.hpp"
+#include "alsfvm/reconstruction/tecno/NoReconstructionCUDA.hpp"
 
 namespace alsfvm { namespace reconstruction { namespace tecno { 
      alsfvm::shared_ptr<TecnoReconstruction>
@@ -36,7 +38,30 @@ namespace alsfvm { namespace reconstruction { namespace tecno {
                      grid.getDimensions().z));
 
              }
-         } else {
+         } else if (platform == "cuda") {
+             if (name == "none") {
+                 reconstructor.reset(new NoReconstructionCUDA);
+             }
+             else if (name == "eno2") {
+                 reconstructor.reset(new ENOCUDA<2>(memoryFactory, grid.getDimensions().x,
+                     grid.getDimensions().y,
+                     grid.getDimensions().z));
+
+             }
+             else if (name == "eno3") {
+                 reconstructor.reset(new ENOCUDA<3>(memoryFactory, grid.getDimensions().x,
+                     grid.getDimensions().y,
+                     grid.getDimensions().z));
+
+             }
+             else if (name == "eno4") {
+                 reconstructor.reset(new ENOCUDA<4>(memoryFactory, grid.getDimensions().x,
+                     grid.getDimensions().y,
+                     grid.getDimensions().z));
+
+             }
+             reconstructor.reset(new NoReconstructionCUDA);
+         }else {
              THROW("Unknown platform " << platform);
          }
 

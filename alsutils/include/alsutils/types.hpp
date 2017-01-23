@@ -78,8 +78,8 @@ namespace alsutils {
     typedef vec6<real> rvec6;
     typedef vec6<int> ivec6;
 
-    inline ivec3 make_direction_vector(size_t direction) {
-        return ivec3{ direction == 0, direction == 1, direction == 2 };
+    inline __device__ __host__ ivec3 make_direction_vector(size_t direction) {
+        return ivec3( direction == 0, direction == 1, direction == 2 );
     }
 
     typedef matrix<real, 1, 1> matrix1;

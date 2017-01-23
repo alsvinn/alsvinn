@@ -211,7 +211,7 @@ TEST_P(TecnoDiffusionTest, OrderTest) {
 }
 
 
-
+#if 0
 INSTANTIATE_TEST_CASE_P(TecnoDiffusionTestsTecnoeRoe,
     TecnoDiffusionTest,
     ::testing::Values(
@@ -286,3 +286,14 @@ INSTANTIATE_TEST_CASE_P(TecnoDiffusionTestsTecnoeRusanov,
         DiffusionParameters("cuda", "euler3",  "tecnorusanov", "eno3", 3.8),
         DiffusionParameters("cuda", "euler3",  "tecnorusanov", "eno4", 3.9)
         ));
+#else
+INSTANTIATE_TEST_CASE_P(TecnoDiffusionTestsTecnoeRusanov,
+    TecnoDiffusionTest,
+    ::testing::Values(
+        DiffusionParameters("cuda", "euler2",  "tecnorusanov", "none", 1.9),
+                            DiffusionParameters("cuda", "euler2", "tecnorusanov", "none", 1.9)
+                            //DiffusionParameters("cuda", "euler1", "tecnorusanov", "eno2", 2.9),
+                            //DiffusionParameters("cuda", "euler1", "tecnorusanov", "eno3", 3.8),
+                            //DiffusionParameters("cuda", "euler1", "tecnorusanov", "eno4", 3.9)
+                            ));
+#endif

@@ -12,25 +12,49 @@ namespace alsfvm {
         namespace {
 
             template<class Equation, int direction>
-            __global__ void computeEntropyVariables(Equation equation, typename Equation::Views output, typename Equation::ConstViews input) {
-                const size_t index = threadIdx.x + blockIdx.x * blockDim.x;
+            __global__ void computeEntropyVariables(Equation equation,
+                                                    typename Equation::Views entropyLeftView,
+                                                    typename Equation::Views entropyRightView,
+                                                    const size_t numberOfXCells,
+                                                    const size_t numberOfYCells,
+                                                    const size_t numberOfZCells,
+                                                    typename Equation::ConstViews conservedView) {
 
-                const size_t nx = input.get(0).getNumberOfXCells();
-                const size_t ny = input.get(0).getNumberOfYCells();
-                const size_t nz = input.get(0).getNumberOfZCells();
 
-                
-                
-                if (index >= nx*ny*nz) {
+                auto directionVector = make_direction_vector(direction);
+                auto coordinates = cuda::getCoordinates(threadIdx, blockIdx, blockDim,
+                                                        numberOfXCells,
+                                                        numberOfYCells,
+                                                        numberOfZCells,
+                                                        directionVector);
+
+
+
+                auto x = coordinates.x;
+                auto y = coordinates.y;
+                auto z = coordinates.z;
+
+                if (x < 0 || y < 0 || z < 0) {
                     return;
                 }
 
-                auto in = equation.fetchConservedVariables(input, index);
+                auto middleIndex = conservedView.index(x, y, z);
+                auto leftIndex = conservedView.index(x-directionVector.x,
+                                             y-directionVector.y,
+                                             z-directionVector.z);
+                
 
 
-                auto entropyVariables = equation.template computeEntropyVariablesMultipliedByEigenVectorMatrix<direction>(in);
+                auto conservedValuesMiddle = Equation::fetchConservedVariables(conservedView, middleIndex);
+                auto conservedValuesLeft = Equation::fetchConservedVariables(conservedView, leftIndex);
+                auto conservedValues = 0.5*(conservedValuesMiddle + conservedValuesLeft);
 
-                equation.setViewAt(output, index, entropyVariables);
+                auto RT = equation.template computeEigenVectorMatrix<direction>(conservedValues).transposed();
+
+
+                equation.setViewAt(entropyLeftView, middleIndex, RT*equation.computeEntropyVariables(conservedValuesMiddle));
+                equation.setViewAt(entropyRightView, leftIndex, RT*equation.computeEntropyVariables(conservedValuesLeft));
+
             }
 
             template<class Equation, template<typename, int> class DiffusionMatrix, int direction>
@@ -45,25 +69,28 @@ namespace alsfvm {
                 ) {
 
 
-                const int index = threadIdx.x + blockIdx.x * blockDim.x;
 
-                const size_t xInternalFormat = index % numberOfXCells;
-                const size_t yInternalFormat = (index / numberOfXCells) % numberOfYCells;
-                const size_t zInternalFormat = (index) / (numberOfXCells * numberOfYCells);
 
-                if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells
-                    || zInternalFormat >= numberOfZCells) {
+                auto coordinates = cuda::getCoordinates(threadIdx, blockIdx, blockDim,
+                                                        numberOfXCells,
+                                                        numberOfYCells,
+                                                        numberOfZCells,
+                                                        directionVector);
+
+                const int x = coordinates.x;
+                const int y = coordinates.y;
+                const int z = coordinates.z;
+
+
+
+                if (x < 0 || y < 0 || z < 0) {
                     return;
                 }
 
-                const int x = xInternalFormat + directionVector[0];
-                const int y = yInternalFormat + directionVector[1];
-                const int z = zInternalFormat + directionVector[2];
-
                 const size_t middleIndex = output.index(x, y, z);
 
-                const size_t rightIndex = output.index(x + directionVector[0], 
-                    y + directionVector[1], 
+                const size_t rightIndex = output.index(x + directionVector[0],
+                    y + directionVector[1],
                     z + directionVector[2]);
 
                 const size_t leftIndex = output.index(x - directionVector[0],
@@ -82,62 +109,92 @@ namespace alsfvm {
                 };
 
 
-                equation.addToViewAt(output, middleIndex, diffusion(middleIndex, rightIndex) - diffusion(leftIndex, middleIndex));
+
 
             }
 
             template<class Equation, template<typename, int> class DiffusionMatrix, int direction>
-            void applyDiffusionCUDA(Equation equation, volume::Volume& outputVolume, reconstruction::Reconstruction& reconstruction,
+            void applyDiffusionCUDA(Equation equation, volume::Volume& outputVolume,
+                                    reconstruction::tecno::TecnoReconstruction& reconstruction,
                 volume::Volume& left, volume::Volume& right, 
-                volume::Volume& entropyVariables, 
+                volume::Volume& entropyVariablesLeft,
+                volume::Volume& entropyVariablesRight,
                 const volume::Volume& conservedVolume) {
+
+                std::cout << outputVolume.getTotalNumberOfXCells() << std::endl;
+                std::cout << left.getTotalNumberOfXCells() << std::endl;
+                std::cout << right.getTotalNumberOfXCells() << std::endl;
+                std::cout << entropyVariablesLeft.getTotalNumberOfXCells() << std::endl;
+                std::cout << entropyVariablesRight.getTotalNumberOfXCells() << std::endl;
+
+                std::cout << "num vars" << outputVolume.getNumberOfVariables() << std::endl;
+                std::cout << "num vars" << left.getNumberOfVariables() << std::endl;
+                std::cout << "num vars" << right.getNumberOfVariables()<< std::endl;
+                std::cout << "num vars" << entropyVariablesLeft.getNumberOfVariables() << std::endl;
+                std::cout << "num vars" << entropyVariablesRight.getNumberOfVariables() << std::endl;
+
+                std::cout << outputVolume.getScalarMemoryArea(0)->isOnHost() << std::endl;
+                std::cout << left.getScalarMemoryArea(0)->isOnHost() << std::endl;
+                std::cout << right.getScalarMemoryArea(0)->isOnHost() << std::endl;
+                std::cout << entropyVariablesLeft.getScalarMemoryArea(0)->isOnHost() << std::endl;
+                std::cout << entropyVariablesRight.getScalarMemoryArea(0)->isOnHost() << std::endl;
+
                 typename Equation::ConstViews conservedView(conservedVolume);
-                typename Equation::Views entropyVariablesView(entropyVariables);
-                const size_t size = conservedVolume.getTotalNumberOfXCells()
-                    * conservedVolume.getTotalNumberOfYCells()
-                    * conservedVolume.getTotalNumberOfZCells();
+                typename Equation::Views entropyVariablesViewLeft(entropyVariablesLeft);
+                typename Equation::Views entropyVariablesViewRight(entropyVariablesLeft);
 
-                const size_t blockSize = 128;
-                CUDA_CHECK_IF_DEBUG;
 
-                
-                computeEntropyVariables<Equation, direction> << <(size + blockSize - 1) / blockSize, blockSize >> >(equation, entropyVariablesView, conservedView);
-                CUDA_CHECK_IF_DEBUG;
+
+                const size_t blockSize = 512;
+
 
                 const ivec3 directionVector = make_direction_vector(direction);
-                for (size_t variable = 0; variable < outputVolume.getNumberOfVariables(); ++variable) {
-                    volume::Volume variableVolumeEntropy(entropyVariables, { variable }, { "u" });
-                    volume::Volume variableVolumeLeft(left, { variable }, { "u" });
-                    volume::Volume variableVolumeRight(right, { variable }, { "u" });
 
-                    reconstruction.performReconstruction(variableVolumeEntropy, direction, 0, variableVolumeLeft, variableVolumeRight);
-                }
+                const ivec3 start = directionVector;
+                const ivec3 end = conservedVolume.getTotalDimensions() - directionVector;
+
+
+
+
+                auto launchParameters = cuda::makeKernelLaunchParameters(start, end, blockSize);
+
+                auto gridSize = std::get<0>(launchParameters);
+                auto numberOfCellsPerDimension = std::get<1>(launchParameters);
+                CUDA_CHECK_IF_DEBUG;
+
+                std::cout << gridSize << std::endl;
+                std::cout << blockSize << std::endl;
+
+                int minGridSize, blockSizeMax;
+                CUDA_SAFE_CALL(cudaOccupancyMaxPotentialBlockSize(&minGridSize,&blockSizeMax,   computeEntropyVariables<Equation, direction>));
+                std::cout << "minGridSize = " << minGridSize << std::endl;
+                std::cout << "blockSize = " << blockSizeMax  << std::endl;
+                computeEntropyVariables<Equation, direction> << <gridSize, blockSize>> >(equation,
+                                                                                         entropyVariablesViewLeft,
+                                                                                         entropyVariablesViewRight,
+                                                                                         numberOfCellsPerDimension.x,
+                                                                                         numberOfCellsPerDimension.y,
+                                                                                         numberOfCellsPerDimension.z,
+                                                                                         conservedView);
+                CUDA_CHECK_IF_DEBUG;
+
+
+
+
+                reconstruction.performReconstruction(entropyVariablesLeft, entropyVariablesRight, direction, left, right);
+
 
                 typename Equation::ConstViews leftView(left);
                 typename Equation::ConstViews rightView(right);
                 
                 typename Equation::Views outputView(outputVolume);
-                const size_t ngc = reconstruction.getNumberOfGhostCells();
-
-                const size_t nx = conservedVolume.getTotalNumberOfXCells();
-                const size_t ny = conservedVolume.getTotalNumberOfYCells();
-                const size_t nz = conservedVolume.getTotalNumberOfZCells();
-
-                const ivec3 start = directionVector;
-                const ivec3 end = ivec3(nx, ny, nz) - directionVector;
 
 
 
-
-                const ivec3 numberOfCellsPerDimension = end - start;
-
-                const size_t totalNumberOfCells = size_t(numberOfCellsPerDimension.x) *
-                    size_t(numberOfCellsPerDimension.y) *
-                    size_t(numberOfCellsPerDimension.z);
 
                 CUDA_CHECK_IF_DEBUG
                 multiplyDiffusionMatrix<Equation, DiffusionMatrix, direction>
-                    << <(totalNumberOfCells + blockSize - 1) / blockSize, blockSize >> >(
+                    << <gridSize, blockSize >> >(
                         equation, outputView,
                         leftView,
                         rightView,
@@ -148,6 +205,8 @@ namespace alsfvm {
                         directionVector
                         );
                 CUDA_CHECK_IF_DEBUG
+
+                        exit(0);
             }
 
             
@@ -156,7 +215,7 @@ namespace alsfvm {
 
         template<class Equation, template<typename, int> class DiffusionMatrix>
         TecnoDiffusionCUDA<Equation, DiffusionMatrix>::TecnoDiffusionCUDA(volume::VolumeFactory& volumeFactory,
-            alsfvm::shared_ptr<reconstruction::Reconstruction> reconstruction,
+            alsfvm::shared_ptr<reconstruction::tecno::TecnoReconstruction> reconstruction,
             const simulator::SimulatorParameters& simulatorParameters)
 
             :
@@ -184,30 +243,35 @@ namespace alsfvm {
 
                 left = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
                 right = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
-                entropyVariables = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
+                entropyVariablesLeft = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
+                entropyVariablesRight = volumeFactory.createConservedVolume(nx, ny, nz, gcx);
 
             }
             
 
 
             for (int direction = 0; direction < outputVolume.getDimensions(); ++direction) {
+                std::cout << "direction == " << direction << std::endl;
                 if (direction == 0) {
                     applyDiffusionCUDA<Equation, DiffusionMatrix, 0>(equation, outputVolume, *reconstruction,
                         *left, *right,
-                        *entropyVariables,
+                        *entropyVariablesLeft,
+                        *entropyVariablesRight,
                         conservedVolume);
                 }
                 else if (direction == 1) {
                     applyDiffusionCUDA<Equation, DiffusionMatrix, 1>(equation, outputVolume, *reconstruction,
-                        *left, *right,
-                        *entropyVariables,
-                        conservedVolume);
+                                                                     *left, *right,
+                                                                     *entropyVariablesLeft,
+                                                                     *entropyVariablesRight,
+                                                                     conservedVolume);
                 }
                 else if (direction == 2) {
                     applyDiffusionCUDA<Equation, DiffusionMatrix, 2>(equation, outputVolume, *reconstruction,
-                        *left, *right,
-                        *entropyVariables,
-                        conservedVolume);
+                                                                     *left, *right,
+                                                                     *entropyVariablesLeft,
+                                                                     *entropyVariablesRight,
+                                                                     conservedVolume);
                 }
             }
         }

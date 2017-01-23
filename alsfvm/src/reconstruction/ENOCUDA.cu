@@ -26,20 +26,20 @@ __global__ void performEnoReconstructionKernel(typename Equation::ConstViews inp
                                                ) {
 
 
-    const int index = threadIdx.x + blockIdx.x * blockDim.x;
 
-    const size_t xInternalFormat = index % numberOfXCells;
-    const size_t yInternalFormat = (index / numberOfXCells) % numberOfYCells;
-    const size_t zInternalFormat = (index) / (numberOfXCells * numberOfYCells);
+    ivec3 coordinates = cuda::getCoordinates(threadIdx, blockIdx, blockDim,
+                                             numberOfXCells,
+                                             numberOfYCells,
+                                             numberOfZCells,
+                                             directionVector);
 
-    if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells
-            || zInternalFormat >= numberOfZCells) {
+    auto x = coordinates.x;
+    auto y = coordinates.y;
+    auto z = coordinates.z;
+
+    if (x<0 || y < 0 || z < 0) {
         return;
     }
-
-    const int x = xInternalFormat + (order - 1) * directionVector[0];
-    const int y = yInternalFormat + (order - 1) * directionVector[1];
-    const int z = zInternalFormat + (order - 1) * directionVector[2];
 
 
     const size_t indexRight = input.index(x, y, z);
@@ -113,12 +113,12 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
 	if (direction > 2) {
 		THROW("Direction can only be 0, 1 or 2, was given: " << direction);
 	}
-	const ivec3 directionVector(direction == 0, direction == 1, direction == 2);
+    const ivec3 directionVector = make_direction_vector(direction);
 
 	// make divided differences
 
 	computeDividedDifferences(*inputVariables.getScalarMemoryArea(indicatorVariable),
-		directionVector,
+        (order-1)*directionVector,
 		1,
 		*dividedDifferences[0]);
 
@@ -162,13 +162,10 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
 
     const int blockSize = 512;
 
-    const ivec3 numberOfCellsPerDimension = end - start;
+    auto launchParameters = cuda::makeKernelLaunchParameters(start, end, blockSize);
 
-    const size_t totalNumberOfCells = size_t(numberOfCellsPerDimension.x) *
-            size_t(numberOfCellsPerDimension.y) *
-            size_t(numberOfCellsPerDimension.z);
-
-    const int gridSize = (totalNumberOfCells + blockSize - 1 )/ blockSize;
+    auto gridSize = std::get<0>(launchParameters);
+    auto numberOfCellsPerDimension = std::get<1>(launchParameters);
 
     typename Equation::Views viewLeft(leftOut);
     typename Equation::Views viewRight(rightOut);
