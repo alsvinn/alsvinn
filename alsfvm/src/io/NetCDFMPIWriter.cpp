@@ -21,11 +21,23 @@ void NetCDFMPIWriter::write(const volume::Volume &conservedVariables, const volu
 {
     netcdf_raw_ptr file;
     auto filename = getFilename();
-
+    netcdf_raw_ptr timeVar;
     if (newFile) {
 
         NETCDF_SAFE_CALl(ncmpi_create(mpiCommunicator, filename.c_str(), NC_NETCDF4|NC_MPIIO,
                                    mpiInfo, &file));
+
+
+        // write current time
+        netcdf_raw_ptr timeDim;
+        NETCDF_SAFE_CALl(ncmpi_def_dim(file, "t", 1, &timeDim));
+
+
+        NETCDF_SAFE_CALl(ncmpi_def_var(file, "time", NC_DOUBLE, 1, &timeDim,
+                                       &timeVar));
+
+
+
     }
     else {
         NETCDF_SAFE_CALl(ncmpi_open(mpiCommunicator, filename.c_str(), NC_WRITE|NC_NETCDF4|NC_MPIIO,
@@ -35,6 +47,11 @@ void NetCDFMPIWriter::write(const volume::Volume &conservedVariables, const volu
     writeToFile(file, conservedVariables, extraVariables,
                 grid, timestepInformation, newFile);
 
+    if (newFile) {
+
+        double currentTime = timestepInformation.getCurrentTime();
+        NETCDF_SAFE_CALl(ncmpi_put_var_double_all(file, timeVar, &currentTime));
+    }
 
     NETCDF_SAFE_CALl(ncmpi_close(file));
 }

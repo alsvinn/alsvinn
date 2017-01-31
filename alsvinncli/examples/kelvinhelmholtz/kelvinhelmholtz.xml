@@ -11,7 +11,7 @@
   </grid>
   <boundary>periodic</boundary>
   <flux>hll3</flux>
-  <endTime>2</endTime>
+  <endTime>3</endTime>
   <equation>euler2</equation>
   <equationParameters>
     <gamma>1.4</gamma>
@@ -37,7 +37,7 @@
   <writer>
     <type>netcdf</type>
     <basename>kh</basename>
-    <numberOfSaves>10</numberOfSaves>
+    <numberOfSaves>3</numberOfSaves>
   </writer>
 </fvm>
 <uq>

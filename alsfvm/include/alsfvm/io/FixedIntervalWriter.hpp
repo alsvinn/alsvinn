@@ -42,7 +42,10 @@ private:
     const real timeInterval;
     const real endTime;
     size_t numberSaved;
-
+    int numberSmallSaved{-64};
+    bool first{true};
+    real dx;
+    int N;
 };
 } // namespace alsfvm
 } // namespace io
