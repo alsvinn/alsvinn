@@ -3,6 +3,7 @@
 #ifdef _DEBUG
 #undef _DEBUG
 #include <Python.h>
+
 #define _DEBUG
 #else
 #include <Python.h>
@@ -65,7 +66,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     CHECK_PYTHON
     // This will hold the inputs for our function. We allocate this once,
     // and use it several times.
-    PythonObjectHolder argumentTuple(PyTuple_New(4));
+    PythonObjectHolder argumentTuple(PyTuple_New(7));
 
 
     // Now we declare the wrappers around the function.
@@ -75,12 +76,13 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     // snippet
     bool snippet = true;
     if (programString.find("init_global") != std::string::npos) {
-        snippet = true;
+
+        snippet = false;
     }
 
     functionStringStream << "from math import *" << std::endl;
     functionStringStream << "try:\n    from numpy import *\nexcept:\n    pass" << std::endl;
-    functionStringStream << "def initial_data(x, y, z, output):\n"; 
+    functionStringStream << "def initial_data(x, y, z, i, j, k, output):\n";
 
     // Now we need to add the variables we need to write:
     for(size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
@@ -171,7 +173,8 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
 
     // loop through the map and set the initial values
     volume::for_each_midpoint(primitiveVolume, grid,
-                              [&](real x, real y, real z, size_t index) {
+                              [&](real x, real y, real z, size_t index,
+                              size_t i, size_t j, size_t k) {
 
 		if (PyErr_Occurred()) {
 			PyErr_Print();
@@ -183,12 +186,20 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
         PyObject* yObject(PyFloat_FromDouble(y));
         PyObject* zObject(PyFloat_FromDouble(z));
 
+        PyObject* iObject(PyLong_FromSize_t(i));
+        PyObject* jObject(PyLong_FromSize_t(j));
+        PyObject* kObject(PyLong_FromSize_t(k));
+
         CHECK_PYTHON
 
         PyTuple_SetItem(argumentTuple.object, 0, xObject);
         PyTuple_SetItem(argumentTuple.object, 1, yObject);
         PyTuple_SetItem(argumentTuple.object, 2, zObject);
-        PyTuple_SetItem(argumentTuple.object, 3, outputMap);
+
+        PyTuple_SetItem(argumentTuple.object, 3, iObject);
+        PyTuple_SetItem(argumentTuple.object, 4, jObject);
+        PyTuple_SetItem(argumentTuple.object, 5, kObject);
+        PyTuple_SetItem(argumentTuple.object, 6, outputMap);
 
         CHECK_PYTHON
         PyObject_CallObject(initialValueFunction.object,
