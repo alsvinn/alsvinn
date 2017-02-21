@@ -13,6 +13,7 @@
 #include <sstream>
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsfvm/python/PythonInterpreter.hpp"
+#include "alsutils/log.hpp"
 #define L std::cout << __FILE__ << ":" << __LINE__ << std::endl;
 
 #define CHECK_PYTHON \
@@ -70,6 +71,13 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     // Now we declare the wrappers around the function.
     std::stringstream functionStringStream;
 
+    // We need to figure out if we are dealing with a function or just a
+    // snippet
+    bool snippet = true;
+    if (programString.find("init_global") != std::string::npos) {
+        snippet = true;
+    }
+
     functionStringStream << "from math import *" << std::endl;
     functionStringStream << "try:\n    from numpy import *\nexcept:\n    pass" << std::endl;
     functionStringStream << "def initial_data(x, y, z, output):\n"; 
@@ -106,16 +114,52 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
             Py_DECREF(parameterValueList);
         }
     }
+    if (snippet) {
+        addIndent(programString, functionStringStream);
 
-    addIndent(programString, functionStringStream);
 
-    // Add code to store the variables:
-    for(size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
-        // We set them to None, that way we can check at the end if they are checked.
-        const auto& name = primitiveVolume.getName(i);
-        addIndent(std::string("output['") + name + "'] = " + name, functionStringStream);
+        // Add code to store the variables:
+        for(size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
+            // We set them to None, that way we can check at the end if they are checked.
+            const auto& name = primitiveVolume.getName(i);
+            addIndent(std::string("output['") + name + "'] = " + name, functionStringStream);
+        }
+    } else {
+        // Add code to store the variables:
+        for(size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
+            // We set them to None, that way we can check at the end if they are checked.
+            const auto& name = primitiveVolume.getName(i);
+            addIndent(std::string("output['") + name + "'] = " + name+"_global[i,j,k]", functionStringStream);
+        }
     }
 
+    if (!snippet) {
+        for(size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
+            // We set them to None, that way we can check at the end if they are checked.
+            const auto& name = primitiveVolume.getName(i);
+            functionStringStream << name << "_global = zeros(("
+                           << grid.getDimensions().x << ", "
+                           << grid.getDimensions().y << ", "
+                           << grid.getDimensions().z << "))"
+                           << std::endl;
+        }
+
+        functionStringStream << programString << std::endl;
+
+        functionStringStream << "init_global(";
+        for(size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
+            // We set them to None, that way we can check at the end if they are checked.
+            const auto& name = primitiveVolume.getName(i);
+            functionStringStream << name << "_global, ";
+        }
+
+        functionStringStream << grid.getDimensions().x << ", "
+                       << grid.getDimensions().y << ", "
+                       << grid.getDimensions().z << ")"
+                       << std::endl;
+    }
+
+    ALSVINN_LOG(INFO, "Python program: \n" << functionStringStream.str());
 
     PyRun_String(functionStringStream.str().c_str(),
                  Py_file_input, globalNamespace, localNamespace);
