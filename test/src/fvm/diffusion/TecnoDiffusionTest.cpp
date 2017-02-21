@@ -211,7 +211,7 @@ TEST_P(TecnoDiffusionTest, OrderTest) {
 }
 
 
-#if 0
+#if 1
 INSTANTIATE_TEST_CASE_P(TecnoDiffusionTestsTecnoeRoe,
     TecnoDiffusionTest,
     ::testing::Values(

@@ -45,10 +45,12 @@ namespace alsfvm {
                 
 
 
+
                 auto conservedValuesMiddle = Equation::fetchConservedVariables(conservedView, middleIndex);
                 auto conservedValuesLeft = Equation::fetchConservedVariables(conservedView, leftIndex);
                 auto conservedValues = 0.5*(conservedValuesMiddle + conservedValuesLeft);
 
+                //
                 auto RT = equation.template computeEigenVectorMatrix<direction>(conservedValues).transposed();
 
 
@@ -97,6 +99,7 @@ namespace alsfvm {
                     y - directionVector[1],
                     z - directionVector[2]);
 
+
                 auto diffusion = [&](size_t left, size_t right) {
                     auto leftValues = Equation::fetchConservedVariables(rightView, left);
                     auto rightValues = Equation::fetchConservedVariables(leftView, right);
@@ -105,11 +108,11 @@ namespace alsfvm {
 
                     DiffusionMatrix<Equation, direction> matrix(equation, conservedValues);
 
-                    return -0.5*(equation.template computeEigenVectorMatrix<direction>(conservedValues) * (matrix * (leftValues - rightValues)));
+                    return -0.5*( equation.template computeEigenVectorMatrix<direction>(conservedValues)*(matrix*(leftValues - rightValues)));
                 };
 
 
-
+                equation.addToViewAt(output, middleIndex, diffusion(middleIndex, rightIndex) - diffusion(leftIndex, middleIndex));
 
             }
 
@@ -121,23 +124,6 @@ namespace alsfvm {
                 volume::Volume& entropyVariablesRight,
                 const volume::Volume& conservedVolume) {
 
-                std::cout << outputVolume.getTotalNumberOfXCells() << std::endl;
-                std::cout << left.getTotalNumberOfXCells() << std::endl;
-                std::cout << right.getTotalNumberOfXCells() << std::endl;
-                std::cout << entropyVariablesLeft.getTotalNumberOfXCells() << std::endl;
-                std::cout << entropyVariablesRight.getTotalNumberOfXCells() << std::endl;
-
-                std::cout << "num vars" << outputVolume.getNumberOfVariables() << std::endl;
-                std::cout << "num vars" << left.getNumberOfVariables() << std::endl;
-                std::cout << "num vars" << right.getNumberOfVariables()<< std::endl;
-                std::cout << "num vars" << entropyVariablesLeft.getNumberOfVariables() << std::endl;
-                std::cout << "num vars" << entropyVariablesRight.getNumberOfVariables() << std::endl;
-
-                std::cout << outputVolume.getScalarMemoryArea(0)->isOnHost() << std::endl;
-                std::cout << left.getScalarMemoryArea(0)->isOnHost() << std::endl;
-                std::cout << right.getScalarMemoryArea(0)->isOnHost() << std::endl;
-                std::cout << entropyVariablesLeft.getScalarMemoryArea(0)->isOnHost() << std::endl;
-                std::cout << entropyVariablesRight.getScalarMemoryArea(0)->isOnHost() << std::endl;
 
                 typename Equation::ConstViews conservedView(conservedVolume);
                 typename Equation::Views entropyVariablesViewLeft(entropyVariablesLeft);
@@ -167,8 +153,7 @@ namespace alsfvm {
 
                 int minGridSize, blockSizeMax;
                 CUDA_SAFE_CALL(cudaOccupancyMaxPotentialBlockSize(&minGridSize,&blockSizeMax,   computeEntropyVariables<Equation, direction>));
-                std::cout << "minGridSize = " << minGridSize << std::endl;
-                std::cout << "blockSize = " << blockSizeMax  << std::endl;
+
                 computeEntropyVariables<Equation, direction> << <gridSize, blockSize>> >(equation,
                                                                                          entropyVariablesViewLeft,
                                                                                          entropyVariablesViewRight,
@@ -206,7 +191,7 @@ namespace alsfvm {
                         );
                 CUDA_CHECK_IF_DEBUG
 
-                        exit(0);
+
             }
 
             
@@ -251,7 +236,7 @@ namespace alsfvm {
 
 
             for (int direction = 0; direction < outputVolume.getDimensions(); ++direction) {
-                std::cout << "direction == " << direction << std::endl;
+
                 if (direction == 0) {
                     applyDiffusionCUDA<Equation, DiffusionMatrix, 0>(equation, outputVolume, *reconstruction,
                         *left, *right,

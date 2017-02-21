@@ -60,7 +60,7 @@ namespace alsfvm { namespace reconstruction { namespace tecno {
                      grid.getDimensions().z));
 
              }
-             reconstructor.reset(new NoReconstructionCUDA);
+
          }else {
              THROW("Unknown platform " << platform);
          }

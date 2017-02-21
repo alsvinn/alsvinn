@@ -88,7 +88,7 @@ namespace alsutils {
                 for (size_t row = 0; row < NumberOfRows; ++row) {
                     norm += (*this)(row, column)*(*this)(row, column);
                 }
-                norm = sqrt(norm);
+                norm = sqrtf(norm);
                 for (size_t row = 0; row < NumberOfRows; ++row) {
                     newMatrix(row, column) = (*this)(row, column) /norm;
                 }
