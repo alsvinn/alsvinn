@@ -1,7 +1,9 @@
 #include "alsfvm/diffusion/DiffusionFactory.hpp"
 #include "alsfvm/reconstruction/tecno/ReconstructionFactory.hpp"
 #include "alsfvm/diffusion/TecnoDiffusionCPU.hpp"
+#ifdef ALSVINN_HAVE_CUDA
 #include "alsfvm/diffusion/TecnoDiffusionCUDA.hpp"
+#endif
 
 #include "alsfvm/diffusion/RoeMatrix.hpp"
 #include "alsfvm/equation/equation_list.hpp"

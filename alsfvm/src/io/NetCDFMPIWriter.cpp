@@ -24,11 +24,11 @@ void NetCDFMPIWriter::write(const volume::Volume &conservedVariables, const volu
 
     if (newFile) {
 
-        NETCDF_SAFE_CALl(ncmpi_create(mpiCommunicator, filename.c_str(), NC_NETCDF4|NC_MPIIO,
+      NETCDF_SAFE_CALl(ncmpi_create(mpiCommunicator, filename.c_str(),  NC_64BIT_DATA|NC_CLOBBER,
                                    mpiInfo, &file));
     }
     else {
-        NETCDF_SAFE_CALl(ncmpi_open(mpiCommunicator, filename.c_str(), NC_WRITE|NC_NETCDF4|NC_MPIIO,
+      NETCDF_SAFE_CALl(ncmpi_open(mpiCommunicator, filename.c_str(), NC_WRITE| NC_64BIT_DATA,
                             mpiInfo, &file));
         NETCDF_SAFE_CALl(ncmpi_redef(file));
     }
