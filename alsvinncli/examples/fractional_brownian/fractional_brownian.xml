@@ -1,0 +1,53 @@
+<config>
+<fvm>
+  <name>
+    brownian
+  </name>
+  <platform>cpu</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>1 0 0</upperCorner>
+    <dimension>16384 1 1</dimension>
+  </grid>
+  <boundary>neumann</boundary>
+  <flux>godunov</flux>
+  <endTime>1</endTime>
+  <equation>burgers</equation>
+  <reconstruction>weno2</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
+  <initialData>
+    <python>fractional_brownian.py</python>
+
+    <parameters>
+      <parameter>
+        <name>X</name>
+        <length>131072</length>
+        <values><value>0</value></values>
+      </parameter>
+    </parameters>
+  </initialData>
+  <writer>
+    <type>netcdf</type>
+    <basename>fractional_brownian</basename>
+    <numberOfSaves>2</numberOfSaves>
+  </writer>
+</fvm>
+<uq>
+<samples>4</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>X</name>
+      <length>131072</length>
+      <type>normal</type>
+    </parameter>
+  </parameters>
+  <stats>
+    <stat>
+      meanvar
+    </stat>
+  </stats>
+
+</uq>
+</config>
