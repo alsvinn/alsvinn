@@ -72,6 +72,10 @@ std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(Setup::ptre
         parametersToDistribution.setParameter("lower", 0);
         parametersToDistribution.setParameter("upper", 1);
 
+        parametersToDistribution.setParameter("a", 0);
+        parametersToDistribution.setParameter("b", 1);
+
+	
         parametersToDistribution.setParameter("mean", 0);
         parametersToDistribution.setParameter("sd", 1);
 
