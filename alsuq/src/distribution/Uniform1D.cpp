@@ -1,9 +1,13 @@
 #include "alsuq/distribution/Uniform1D.hpp"
 #include "alsutils/error/Exception.hpp"
+#include "alsutils/log.hpp"
+#include <iostream>
 namespace alsuq { namespace distribution {
 	Uniform1D::Uniform1D(size_t numberOfSamples, double a, double b)
 	    : a(a), b(b)
 	{
+	  ALSVINN_LOG(INFO, "numberOfSampes = " << numberOfSamples);
+
 	    deltaX = (b-a)/numberOfSamples;
 	}
 

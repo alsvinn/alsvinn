@@ -37,7 +37,7 @@
   <writer>
     <type>netcdf</type>
     <basename>kh</basename>
-    <numberOfSaves>10</numberOfSaves>
+    <numberOfSaves>1</numberOfSaves>
   </writer>
 </fvm>
 <uq>

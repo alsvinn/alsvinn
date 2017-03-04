@@ -43,7 +43,7 @@ std::vector<real> SampleGenerator::generate(const std::string &parameter, const 
         samples[i] = distribution->generate(*generator, i);
     }
 
-
+    currentSample++;
     return samples;
 }
 
