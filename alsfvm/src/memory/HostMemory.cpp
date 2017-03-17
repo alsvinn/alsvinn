@@ -22,9 +22,27 @@ HostMemory<T>::HostMemory(size_t nx, size_t ny, size_t nz)
 }
 
 template<class T>
+std::shared_ptr<Memory<T> > HostMemory<T>::makeInstance() const
+{
+    std::shared_ptr<Memory<T>> memoryArea;
+
+    memoryArea.reset(new HostMemory(this->nx, this->ny, this->nz));
+
+    return memoryArea;
+}
+
+template<class T>
 bool HostMemory<T>::isOnHost() const
 {
     return true;
+}
+
+template<class T>
+void HostMemory<T>::copyFrom(const Memory<T> &other)
+{
+    CHECK_SIZE_AND_HOST(other);
+
+    std::copy(other.data(), other.data() + this->getSize(), data.begin());
 }
 
 template<class T>
@@ -229,6 +247,16 @@ void HostMemory<T>::addLinearCombination(T a1,
 #pragma omp parallel for
     for (size_t i = 0; i < data.size(); ++i) {
         data[i] = a1*d1[i] + a2*d2[i] + a3*d3[i] + a4*d4[i] + a5*d5[i];
+    }
+}
+
+template<class T>
+void HostMemory<T>::addPower(const Memory<T> &other, double power)
+{
+    CHECK_SIZE_AND_HOST(other);
+    #pragma omp parallel for
+    for (size_t i = 0; i < data.size(); ++i) {
+        data[i] += std::pow(other[i], power);
     }
 }
 

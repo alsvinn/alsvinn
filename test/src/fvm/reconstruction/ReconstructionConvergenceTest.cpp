@@ -207,7 +207,7 @@ TEST_P(ReconstructionConvergenceTest, ReconstructionTest) {
         real L1DifferenceRight = 0.0;
         real LInftyDifferenceLeft = 0.0;
         real LInftyDifferenceRight = 0.0;
-        for (int x = 0; x < nx; ++x) {
+        for (size_t x = 0; x < nx; ++x) {
             const real a = x * dx;
             const real b = (x + 1) * dx;
 

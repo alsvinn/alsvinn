@@ -104,6 +104,13 @@ namespace alsfvm {
             T a2, const T* v2,
             T a3, const T* v3,
             T a4, const T* v4,
-            T a5, const T* v5);
+            T a5, const T* v5,
+                                    size_t size);
+
+        //! Basically runs
+        //!
+        //! \f[a += pow(b,power)\f]
+        template<class T>
+        void add_power(T* a, const T* b, double power, size_t size);
 	}
 }

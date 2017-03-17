@@ -39,7 +39,9 @@ namespace alsfvm {
             alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory,
             size_t nx, size_t ny, size_t nz,
             size_t numberOfGhostCells)
-            : variableNames(variableNames), nx(nx), ny(ny), nz(nz),
+            :  variableNames(variableNames),
+              memoryFactory(memoryFactory),
+              nx(nx), ny(ny), nz(nz),
             numberOfXGhostCells(numberOfGhostCells),
             numberOfYGhostCells(ny > 1 ? numberOfGhostCells : 0),
             numberOfZGhostCells(nz > 1 ? numberOfGhostCells : 0)
@@ -55,6 +57,7 @@ namespace alsfvm {
         Volume::Volume(Volume& volume, const std::vector<size_t>& components,
             const std::vector<std::string>& variableNames)
             : variableNames(variableNames),
+              memoryFactory(volume.memoryFactory),
             nx(volume.nx), ny(volume.ny), nz(volume.nz),
             numberOfXGhostCells(volume.numberOfXGhostCells),
             numberOfYGhostCells(volume.numberOfYGhostCells),
@@ -332,7 +335,27 @@ namespace alsfvm {
         {
             return {getTotalNumberOfXCells(),
                     getTotalNumberOfYCells(),
-                    getNumberOfZCells()};
+                        getNumberOfZCells()};
+        }
+
+        void Volume::addPower(const Volume &other, real power)
+        {
+            for(size_t i = 0; i < memoryAreas.size(); ++i) {
+                memoryAreas[i]->addPower(*other[i], power);
+            }
+
+        }
+
+        std::shared_ptr<Volume> Volume::makeInstance() const
+        {
+            return std::make_shared<Volume>(variableNames, memoryFactory,
+                                            nx, ny, nz, numberOfXGhostCells);
+        }
+
+        std::shared_ptr<Volume> Volume::makeInstance(size_t nxNew, size_t nyNew, size_t nzNew) const
+        {
+            return std::make_shared<Volume>(variableNames, memoryFactory,
+                                            nxNew, nyNew, nzNew, 0);
         }
 	}
 

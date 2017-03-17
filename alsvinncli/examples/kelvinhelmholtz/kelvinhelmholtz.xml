@@ -52,7 +52,27 @@
   </parameters>
   <stats>
     <stat>
+    <name>
+    structure
+    </name>
+
+    <writer>
+      <type>netcdf</type>
+      <basename>kh_structure</basename>
+      <numberOfSaves>1</numberOfSaves>
+    </writer>
+    </stat>
+    <stat>
+    <name>
       meanvar
+    </name>
+
+    <writer>
+      <type>netcdf</type>
+      <numberOfSaves>1</numberOfSaves>
+      <basename>kh_structure</basename>
+      <numberOfSaves>1</numberOfSaves>
+    </writer>
     </stat>
   </stats>
 </uq>

@@ -19,6 +19,9 @@ public:
     HostMemory(size_t nx, size_t ny=1, size_t nz=1);
 
 
+    //! Clones the memory area, but *does not copy the content*
+    virtual std::shared_ptr<Memory<T> > makeInstance() const;
+
     ///
     /// Checks if the memory area is on the host (CPU) or
     /// on some device, if the latter, one needs to copy to host
@@ -26,6 +29,9 @@ public:
     /// @returns true if the memory is on host, false otherwise
     ///
     virtual bool isOnHost() const;
+
+    //! Copies the contents of the other memory area into this one
+    virtual void copyFrom(const Memory<T>& other);
 
     ///
     /// Gets the pointer to the data (need not be on the host!)
@@ -177,6 +183,15 @@ public:
         T a3, const Memory<T>& v3,
         T a4, const Memory<T>& v4,
         T a5, const Memory<T>& v5);
+
+
+    //! Adds a power of the other memory area to this memory area, ie
+    //!
+    //! \f[this += pow(other, power)\f]
+    //!
+    //! @param other the other memory area to the the power of
+    //! @param power the power to use
+    virtual void addPower(const Memory<T>& other, double power);
 
 private:
     std::vector<T> data;

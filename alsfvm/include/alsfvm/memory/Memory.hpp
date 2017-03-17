@@ -11,6 +11,8 @@ namespace alsfvm {
         template<class T>
 		class Memory : public MemoryBase {
 		public:
+
+
             ///
             /// \brief Memory constructs new memory
             /// \param nx the number of cells in x direction
@@ -43,6 +45,12 @@ namespace alsfvm {
             ///
             virtual size_t getSizeZ() const;
 
+            //! Clones the memory area, but *does not copy the content*
+            virtual std::shared_ptr<Memory<T> > makeInstance() const = 0;
+
+            //! Copies the contents of the other memory area into this one
+            virtual void copyFrom(const Memory<T>& other) = 0;
+
             ///
             /// @returns the size (in bytes) of the memory in X direction.
             /// \note use this for indexing
@@ -72,6 +80,23 @@ namespace alsfvm {
 			/// @returns true if the memory is on host, false otherwise
 			///
 			virtual bool isOnHost() const = 0;
+
+            T* data() {
+                return getPointer();
+            }
+
+            const T* data() const {
+                return getPointer();
+            }
+
+            T& operator[](size_t i) {
+                assert(isOnHost());
+                return data()[i];
+            }
+
+            T operator[](size_t i) const {
+                return data()[i];
+            }
 
 			///
 			/// Gets the pointer to the data (need not be on the host!)
@@ -220,6 +245,16 @@ namespace alsfvm {
                 T a3, const Memory<T>& v3,
                 T a4, const Memory<T>& v4, 
                 T a5, const Memory<T>& v5) = 0;
+
+
+
+            //! Adds a power of the other memory area to this memory area, ie
+            //!
+            //! \f[this += pow(other, power)\f]
+            //!
+            //! @param other the other memory area to the the power of
+            //! @param power the power to use
+            virtual void addPower(const Memory<T>& other, double power) = 0;
             
 			
 		protected:

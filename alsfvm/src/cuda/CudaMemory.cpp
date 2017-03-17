@@ -24,16 +24,35 @@ namespace alsfvm {
 			: memory::Memory<T>(nx, ny, nz) 
 		{
 			CUDA_SAFE_CALL(cudaMalloc(&memoryPointer, nx*ny*nz*sizeof(T)));
-			CUDA_SAFE_CALL(cudaMemset(memoryPointer, 0, nx*ny*nz*sizeof(T)));
-		}
+            CUDA_SAFE_CALL(cudaMemset(memoryPointer, 0, nx*ny*nz*sizeof(T)));
+        }
+
+        template<class T>
+        std::shared_ptr<memory::Memory<T> > CudaMemory<T>::makeInstance() const
+        {
+            std::shared_ptr<memory::Memory<T> > memoryArea;
+            memoryArea.reset(new CudaMemory<T>(this->nx, this->ny, this->nz));
+
+            return memoryArea;
+        }
 
 		// Note: Virtual distructor since we will inherit
 		// from this. 
 		template<class T>
 		CudaMemory<T>::~CudaMemory() 
 		{
-			CUDA_SAFE_CALL(cudaFree(memoryPointer));
-		}
+            CUDA_SAFE_CALL(cudaFree(memoryPointer));
+        }
+
+        template<class T>
+        void CudaMemory<T>::copyFrom(const memory::Memory<T> &other)
+        {
+            CHECK_SIZE_AND_HOST(other);
+
+            CUDA_SAFE_CALL(cudaMemcpy(memoryPointer, other.data(),
+                                      this->nx*this->ny*this->nz*sizeof(T),
+                                      cudaMemcpyDeviceToDevice));
+        }
 
 		
 
@@ -228,7 +247,21 @@ namespace alsfvm {
             auto d3 = v3.getPointer();
             auto d4 = v4.getPointer();
             auto d5 = v5.getPointer();
+
+            add_linear_combination(a1, d1,
+                        a2, d2,
+                        a3, d3,
+                        a4, d4,
+                        a5, d5,
+                        this->getSize());
             
+        }
+
+        template<class T>
+        void CudaMemory<T>::addPower(const memory::Memory<T> &other, double power)
+        {
+            CHECK_SIZE_AND_HOST(other);
+            add_power(getPointer(), other.getPointer(), power, this->getSize());
         }
 
 		INSTANTIATE_MEMORY(CudaMemory)

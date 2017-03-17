@@ -90,6 +90,15 @@ namespace {
         }
     }
 
+
+    template<class T>
+    __global__ void add_power_device(T* out, const T* a, double power, size_t size) {
+        size_t index = blockIdx.x*blockDim.x + threadIdx.x;
+
+        if (index < size) {
+            out[index] += pow(a[index], power);
+        }
+    }
 }
 
 // Since we use templates, we must instatiate.
@@ -218,6 +227,12 @@ namespace alsfvm {
             linear_combination_device << <(size + threadCount - 1) / threadCount, threadCount >> >(a1, v1, a2, v2, a3,v3, a4,v4,a5,v5, size);
         }
 
+        template<class T>
+        void add_power(T* a, const T* b, double power, size_t size) {
+            const size_t threadCount = 1024;
+            add_power_device << <(size + threadCount - 1) / threadCount, threadCount >> >(a, b, power, size);
+        }
+
         INSTANTIATE_VECTOR_OPERATION(add)
             INSTANTIATE_VECTOR_OPERATION(subtract)
             INSTANTIATE_VECTOR_OPERATION(multiply)
@@ -233,6 +248,9 @@ namespace alsfvm {
                 real a4, const real* v4,
                 real a5, const real* v5,
                 size_t size);
+
+            template void add_power<real>(real* a, const real* b, double power, size_t size);
+
 
 	}
 }
