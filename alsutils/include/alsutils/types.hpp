@@ -9,24 +9,14 @@
 #include <cfloat>
 #include <memory>
 #include <complex>
-#ifndef _WIN32
-// On Linux, we can not use C++11, so we use boost
-// on Windows, the compiler doesn't like boost that much at the moment.
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-namespace alsfvm {
-	using boost::shared_ptr;
-	using boost::make_shared;
-	using boost::dynamic_pointer_cast;
-}
-#else
+
 #include <memory>
 namespace alsfvm {
 	using std::shared_ptr;
 	using std::make_shared;
 	using std::dynamic_pointer_cast;
 }
-#endif
+
 // For CUDA we need special flags for the functions, 
 // for normal build, we just need to define these flags as empty.
 #ifdef ALSVINN_HAVE_CUDA

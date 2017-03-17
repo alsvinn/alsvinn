@@ -82,7 +82,7 @@ namespace alsfvm { namespace simulator {
         /// \brief addWriter adds a writer, this will be called every time callWriter is called
         /// \param writer
         ///
-        void addWriter(alsfvm::shared_ptr<io::Writer>& writer);
+        void addWriter(alsfvm::shared_ptr<io::Writer> writer);
 
         void addTimestepAdjuster(alsfvm::shared_ptr<integrator::TimestepAdjuster>& adjuster);
 
@@ -111,6 +111,9 @@ namespace alsfvm { namespace simulator {
         std::string getEquationName() const;
 
         void setInitialValue(alsfvm::shared_ptr<init::InitialData>& initialData);
+
+        const std::shared_ptr<grid::Grid>& getGrid() const;
+         std::shared_ptr<grid::Grid>& getGrid();
     private:
 
         real computeTimestep();

@@ -60,7 +60,7 @@ void Simulator::performStep()
     callWriters();
 }
 
-void Simulator::addWriter(alsfvm::shared_ptr<io::Writer> &writer)
+void Simulator::addWriter(alsfvm::shared_ptr<io::Writer> writer)
 {
     writers.push_back(writer);
 }
@@ -138,6 +138,16 @@ void Simulator::setInitialValue(alsfvm::shared_ptr<init::InitialData> &initialDa
 
     boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
+}
+
+const std::shared_ptr<grid::Grid> &Simulator::getGrid() const
+{
+    return grid;
+}
+
+std::shared_ptr<grid::Grid> &Simulator::getGrid()
+{
+    return grid;
 }
 
 void Simulator::callWriters()

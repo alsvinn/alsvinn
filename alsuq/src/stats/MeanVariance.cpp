@@ -17,6 +17,7 @@ void MeanVariance::computeStatistics(const alsfvm::volume::Volume &conservedVari
                                      const alsfvm::grid::Grid &grid,
                                      const alsfvm::simulator::TimestepInformation &timestepInformation)
 {
+
     auto& mean = findOrCreateSnapshot("mean",
                                       timestepInformation,
                                       conservedVariables,

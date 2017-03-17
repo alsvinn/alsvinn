@@ -3,11 +3,11 @@
   <name>
     kh
   </name>
-  <platform>cuda</platform>
+  <platform>cpu</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>512 512 1</dimension>
+    <dimension>128 128 1</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>hll3</flux>
@@ -51,27 +51,14 @@
     </parameter>
   </parameters>
   <stats>
-    <stat>
-    <name>
-    structure
-    </name>
-
-    <writer>
-      <type>netcdf</type>
-      <basename>kh_structure</basename>
-      <numberOfSaves>1</numberOfSaves>
-    </writer>
-    </stat>
-    <stat>
+  <stat>
     <name>
       meanvar
     </name>
-
+    <numberOfSaves>1</numberOfSaves>
     <writer>
       <type>netcdf</type>
-      <numberOfSaves>1</numberOfSaves>
-      <basename>kh_structure</basename>
-      <numberOfSaves>1</numberOfSaves>
+      <basename>kh</basename>
     </writer>
     </stat>
   </stats>

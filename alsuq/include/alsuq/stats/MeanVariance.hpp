@@ -9,7 +9,7 @@ namespace alsuq { namespace stats {
         MeanVariance(const StatisticsParameters& parameters);
         //! Returns a list of ['mean', 'variance']
         virtual std::vector<std::string> getStatisticsNames() const;
-    protected:
+
 
 
         virtual void computeStatistics(const alsfvm::volume::Volume &conservedVariables,

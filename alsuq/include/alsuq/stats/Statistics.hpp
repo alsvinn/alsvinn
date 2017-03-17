@@ -33,11 +33,13 @@ namespace alsuq { namespace stats {
         //! typically this could be ['mean', 'variance']
         virtual std::vector<std::string> getStatisticsNames() const = 0;
 
-    protected:
+
         virtual void computeStatistics(const alsfvm::volume::Volume& conservedVariables,
                            const alsfvm::volume::Volume& extraVariables,
                            const alsfvm::grid::Grid& grid,
                            const alsfvm::simulator::TimestepInformation& timestepInformation) = 0;
+
+        virtual void writeStatistics(const alsfvm::grid::Grid &grid) = 0;
 
     };
 } // namespace stats
