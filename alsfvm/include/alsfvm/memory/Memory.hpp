@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "alsfvm/types.hpp"
 #include "alsfvm/memory/MemoryBase.hpp"
 #include "alsfvm/memory/View.hpp"
@@ -9,7 +10,7 @@ namespace alsfvm {
 		/// look at the other concrete implementations to use this. 
 		///
         template<class T>
-		class Memory : public MemoryBase {
+        class Memory : public MemoryBase, public std::enable_shared_from_this<Memory<T> > {
 		public:
 
 
@@ -255,7 +256,20 @@ namespace alsfvm {
             //! @param other the other memory area to the the power of
             //! @param power the power to use
             virtual void addPower(const Memory<T>& other, double power) = 0;
-            
+
+
+            //! Subtracts a power of the other memory area to this memory area, ie
+            //!
+            //! \f[this -= pow(other, power)\f]
+            //!
+            //! @param other the other memory area to the the power of
+            //! @param power the power to use
+            virtual void subtractPower(const Memory<T>& other, double power) = 0;
+
+
+            //! Copies the data to host if it is on GPU, otherwise makes a copy
+            virtual std::shared_ptr<Memory<T> > getHostMemory() = 0;
+
 			
 		protected:
             const size_t nx;

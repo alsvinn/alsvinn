@@ -16,6 +16,8 @@ namespace alsuq { namespace stats {
                           const alsfvm::volume::Volume &extraVariables,
                           const alsfvm::grid::Grid &grid,
                           const alsfvm::simulator::TimestepInformation &timestepInformation) override;
+
+        virtual void finalize() override;
     };
 } // namespace stats
 } // namespace alsuq

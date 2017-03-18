@@ -151,6 +151,18 @@ namespace alsfvm {
             virtual void addPower(const memory::Memory<T>& other, double power);
 
 
+            //! Subtract a power of the other memory area to this memory area, ie
+            //!
+            //! \f[this -= pow(other, power)\f]
+            //!
+            //! @param other the other memory area to the the power of
+            //! @param power the power to use
+            virtual void subtractPower(const memory::Memory<T>& other, double power);
+
+
+            std::shared_ptr<memory::Memory<T> > getHostMemory() override;
+
+
 		private:
 			T* memoryPointer;
 		};

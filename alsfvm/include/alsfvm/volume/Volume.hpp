@@ -233,6 +233,14 @@ namespace alsfvm {
             //! @param power the power to use
             virtual void addPower(const Volume& other, real power);
 
+            //! Subtracts a power of the other volume to this volume, ie
+            //!
+            //! \f[this -= pow(other, power)\f]
+            //!
+            //! @param other the other volume to the the power of
+            //! @param power the power to use
+            virtual void subtractPower(const Volume& other, real power);
+
 
             //! Makes a volume with the same memory areas and the same sizes
             std::shared_ptr<volume::Volume> makeInstance() const;
@@ -240,6 +248,8 @@ namespace alsfvm {
             //! Makes a new volume with the same names for the memory areas,
             //! but with the newly given sizes.
             std::shared_ptr<volume::Volume> makeInstance(size_t nx, size_t ny, size_t nz) const;
+
+
         private:
             const std::vector<std::string> variableNames;
             alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;

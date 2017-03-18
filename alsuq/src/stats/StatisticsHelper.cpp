@@ -1,6 +1,14 @@
 #include "alsuq/stats/StatisticsHelper.hpp"
 #include "alsuq/mpi/utils.hpp"
+#include "alsutils/mpi/cuda.hpp"
 namespace alsuq { namespace stats { 
+StatisticsHelper::StatisticsHelper(const StatisticsParameters &parameters)
+
+    : samples(parameters.getNumberOfSamples())
+{
+
+}
+
 void StatisticsHelper::addWriter(const std::string& name,
                                  std::shared_ptr<alsfvm::io::Writer> &writer)
 {
@@ -17,10 +25,19 @@ void StatisticsHelper::combineStatistics()
                      variable++) {
 
                     auto statisticsData = volume->getScalarMemoryArea(variable);
-                    std::shared_ptr<alsfvm::memory::Memory<real> > dataReduced;
-                    if (mpiConfig.getRank() == 0) {
-                        dataReduced = statisticsData->makeInstance();
+                    auto statisticsDataToReduce = statisticsData;
+
+
+                    // Check if we should copy to CPU
+                    if (!statisticsData->isOnHost() && !alsutils::mpi::hasGPUDirectSupport()) {
+                        statisticsDataToReduce = statisticsData->getHostMemory();
                     }
+
+
+                    std::shared_ptr<alsfvm::memory::Memory<real> > dataReduced;
+                    //if (mpiConfig.getRank() == 0) {
+                        dataReduced = statisticsDataToReduce->makeInstance();
+                    //}
                     MPI_SAFE_CALL(MPI_Reduce(statisticsData->data(), dataReduced->data(),
                                              statisticsData->getSize(), MPI_DOUBLE, MPI_SUM, 0,
                                              mpiConfig.getCommunicator()));
@@ -28,6 +45,8 @@ void StatisticsHelper::combineStatistics()
                     if (mpiConfig.getRank() == 0) {
                         statisticsData->copyFrom(*dataReduced);
                     }
+
+                    *statisticsData /= samples;
                 }
             }
         }
@@ -67,6 +86,10 @@ StatisticsSnapshot &StatisticsHelper::findOrCreateSnapshot(
                                                           alsfvm::volume::VolumePair(conservedVariablesClone,
                                                                                      extraVariablesClone));
 
+        for (auto& volume : snapshots[currentTime][name].getVolumes()) {
+            volume->makeZero();
+        }
+
         return snapshots[currentTime][name];
 
     }
@@ -89,6 +112,10 @@ StatisticsSnapshot &StatisticsHelper::findOrCreateSnapshot(const std::string& na
         snapshots[currentTime][name] = StatisticsSnapshot(timestepInformation,
                                                           alsfvm::volume::VolumePair(conservedVariablesClone,
                                                                                      extraVariablesClone));
+
+        for (auto& volume : snapshots[currentTime][name].getVolumes()) {
+            volume->makeZero();
+        }
 
         return snapshots[currentTime][name];
 

@@ -42,10 +42,14 @@ void Runner::run()
 
     }
 
-      for(auto& statisticsWriter : statistics) {
-          statisticsWriter->combineStatistics();
-          statisticsWriter->writeStatistics(*grid);
-      }
+    for(auto& statisticsWriter : statistics) {
+        statisticsWriter->combineStatistics();
+
+        if (mpiConfig.getRank() == 0) {
+            statisticsWriter->finalize();
+            statisticsWriter->writeStatistics(*grid);
+        }
+    }
 
 
 }
@@ -57,4 +61,4 @@ void Runner::setStatistics(const std::vector<std::shared_ptr<stats::Statistics> 
 }
 
 }
-}
+                }

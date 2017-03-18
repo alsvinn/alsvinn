@@ -112,5 +112,14 @@ namespace alsfvm {
         //! \f[a += pow(b,power)\f]
         template<class T>
         void add_power(T* a, const T* b, double power, size_t size);
+
+
+        //! Basically runs
+        //!
+        //! \f[a += pow(b,power)\f]
+        template<class T>
+        void subtract_power(T* a, const T* b, double power, size_t size);
 	}
+
+
 }

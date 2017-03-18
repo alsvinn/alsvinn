@@ -136,6 +136,8 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::
         auto name = statisticsNode.second.get<std::string>("name");
         boost::trim(name);
         stats::StatisticsParameters parameters;
+        parameters.setNumberOfSamples(readNumberOfSamples(configuration));
+        parameters.setConfiguration(statisticsNode.second);
         auto statistics = statisticsFactory.makeStatistics(platform, name, parameters);
         auto numberOfSaves = statisticsNode.second.get<size_t>("numberOfSaves");
 

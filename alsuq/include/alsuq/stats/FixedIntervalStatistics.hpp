@@ -35,6 +35,11 @@ namespace alsuq { namespace stats {
 
         void writeStatistics(const alsfvm::grid::Grid& grid);
 
+
+        //! To be called in the end, this could be to eg compute the variance
+        //! through M_2-mean^2 or any other postprocessing needed
+        virtual void finalize();
+
     protected:
         virtual void computeStatistics(const alsfvm::volume::Volume& conservedVariables,
                            const alsfvm::volume::Volume& extraVariables,

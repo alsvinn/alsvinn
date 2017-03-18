@@ -346,6 +346,16 @@ namespace alsfvm {
 
         }
 
+
+        void Volume::subtractPower(const Volume &other, real power)
+        {
+            for(size_t i = 0; i < memoryAreas.size(); ++i) {
+                memoryAreas[i]->subtractPower(*other[i], power);
+            }
+
+        }
+
+
         std::shared_ptr<Volume> Volume::makeInstance() const
         {
             return std::make_shared<Volume>(variableNames, memoryFactory,

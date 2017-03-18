@@ -193,6 +193,17 @@ public:
     //! @param power the power to use
     virtual void addPower(const Memory<T>& other, double power);
 
+    //! Subtracts a power of the other memory area to this memory area, ie
+    //!
+    //! \f[this -= pow(other, power)\f]
+    //!
+    //! @param other the other memory area to the the power of
+    //! @param power the power to use
+    virtual void subtractPower(const Memory<T>& other, double power);
+
+
+    virtual std::shared_ptr<Memory<T> > getHostMemory() override;
+
 private:
     std::vector<T> data;
 };

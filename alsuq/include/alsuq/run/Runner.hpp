@@ -25,6 +25,8 @@ namespace alsuq { namespace run {
         std::vector<std::string> parameterNames;
         std::vector<size_t> sampleNumbers;
         std::vector<std::shared_ptr<stats::Statistics> > statistics;
+
+        mpi::Config mpiConfig;
     };
 } // namespace run
 } // namespace alsuq

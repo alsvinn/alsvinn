@@ -38,12 +38,23 @@ void FixedIntervalStatistics::writeStatistics(const alsfvm::grid::Grid &grid)
     statistics->writeStatistics(grid);
 }
 
+void FixedIntervalStatistics::finalize()
+{
+    statistics->finalize();
+}
+
 void FixedIntervalStatistics::computeStatistics(const alsfvm::volume::Volume &conservedVariables,
                                                 const alsfvm::volume::Volume &extraVariables,
                                                 const alsfvm::grid::Grid &grid,
                                                 const alsfvm::simulator::TimestepInformation &timestepInformation)
 {
+
     const real currentTime = timestepInformation.getCurrentTime();
+
+    // First check if we have restarted
+    if(currentTime == 0) {
+        numberSaved = 0;
+    }
     if (currentTime >= numberSaved * timeInterval) {
         statistics->computeStatistics(conservedVariables, extraVariables, grid, timestepInformation);
         numberSaved++;

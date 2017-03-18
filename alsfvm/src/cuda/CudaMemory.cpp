@@ -7,6 +7,8 @@
 #include "alsfvm/memory/memory_utils.hpp"
 #include "alsfvm/cuda/vector_operations.hpp"
 #include "alsutils/error/Exception.hpp"
+#include "alsfvm/memory/HostMemory.hpp"
+
 #define CHECK_SIZE_AND_HOST(x) { \
     if (x.isOnHost()) {\
         THROW(#x << " is on host."); \
@@ -47,11 +49,16 @@ namespace alsfvm {
         template<class T>
         void CudaMemory<T>::copyFrom(const memory::Memory<T> &other)
         {
-            CHECK_SIZE_AND_HOST(other);
 
-            CUDA_SAFE_CALL(cudaMemcpy(memoryPointer, other.data(),
-                                      this->nx*this->ny*this->nz*sizeof(T),
-                                      cudaMemcpyDeviceToDevice));
+            if (other.isOnHost()) {
+                this->copyFromHost(other.getPointer(), other.getSize());
+            } else {
+                CHECK_SIZE_AND_HOST(other);
+
+                CUDA_SAFE_CALL(cudaMemcpy(memoryPointer, other.data(),
+                                          this->nx*this->ny*this->nz*sizeof(T),
+                                          cudaMemcpyDeviceToDevice));
+            }
         }
 
 		
@@ -262,6 +269,22 @@ namespace alsfvm {
         {
             CHECK_SIZE_AND_HOST(other);
             add_power(getPointer(), other.getPointer(), power, this->getSize());
+        }
+
+
+        template<class T>
+        void CudaMemory<T>::subtractPower(const memory::Memory<T> &other, double power)
+        {
+            CHECK_SIZE_AND_HOST(other);
+            subtract_power(getPointer(), other.getPointer(), power, this->getSize());
+        }
+
+        template<class T>
+        std::shared_ptr<memory::Memory<T> > CudaMemory<T>::getHostMemory()
+        {
+            std::shared_ptr<memory::Memory<T> > pointer(new memory::HostMemory<T>(this->nx, this->ny, this->nz));
+
+            this->copyToHost(pointer->getPointer(), pointer->getSize());
         }
 
 		INSTANTIATE_MEMORY(CudaMemory)

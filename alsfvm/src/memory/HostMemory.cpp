@@ -260,6 +260,23 @@ void HostMemory<T>::addPower(const Memory<T> &other, double power)
     }
 }
 
+template<class T>
+void HostMemory<T>::subtractPower(const Memory<T> &other, double power)
+{
+    CHECK_SIZE_AND_HOST(other);
+    #pragma omp parallel for
+    for (size_t i = 0; i < data.size(); ++i) {
+        data[i] -= std::pow(other[i], power);
+    }
+}
+
+template<class T>
+std::shared_ptr<Memory<T> > HostMemory<T>::getHostMemory()
+{
+    return this->shared_from_this();
+}
+
+
 INSTANTIATE_MEMORY(HostMemory)
 } // namespace memory
 } // namespace alsfvm

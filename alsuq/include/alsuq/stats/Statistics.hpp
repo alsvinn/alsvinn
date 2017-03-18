@@ -39,6 +39,10 @@ namespace alsuq { namespace stats {
                            const alsfvm::grid::Grid& grid,
                            const alsfvm::simulator::TimestepInformation& timestepInformation) = 0;
 
+        //! To be called in the end, this could be to eg compute the variance
+        //! through M_2-mean^2 or any other postprocessing needed
+        virtual void finalize() = 0;
+
         virtual void writeStatistics(const alsfvm::grid::Grid &grid) = 0;
 
     };

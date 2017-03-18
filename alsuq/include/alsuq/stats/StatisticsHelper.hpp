@@ -2,11 +2,16 @@
 #include "alsuq/types.hpp"
 #include "alsuq/stats/Statistics.hpp"
 #include "alsuq/stats/StatisticsSnapshot.hpp"
+#include "alsuq/stats/StatisticsParameters.hpp"
 
 namespace alsuq { namespace stats { 
 
 class StatisticsHelper : public Statistics {
 public:
+
+    StatisticsHelper(const StatisticsParameters& parameters);
+
+
     //! Add a writer to write the statistics to file
     //!
     //! @param writer the writer to add
@@ -47,6 +52,8 @@ protected:
                                              const alsfvm::volume::Volume& extraVariables,
                                              size_t nx, size_t ny, size_t nz);
 private:
+    size_t samples;
+
     std::map<std::string, std::vector<std::shared_ptr<alsfvm::io::Writer> > > writers;
 
     alsuq::mpi::Config mpiConfig;
