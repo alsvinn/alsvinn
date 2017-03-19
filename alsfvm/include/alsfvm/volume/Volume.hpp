@@ -103,6 +103,17 @@ namespace alsfvm {
             virtual alsfvm::shared_ptr<const memory::Memory<real> >
                 operator[](size_t index) const;
 
+            ///
+            /// \brief getScalarMemoryArea gets the scalar memory area (real)
+            /// \param index the index of the variable
+            /// \return the MemoryArea for the given name
+            /// \note Equivalent to calling
+            ///     getScalarMemoryArea(index)
+            ///
+            virtual alsfvm::shared_ptr<memory::Memory<real> >
+                operator[](size_t index);
+
+
 
             ///
             /// \brief getIndexFromName returns the given index from the name

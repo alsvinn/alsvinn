@@ -14,6 +14,8 @@ namespace alsuq { namespace stats {
 
         real getParameterAsDouble(const std::string& name) const;
 
+
+        int getParameterAsInteger(const std::string& name) const;
         void setConfiguration(const boost::property_tree::ptree& configuration);
     private:
         size_t samples;

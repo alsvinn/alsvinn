@@ -22,6 +22,11 @@ real StatisticsParameters::getParameterAsDouble(const std::string &name) const
     return configuration.get<real>(name);
 }
 
+int StatisticsParameters::getParameterAsInteger(const std::string &name) const
+{
+    return configuration.get<int>(name);
+}
+
 void StatisticsParameters::setConfiguration(const boost::property_tree::ptree &configuration)
 {
     this->configuration = configuration;

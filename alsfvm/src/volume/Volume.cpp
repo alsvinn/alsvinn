@@ -316,6 +316,11 @@ namespace alsfvm {
             return this->getScalarMemoryArea(index);
         }
 
+        alsfvm::shared_ptr<memory::Memory<real> > Volume::operator[](size_t index)
+        {
+            return getScalarMemoryArea(index);
+        }
+
         //! Adds the volumes with coefficients to this volume
         //! Here we compute the sum
         //! \f[ v_1^{\mathrm{new}}=a_1v_1+a_2v_2+a_3v_3+a_4v_4+a_5v_5+a_6v_6\f]
