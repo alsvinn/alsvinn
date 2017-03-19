@@ -3,7 +3,7 @@
   <name>
     kh
   </name>
-  <platform>cpu</platform>
+  <platform>cuda</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
@@ -34,14 +34,10 @@
     <name>none</name>
     <reconstruction>none</reconstruction>
   </diffusion>
-  <writer>
-    <type>netcdf</type>
-    <basename>kh</basename>
-    <numberOfSaves>1</numberOfSaves>
-  </writer>
+
 </fvm>
 <uq>
-  <samples>40</samples>
+  <samples>10</samples>
   <generator>auto</generator>
   <parameters>
     <parameter>

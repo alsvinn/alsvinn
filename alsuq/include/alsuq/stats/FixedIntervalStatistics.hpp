@@ -1,12 +1,13 @@
 #pragma once
 #include "alsuq/stats/Statistics.hpp"
+#include "alsfvm/integrator/TimestepAdjuster.hpp"
 #include "alsuq/types.hpp"
 namespace alsuq { namespace stats { 
 
     //! Decorator for the statistics class to only write a given interval, this
     //! mimics the use of ::alsfvm::io::FixedIntervalWriter
     //!
-    class FixedIntervalStatistics : public Statistics {
+    class FixedIntervalStatistics : public Statistics, public alsfvm::integrator::TimestepAdjuster {
     public:
 
         ///

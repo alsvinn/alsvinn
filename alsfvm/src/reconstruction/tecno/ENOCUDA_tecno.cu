@@ -34,7 +34,7 @@ __global__ void performEnoReconstructionKernel(memory::View<const real> leftView
                                              numberOfXCells,
                                              numberOfYCells,
                                              numberOfZCells,
-                                             directionVector);
+                                             (order-1)*directionVector);
 
     auto x = coordinates.x;
     auto y = coordinates.y;

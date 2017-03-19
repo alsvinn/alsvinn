@@ -1,4 +1,5 @@
 #include "alsuq/stats/FixedIntervalStatistics.hpp"
+#include "alsutils/log.hpp"
 
 namespace alsuq { namespace stats {
 
@@ -49,6 +50,7 @@ void FixedIntervalStatistics::computeStatistics(const alsfvm::volume::Volume &co
                                                 const alsfvm::simulator::TimestepInformation &timestepInformation)
 {
 
+
     const real currentTime = timestepInformation.getCurrentTime();
 
     // First check if we have restarted
@@ -56,6 +58,10 @@ void FixedIntervalStatistics::computeStatistics(const alsfvm::volume::Volume &co
         numberSaved = 0;
     }
     if (currentTime >= numberSaved * timeInterval) {
+        ALSVINN_LOG(INFO, "Computing statistics, currentTime = " << currentTime << ", "
+                    << "\n\tnumberSaves = " << numberSaved
+                    << "\n\ttimeInterval = " << timeInterval
+                    << "\n\tendTime = " << endTime);
         statistics->computeStatistics(conservedVariables, extraVariables, grid, timestepInformation);
         numberSaved++;
     }

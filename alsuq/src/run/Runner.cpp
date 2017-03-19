@@ -33,6 +33,11 @@ void Runner::run()
         auto simulator = simulatorCreator->createSimulator(parameters, sample);
         for( auto & statisticWriter : statistics) {
             simulator->addWriter(std::dynamic_pointer_cast<alsfvm::io::Writer>(statisticWriter));
+
+            auto timestepAdjuster = alsfvm::dynamic_pointer_cast<alsfvm::integrator::TimestepAdjuster>(statisticWriter);
+            if (timestepAdjuster) {
+                simulator->addTimestepAdjuster(timestepAdjuster);
+            }
         }
         simulator->callWriters();
         while (!simulator->atEnd()) {

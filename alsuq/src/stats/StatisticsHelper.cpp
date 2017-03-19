@@ -1,6 +1,8 @@
 #include "alsuq/stats/StatisticsHelper.hpp"
 #include "alsuq/mpi/utils.hpp"
 #include "alsutils/mpi/cuda.hpp"
+#include "alsutils/log.hpp"
+
 namespace alsuq { namespace stats { 
 StatisticsHelper::StatisticsHelper(const StatisticsParameters &parameters)
 
@@ -30,7 +32,11 @@ void StatisticsHelper::combineStatistics()
 
                     // Check if we should copy to CPU
                     if (!statisticsData->isOnHost() && !alsutils::mpi::hasGPUDirectSupport()) {
+
                         statisticsDataToReduce = statisticsData->getHostMemory();
+
+                        ALSVINN_LOG(INFO, "Copying from GPU, now statisticsDataToReduce.isOnHost() = " << statisticsDataToReduce->isOnHost() );
+
                     }
 
 
@@ -38,8 +44,8 @@ void StatisticsHelper::combineStatistics()
                     //if (mpiConfig.getRank() == 0) {
                         dataReduced = statisticsDataToReduce->makeInstance();
                     //}
-                    MPI_SAFE_CALL(MPI_Reduce(statisticsData->data(), dataReduced->data(),
-                                             statisticsData->getSize(), MPI_DOUBLE, MPI_SUM, 0,
+                    MPI_SAFE_CALL(MPI_Reduce(statisticsDataToReduce->data(), dataReduced->data(),
+                                             statisticsDataToReduce->getSize(), MPI_DOUBLE, MPI_SUM, 0,
                                              mpiConfig.getCommunicator()));
 
                     if (mpiConfig.getRank() == 0) {

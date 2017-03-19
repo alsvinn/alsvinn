@@ -40,23 +40,23 @@ namespace alsfvm { namespace config {
 // </fvm>
 
 namespace {
-    template<class T>
-    vec3<T> parseVector(const std::string& vectorAsString) {
-        std::vector<std::string> splitString;
-        boost::split(splitString, vectorAsString, boost::is_any_of("\t "));
+template<class T>
+vec3<T> parseVector(const std::string& vectorAsString) {
+    std::vector<std::string> splitString;
+    boost::split(splitString, vectorAsString, boost::is_any_of("\t "));
 
-        T a = boost::lexical_cast<T>(splitString[0]);
-        T b = boost::lexical_cast<T>(splitString[1]);
-        T c = boost::lexical_cast<T>(splitString[2]);
+    T a = boost::lexical_cast<T>(splitString[0]);
+    T b = boost::lexical_cast<T>(splitString[1]);
+    T c = boost::lexical_cast<T>(splitString[2]);
 
-        return vec3<T>(a, b, c);
+    return vec3<T>(a, b, c);
 
-    }
+}
 }
 
 std::pair<alsfvm::shared_ptr<simulator::Simulator>,
 alsfvm::shared_ptr<init::InitialData> >
-    SimulatorSetup::readSetupFromFile(const std::string &filename)
+SimulatorSetup::readSetupFromFile(const std::string &filename)
 {
     basePath = boost::filesystem::path(boost::filesystem::absolute(filename)).parent_path().string();
     std::ifstream file(filename);
@@ -115,19 +115,21 @@ alsfvm::shared_ptr<init::InitialData> >
 
 
     auto simulator = alsfvm::make_shared<simulator::Simulator>(*parameters,
-                         grid,
-                         *volumeFactory,
-                         *integratorFactory,
-                         *boundaryFactory,
-                         *numericalFluxFactory,
-                         *cellComputerFactory,
-                         memoryFactory,
-                         endTime,
-						 deviceConfiguration,
-						 equation,
-                         diffusionOperator);
+                                                               grid,
+                                                               *volumeFactory,
+                                                               *integratorFactory,
+                                                               *boundaryFactory,
+                                                               *numericalFluxFactory,
+                                                               *cellComputerFactory,
+                                                               memoryFactory,
+                                                               endTime,
+                                                               deviceConfiguration,
+                                                               equation,
+                                                               diffusionOperator);
 
-    simulator->addWriter(writer);
+    if (writer) {
+        simulator->addWriter(writer);
+    }
 
     auto timestepAdjuster = alsfvm::dynamic_pointer_cast<integrator::TimestepAdjuster>(writer);
     if (timestepAdjuster) {
@@ -219,7 +221,7 @@ alsfvm::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(const Si
             THROW("Could not open file: " << pythonFile);
         }
         std::string pythonProgram((std::istreambuf_iterator<char>(file)),
-                         std::istreambuf_iterator<char>());
+                                  std::istreambuf_iterator<char>());
 
         auto parameters = readParameters(configuration);
         return alsfvm::shared_ptr<init::InitialData>(new init::PythonInitialData(pythonProgram, parameters));
@@ -230,18 +232,24 @@ alsfvm::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(const Si
 
 alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(const SimulatorSetup::ptree &configuration)
 {
-    std::string type = configuration.get<std::string>("fvm.writer.type");
-    std::string basename = configuration.get<std::string>("fvm.writer.basename");
-    auto baseWriter = writerFactory->createWriter(type, basename);
+    auto fvmNode  = configuration.get_child("fvm");
+    if (fvmNode.find("writer") != fvmNode.not_found()) {
 
-    const auto& writerNode = configuration.get_child("fvm.writer");
-    if ( writerNode.find("numberOfSaves") != writerNode.not_found() ) {
-        size_t numberOfSaves = writerNode.get<size_t>("numberOfSaves");
-        real endTime = readEndTime(configuration);
-        real timeInterval = endTime / numberOfSaves;
-        return alsfvm::shared_ptr<io::Writer>(new io::FixedIntervalWriter(baseWriter, timeInterval, endTime));
+        std::string type = configuration.get<std::string>("fvm.writer.type");
+        std::string basename = configuration.get<std::string>("fvm.writer.basename");
+        auto baseWriter = writerFactory->createWriter(type, basename);
+        ALSVINN_LOG(INFO, "Adding writer " << basename);
+        const auto& writerNode = configuration.get_child("fvm.writer");
+        if ( writerNode.find("numberOfSaves") != writerNode.not_found() ) {
+            size_t numberOfSaves = writerNode.get<size_t>("numberOfSaves");
+            real endTime = readEndTime(configuration);
+            real timeInterval = endTime / numberOfSaves;
+            return alsfvm::shared_ptr<io::Writer>(new io::FixedIntervalWriter(baseWriter, timeInterval, endTime));
+        }
+
+        return baseWriter;
     }
-    return baseWriter;
+    return alsfvm::shared_ptr<io::Writer>();
 }
 
 std::string SimulatorSetup::readPlatform(const SimulatorSetup::ptree &configuration)
@@ -280,22 +288,22 @@ init::Parameters SimulatorSetup::readParameters(const SimulatorSetup::ptree& con
                 value[0] = parameter.second.get<real>("value");
             }
             else {
-		ALSVINN_LOG(INFO, "Reading parameter array");
-		// We are given an array, and we read everything in
-		for (auto valueItem : parameter.second.get_child("values")) {
+                ALSVINN_LOG(INFO, "Reading parameter array");
+                // We are given an array, and we read everything in
+                for (auto valueItem : parameter.second.get_child("values")) {
 
-		  if (boost::iequals(valueItem.first, "value")) {
-		    value.push_back(valueItem.second.get_value<real>());
-		    ALSVINN_LOG(INFO, "Read value " << value.back());
-		  }
+                    if (boost::iequals(valueItem.first, "value")) {
+                        value.push_back(valueItem.second.get_value<real>());
+                        ALSVINN_LOG(INFO, "Read value " << value.back());
+                    }
                 }
 
-		if (value.size() == 1) {
+                if (value.size() == 1) {
                     // We only got a single value
                     value.resize(length, value[0]);
                 }
             }
-           
+
             parameters.addParameter(name, value);
         }
     }
@@ -324,11 +332,11 @@ void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree &configu
 }
 
 alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion(const SimulatorSetup::ptree& configuration,
-    const grid::Grid& grid,
-    const simulator::SimulatorParameters& simulatorParameters,
-    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration,
-    alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-    volume::VolumeFactory& volumeFactory)
+                                                                                 const grid::Grid& grid,
+                                                                                 const simulator::SimulatorParameters& simulatorParameters,
+                                                                                 alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration,
+                                                                                 alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+                                                                                 volume::VolumeFactory& volumeFactory)
 {
     // Should look like this:
     //   <diffusion>
@@ -349,7 +357,7 @@ alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion
     diffusion::DiffusionFactory diffusionFactory;
 
     return diffusionFactory.createDiffusionOperator(readEquation(configuration), name, reconstruction, grid, simulatorParameters,
-        deviceConfiguration, memoryFactory, volumeFactory);
+                                                    deviceConfiguration, memoryFactory, volumeFactory);
 }
 
 std::string SimulatorSetup::readFlux(const SimulatorSetup::ptree &configuration)
@@ -358,4 +366,4 @@ std::string SimulatorSetup::readFlux(const SimulatorSetup::ptree &configuration)
 }
 
 }
-}
+                 }

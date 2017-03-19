@@ -285,6 +285,8 @@ namespace alsfvm {
             std::shared_ptr<memory::Memory<T> > pointer(new memory::HostMemory<T>(this->nx, this->ny, this->nz));
 
             this->copyToHost(pointer->getPointer(), pointer->getSize());
+
+            return pointer;
         }
 
 		INSTANTIATE_MEMORY(CudaMemory)

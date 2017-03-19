@@ -8,6 +8,7 @@
 #include "alsfvm/io/WriterFactory.hpp"
 #include "alsuq/stats/FixedIntervalStatistics.hpp"
 #include <boost/algorithm/string.hpp>
+#include "alsutils/log.hpp"
 
 namespace alsuq { namespace config {
 // example:
@@ -141,6 +142,7 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::
         auto statistics = statisticsFactory.makeStatistics(platform, name, parameters);
         auto numberOfSaves = statisticsNode.second.get<size_t>("numberOfSaves");
 
+        ALSVINN_LOG(INFO, "statistics.numberOfSaves = " << numberOfSaves);
 
         // Make writer
         std::string type = statisticsNode.second.get<std::string>("writer.type");
