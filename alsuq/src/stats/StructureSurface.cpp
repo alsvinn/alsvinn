@@ -3,7 +3,7 @@
 #include "alsuq/stats/stats_util.hpp"
 namespace alsuq { namespace stats {
 
-StructureBasic::StructureBasic(const StatisticsParameters &parameters)
+StructureSurface::StructureSurface(const StatisticsParameters &parameters)
     : StatisticsHelper(parameters),
       p(parameters.getParameterAsDouble("p")),
       numberOfH(parameters.getParameterAsInteger("numberOfH")),
@@ -13,12 +13,12 @@ StructureBasic::StructureBasic(const StatisticsParameters &parameters)
 
 }
 
-std::vector<std::string> StructureBasic::getStatisticsNames() const
+std::vector<std::string> StructureSurface::getStatisticsNames() const
 {
     return {statisticsName};
 }
 
-void StructureBasic::computeStatistics(const alsfvm::volume::Volume &conservedVariables,
+void StructureSurface::computeStatistics(const alsfvm::volume::Volume &conservedVariables,
                                        const alsfvm::volume::Volume &extraVariables,
                                        const alsfvm::grid::Grid &grid,
                                        const alsfvm::simulator::TimestepInformation &timestepInformation)
@@ -34,12 +34,12 @@ void StructureBasic::computeStatistics(const alsfvm::volume::Volume &conservedVa
                      extraVariables);
 }
 
-void StructureBasic::finalize()
+void StructureSurface::finalize()
 {
 
 }
 
-void StructureBasic::computeStructure(alsfvm::volume::Volume &output,
+void StructureSurface::computeStructure(alsfvm::volume::Volume &output,
                                       const alsfvm::volume::Volume &input)
 {
     for(size_t var = 0; var < input.getNumberOfVariables(); ++var) {
@@ -77,6 +77,6 @@ void StructureBasic::computeStructure(alsfvm::volume::Volume &output,
 
     }
 }
-REGISTER_STATISTICS(cpu, structure_basic, StructureBasic)
+REGISTER_STATISTICS(cpu, structure_surface, StructureSurface)
 }
 }
