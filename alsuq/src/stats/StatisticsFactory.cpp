@@ -44,6 +44,8 @@ StatisticsFactory::StatisticsPointer StatisticsFactory::makeStatistics(const std
     }
     StatisticsPointer pointer;
     pointer.reset(new StatisticsTimer(name, list[platform][name](params)));
+
+    return pointer;
 }
 
 }
