@@ -106,15 +106,15 @@ StatisticsSnapshot &StatisticsHelper::findOrCreateSnapshot(const std::string& na
                                                            const alsfvm::simulator::TimestepInformation &timestepInformation,
                                                            const alsfvm::volume::Volume &conservedVariables,
                                                            const alsfvm::volume::Volume &extraVariables,
-                                                           size_t nx, size_t ny, size_t nz)
+                                                           size_t nx, size_t ny, size_t nz, const std::string& platform)
 {
     auto currentTime = timestepInformation.getCurrentTime();
     if (snapshots.find(currentTime) != snapshots.end()
             && snapshots[currentTime].find(name) != snapshots[currentTime].end()) {
         return snapshots[currentTime][name];
     } else {
-        auto conservedVariablesClone = conservedVariables.makeInstance(nx, ny, nz);
-        auto extraVariablesClone = extraVariables.makeInstance(nx, ny, nz);
+        auto conservedVariablesClone = conservedVariables.makeInstance(nx, ny, nz, platform);
+        auto extraVariablesClone = extraVariables.makeInstance(nx, ny, nz,platform);
         snapshots[currentTime][name] = StatisticsSnapshot(timestepInformation,
                                                           alsfvm::volume::VolumePair(conservedVariablesClone,
                                                                                      extraVariablesClone));

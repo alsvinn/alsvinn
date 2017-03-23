@@ -367,10 +367,19 @@ namespace alsfvm {
                                             nx, ny, nz, numberOfXGhostCells);
         }
 
-        std::shared_ptr<Volume> Volume::makeInstance(size_t nxNew, size_t nyNew, size_t nzNew) const
+        std::shared_ptr<Volume> Volume::makeInstance(size_t nxNew, size_t nyNew, size_t nzNew, const std::string& platform) const
         {
-            return std::make_shared<Volume>(variableNames, memoryFactory,
+            if (platform == "default" || platform == memoryFactory->getPlatform()) {
+                return std::make_shared<Volume>(variableNames, memoryFactory,
                                             nxNew, nyNew, nzNew, 0);
+            } else {
+                alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguraiton(new DeviceConfiguration(platform));
+                alsfvm::shared_ptr<memory::MemoryFactory>
+                        memoryFactoryForPlatform(new memory::MemoryFactory(deviceConfiguraiton));
+
+                return std::make_shared<Volume>(variableNames, memoryFactoryForPlatform, nxNew, nyNew, nzNew, 0);
+            }
+
         }
 	}
 

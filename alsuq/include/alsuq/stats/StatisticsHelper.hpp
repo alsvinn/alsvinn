@@ -50,7 +50,7 @@ protected:
                                              const alsfvm::simulator::TimestepInformation& timestepInformation,
                                              const alsfvm::volume::Volume& conservedVariables,
                                              const alsfvm::volume::Volume& extraVariables,
-                                             size_t nx, size_t ny, size_t nz);
+                                             size_t nx, size_t ny, size_t nz, const std::string& platform="default");
 private:
     size_t samples;
 

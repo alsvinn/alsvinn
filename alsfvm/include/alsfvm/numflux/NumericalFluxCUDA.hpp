@@ -4,6 +4,7 @@
 #include "alsfvm/reconstruction/Reconstruction.hpp"
 #include "alsfvm/simulator/SimulatorParameters.hpp"
 #include "alsfvm/grid/Grid.hpp"
+
 namespace alsfvm { namespace numflux { 
 
 	template<class Flux, class Equation, size_t dimension>
@@ -46,6 +47,8 @@ namespace alsfvm { namespace numflux {
 		alsfvm::shared_ptr<volume::Volume> fluxOutput;
         typename Equation::Parameters equationParameters;
         Equation equation;
+
+
     };
 } // namespace alsfvm
 } // namespace numflux

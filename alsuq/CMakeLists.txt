@@ -27,7 +27,7 @@ IF(ALSVINN_HAVE_CUDA)
 	CUDA_INCLUDE_DIRECTORIES("include")
 	FILE(GLOB_RECURSE CUDA_SRC src/*.cu)
 	set_source_groups( "CUDA Files" "${CMAKE_CURRENT_SOURCE_DIR}/src/" "${CUDA_SRC}")
-	CUDA_COMPILE(ALSUQ_CUDA alsuq_cuda ${CUDA_SRC})
+        CUDA_ADD_LIBRARY(alsuq_cuda SHARED ${CUDA_SRC})
 	CUDA_COMPILE_PTX(ALSUQ_CUDA_PTX alsuq_cuda_ptx ${CUDA_SRC} OPTIONS -src-in-ptx)
 
 	# This is so that we can build the ptx files for performance analysis
@@ -39,6 +39,6 @@ ELSE()
 	SET(ALSUQ_CUDA "")
 ENDIF()
 
-ADD_LIBRARY( alsuq SHARED ${SRC} ${HEADERS} ${ALSFVM_CUDA})
-TARGET_LINK_LIBRARIES(alsuq alsfvm ${CUDA_LIBRARIES} ${HDF5_LIBRARIES} ${PYTHON_LIBRARY} ${MPI_LIBRARIES})
+ADD_LIBRARY( alsuq SHARED ${SRC} ${HEADERS})
+TARGET_LINK_LIBRARIES(alsuq alsfvm alsuq_cuda ${CUDA_LIBRARIES} ${HDF5_LIBRARIES} ${PYTHON_LIBRARY} ${MPI_LIBRARIES})
 

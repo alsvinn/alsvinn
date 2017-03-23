@@ -3,11 +3,11 @@
   <name>
     kh
   </name>
-  <platform>cpu</platform>
+  <platform>cuda</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>128 128 1</dimension>
+    <dimension>512 512 1</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>hll3</flux>
@@ -41,7 +41,7 @@
   </writer>
 </fvm>
 <uq>
-  <samples>10</samples>
+  <samples>8</samples>
   <generator>auto</generator>
   <parameters>
     <parameter>
@@ -87,6 +87,19 @@
   <writer>
     <type>netcdf</type>
     <basename>kh_y</basename>
+  </writer>
+  </stat>
+
+<stat>
+  <name>
+    structure_cube
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>kh_cube</basename>
   </writer>
   </stat>
   </stats>

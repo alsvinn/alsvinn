@@ -258,7 +258,7 @@ namespace alsfvm {
 
             //! Makes a new volume with the same names for the memory areas,
             //! but with the newly given sizes.
-            std::shared_ptr<volume::Volume> makeInstance(size_t nx, size_t ny, size_t nz) const;
+            std::shared_ptr<volume::Volume> makeInstance(size_t nx, size_t ny, size_t nz, const std::string& platform = "default") const;
 
 
         private:

@@ -59,16 +59,7 @@ void StructureSurface::computeStructure(alsfvm::volume::Volume &output,
                     for(int h = 0; h < numberOfH; ++h) {
 
 
-                        auto u_ijk = inputView.at(i+ngx,j+ngy,k+ngz);
-
-                        // For now we assume periodic boundary conditions
-                        auto u_ijk_h = inputView.at((i + h*directionVector.x)%nx + ngx,
-                                                    (j + h*directionVector.y)%ny + ngy,
-                                                    (k + h*directionVector.z)%nz + ngz);
-
-
-
-                        outputView.at(h,0,0) += std::pow(std::abs(u_ijk-u_ijk_h),p)/(nx*ny*nz);
+                       THROW("Not implemented yet");
                     }
                 }
             }

@@ -1,6 +1,6 @@
 #include "alsuq/stats/StatisticsFactory.hpp"
 #include "alsutils/error/Exception.hpp"
-
+#include "alsuq/stats/StatisticsTimer.hpp"
 
 namespace alsuq { namespace stats {
 
@@ -42,8 +42,8 @@ StatisticsFactory::StatisticsPointer StatisticsFactory::makeStatistics(const std
     if (list[platform].find(name) == list[platform].end()) {
         THROW("Unknown statistics: " << name);
     }
-
-    return list[platform][name](params);
+    StatisticsPointer pointer;
+    pointer.reset(new StatisticsTimer(name, list[platform][name](params)));
 }
 
 }
