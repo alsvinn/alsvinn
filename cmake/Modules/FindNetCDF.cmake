@@ -57,10 +57,10 @@ mark_as_advanced (PNETCDF_INCLUDE_DIR)
 set (NETCDF_C_INCLUDE_DIRS ${NETCDF_INCLUDE_DIR} ${PNETCDF_INCLUDE_DIR})
 
 find_library (NETCDF_LIBRARY NAMES netcdf
-  HINTS "${NETCDF_DIR}/lib")
+  HINTS "${NETCDF_DIR}/lib64" "${NETCDF_DIR}/lib")
 mark_as_advanced (NETCDF_LIBRARY)
 find_library (PNETCDF_LIBRARY NAMES pnetcdf
-  HINTS "${NETCDF_DIR}/lib")
+  HINTS "${NETCDF_DIR}/lib64" "${NETCDF_DIR}/lib")
 mark_as_advanced (PNETCDF_LIBRARY)
 
 set (NETCDF_C_LIBRARIES ${NETCDF_LIBRARY} ${PNETCDF_LIBRARY})
