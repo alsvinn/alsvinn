@@ -37,7 +37,7 @@ namespace alsuq { namespace stats {
         virtual void writeStatistics(const alsfvm::grid::Grid &grids);
 
     private:
-        const std::string& name;
+        std::string name;
         const std::shared_ptr<Statistics> statistics;
 
         int statisticsTime = 0;
