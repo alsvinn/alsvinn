@@ -117,7 +117,7 @@ void StructureCube::computeCube(alsfvm::memory::View<real> &output,
                         const auto u_h = input.at(makePositive(x, nx)%nx + ngx,
                                                   makePositive(y, ny)%ny + ngy,
                                                   makePositive(z, nz)%nz + ngz);
-                        output.at(h) += std::pow(std::abs(u_h-u),p)/(nx, ny, nz);
+                        output.at(h) += std::pow(std::abs(u_h-u),p)/(nx*ny*nz);
                     }
                 }
             }

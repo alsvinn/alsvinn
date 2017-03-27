@@ -42,7 +42,7 @@ __global__ void computeStructureBasic(real* output,
     const real u = input.at(x+ngx, y+ngy, z+ngz);
     const real u_h = input.at(xNext % nx + ngx, yNext % ny + ngy, zNext%nz + ngz);
 
-    output[index] = pow(abs(u-u_h),p);
+    output[index] = pow(fabs(u-u_h),p);
 }
 }
 
