@@ -77,7 +77,7 @@ void StructureCube::computeCube(alsfvm::memory::View<real> &output,
                                 int ngx, int ngy, int ngz, int dimensions)
 {
 
-    computeCube(output, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions, p);
+    computeStructureCube(output, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions, p);
 }
 REGISTER_STATISTICS(cpu, structure_cube, StructureCube)
 }

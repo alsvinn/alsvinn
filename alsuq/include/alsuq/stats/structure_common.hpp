@@ -13,7 +13,7 @@ __device__ __host__ int makePositive(int position, int N) {
 
 }
 
-__device__ __host__ void computeCube(alsfvm::memory::View<real> &output,
+__device__ __host__ void computeStructureCube(alsfvm::memory::View<real> &output,
                  const alsfvm::memory::View<const real> &input,
                  int i, int j, int k, int h, int nx, int ny, int nz,
                  int ngx, int ngy, int ngz, int dimensions, real p)
@@ -56,5 +56,6 @@ __device__ __host__ void computeCube(alsfvm::memory::View<real> &output,
             }
         }
     }
+}
 }
 }
