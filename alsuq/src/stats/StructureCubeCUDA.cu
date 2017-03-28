@@ -1,16 +1,11 @@
 #include "alsuq/stats/StructureCubeCUDA.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsuq/stats/stats_util.hpp"
+#include "alsuq/stats/structure_common.hpp"
 namespace alsuq { namespace stats {
 
 namespace {
 
-__device__ int makePositive(int index, int N) {
-    if (index < 0) {
-        return index += N;
-    }
-    return index;
-}
 
 //! Computes the structure function for FIXED h
 //!
@@ -42,16 +37,16 @@ __global__ void computeStructureCube(real* output,
             const bool xDir = (d == 0);
             // Either we start on the left (i == 0), or on the right(i==1)
             const int zStart = zDir ?
-                        (side == 0 ? k-h : k+h) : (dimensions > 2 ? k-h : 0);
+                        (side == 0 ? k-h : k+h) : (dimensions > 2 ? k-h + 1: 0);
 
             const int zEnd = zDir ?
-                        (zStart + 1) : (dimensions > 2 ? k+h+1 : 1);
+                        (zStart + 1) : (dimensions > 2 ? k+h : 1);
 
             const int yStart = yDir ?
-                        (side == 0 ? j - h : j + h + 1) : (dimensions > 1 ? j - h : 0);
+                        (side == 0 ? j - h : j + h + 1) : (dimensions > 1 ? j - h + 1: 0);
 
             const int yEnd = yDir ?
-                        (yStart + 1) : (dimensions > 1 ? j+h+1 : 1);
+                        (yStart + 1) : (dimensions > 1 ? j+h : 1);
 
             const int xStart = xDir ?
                         (side == 0 ? i - h : i + h + 1) : i - h;

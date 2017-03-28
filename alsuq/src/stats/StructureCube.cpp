@@ -1,6 +1,7 @@
 #include "alsuq/stats/StructureCube.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsuq/stats/stats_util.hpp"
+#include "alsuq/stats/structure_common.hpp"
 namespace alsuq { namespace stats {
 
 StructureCube::StructureCube(const StatisticsParameters &parameters)
@@ -76,53 +77,7 @@ void StructureCube::computeCube(alsfvm::memory::View<real> &output,
                                 int ngx, int ngy, int ngz, int dimensions)
 {
 
-
-
-    auto makePositive = [](int position, int N) {
-        if (position < 0) {
-            position += N;
-        }
-        return position;
-    };
-
-    const auto u = input.at(i + ngx,j + ngy,k + ngz);
-    for (int d = 0; d < dimensions; d++) {
-        // side = 0 represents bottom, side = 1 represents top
-        for (int side = 0; side < 2; side++) {
-            const bool zDir = (d == 2);
-            const bool yDir = (d == 1);
-            const bool xDir = (d == 0);
-            // Either we start on the left (i == 0), or on the right(i==1)
-            const int zStart = zDir ?
-                (side == 0 ? k-h : k+h) : (dimensions > 2 ? k-h : 0);
-
-            const int zEnd = zDir ?
-                (zStart + 1) : (dimensions > 2 ? k+h+1 : 1);
-
-            const int yStart = yDir ?
-                (side == 0 ? j - h : j + h + 1) : (dimensions > 1 ? j - h : 0);
-
-            const int yEnd = yDir ?
-                (yStart + 1) : (dimensions > 1 ? j+h+1 : 1);
-
-            const int xStart = xDir ?
-                (side == 0 ? i - h : i + h + 1) : i - h;
-
-            const int xEnd = xDir ?
-                (xStart + 1) : i + h + 1;
-
-            for (int z = zStart; z < zEnd; z++) {
-                for (int y = yStart; y < yEnd; y++) {
-                    for (int x = xStart; x < xEnd; x++) {
-                        const auto u_h = input.at(makePositive(x, nx)%nx + ngx,
-                                                  makePositive(y, ny)%ny + ngy,
-                                                  makePositive(z, nz)%nz + ngz);
-                        output.at(h) += std::pow(std::abs(u_h-u),p)/(nx*ny*nz);
-                    }
-                }
-            }
-        }
-    }
+    computeCube(output, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions, p);
 }
 REGISTER_STATISTICS(cpu, structure_cube, StructureCube)
 }

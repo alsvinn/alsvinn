@@ -1,0 +1,61 @@
+<config>
+<fvm>
+  <name>
+    kh
+  </name>
+  <platform>cuda</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>1 1 0</upperCorner>
+    <dimension>128 128 1</dimension>
+  </grid>
+  <boundary>periodic</boundary>
+  <flux>hll3</flux>
+  <endTime>2</endTime>
+  <equation>euler2</equation>
+  <equationParameters>
+    <gamma>1.4</gamma>
+  </equationParameters>
+  <reconstruction>weno2</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
+
+  <initialData>
+    <python>kelvinhelmholtz.py</python>
+    <parameters>
+      <parameter>
+        <name>a</name>
+        <length>1</length>
+        <value>0</value>
+      </parameter>
+    </parameters>
+  </initialData>
+  <diffusion>
+    <name>none</name>
+    <reconstruction>none</reconstruction>
+  </diffusion>
+</fvm>
+<uq>
+  <samples>128</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>a</name>
+      <length>1</length>
+      <type>uniform1d</type>
+    </parameter>
+  </parameters>
+  <stats>
+  <stat>
+    <name>
+      meanvar
+    </name>
+    <numberOfSaves>1</numberOfSaves>
+    <writer>
+      <type>netcdf</type>
+      <basename>kh</basename>
+    </writer>
+    </stat>
+  </stats>
+</uq>
+</config>
