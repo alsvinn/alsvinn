@@ -27,7 +27,7 @@ __device__ __host__ void computeStructureCube(alsfvm::memory::View<real> &output
             const bool xDir = (d == 0);
             // Either we start on the left (i == 0), or on the right(i==1)
             const int zStart = zDir ?
-                (side == 0 ? k-h + 1 : k+h) : (dimensions > 2 ? k-h : 0);
+                (side == 0 ? k-h + 1 : k+h) : (dimensions > 2 ? k-h + 1: 0);
 
             const int zEnd = zDir ?
                 (zStart + 1) : (dimensions > 2 ? k+h : 1);

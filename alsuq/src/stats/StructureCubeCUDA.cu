@@ -28,6 +28,7 @@ __global__ void computeStructureCube(real* output,
     const int k = (index / nx / ny);
 
 
+    output[index]=0;
     const auto u = input.at(i + ngx, j + ngy, k + ngz);
     for (int d = 0; d < dimensions; d++) {
         // side = 0 represents bottom, side = 1 represents top
@@ -60,7 +61,7 @@ __global__ void computeStructureCube(real* output,
                         const auto u_h = input.at(makePositive(x, nx)%nx + ngx,
                                                   makePositive(y, ny)%ny + ngy,
                                                   makePositive(z, nz)%nz + ngz);
-                        output[index] += pow(fabs(u_h-u),p);
+                        output[index] += powf(fabs(u_h-u),p);
                     }
                 }
             }
@@ -73,7 +74,7 @@ StructureCubeCUDA::StructureCubeCUDA(const StatisticsParameters &parameters)
     : StatisticsHelper(parameters),
       p(parameters.getParameterAsDouble("p")),
       numberOfH(parameters.getParameterAsInteger("numberOfH")),
-      statisticsName ("structure_basic_" + std::to_string(p))
+      statisticsName ("structure_cube_" + std::to_string(p))
 
 {
 
@@ -120,7 +121,7 @@ void StructureCubeCUDA::computeStructure(alsfvm::volume::Volume &output,
         const int ny = int(input.getNumberOfYCells()) - 2 * ngy;
         const int nz = int(input.getNumberOfZCells()) - 2 * ngz;
 
-        structureOutput.resize(nx*ny*nz,0);
+        structureOutput.resize(nx*ny*nz);
         const int dimensions = input.getDimensions();
         for(int h = 1; h < numberOfH; ++h) {
             const int threads = 1024;

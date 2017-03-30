@@ -8,7 +8,7 @@ StructureCube::StructureCube(const StatisticsParameters &parameters)
     : StatisticsHelper(parameters),
       p(parameters.getParameterAsDouble("p")),
       numberOfH(parameters.getParameterAsInteger("numberOfH")),
-      statisticsName ("structure_basic_" + std::to_string(p))
+      statisticsName ("structure_cube_" + std::to_string(p))
 
 {
 
