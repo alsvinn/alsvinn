@@ -7,11 +7,11 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 0 0</upperCorner>
-    <dimension>1024 1 1</dimension>
+    <dimension>16384 1 1</dimension>
   </grid>
   <boundary>neumann</boundary>
   <flux>godunov</flux>
-  <endTime>5</endTime>
+  <endTime>0.2</endTime>
   <equation>burgers</equation>
   <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
@@ -30,7 +30,7 @@
   <writer>
     <type>netcdf</type>
     <basename>brownian</basename>
-    <numberOfSaves>2</numberOfSaves>
+    <numberOfSaves>20</numberOfSaves>
   </writer>
 </fvm>
 <uq>
@@ -44,9 +44,6 @@
     </parameter>
   </parameters>
   <stats>
-    <stat>
-      meanvar
-    </stat>
   </stats>
 
 </uq>

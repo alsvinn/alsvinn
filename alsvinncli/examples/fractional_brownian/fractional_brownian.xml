@@ -11,7 +11,7 @@
   </grid>
   <boundary>neumann</boundary>
   <flux>godunov</flux>
-  <endTime>1</endTime>
+  <endTime>0.2</endTime>
   <equation>burgers</equation>
   <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
@@ -30,7 +30,7 @@
   <writer>
     <type>netcdf</type>
     <basename>fractional_brownian</basename>
-    <numberOfSaves>2</numberOfSaves>
+    <numberOfSaves>20</numberOfSaves>
   </writer>
 </fvm>
 <uq>
@@ -44,9 +44,7 @@
     </parameter>
   </parameters>
   <stats>
-    <stat>
-      meanvar
-    </stat>
+
   </stats>
 
 </uq>
