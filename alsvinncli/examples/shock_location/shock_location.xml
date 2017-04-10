@@ -1,0 +1,51 @@
+<fvm>
+  <name>
+    shocklocation
+  </name>
+  <platform>cpu</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>1 0 0</upperCorner>
+    <dimension>32 1 1</dimension>
+  </grid>
+  <boundary>neumann</boundary>
+  <flux>godunov</flux>
+  <endTime>5</endTime>
+  <equation>burgers</equation>
+  <reconstruction>weno2</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
+  <initialData>
+    <python>shock_location.py</python>
+
+    <parameters>
+      <parameter>
+        <name>X</name>
+        <length>1</length>
+        <value>0</value>
+      </parameter>
+    </parameters>
+  </initialData>
+  <writer>
+    <type>hdf5</type>
+    <basename>shock_location</basename>
+    <numberOfSaves>2</numberOfSaves>
+  </writer>
+</fvm>
+<uq>
+  <samples>1024</samples>
+  <generator>auto</auto>
+  <parameters>
+    <parameter>
+      <name>X</name>
+      <length>1</length>
+      <type>uniform</type>
+    </parameter>
+  </parameters>
+  <stats>
+    <stat>
+      meanvar
+    </stat>
+  </stats>
+
+</uq>

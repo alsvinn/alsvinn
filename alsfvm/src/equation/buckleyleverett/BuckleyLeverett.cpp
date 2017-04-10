@@ -2,7 +2,7 @@
 
 namespace alsfvm { namespace equation { namespace buckleyleverett { 
 
-const std::string BuckleyLeverett::name = "burgers";
+const std::string BuckleyLeverett::name = "buckleyleverett";
 const std::vector<std::string> BuckleyLeverett::conservedVariables = { "u"};
 
 
