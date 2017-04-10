@@ -28,7 +28,8 @@ ReconstructionFactory::ReconstructionPtr
                                                 const grid::Grid& grid,
                                                 alsfvm::shared_ptr<DeviceConfiguration> &deviceConfiguration)
 {
-    if (equation != "euler1" && equation != "euler2" && equation != "euler3" && equation != "burgers") {
+    if (equation != "euler1" && equation != "euler2" && equation != "euler3"
+            && equation != "burgers" && equation != "buckleyleverett") {
         THROW("Unknown equation " << equation);
     }
     auto& platform = deviceConfiguration->getPlatform();

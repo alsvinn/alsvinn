@@ -6,7 +6,9 @@
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include "alsfvm/numflux/euler/HLL3.hpp"
 #include "alsfvm/numflux/burgers/Godunov.hpp"
+#include "alsfvm/numflux/buckleyleverett/Godunov.hpp"
 #include "alsfvm/numflux/Central.hpp"
+#include "alsfvm/numflux/Rusanov.hpp"
 #include "alsfvm/numflux/ScalarEntropyConservativeFlux.hpp"
 #include "alsfvm/numflux/TecnoCombined4.hpp"
 #include "alsfvm/numflux/TecnoCombined6.hpp"
@@ -55,13 +57,21 @@ namespace numflux {
         boost::fusion::pair < equation::burgers::Burgers,
         boost::fusion::vector <
         Central<equation::burgers::Burgers>,
+        Rusanov<equation::burgers::Burgers>,
         burgers::Godunov,
         ScalarEntropyConservativeFlux<equation::burgers::Burgers>,
         TecnoCombined4<equation::burgers::Burgers, ScalarEntropyConservativeFlux<equation::burgers::Burgers> >,
         TecnoCombined4<::alsfvm::equation::burgers::Burgers, burgers::Godunov>,
         TecnoCombined6<equation::burgers::Burgers, ScalarEntropyConservativeFlux<equation::burgers::Burgers> >,
         TecnoCombined6<::alsfvm::equation::burgers::Burgers, burgers::Godunov>
+        >>,
 
+        // BUCKLEY-LEVERETT
+        boost::fusion::pair < equation::buckleyleverett::BuckleyLeverett,
+        boost::fusion::vector <
+        Central<equation::buckleyleverett::BuckleyLeverett>,
+        buckleyleverett::Godunov,
+        Rusanov<equation::buckleyleverett::BuckleyLeverett>
         > >
         > NumericalFluxList;
 
@@ -111,6 +121,9 @@ namespace numflux {
     template class X< ::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 1>; \
     template class X< ::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 2>; \
     template class X< ::alsfvm::numflux::Central<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 3>; \
+    template class X< ::alsfvm::numflux::Rusanov<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 1>; \
+    template class X< ::alsfvm::numflux::Rusanov<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 2>; \
+    template class X< ::alsfvm::numflux::Rusanov<equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 3>; \
     template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 1>; \
     template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 2>; \
     template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 3>; \
@@ -155,7 +168,16 @@ namespace numflux {
     template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::euler::Euler<2>, ::alsfvm::numflux::euler::Tecno1<2> >, ::alsfvm::equation::euler::Euler<2>, 3>; \
     template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::euler::Euler<3>, ::alsfvm::numflux::euler::Tecno1<3> >, ::alsfvm::equation::euler::Euler<3>, 1>; \
     template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::euler::Euler<3>, ::alsfvm::numflux::euler::Tecno1<3> >, ::alsfvm::equation::euler::Euler<3>, 2>; \
-    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::euler::Euler<3>, ::alsfvm::numflux::euler::Tecno1<3> >, ::alsfvm::equation::euler::Euler<3>, 3>; 
+    template class X< ::alsfvm::numflux::TecnoCombined6<::alsfvm::equation::euler::Euler<3>, ::alsfvm::numflux::euler::Tecno1<3> >, ::alsfvm::equation::euler::Euler<3>, 3>; \
+    template class X< ::alsfvm::numflux::Central<equation::buckleyleverett::BuckleyLeverett>, ::alsfvm::equation::buckleyleverett::BuckleyLeverett, 1>; \
+    template class X< ::alsfvm::numflux::Central<equation::buckleyleverett::BuckleyLeverett>, ::alsfvm::equation::buckleyleverett::BuckleyLeverett, 2>; \
+    template class X< ::alsfvm::numflux::Central<equation::buckleyleverett::BuckleyLeverett>, ::alsfvm::equation::buckleyleverett::BuckleyLeverett, 3>; \
+    template class X< ::alsfvm::numflux::Rusanov<equation::buckleyleverett::BuckleyLeverett>, ::alsfvm::equation::buckleyleverett::BuckleyLeverett, 1>; \
+    template class X< ::alsfvm::numflux::Rusanov<equation::buckleyleverett::BuckleyLeverett>, ::alsfvm::equation::buckleyleverett::BuckleyLeverett, 2>; \
+    template class X< ::alsfvm::numflux::Rusanov<equation::buckleyleverett::BuckleyLeverett>, ::alsfvm::equation::buckleyleverett::BuckleyLeverett, 3>; \
+    template class X< ::alsfvm::numflux::buckleyleverett::Godunov, ::alsfvm::equation::buckleyleverett::BuckleyLeverett, 1>; \
+    template class X< ::alsfvm::numflux::buckleyleverett::Godunov, ::alsfvm::equation::buckleyleverett::BuckleyLeverett, 2>; \
+    template class X< ::alsfvm::numflux::buckleyleverett::Godunov, ::alsfvm::equation::buckleyleverett::BuckleyLeverett, 3>; \
 
 
 
