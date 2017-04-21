@@ -7,11 +7,11 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 0 0</upperCorner>
-    <dimension>2048 1 1</dimension>
+    <dimension>16384 1 1</dimension>
   </grid>
   <boundary>neumann</boundary>
   <flux>godunov</flux>
-  <endTime>0.5</endTime>
+  <endTime>2</endTime>
   <equation>buckleyleverett</equation>
   <reconstruction>none</reconstruction>
   <cfl>auto</cfl>
@@ -27,9 +27,14 @@
       </parameter>
     </parameters>
   </initialData>
+  <writer>
+    <type>netcdf</type>
+    <basename>brownian_bl</basename>
+    <numberOfSaves>200</numberOfSaves>
+  </writer>
 </fvm>
 <uq>
-<samples>2048</samples>
+<samples>1</samples>
   <generator>auto</generator>
   <parameters>
     <parameter>

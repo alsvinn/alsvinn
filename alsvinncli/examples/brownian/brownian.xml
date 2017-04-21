@@ -7,13 +7,13 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 0 0</upperCorner>
-    <dimension>16384 1 1</dimension>
+    <dimension>512 1 1</dimension>
   </grid>
   <boundary>neumann</boundary>
   <flux>godunov</flux>
-  <endTime>0.2</endTime>
+  <endTime>0.5</endTime>
   <equation>burgers</equation>
-  <reconstruction>weno2</reconstruction>
+  <reconstruction>none</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>
   <initialData>
@@ -27,14 +27,9 @@
       </parameter>
     </parameters>
   </initialData>
-  <writer>
-    <type>netcdf</type>
-    <basename>brownian</basename>
-    <numberOfSaves>20</numberOfSaves>
-  </writer>
 </fvm>
 <uq>
-<samples>4</samples>
+<samples>512</samples>
   <generator>auto</generator>
   <parameters>
     <parameter>
@@ -44,6 +39,49 @@
     </parameter>
   </parameters>
   <stats>
+        <stat>
+      <name>
+
+	structure_basic
+      </name>
+      <numberOfSaves>1</numberOfSaves>
+      <direction>0</direction>
+      <numberOfH>32</numberOfH>
+      <p>1</p>
+      <writer>
+	<type>netcdf</type>
+        <basename>brownian</basename>
+      </writer>
+    </stat>
+    <stat>
+  <name>
+
+    structure_basic
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <direction>0</direction>
+  <numberOfH>32</numberOfH>
+  <p>2</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>brownian</basename>
+  </writer>
+</stat>
+
+<stat>
+<name>
+
+structure_basic
+</name>
+<numberOfSaves>1</numberOfSaves>
+<direction>0</direction>
+<numberOfH>32</numberOfH>
+<p>3</p>
+<writer>
+<type>netcdf</type>
+<basename>brownian</basename>
+</writer>
+</stat>
   </stats>
 
 </uq>
