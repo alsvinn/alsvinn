@@ -7,7 +7,7 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 0 0</upperCorner>
-    <dimension>16384 1 1</dimension>
+    <dimension>1024 1 1</dimension>
   </grid>
   <boundary>neumann</boundary>
   <flux>godunov</flux>
@@ -27,14 +27,10 @@
       </parameter>
     </parameters>
   </initialData>
-  <writer>
-    <type>netcdf</type>
-    <basename>brownian_bl</basename>
-    <numberOfSaves>200</numberOfSaves>
-  </writer>
+
 </fvm>
 <uq>
-<samples>1</samples>
+<samples>1024</samples>
   <generator>auto</generator>
   <parameters>
     <parameter>
@@ -51,7 +47,7 @@
       </name>
       <numberOfSaves>1</numberOfSaves>
       <direction>0</direction>
-      <numberOfH>32</numberOfH>
+      <numberOfH>128</numberOfH>
       <p>1</p>
       <writer>
 	<type>netcdf</type>
@@ -65,7 +61,7 @@
   </name>
   <numberOfSaves>1</numberOfSaves>
   <direction>0</direction>
-  <numberOfH>32</numberOfH>
+  <numberOfH>128</numberOfH>
   <p>2</p>
   <writer>
     <type>netcdf</type>
@@ -80,7 +76,7 @@ structure_basic
 </name>
 <numberOfSaves>1</numberOfSaves>
 <direction>0</direction>
-<numberOfH>32</numberOfH>
+<numberOfH>128</numberOfH>
 <p>3</p>
 <writer>
 <type>netcdf</type>
