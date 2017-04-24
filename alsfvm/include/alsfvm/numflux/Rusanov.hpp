@@ -30,8 +30,8 @@ namespace alsfvm { namespace numflux {
             eq.template computePointFlux<direction>(left, fluxLeft);
             typename Equation::ConservedVariables fluxRight;
             eq.template computePointFlux<direction>(right, fluxRight);
-            real eigenLeft = eq.template computeEigenValues<direction>(left);
-            real eigenRight = eq.template computeEigenValues<direction>(right);
+            real eigenLeft = fabs(eq.template computeEigenValues<direction>(left));
+            real eigenRight = fabs(eq.template computeEigenValues<direction>(right));
 
             real eigenMax = fmax(eigenLeft, eigenRight);
             F = 0.5 * (fluxLeft+fluxRight) - 0.5*eigenMax*(right.u-left.u);

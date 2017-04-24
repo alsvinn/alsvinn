@@ -6,7 +6,7 @@ const std::string Rusanov<Equation>::name = "rusanov";
 
 template class Rusanov<equation::burgers::Burgers>;
 template class Rusanov<equation::buckleyleverett::BuckleyLeverett>;
-
+template class Rusanov<equation::cubic::Cubic>;
 
 }
 }

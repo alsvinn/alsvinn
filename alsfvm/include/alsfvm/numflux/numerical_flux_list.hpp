@@ -72,6 +72,13 @@ namespace numflux {
         Central<equation::buckleyleverett::BuckleyLeverett>,
         buckleyleverett::Godunov,
         Rusanov<equation::buckleyleverett::BuckleyLeverett>
+        > >,
+
+        // CUBIC
+        boost::fusion::pair < equation::cubic::Cubic,
+        boost::fusion::vector <
+        Central<equation::cubic::Cubic>,
+        Rusanov<equation::cubic::Cubic>
         > >
         > NumericalFluxList;
 
@@ -178,6 +185,13 @@ namespace numflux {
     template class X< ::alsfvm::numflux::buckleyleverett::Godunov, ::alsfvm::equation::buckleyleverett::BuckleyLeverett, 1>; \
     template class X< ::alsfvm::numflux::buckleyleverett::Godunov, ::alsfvm::equation::buckleyleverett::BuckleyLeverett, 2>; \
     template class X< ::alsfvm::numflux::buckleyleverett::Godunov, ::alsfvm::equation::buckleyleverett::BuckleyLeverett, 3>; \
+    template class X< ::alsfvm::numflux::Central<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 1>; \
+    template class X< ::alsfvm::numflux::Central<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 2>; \
+    template class X< ::alsfvm::numflux::Central<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 3>; \
+    template class X< ::alsfvm::numflux::Rusanov<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 1>; \
+    template class X< ::alsfvm::numflux::Rusanov<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 2>; \
+    template class X< ::alsfvm::numflux::Rusanov<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 3>;
+
 
 
 

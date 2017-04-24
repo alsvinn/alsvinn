@@ -29,7 +29,8 @@ ReconstructionFactory::ReconstructionPtr
                                                 alsfvm::shared_ptr<DeviceConfiguration> &deviceConfiguration)
 {
     if (equation != "euler1" && equation != "euler2" && equation != "euler3"
-            && equation != "burgers" && equation != "buckleyleverett") {
+            && equation != "burgers" && equation != "buckleyleverett"
+            && equation != "cubic") {
         THROW("Unknown equation " << equation);
     }
     auto& platform = deviceConfiguration->getPlatform();
