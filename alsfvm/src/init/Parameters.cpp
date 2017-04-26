@@ -22,7 +22,7 @@ namespace alsfvm { namespace init {
 
     //! Each parameter is represented by an array 
     //! A scalar is then represented by a length one array.
-    std::vector<double> Parameters::getParameter(const std::string& name) const {
+    const std::vector<double>& Parameters::getParameter(const std::string& name) const {
         if (parameters.find(name) == parameters.end()) {
             THROW("Parameter not found: " << name);
         }

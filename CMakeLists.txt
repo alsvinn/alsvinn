@@ -98,7 +98,7 @@ find_package(PythonLibs REQUIRED)
 #add_definitions(-DBOOST_LOG_DYN_LINK)
 
 hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log)
-find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup)
+find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python numpy)
 
 
 if (NOT ALSVINN_USE_HUNTER)
@@ -116,12 +116,7 @@ endif()
 find_package (Threads)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 if(CUDA_FOUND)
-	
-  #IF(NOT WIN32)
-	#Mostly only relevant for older versions of CUDA on Linux/Mac OS X, 
-	# Basically, we do not want to use std=c++11 on CUDA
-#	  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
- # ENDIF()
+
   SET(CUDA_COMPILE_PTX ON)
   #list(APPEND CUDA_NVCC_FLAGS -O3 --use_fast_math -gencode=arch=compute_60,code="compute_60,sm_60" -Xptxas -v )
   #list(APPEND CUDA_NVCC_FLAGS_RELEASE " -O3 --use_fast_math -Xptxas -v -keep -src-in-ptx -arch=compute_30 -code=sm_30")

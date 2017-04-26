@@ -74,7 +74,7 @@ TEST(PythonInitialDataTest, ParameterTest) {
     parameters.addParameter("nonVector", { 43. });
     parameters.addParameter("vectorParameter", { 44., 45., 45.5, 46 });
     // Fill every variable with 42
-    const std::string pythonCode = "rho = nonVector\nux=vectorParameter[0]\nuy=vectorParameter[1]\nuz=vectorParameter[2]\np=vectorParameter[3]+len(vectorParameter)";
+    const std::string pythonCode = "print(nonVector)\nprint(vectorParameter)\nrho = nonVector\nux=vectorParameter[0]\nuy=vectorParameter[1]\nuz=vectorParameter[2]\np=vectorParameter[3]+len(vectorParameter)";
 
     PythonInitialData initialData(pythonCode, parameters);
 

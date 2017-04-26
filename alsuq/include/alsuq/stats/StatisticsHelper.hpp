@@ -54,7 +54,7 @@ protected:
 private:
     size_t samples;
 
-    std::map<std::string, std::vector<std::shared_ptr<alsfvm::io::Writer> > > writers;
+    std::map<std::string, std::vector<std::shared_ptr<alsfvm::io::Writer>  > > writers;
 
     alsuq::mpi::Config mpiConfig;
 };

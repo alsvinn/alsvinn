@@ -1,4 +1,5 @@
 #include "alsuq/stats/StructureCubeCUDA.hpp"
+
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsuq/stats/stats_util.hpp"
 #include "alsuq/stats/structure_common.hpp"
@@ -68,6 +69,7 @@ __global__ void computeStructureCube(real* output,
         }
     }
 }
+
 }
 
 StructureCubeCUDA::StructureCubeCUDA(const StatisticsParameters &parameters)
@@ -131,6 +133,7 @@ void StructureCubeCUDA::computeStructure(alsfvm::volume::Volume &output,
             computeStructureCube<<<blockNumber,threads>>>(thrust::raw_pointer_cast(structureOutput.data()),
                                                           inputView,
                                                           h, nx, ny, nz, ngx, ngy, ngz, p, dimensions);
+
 
             real structureResult = thrust::reduce(structureOutput.begin(),
                                                   structureOutput.end(),

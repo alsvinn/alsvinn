@@ -11,7 +11,7 @@
   </grid>
   <boundary>neumann</boundary>
   <flux>godunov</flux>
-  <endTime>0.5</endTime>
+  <endTime>0.2</endTime>
   <equation>burgers</equation>
   <reconstruction>none</reconstruction>
   <cfl>auto</cfl>
@@ -22,19 +22,25 @@
     <parameters>
       <parameter>
         <name>X</name>
-        <length>10000</length>
+        <length>1048576</length>
         <values><value>0</value></values>
       </parameter>
     </parameters>
   </initialData>
+
+<writer>
+  <type>netcdf</type>
+  <basename>brownian</basename>
+  <numberOfSaves>1</numberOfSaves>
+</writer>
 </fvm>
 <uq>
-<samples>512</samples>
+<samples>1</samples>
   <generator>auto</generator>
   <parameters>
     <parameter>
       <name>X</name>
-      <length>10000</length>
+      <length>1048576</length>
       <type>normal</type>
     </parameter>
   </parameters>
