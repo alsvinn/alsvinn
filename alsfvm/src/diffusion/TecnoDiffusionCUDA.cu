@@ -235,7 +235,7 @@ namespace alsfvm {
             
 
 
-            for (int direction = 0; direction < outputVolume.getDimensions(); ++direction) {
+            for (int direction = 0; direction < int(outputVolume.getDimensions()); ++direction) {
 
                 if (direction == 0) {
                     applyDiffusionCUDA<Equation, DiffusionMatrix, 0>(equation, outputVolume, *reconstruction,

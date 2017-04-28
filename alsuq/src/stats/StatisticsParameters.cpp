@@ -12,7 +12,7 @@ size_t StatisticsParameters::getNumberOfSamples() const
     return samples;
 }
 
-const std::string &StatisticsParameters::getParameterAsString(const std::string &name) const
+const std::string StatisticsParameters::getParameterAsString(const std::string &name) const
 {
     return configuration.get<std::string>(name);
 }

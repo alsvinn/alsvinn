@@ -9,7 +9,7 @@ namespace alsuq { namespace stats {
         void setNumberOfSamples(size_t samples);
         size_t getNumberOfSamples() const;
 
-        const std::string &getParameterAsString(const std::string& name) const;
+        const std::string getParameterAsString(const std::string& name) const;
 
 
         real getParameterAsDouble(const std::string& name) const;

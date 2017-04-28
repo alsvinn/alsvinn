@@ -58,7 +58,7 @@ void StructureBasic::computeStructure(alsfvm::volume::Volume &output,
         for(int k = 0; k < nz; ++k) {
             for(int j = 0; j < ny; ++j) {
                 for(int i = 0; i < nx; ++i) {
-                    for(int h = 0; h < numberOfH; ++h) {
+                    for(int h = 0; h < int(numberOfH); ++h) {
 
 
                         auto u_ijk = inputView.at(i+ngx,j+ngy,k+ngz);

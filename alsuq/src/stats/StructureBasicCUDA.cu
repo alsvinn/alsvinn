@@ -104,7 +104,7 @@ void StructureBasicCUDA::computeStructure(alsfvm::volume::Volume &output,
 
         structureOutput.resize(nx*ny*nz,0);
 
-        for(int h = 1; h < numberOfH; ++h) {
+        for(int h = 1; h < int(numberOfH); ++h) {
             const int threads = 1024;
             const int size = nx*ny*nz;
             const int blockNumber = (size+threads -1)/threads;

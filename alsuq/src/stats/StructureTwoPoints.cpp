@@ -61,13 +61,13 @@ void StructureTwoPoints::computeStructure(alsfvm::volume::Volume &output,
                 for(int i = 0; i < nx; ++i) {
                     auto u_ijk = inputView.at(i+ngx,j+ngy,k+ngz);
 
-                    for(int h1 = 0; h1 < numberOfH; ++h1) {
+                    for(int h1 = 0; h1 < int(numberOfH); ++h1) {
                         // For now we assume neumann boundary conditions
                         auto u_ijk_h1 = inputView.at(std::min(i + h1*directionVector1.x, nx-1) + ngx,
                                                      std::min(j + h1*directionVector1.y, ny-1) + ngy,
                                                      std::min(k + h1*directionVector1.z, nz-1) + ngz);
 
-                        for (int h2 = 0; h2 < numberOfH; ++h2) {
+                        for (int h2 = 0; h2 < int(numberOfH); ++h2) {
                             auto u_ijk_h2 = inputView.at(std::min(i + h2*directionVector1.x, nx-1)%nx + ngx,
                                                          std::min(j + h2*directionVector1.y, ny-1)%ny + ngy,
                                                          std::min(k + h2*directionVector1.z, nz-1)%nz + ngz);

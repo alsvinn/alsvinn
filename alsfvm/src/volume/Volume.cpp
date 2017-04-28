@@ -338,9 +338,9 @@ namespace alsfvm {
 
         ivec3 Volume::getTotalDimensions() const
         {
-            return {getTotalNumberOfXCells(),
-                    getTotalNumberOfYCells(),
-                        getNumberOfZCells()};
+            return {int(getTotalNumberOfXCells()),
+                    int(getTotalNumberOfYCells()),
+                    int(getNumberOfZCells())};
         }
 
         void Volume::addPower(const Volume &other, real power)

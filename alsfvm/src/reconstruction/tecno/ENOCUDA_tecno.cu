@@ -270,9 +270,9 @@ void ENOCUDA<order>::computeDividedDifferences(const memory::Memory<real>& input
     const int nz = inputLeft.getSizeZ();
 
     // Sanity check, we need at least ONE point in the interior.
-    assert(nx > 2*direction.x * level);
-    assert(ny > 2*direction.y * level);
-    assert(nz > 2*direction.z * level);
+    assert(nx > int(2*direction.x * level));
+    assert(ny > int(2*direction.y * level));
+    assert(nz > int(2*direction.z * level));
 
     const ivec3 start = int(level) * direction;
     const ivec3 end = ivec3(nx, ny, nz) - int(level) * direction;
