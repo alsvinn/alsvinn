@@ -4,7 +4,7 @@
 #  http://doi.org/http://dx.doi.org/10.18637/jss.v023.i01
 # in the section 2.3
 def init_global(u, nx, ny, nz):
-    H = 0.01
+    H = 0.5
     M = u.shape[0]
     N = M+1
 

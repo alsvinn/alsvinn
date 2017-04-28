@@ -30,7 +30,7 @@
   <writer>
     <type>netcdf</type>
     <basename>fractional_brownian</basename>
-    <numberOfSaves>20</numberOfSaves>
+    <numberOfSaves>1</numberOfSaves>
   </writer>
 </fvm>
 <uq>

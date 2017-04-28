@@ -172,7 +172,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
 
     });
 
-
+    ALSVINN_LOG(INFO, "Done setting initial data");
     cellComputer.computeFromPrimitive(primitiveVolume, conservedVolume, extraVolume);
 }
 
