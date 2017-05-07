@@ -1,4 +1,4 @@
-epsilon = 1e-1
+epsilon = 6e-2
 xc = x - 0.5
 yc = y - 0.5
 phi = atan2(yc, xc) if abs(yc) > 0 else 0
@@ -6,16 +6,18 @@ phi = atan2(yc, xc) if abs(yc) > 0 else 0
 if phi < 0:
     phi += 2*pi
 
-if "has_random_variables" in locals() and has_random_variables:
-    N = len(a1)
-    normalization = sum(a1)
+N = len(a)/2
 
-    if abs(normalization) < 1e-8:
-        normalization = N
+a1 = a[:10]
 
-    perturbation = epsilon * sum([a1[n] * cos(phi+b1[n]) for n in xrange(N)]) / normalization
-else:
-    perturbation = 0
+b1 = a[10:20]
+
+normalization = sum(a1)
+
+if abs(normalization) < 1e-8:
+    normalization = N
+
+perturbation = epsilon * sum([a1[n] * cos(phi+b1[n]) for n in range(N)]) / normalization
 
 r = sqrt((x-0.5)**2+(y-0.5)**2)
 if r < 0.1:
