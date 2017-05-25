@@ -245,6 +245,8 @@ INSTANTIATE_TEST_CASE_P(ReconstructionTests,
     ReconstructionConvergenceTest,
     ::testing::Values(
     ReconstructionParameters(1.99 ,  1.99, "weno2", "cuda"),
+    ReconstructionParameters(1.99 ,  1.99, "mc", "cuda"),
+    ReconstructionParameters(1.99 ,  1.99, "mc", "cpu"),
     ReconstructionParameters(1.99 ,  1.99, "weno2", "cpu"),
     ReconstructionParameters(1.99 ,  1.99, "wenof2", "cpu"),
     ReconstructionParameters(1.99,   1.99, "wenof2", "cuda"),

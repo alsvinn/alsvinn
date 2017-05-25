@@ -1,5 +1,6 @@
 #include "alsfvm/cuda/vector_operations.hpp"
 #include "alsfvm/types.hpp"
+#include "alsfvm/cuda/cuda_utils.hpp"
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -250,6 +251,11 @@ namespace alsfvm {
             subtract_power_device << <(size + threadCount - 1) / threadCount, threadCount >> >(a, b, power, size);
         }
 
+        template<class T>
+        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz) {
+
+        }
+
         INSTANTIATE_VECTOR_OPERATION(add)
             INSTANTIATE_VECTOR_OPERATION(subtract)
             INSTANTIATE_VECTOR_OPERATION(multiply)
@@ -269,6 +275,8 @@ namespace alsfvm {
             template void add_power<real>(real* a, const real* b, double power, size_t size);
 
         template void subtract_power<real>(real* a, const real* b, double power, size_t size);
+
+        template real compute_total_variation<real>(const real* a, size_t nx, size_t ny, size_t nz);
 
 
 	}

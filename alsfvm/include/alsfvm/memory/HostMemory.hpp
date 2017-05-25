@@ -204,6 +204,11 @@ public:
 
     virtual std::shared_ptr<Memory<T> > getHostMemory() override;
 
+    //! Computes the total variation, given here as
+    //!
+    //! \f[\sum_i |u_i-u_{i-1}|.\f]
+    virtual real getTotalVariation() const;
+
 private:
     std::vector<T> data;
 };

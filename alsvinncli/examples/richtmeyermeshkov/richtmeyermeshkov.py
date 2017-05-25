@@ -1,7 +1,7 @@
 epsilon = 6e-2
 xc = x - 0.5
 yc = y - 0.5
-phi = atan2(yc, xc) if abs(yc) > 0 else 0
+phi = atan2(yc, xc) if abs(xc) > 0 else 0
 
 if phi < 0:
     phi += 2*pi
@@ -17,7 +17,7 @@ normalization = sum(a1)
 if abs(normalization) < 1e-8:
     normalization = N
 
-perturbation = epsilon * sum([a1[n] * cos(phi+b1[n]) for n in range(N)]) / normalization
+perturbation = epsilon * sum([a1[n] * cos(phi+2*pi*b1[n]) for n in range(N)]) / normalization
 
 r = sqrt((x-0.5)**2+(y-0.5)**2)
 if r < 0.1:

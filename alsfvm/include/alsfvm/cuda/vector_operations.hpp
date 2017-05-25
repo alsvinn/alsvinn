@@ -119,6 +119,10 @@ namespace alsfvm {
         //! \f[a += pow(b,power)\f]
         template<class T>
         void subtract_power(T* a, const T* b, double power, size_t size);
+
+
+        template<class T>
+        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz);
 	}
 
 

@@ -1,6 +1,7 @@
 #include "alsfvm/reconstruction/ReconstructionCUDA.hpp"
 #include "alsfvm/reconstruction/WENOF2.hpp"
 #include "alsfvm/reconstruction/WENO2.hpp"
+#include "alsfvm/reconstruction/MC.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/equation/burgers/Burgers.hpp"
 
@@ -150,12 +151,18 @@ namespace alsfvm {
 
         template class ReconstructionCUDA < WENOF2<equation::euler::Euler<1> >, equation::euler::Euler<1> >;
         template class ReconstructionCUDA <  WENO2<equation::euler::Euler<1> >, equation::euler::Euler<1> >;
+        template class ReconstructionCUDA <  MC<equation::euler::Euler<1> >, equation::euler::Euler<1> >;
+
 
         template class ReconstructionCUDA < WENOF2<equation::euler::Euler<2> >, equation::euler::Euler<2> >;
         template class ReconstructionCUDA <  WENO2<equation::euler::Euler<2> >, equation::euler::Euler<2> >;
+        template class ReconstructionCUDA <  MC<equation::euler::Euler<2> >, equation::euler::Euler<2> >;
 
         template class ReconstructionCUDA < WENOF2<equation::euler::Euler<3> >, equation::euler::Euler<3> >;
         template class ReconstructionCUDA <  WENO2<equation::euler::Euler<3> >, equation::euler::Euler<3> >;
+         template class ReconstructionCUDA <  MC<equation::euler::Euler<3> >, equation::euler::Euler<3> >;
+
         template class ReconstructionCUDA < WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>;
+        template class ReconstructionCUDA < MC<equation::burgers::Burgers>, equation::burgers::Burgers>;
     }
 }

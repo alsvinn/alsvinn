@@ -276,6 +276,45 @@ std::shared_ptr<Memory<T> > HostMemory<T>::getHostMemory()
     return this->shared_from_this();
 }
 
+template<class T>
+real HostMemory<T>::getTotalVariation() const
+{
+    // See http://www.ams.org/journals/tran/1933-035-04/S0002-9947-1933-1501718-2/S0002-9947-1933-1501718-2.pdf
+    //
+    const size_t nx = this->nx;
+    const size_t ny = this->ny;
+    const size_t nz = this->nz;
+
+    if (nz > 1 ) {
+        THROW("Not supported for 3d yet");
+    }
+    const size_t startX = 1;
+    const size_t startY = ny > 1 ? 1 : 0;
+    T bv = 0;
+    for(size_t z = 0; z < nz; z++) {
+        for(size_t y = startY; y < ny; y++) {
+            for(size_t x = startX; x < nz; x++) {
+                size_t index = z * nx * ny + y * nx + x;
+                size_t indexXLeft = z * nx * ny + y * nx + (x-1);
+
+                size_t yBottom = ny > 0 ? y - 1 : 0;
+
+
+                size_t indexYLeft = z * nx * ny + yBottom * nx + x;
+                size_t indexLeft = z * nx * ny + yBottom * nx + (x-1);
+
+
+                bv += data[index]
+                        - data[indexYLeft] - data[indexXLeft]
+                        + data[indexLeft];
+             }
+        }
+    }
+
+    return bv;
+
+}
+
 
 INSTANTIATE_MEMORY(HostMemory)
 } // namespace memory

@@ -270,6 +270,11 @@ namespace alsfvm {
             //! Copies the data to host if it is on GPU, otherwise makes a copy
             virtual std::shared_ptr<Memory<T> > getHostMemory() = 0;
 
+            //! Computes the total variation, given here as
+            //!
+            //! \f[\sum_i |u_i-u_{i-1}|.\f]
+            virtual real getTotalVariation() const = 0;
+
 			
 		protected:
             const size_t nx;
