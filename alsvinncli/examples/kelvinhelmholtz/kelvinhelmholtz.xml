@@ -102,6 +102,18 @@
     <basename>kh_cube</basename>
   </writer>
   </stat>
+
+<stat>
+  <name>
+    bv
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+
+  <writer>
+    <type>netcdf</type>
+    <basename>kh</basename>
+  </writer>
+  </stat>
   </stats>
 </uq>
 </config>

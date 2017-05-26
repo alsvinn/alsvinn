@@ -293,7 +293,7 @@ real HostMemory<T>::getTotalVariation() const
     T bv = 0;
     for(size_t z = 0; z < nz; z++) {
         for(size_t y = startY; y < ny; y++) {
-            for(size_t x = startX; x < nz; x++) {
+            for(size_t x = startX; x < nx; x++) {
                 size_t index = z * nx * ny + y * nx + x;
                 size_t indexXLeft = z * nx * ny + y * nx + (x-1);
 
@@ -303,10 +303,9 @@ real HostMemory<T>::getTotalVariation() const
                 size_t indexYLeft = z * nx * ny + yBottom * nx + x;
                 size_t indexLeft = z * nx * ny + yBottom * nx + (x-1);
 
-
-                bv += data[index]
-                        - data[indexYLeft] - data[indexXLeft]
-                        + data[indexLeft];
+                bv += std::abs(data[index]
+                        - data[indexYLeft]) + std::abs(data[index]
+                        - data[indexXLeft]);
              }
         }
     }

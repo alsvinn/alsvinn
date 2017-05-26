@@ -3,6 +3,7 @@
 #include "alsfvm/cuda/cuda_utils.hpp"
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include <thrust/device_vector.h>
 
 namespace {
 	template<class T>
@@ -109,6 +110,35 @@ namespace {
         if (index < size) {
             out[index] -= pow(a[index], power);
         }
+    }
+
+    template<class T>
+    __global__ void compute_total_variation_device(T* out, const T* data, size_t nx, size_t ny, size_t nz) {
+        const auto coordinates = alsfvm::cuda::getCoordinates(threadIdx, blockIdx, blockDim,
+                       nx - 1, ny > 1 ? ny - 1 : ny , nz > 1 ? nz - 1 : nz, {1, ny > 1, nz>1});
+
+
+        if (coordinates.x < 0) {
+            return;
+        }
+
+        const int x = coordinates.x;
+        const int y = coordinates.y;
+        const int z = coordinates.z;
+
+        const size_t index = z * nx * ny + y * nx + x;
+        const size_t indexXLeft = z * nx * ny + y * nx + (x-1);
+
+        const size_t yBottom = ny > 0 ? y - 1 : 0;
+
+        const size_t indexYLeft = z * nx * ny + yBottom * nx + x;
+        const size_t indexLeft = z * nx * ny + yBottom * nx + (x-1);
+
+
+        out[index] = fabs(data[index]
+                - data[indexXLeft]) + fabs( data[index]
+                - data[indexYLeft]);
+
     }
 }
 
@@ -253,6 +283,23 @@ namespace alsfvm {
 
         template<class T>
         T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz) {
+            thrust::device_vector<T> buffer(nx*ny*nz, 0);
+
+            if (nz > 1) {
+                THROW("Only supported for 2d and 1d");
+            }
+
+            auto launchParameters = cuda::makeKernelLaunchParameters(ivec3{1, ny>1, nz>1},
+                                                                    ivec3{nx, ny, nz},
+                                                                    1024);
+
+
+            compute_total_variation_device<<<std::get<0>(launchParameters), 1024>>>(thrust::raw_pointer_cast(buffer.data()),
+                                                                             a, nx, ny, nz);
+
+            return thrust::reduce(buffer.begin(), buffer.end());
+
+
 
         }
 
