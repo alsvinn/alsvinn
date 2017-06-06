@@ -3,7 +3,7 @@
 #include "alsutils/log.hpp"
 #include <iostream>
 namespace alsuq { namespace distribution {
-	Uniform1D::Uniform1D(size_t numberOfSamples, double a, double b)
+    Uniform1D::Uniform1D(size_t numberOfSamples, real a, real b)
 	    : a(a), b(b)
 	{
 	  ALSVINN_LOG(INFO, "numberOfSampes = " << numberOfSamples);

@@ -270,7 +270,7 @@ init::Parameters SimulatorSetup::readParameters(const SimulatorSetup::ptree& con
     if (fvmNode.find("equationParameters") != fvmNode.not_found()) {
         auto equationParameters = fvmNode.get_child("equationParameters");
         for (auto equationParameter : equationParameters) {
-            parameters.addParameter(equationParameter.first, { std::atof(equationParameter.second.data().c_str()) });
+            parameters.addParameter(equationParameter.first, { real(std::atof(equationParameter.second.data().c_str())) });
         }
     }
 
@@ -281,7 +281,7 @@ init::Parameters SimulatorSetup::readParameters(const SimulatorSetup::ptree& con
         for (auto parameter : initParameters) {
             auto name = parameter.second.get<std::string>("name");
             auto length = parameter.second.get<int>("length");
-            std::vector<double> value;
+            std::vector<real    > value;
 
             if (length == 1) {
                 value.resize(1);

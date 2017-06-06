@@ -5,7 +5,7 @@ b1 = a[20:40]
 b2 = a[30:40]
 
 
-perturbation = 0.001
+perturbation = 0.05
 normalization1 = sum(a1)
 if abs(normalization1) < 1e-10:
 	normalization1 = 1

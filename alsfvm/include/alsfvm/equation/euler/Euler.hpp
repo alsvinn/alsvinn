@@ -283,9 +283,9 @@ namespace alsfvm {
                     PrimitiveVariables primitiveVariables = computePrimitiveVariables(conserved);
 
 
-                    return TecnoVariables(sqrt(primitiveVariables.rho / primitiveVariables.p),
-                        sqrt(primitiveVariables.rho / primitiveVariables.p)*primitiveVariables.u,
-                        sqrt(primitiveVariables.rho*primitiveVariables.p));
+                    return TecnoVariables(real(sqrt(primitiveVariables.rho / primitiveVariables.p)),
+                        real(sqrt(primitiveVariables.rho / primitiveVariables.p))*primitiveVariables.u,
+                        real(sqrt(primitiveVariables.rho*primitiveVariables.p)));
                 }
 
 
@@ -511,14 +511,14 @@ namespace alsfvm {
                 if (direction == 0) {
                     matrix3 matrixWithEigenVectors;
 #if 1
-                    const double rho = conserved.rho;
+                    const real rho = conserved.rho;
                     
                     const auto primitive = computePrimitiveVariables(conserved);
                     const real a = sqrt(gamma*primitive.p / conserved.rho);
                     const real H = (conserved.E + primitive.p) / conserved.rho;
-                    const double a1 = sqrt(rho / (2 * gamma));
-                    const double a2 = sqrt(rho*(gamma - 1) / gamma);
-                    const double a4 = a1;
+                    const real a1 = sqrt(rho / (2 * gamma));
+                    const real a2 = sqrt(rho*(gamma - 1) / gamma);
+                    const real a4 = a1;
 
                     
 
