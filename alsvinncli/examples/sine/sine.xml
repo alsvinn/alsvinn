@@ -20,9 +20,9 @@
     <python>sine.py</python>
   </initialData>
   <writer>
-    <type>hdf5</type>
+    <type>netcdf</type>
     <basename>sine</basename>
-    <numberOfSaves>10</numberOfSaves>
+    <numberOfSaves>300</numberOfSaves>
   </writer>
 </fvm>
 </config>

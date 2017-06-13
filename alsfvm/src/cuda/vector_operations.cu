@@ -135,10 +135,41 @@ namespace {
         const size_t indexLeft = z * nx * ny + yBottom * nx + (x-1);
 
 
-        out[index] = fabs(data[index]
-                - data[indexXLeft]) + fabs( data[index]
-                - data[indexYLeft]);
+        out[index] = sqrt(pow(data[index]
+                - data[indexXLeft],2) + pow( data[index]
+                - data[indexYLeft],2));
 
+    }
+
+
+    template<class T>
+    __global__ void compute_total_variation_device(T* out, const T* data, size_t nx, size_t ny, size_t nz, size_t direction) {
+
+        const auto directionVector = alsfvm::make_direction_vector(direction);
+        const auto coordinates = alsfvm::cuda::getCoordinates(threadIdx, blockIdx, blockDim,
+                                                              nx - directionVector.x,
+                                                              ny - directionVector.y,
+                                                              nz - directionVector.z,
+                                                              directionVector);
+
+
+        if (coordinates.x < 0) {
+            return;
+        }
+
+        const int x = coordinates.x;
+        const int y = coordinates.y;
+        const int z = coordinates.z;
+
+        const size_t index = z * nx * ny + y * nx + x;
+
+
+        const auto coordinatesLeft = coordinates - directionVector;
+
+
+        const size_t indexLeft = coordinatesLeft.z*nx*ny + coordinatesLeft.y * nx + coordinatesLeft.x;
+
+        out[index] = fabs(data[index] - data[indexLeft]);
     }
 }
 
@@ -303,6 +334,30 @@ namespace alsfvm {
 
         }
 
+
+        template<class T>
+        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz, size_t direction) {
+            thrust::device_vector<T> buffer(nx*ny*nz, 0);
+
+            if (nz > 1) {
+                THROW("Only supported for 2d and 1d");
+            }
+
+            auto directionVector = make_direction_vector(direction);
+            auto launchParameters = cuda::makeKernelLaunchParameters(directionVector,
+                                                                    ivec3{nx, ny, nz},
+                                                                    1024);
+
+
+            compute_total_variation_device<<<std::get<0>(launchParameters), 1024>>>(thrust::raw_pointer_cast(buffer.data()),
+                                                                             a, nx, ny, nz, direction);
+
+            return thrust::reduce(buffer.begin(), buffer.end());
+
+
+
+        }
+
         INSTANTIATE_VECTOR_OPERATION(add)
             INSTANTIATE_VECTOR_OPERATION(subtract)
             INSTANTIATE_VECTOR_OPERATION(multiply)
@@ -324,6 +379,7 @@ namespace alsfvm {
         template void subtract_power<real>(real* a, const real* b, double power, size_t size);
 
         template real compute_total_variation<real>(const real* a, size_t nx, size_t ny, size_t nz);
+        template real compute_total_variation<real>(const real* a, size_t nx, size_t ny, size_t nz, size_t direction);
 
 
 	}

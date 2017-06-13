@@ -297,6 +297,14 @@ namespace alsfvm {
                                            this->nz);
         }
 
+        template<class T>
+        real CudaMemory<T>::getTotalVariation(int direction) const
+        {
+            return compute_total_variation(this->getPointer(), this->nx,
+                                           this->ny,
+                                           this->nz, direction);
+        }
+
 		INSTANTIATE_MEMORY(CudaMemory)
 	}
 

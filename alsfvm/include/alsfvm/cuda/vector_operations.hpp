@@ -123,6 +123,9 @@ namespace alsfvm {
 
         template<class T>
         T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz);
+
+        template<class T>
+        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz, size_t direction);
 	}
 
 

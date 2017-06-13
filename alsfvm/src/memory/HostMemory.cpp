@@ -303,9 +303,46 @@ real HostMemory<T>::getTotalVariation() const
                 size_t indexYLeft = z * nx * ny + yBottom * nx + x;
                 size_t indexLeft = z * nx * ny + yBottom * nx + (x-1);
 
-                bv += std::abs(data[index]
-                        - data[indexYLeft]) + std::abs(data[index]
-                        - data[indexXLeft]);
+                bv += std::sqrt(std::pow(data[index]
+                        - data[indexYLeft],2) + std::pow(data[index]
+                        - data[indexXLeft],2));
+             }
+        }
+    }
+
+    return bv;
+
+}
+
+template<class T>
+real HostMemory<T>::getTotalVariation(int direction) const
+{
+    // See http://www.ams.org/journals/tran/1933-035-04/S0002-9947-1933-1501718-2/S0002-9947-1933-1501718-2.pdf
+    //
+
+    auto directionVector = make_direction_vector(direction);
+    const size_t nx = this->nx;
+    const size_t ny = this->ny;
+    const size_t nz = this->nz;
+
+    if (direction > (1+(ny>1)+(nz>1))) {
+        THROW("direction = " << direction << " is bigger than current dimension");
+    }
+    const size_t startX = directionVector.x;
+    const size_t startY = directionVector.y;
+    const size_t startZ = directionVector.z;
+    T bv = 0;
+
+    const auto view = this->getView();
+
+
+    for(size_t z = startZ; z < nz; z++) {
+        for(size_t y = startY; y < ny; y++) {
+            for(size_t x = startX; x < nx; x++) {
+                size_t index = z * nx * ny + y * nx + x;
+                auto positionLeft = ivec3(x,y,z)-directionVector;
+
+                bv += std::abs(view.at(x,y,z)-view.at(positionLeft.x,positionLeft.y, positionLeft.z));
              }
         }
     }
