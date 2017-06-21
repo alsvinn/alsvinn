@@ -272,17 +272,17 @@ namespace alsfvm {
 
             //! Computes the total variation, given here as
             //!
-            //! \f[\sum_{i,j,k} \sqrt(\sum_{n=1}^d|u_{(i,j,k)}-u_{(i,j,k)-e_n}|^2).\f]
+            //! \f[\sum_{i,j,k} \sqrt(\sum_{n=1}^d|u_{(i,j,k)}-u_{(i,j,k)-e_n}|^2)^p.\f]
             //!
             //! \notes This function gives no performance guarantees
-            virtual real getTotalVariation() const = 0;
+            virtual real getTotalVariation(int p) const = 0;
 
             //! Computes the total variation in a given direction \$d\in\{0,1,2\}\$
             //!
-            //! \f[\sum_{i,j,k} |u_{(i,j,k)}-u_{(i,j,k)-e_n}|.\f]
+            //! \f[\sum_{i,j,k} |u_{(i,j,k)}-u_{(i,j,k)-e_n}|^p.\f]
             //!
             //! \notes This function gives no performance guarantees
-            virtual real getTotalVariation(int direction) const = 0;
+            virtual real getTotalVariation(int direction, int p) const = 0;
 
 			
 		protected:

@@ -277,7 +277,7 @@ std::shared_ptr<Memory<T> > HostMemory<T>::getHostMemory()
 }
 
 template<class T>
-real HostMemory<T>::getTotalVariation() const
+real HostMemory<T>::getTotalVariation(int p) const
 {
     // See http://www.ams.org/journals/tran/1933-035-04/S0002-9947-1933-1501718-2/S0002-9947-1933-1501718-2.pdf
     //
@@ -303,9 +303,9 @@ real HostMemory<T>::getTotalVariation() const
                 size_t indexYLeft = z * nx * ny + yBottom * nx + x;
                 size_t indexLeft = z * nx * ny + yBottom * nx + (x-1);
 
-                bv += std::sqrt(std::pow(data[index]
+                bv += std::pow(std::sqrt(std::pow(data[index]
                         - data[indexYLeft],2) + std::pow(data[index]
-                        - data[indexXLeft],2));
+                        - data[indexXLeft],2)), p);
              }
         }
     }
@@ -315,7 +315,7 @@ real HostMemory<T>::getTotalVariation() const
 }
 
 template<class T>
-real HostMemory<T>::getTotalVariation(int direction) const
+real HostMemory<T>::getTotalVariation(int direction, int p) const
 {
     // See http://www.ams.org/journals/tran/1933-035-04/S0002-9947-1933-1501718-2/S0002-9947-1933-1501718-2.pdf
     //
@@ -342,7 +342,7 @@ real HostMemory<T>::getTotalVariation(int direction) const
                 size_t index = z * nx * ny + y * nx + x;
                 auto positionLeft = ivec3(x,y,z)-directionVector;
 
-                bv += std::abs(view.at(x,y,z)-view.at(positionLeft.x,positionLeft.y, positionLeft.z));
+                bv += std::pow(std::abs(view.at(x,y,z)-view.at(positionLeft.x,positionLeft.y, positionLeft.z)), p);
              }
         }
     }

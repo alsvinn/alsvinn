@@ -25,9 +25,9 @@ namespace alsuq { namespace stats {
 
 
     private:
+        const int p;
 
-
-        const std::string statisticsName = "bv";
+        const std::string statisticsName;
 
 
 

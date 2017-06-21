@@ -108,12 +108,34 @@
     bv
   </name>
   <numberOfSaves>1</numberOfSaves>
-
+   <p>1</p>
   <writer>
     <type>netcdf</type>
     <basename>kh</basename>
   </writer>
   </stat>
+  <stat>
+    <name>
+      bv
+    </name>
+    <numberOfSaves>1</numberOfSaves>
+     <p>2</p>
+    <writer>
+      <type>netcdf</type>
+      <basename>kh</basename>
+    </writer>
+    </stat>
+    <stat>
+      <name>
+        bv
+      </name>
+      <numberOfSaves>1</numberOfSaves>
+       <p>3</p>
+      <writer>
+        <type>netcdf</type>
+        <basename>kh</basename>
+      </writer>
+      </stat>
   </stats>
 </uq>
 </config>

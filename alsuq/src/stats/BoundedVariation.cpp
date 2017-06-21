@@ -5,7 +5,8 @@ namespace alsuq { namespace stats {
 
 
 BoundedVariation::BoundedVariation(const alsuq::stats::StatisticsParameters &parameters)
-    : StatisticsHelper(parameters)
+    : StatisticsHelper(parameters), p(parameters.getParameterAsInteger("p")),
+      statisticsName("bv_" + std::to_string(p))
 {
 
 }
@@ -20,17 +21,17 @@ void BoundedVariation::computeStatistics(const alsfvm::volume::Volume &conserved
                                          const alsfvm::grid::Grid &grid,
                                          const alsfvm::simulator::TimestepInformation &timestepInformation)
 {
-    auto& bv = findOrCreateSnapshot("bv",
+    auto& bv = findOrCreateSnapshot(statisticsName,
                                       timestepInformation,
                                       conservedVariables,
                                       extraVariables,1,1,1, "cpu");
 
     for (int var = 0; var < conservedVariables.getNumberOfVariables(); ++var) {
-        bv.getVolumes().getConservedVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation();
+        bv.getVolumes().getConservedVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(p);
     }
 
     for (int var = 0; var < extraVariables.getNumberOfVariables(); ++var) {
-        bv.getVolumes().getExtraVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation();
+        bv.getVolumes().getExtraVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(p);
     }
 
 

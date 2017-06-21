@@ -64,7 +64,6 @@ namespace alsfvm { namespace reconstruction { namespace tecno {
                      grid.getDimensions().z));
 
              }
-             reconstructor.reset(new NoReconstructionCUDA);
 
 #endif	 
          }else {

@@ -26,10 +26,8 @@ namespace alsuq { namespace stats {
 
     private:
 
-
-        const std::vector<std::string> statisticsNames = {"bv_x",
-                                                          "bv_y",
-                                                          "bv_z"};
+        const int p;
+        const std::vector<std::string> statisticsNames;
 
 
 

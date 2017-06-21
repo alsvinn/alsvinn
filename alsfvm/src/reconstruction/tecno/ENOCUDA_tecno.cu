@@ -11,6 +11,7 @@
 #include "alsfvm/equation/equation_list.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
 
+
 namespace alsfvm { namespace reconstruction { namespace tecno {
 
 
@@ -201,6 +202,8 @@ void ENOCUDA<order>::performReconstruction(const volume::Volume &leftInput,
         CUDA_SAFE_CALL(cudaDeviceSynchronize());
 #endif
     }
+
+    std::cout << "Reconstruction" << std::endl;
 }
 
 template<int order>

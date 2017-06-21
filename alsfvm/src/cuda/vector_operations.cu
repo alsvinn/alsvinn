@@ -113,7 +113,7 @@ namespace {
     }
 
     template<class T>
-    __global__ void compute_total_variation_device(T* out, const T* data, size_t nx, size_t ny, size_t nz) {
+    __global__ void compute_total_variation_device(T* out, const T* data, size_t nx, size_t ny, size_t nz, int p) {
         const auto coordinates = alsfvm::cuda::getCoordinates(threadIdx, blockIdx, blockDim,
                        nx - 1, ny > 1 ? ny - 1 : ny , nz > 1 ? nz - 1 : nz, {1, ny > 1, nz>1});
 
@@ -135,15 +135,15 @@ namespace {
         const size_t indexLeft = z * nx * ny + yBottom * nx + (x-1);
 
 
-        out[index] = sqrt(pow(data[index]
+        out[index] = pow(sqrt(pow(data[index]
                 - data[indexXLeft],2) + pow( data[index]
-                - data[indexYLeft],2));
+                - data[indexYLeft],2)),p);
 
     }
 
 
     template<class T>
-    __global__ void compute_total_variation_device(T* out, const T* data, size_t nx, size_t ny, size_t nz, size_t direction) {
+    __global__ void compute_total_variation_device(T* out, const T* data, size_t nx, size_t ny, size_t nz, size_t direction, int p) {
 
         const auto directionVector = alsfvm::make_direction_vector(direction);
         const auto coordinates = alsfvm::cuda::getCoordinates(threadIdx, blockIdx, blockDim,
@@ -169,7 +169,7 @@ namespace {
 
         const size_t indexLeft = coordinatesLeft.z*nx*ny + coordinatesLeft.y * nx + coordinatesLeft.x;
 
-        out[index] = fabs(data[index] - data[indexLeft]);
+        out[index] = pow(fabs(data[index] - data[indexLeft]),p);
     }
 }
 
@@ -313,7 +313,7 @@ namespace alsfvm {
         }
 
         template<class T>
-        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz) {
+        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz, int p) {
             thrust::device_vector<T> buffer(nx*ny*nz, 0);
 
             if (nz > 1) {
@@ -326,7 +326,7 @@ namespace alsfvm {
 
 
             compute_total_variation_device<<<std::get<0>(launchParameters), 1024>>>(thrust::raw_pointer_cast(buffer.data()),
-                                                                             a, nx, ny, nz);
+                                                                             a, nx, ny, nz, p);
 
             return thrust::reduce(buffer.begin(), buffer.end());
 
@@ -336,7 +336,7 @@ namespace alsfvm {
 
 
         template<class T>
-        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz, size_t direction) {
+        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz, size_t direction, int p) {
             thrust::device_vector<T> buffer(nx*ny*nz, 0);
 
             if (nz > 1) {
@@ -350,7 +350,7 @@ namespace alsfvm {
 
 
             compute_total_variation_device<<<std::get<0>(launchParameters), 1024>>>(thrust::raw_pointer_cast(buffer.data()),
-                                                                             a, nx, ny, nz, direction);
+                                                                             a, nx, ny, nz, direction, p);
 
             return thrust::reduce(buffer.begin(), buffer.end());
 
@@ -378,8 +378,8 @@ namespace alsfvm {
 
         template void subtract_power<real>(real* a, const real* b, double power, size_t size);
 
-        template real compute_total_variation<real>(const real* a, size_t nx, size_t ny, size_t nz);
-        template real compute_total_variation<real>(const real* a, size_t nx, size_t ny, size_t nz, size_t direction);
+        template real compute_total_variation<real>(const real* a, size_t nx, size_t ny, size_t nz, int p);
+        template real compute_total_variation<real>(const real* a, size_t nx, size_t ny, size_t nz, size_t direction, int p);
 
 
 	}

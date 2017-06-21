@@ -104,7 +104,12 @@ namespace alsfvm {
                     auto leftValues = Equation::fetchConservedVariables(rightView, left);
                     auto rightValues = Equation::fetchConservedVariables(leftView, right);
 
-                    auto conservedValues = Equation::fetchConservedVariables(conservedView, right);
+                    //auto conservedValues = Equation::fetchConservedVariables(conservedView, right);
+
+                    auto conservedValuesMiddle = Equation::fetchConservedVariables(conservedView, rightIndex);
+                    auto conservedValuesLeft = Equation::fetchConservedVariables(conservedView, leftIndex);
+
+                    auto conservedValues = 0.5*(conservedValuesMiddle + conservedValuesLeft);
 
                     DiffusionMatrix<Equation, direction> matrix(equation, conservedValues);
 
