@@ -23,6 +23,9 @@ void BoundedVariationDirection::computeStatistics(const alsfvm::volume::Volume &
                                          const alsfvm::grid::Grid &grid,
                                          const alsfvm::simulator::TimestepInformation &timestepInformation)
 {
+    const ivec3 start = conservedVariables.getNumberOfGhostCells();
+    const ivec3 end = conservedVariables.getSize() - conservedVariables.getNumberOfGhostCells();
+
     auto& bvX = findOrCreateSnapshot(statisticsNames[0],
                                       timestepInformation,
                                       conservedVariables,
@@ -39,26 +42,27 @@ void BoundedVariationDirection::computeStatistics(const alsfvm::volume::Volume &
                                       extraVariables,1,1,1, "cpu");
 
     for (int var = 0; var < conservedVariables.getNumberOfVariables(); ++var) {
-        bvX.getVolumes().getConservedVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(0,p);
+        bvX.getVolumes().getConservedVolume()->getScalarMemoryArea(var)->getPointer()[0]
+                = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(0,p, start, end);
 
         if (conservedVariables.getDimensions()>1) {
-            bvY.getVolumes().getConservedVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(1,p);
+            bvY.getVolumes().getConservedVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(1,p, start,end);
         }
         if (conservedVariables.getDimensions() > 2) {
-             bvZ.getVolumes().getConservedVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(2,p);
+             bvZ.getVolumes().getConservedVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(2,p, start,end);
         }
 
     }
 
     for (int var = 0; var < extraVariables.getNumberOfVariables(); ++var) {
-        bvX.getVolumes().getExtraVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(0,p);
+        bvX.getVolumes().getExtraVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(0,p, start,end);
 
          if (conservedVariables.getDimensions()>1) {
-              bvY.getVolumes().getExtraVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(1,p);
+              bvY.getVolumes().getExtraVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(1,p, start,end);
          }
 
          if(conservedVariables.getDimensions() > 2) {
-             bvZ.getVolumes().getExtraVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(2,p);
+             bvZ.getVolumes().getExtraVolume()->getScalarMemoryArea(var)->getPointer()[0] = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(2,p, start,end);
         }
     }
 

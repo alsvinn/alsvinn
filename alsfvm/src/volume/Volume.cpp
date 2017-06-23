@@ -79,6 +79,16 @@ namespace alsfvm {
             return variableNames.size();
         }
 
+        ivec3 Volume::getSize() const
+        {
+            return {getTotalNumberOfXCells(), getTotalNumberOfYCells(), getTotalNumberOfZCells()};
+        }
+
+        ivec3 Volume::getNumberOfGhostCells() const
+        {
+            return {getNumberOfXGhostCells(), getNumberOfYGhostCells(), getNumberOfZGhostCells()};
+        }
+
         ///
         /// \brief getScalarMemoryArea gets the scalar memory area (real)
         /// \param index the index of the variable. Use getIndexFromName

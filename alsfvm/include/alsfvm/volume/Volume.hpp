@@ -53,6 +53,11 @@ namespace alsfvm {
             ///
             virtual size_t getNumberOfVariables() const;
 
+            //! Returns the size in each dimension
+            virtual ivec3 getSize() const;
+
+            //! Returns the number of ghostcells in each dimension
+            virtual ivec3 getNumberOfGhostCells() const;
             ///
             /// \brief getScalarMemoryArea gets the scalar memory area (real)
             /// \param index the index of the variable. Use getIndexFromName

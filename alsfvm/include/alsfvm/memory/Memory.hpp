@@ -274,15 +274,27 @@ namespace alsfvm {
             //!
             //! \f[\sum_{i,j,k} \sqrt(\sum_{n=1}^d|u_{(i,j,k)}-u_{(i,j,k)-e_n}|^2)^p.\f]
             //!
-            //! \notes This function gives no performance guarantees
-            virtual real getTotalVariation(int p) const = 0;
+            //! \note This function gives no performance guarantees
+            //!
+            //! @param p the exponent p
+            //! @param start the index to start at (inclusive)
+            //! @param end the maximum index (exclusive)
+            virtual real getTotalVariation(int p, const ivec3& start,
+                                           const ivec3& end) const = 0;
 
             //! Computes the total variation in a given direction \$d\in\{0,1,2\}\$
             //!
             //! \f[\sum_{i,j,k} |u_{(i,j,k)}-u_{(i,j,k)-e_n}|^p.\f]
             //!
-            //! \notes This function gives no performance guarantees
-            virtual real getTotalVariation(int direction, int p) const = 0;
+            //! \note This function gives no performance guarantees
+            //!
+            //! @param p the exponent p
+            //! @param direction the direction (between 0 and 2 inclusive)
+            //! @param start the index to start at (inclusive)
+            //! @param end the maximum index (exclusive)
+            virtual real getTotalVariation(int direction, int p, const ivec3& start,
+                                           const ivec3& end) const = 0;
+
 
 			
 		protected:

@@ -277,7 +277,8 @@ std::shared_ptr<Memory<T> > HostMemory<T>::getHostMemory()
 }
 
 template<class T>
-real HostMemory<T>::getTotalVariation(int p) const
+real HostMemory<T>::getTotalVariation(int p, const ivec3& start,
+                                      const ivec3& end) const
 {
     // See http://www.ams.org/journals/tran/1933-035-04/S0002-9947-1933-1501718-2/S0002-9947-1933-1501718-2.pdf
     //
@@ -288,12 +289,12 @@ real HostMemory<T>::getTotalVariation(int p) const
     if (nz > 1 ) {
         THROW("Not supported for 3d yet");
     }
-    const size_t startX = 1;
-    const size_t startY = ny > 1 ? 1 : 0;
+    const size_t startX = start.x + 1;
+    const size_t startY = start.y + (ny > 1 ? 1 : 0);
     T bv = 0;
-    for(size_t z = 0; z < nz; z++) {
-        for(size_t y = startY; y < ny; y++) {
-            for(size_t x = startX; x < nx; x++) {
+    for(size_t z = 0; z < end.z; z++) {
+        for(size_t y = startY; y < end.y; y++) {
+            for(size_t x = startX; x < end.x; x++) {
                 size_t index = z * nx * ny + y * nx + x;
                 size_t indexXLeft = z * nx * ny + y * nx + (x-1);
 
@@ -315,7 +316,8 @@ real HostMemory<T>::getTotalVariation(int p) const
 }
 
 template<class T>
-real HostMemory<T>::getTotalVariation(int direction, int p) const
+real HostMemory<T>::getTotalVariation(int direction, int p, const ivec3& start,
+                                      const ivec3& end) const
 {
     // See http://www.ams.org/journals/tran/1933-035-04/S0002-9947-1933-1501718-2/S0002-9947-1933-1501718-2.pdf
     //
@@ -328,17 +330,17 @@ real HostMemory<T>::getTotalVariation(int direction, int p) const
     if (direction > (1+(ny>1)+(nz>1))) {
         THROW("direction = " << direction << " is bigger than current dimension");
     }
-    const size_t startX = directionVector.x;
-    const size_t startY = directionVector.y;
-    const size_t startZ = directionVector.z;
+    const size_t startX = start.x + directionVector.x;
+    const size_t startY = start.y + directionVector.y;
+    const size_t startZ = start.z + directionVector.z;
     T bv = 0;
 
     const auto view = this->getView();
 
 
-    for(size_t z = startZ; z < nz; z++) {
-        for(size_t y = startY; y < ny; y++) {
-            for(size_t x = startX; x < nx; x++) {
+    for(size_t z = startZ; z < end.z; z++) {
+        for(size_t y = startY; y < end.y; y++) {
+            for(size_t x = startX; x < end.x; x++) {
                 size_t index = z * nx * ny + y * nx + x;
                 auto positionLeft = ivec3(x,y,z)-directionVector;
 

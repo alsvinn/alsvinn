@@ -1,5 +1,5 @@
 #pragma once
-
+#include "alsfvm/types.hpp"
 /// 
 /// Various vector operations in CUDA
 ///
@@ -122,10 +122,12 @@ namespace alsfvm {
 
 
         template<class T>
-        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz, int p);
+        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz, int p,
+                                  const ivec3& start, const ivec3& end);
 
         template<class T>
-        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz, size_t direction, int p);
+        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz, size_t direction, int p,
+                                  const ivec3& start, const ivec3& end);
 	}
 
 
