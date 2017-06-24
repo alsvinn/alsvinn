@@ -1,17 +1,15 @@
 #pragma once
 #include "alsuq/stats/StatisticsHelper.hpp"
+#include "alsuq/stats/StatisticsParameters.hpp"
 
 namespace alsuq { namespace stats {
 
-    class BoundedVariation : public StatisticsHelper {
+    class OnePointMoment : public StatisticsHelper{
     public:
+        OnePointMoment(const StatisticsParameters& parameters);
 
-        BoundedVariation(const StatisticsParameters& parameters);
-
-
-        //! Returns a list of ['bv']
+        //! Returns 'm<n>' where n is the moment
         virtual std::vector<std::string> getStatisticsNames() const;
-
 
 
 
@@ -21,15 +19,9 @@ namespace alsuq { namespace stats {
                           const alsfvm::simulator::TimestepInformation &timestepInformation) override;
 
         virtual void finalize() override;
-
-
     private:
         const int p;
-
         const std::string statisticsName;
-
-
-
     };
-} // namespace statistics
+} // namespace stats
 } // namespace alsuq
