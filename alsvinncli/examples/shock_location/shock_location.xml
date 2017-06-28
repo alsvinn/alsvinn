@@ -27,11 +27,7 @@
       </parameter>
     </parameters>
   </initialData>
-  <writer>
-    <type>hdf5</type>
-    <basename>shock_location</basename>
-    <numberOfSaves>2</numberOfSaves>
-  </writer>
+
 </fvm>
 <uq>
   <samples>1024</samples>

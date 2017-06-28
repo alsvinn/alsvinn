@@ -1,0 +1,144 @@
+<config>
+<fvm>
+  <name>
+    kh
+  </name>
+  <platform>cpu</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>1 1 0</upperCorner>
+    <dimension>1024 1024 1</dimension>
+  </grid>
+  <boundary>neumann</boundary>
+  <flux>hll3</flux>
+  <endTime>0.06</endTime>
+  <equation>euler2</equation>
+  <equationParameters>
+    <gamma>1.4</gamma>
+  </equationParameters>
+  <reconstruction>none</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>rungekutta3</integrator>
+
+  <initialData>
+    <python>cloudshock.py</python>
+    <parameters>
+      <parameter>
+        <name>a</name>
+        <length>40</length>
+        <values><value>0</value></values>
+      </parameter>
+    </parameters>
+  </initialData>
+  <diffusion>
+    <name>none</name>
+    <reconstruction>none</reconstruction>
+  </diffusion>
+  <writer>
+    <type>netcdf</type>
+    <basename>cloudshock</basename>
+    <numberOfSaves>10</numberOfSaves>
+  </writer>
+</fvm>
+<uq>
+  <samples>16</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>a</name>
+      <length>40</length>
+      <type>uniform</type>
+    </parameter>
+  </parameters>
+  <stats>
+  <stat>
+    <name>
+      meanvar
+    </name>
+    <numberOfSaves>1</numberOfSaves>
+    <writer>
+      <type>netcdf</type>
+      <basename>cloudshock</basename>
+    </writer>
+    </stat>
+
+<stat>
+  <name>
+    structure_basic
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <direction>0</direction>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>cloudshock_x</basename>
+  </writer>
+  </stat>
+
+<stat>
+  <name>
+    structure_basic
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <direction>1</direction>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>cloudshock_y</basename>
+  </writer>
+  </stat>
+
+<stat>
+  <name>
+    structure_cube
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>cloudshock_cube</basename>
+  </writer>
+  </stat>
+
+<stat>
+  <name>
+    bv
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+<p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>cloudshock</basename>
+  </writer>
+</stat>
+<stat>
+  <name>
+    bv
+  </name>
+  <p>1</p>
+  <numberOfSaves>1</numberOfSaves>
+
+  <writer>
+    <type>netcdf</type>
+    <basename>cloudshock</basename>
+  </writer>
+  </stat>
+<stat>
+  <name>
+    bv_direction
+  </name>
+  <p>1</p>
+  <numberOfSaves>1</numberOfSaves>
+
+  <writer>
+    <type>netcdf</type>
+    <basename>cloudshock</basename>
+  </writer>
+  </stat>
+
+  </stats>
+</uq>
+</config>
