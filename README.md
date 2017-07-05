@@ -1,5 +1,5 @@
-Alsvinn
-############
+Alsvinn - The fast Finite Volume Simulator with Uncertaintity Quantifications
+------------------------
 
 Alsvinn is a toolset consisting of a finite volume simulator (alsfvm) and modules in python for uncertainity quantification (UQ).
 
