@@ -36,7 +36,7 @@ ENDMACRO(set_source_groups)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/Modules)
 SET(ALSVINN_BUILD_TESTS ON CACHE BOOL "Build unittests (requires Gtest). HIGHLY recommended!")
-SET(ALSVINN_USE_MPI OFF CACHE BOOL "Build with MPI")
+SET(ALSVINN_USE_MPI ON CACHE BOOL "Build with MPI")
 SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
 SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
@@ -91,20 +91,24 @@ ENDIF()
 # Python dependency could be made optional eventually, but for now it's
 # the only way of specify initial data
 find_package(PythonLibs REQUIRED)
-
+#set(Boost_USE_STATIC_LIBS        OFF)
 # We try to limit use of boost, but we also want to avoid having to 
 # reprogram everything.
+#set(Boost_USE_STATIC_LIBS ON)
+#add_definitions(-DBOOST_LOG_DYN_LINK)
+
 hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log)
-find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup)
+find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python numpy)
+
+
 if (NOT ALSVINN_USE_HUNTER)
    add_definitions(-DBOOST_LOG_DYN_LINK)
 endif()
 
-
 IF(WIN32)
   ADD_DEFINITIONS( -DBOOST_ALL_NO_LIB )
 ENDIF()
-set(Boost_USE_STATIC_LIBS ON)
+
 if(MSVC)
   add_definitions(-DBOOST_ALL_NO_LIB=1)
 endif()
@@ -112,15 +116,10 @@ endif()
 find_package (Threads)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 if(CUDA_FOUND)
-	
-  #IF(NOT WIN32)
-	#Mostly only relevant for older versions of CUDA on Linux/Mac OS X, 
-	# Basically, we do not want to use std=c++11 on CUDA
-#	  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
- # ENDIF()
+
   SET(CUDA_COMPILE_PTX ON)
   #list(APPEND CUDA_NVCC_FLAGS -O3 --use_fast_math -gencode=arch=compute_60,code="compute_60,sm_60" -Xptxas -v )
-  list(APPEND CUDA_NVCC_FLAGS_RELEASE " -O3 --use_fast_math -Xptxas -v -keep -src-in-ptx -arch=compute_30 -code=sm_30,sm_60")
+  #list(APPEND CUDA_NVCC_FLAGS_RELEASE " -O3 --use_fast_math -Xptxas -v -keep -src-in-ptx -arch=compute_30 -code=sm_30")
   list(APPEND CUDA_NVCC_FLAGS_DEBUG -G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0)
   set(ALSVINN_HAVE_CUDA On)
   add_definitions(-DALSVINN_HAVE_CUDA)

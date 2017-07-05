@@ -1,7 +1,9 @@
 #pragma once
 
 #include "alsfvm/equation/burgers/Burgers.hpp"
+#include "alsfvm/equation/buckleyleverett/BuckleyLeverett.hpp"
 #include "alsfvm/equation/euler/Euler.hpp"
+#include "alsfvm/equation/cubic/Cubic.hpp"
 #include "alsfvm/equation/EquationInformation.hpp"
 #include <boost/fusion/algorithm.hpp>
 
@@ -20,7 +22,9 @@ namespace alsfvm { namespace equation {
     typedef boost::fusion::vector<EquationInformation<euler::Euler<1>>,
         EquationInformation<euler::Euler<2>>,
         EquationInformation<euler::Euler<3>>,
-                       EquationInformation<burgers::Burgers> > EquationList;
+                       EquationInformation<burgers::Burgers>,
+EquationInformation<buckleyleverett::BuckleyLeverett>,
+EquationInformation<cubic::Cubic> > EquationList;
 
 ///
 /// Loops through each Equation element. Example usage
@@ -53,4 +57,6 @@ namespace alsfvm { namespace equation {
     template class X< ::alsfvm::equation::euler::Euler<1> >; \
     template class X< ::alsfvm::equation::euler::Euler<2> >; \
     template class X< ::alsfvm::equation::euler::Euler<3> >; \
-    template class X< ::alsfvm::equation::burgers::Burgers>;
+    template class X< ::alsfvm::equation::burgers::Burgers>; \
+    template class X< ::alsfvm::equation::buckleyleverett::BuckleyLeverett>; \
+    template class X< ::alsfvm::equation::cubic::Cubic>;

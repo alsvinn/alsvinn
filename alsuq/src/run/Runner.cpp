@@ -18,6 +18,7 @@ Runner::Runner(std::shared_ptr<SimulatorCreator> simulatorCreator,
 
 void Runner::run()
 {
+    std::shared_ptr<alsfvm::grid::Grid> grid;
     for(size_t sample : sampleNumbers) {
         ALSVINN_LOG(INFO, "Running sample: " << sample << std::endl);
         alsfvm::init::Parameters parameters;
@@ -30,13 +31,39 @@ void Runner::run()
         }
 
         auto simulator = simulatorCreator->createSimulator(parameters, sample);
+        for( auto & statisticWriter : statistics) {
+            simulator->addWriter(std::dynamic_pointer_cast<alsfvm::io::Writer>(statisticWriter));
 
+            auto timestepAdjuster = alsfvm::dynamic_pointer_cast<alsfvm::integrator::TimestepAdjuster>(statisticWriter);
+            if (timestepAdjuster) {
+                simulator->addTimestepAdjuster(timestepAdjuster);
+            }
+        }
         simulator->callWriters();
         while (!simulator->atEnd()) {
             simulator->performStep();
         }
+        grid = simulator->getGrid();
+
     }
+
+    for(auto& statisticsWriter : statistics) {
+        statisticsWriter->combineStatistics();
+
+        if (mpiConfig.getRank() == 0) {
+            statisticsWriter->finalize();
+            statisticsWriter->writeStatistics(*grid);
+        }
+    }
+
+
+}
+
+
+void Runner::setStatistics(const std::vector<std::shared_ptr<stats::Statistics> >& statistics)
+{
+    this->statistics = statistics;
 }
 
 }
-}
+                }

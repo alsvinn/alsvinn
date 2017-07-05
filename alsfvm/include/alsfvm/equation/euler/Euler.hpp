@@ -283,9 +283,9 @@ namespace alsfvm {
                     PrimitiveVariables primitiveVariables = computePrimitiveVariables(conserved);
 
 
-                    return TecnoVariables(sqrt(primitiveVariables.rho / primitiveVariables.p),
-                        sqrt(primitiveVariables.rho / primitiveVariables.p)*primitiveVariables.u,
-                        sqrt(primitiveVariables.rho*primitiveVariables.p));
+                    return TecnoVariables(real(sqrt(primitiveVariables.rho / primitiveVariables.p)),
+                        real(sqrt(primitiveVariables.rho / primitiveVariables.p))*primitiveVariables.u,
+                        real(sqrt(primitiveVariables.rho*primitiveVariables.p)));
                 }
 
 
@@ -349,10 +349,21 @@ namespace alsfvm {
 
             template<>
             template<int direction>
-            __device__ __host__ matrix5 Euler<3>::computeEigenVectorMatrix(const ConservedVariables& conserved) const {
+            __device__ __host__ matrix5 Euler<3>::computeEigenVectorMatrix(const ConservedVariables& conservedConst) const {
+                auto conserved = conservedConst;
+                if (direction == 1) {
+                    // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
+                    // http://www.springer.com/de/book/9783540252023
+                    conserved = ConservedVariables(conserved.rho, rvec3{conserved.m.y, -conserved.m.x, conserved.m.z}, conserved.E);
+
+                } else if (direction == 2) {
+                    // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
+                    // http://www.springer.com/de/book/9783540252023
+                    conserved = ConservedVariables(conserved.rho, rvec3{conserved.m.z, conserved.m.y, -conserved.m.x}, conserved.E);
+                }
 
 
-                if (direction == 0) {
+                if (direction < 3) {
                     matrix5 matrixWithEigenVectors;
 
                     auto primitive = computePrimitiveVariables(conserved);
@@ -390,42 +401,33 @@ namespace alsfvm {
 
                     return matrixWithEigenVectors.normalized();
                 }
-                else if (direction == 1) {
-                    // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
-                    // http://www.springer.com/de/book/9783540252023
-                    auto conservedRotated = ConservedVariables(conserved.rho, rvec3{conserved.m.y, -conserved.m.x, conserved.m.z}, conserved.E);
-                    return computeEigenVectorMatrix<0>(conservedRotated);
-                }
-                else if (direction == 2) {
-                    // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
-                    // http://www.springer.com/de/book/9783540252023
-                    auto conservedRotated = ConservedVariables(conserved.rho, rvec3{conserved.m.z, conserved.m.y, -conserved.m.x}, conserved.E);
-                    return computeEigenVectorMatrix<0>(conservedRotated);
-                }
+
 
                 assert(false);
             }
 
             template<>
             template<int direction>
-            __device__ __host__ rvec5 Euler<3>::computeEigenValues(const ConservedVariables& conserved) const {
-                if (direction == 0) {
+            __device__ __host__ rvec5 Euler<3>::computeEigenValues(const ConservedVariables& conservedConst) const {
+                auto conserved = conservedConst;
+                if (direction == 1) {
+                    // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
+                    // http://www.springer.com/de/book/9783540252023
+                    conserved = ConservedVariables(conserved.rho, rvec3{conserved.m.y, -conserved.m.x, conserved.m.z}, conserved.E);
+
+                } else if (direction == 2) {
+                    // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
+                    // http://www.springer.com/de/book/9783540252023
+                    conserved = ConservedVariables(conserved.rho, rvec3{conserved.m.z, conserved.m.y, -conserved.m.x}, conserved.E);
+                }
+
+                if (direction < 3) {
                     auto primitive = computePrimitiveVariables(conserved);
                     const real a = sqrt(gamma*primitive.p / conserved.rho);
                     return rvec5(primitive.u.x - a, primitive.u.x, primitive.u.x, primitive.u.x, primitive.u.x + a);
                 }
-                else if (direction == 1) {
-                    // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
-                    // http://www.springer.com/de/book/9783540252023
-                    auto conservedRotated = ConservedVariables(conserved.rho, rvec3{conserved.m.y, -conserved.m.x, conserved.m.z}, conserved.E);
-                    return computeEigenValues<0>(conservedRotated);
-                }
-                else if (direction == 2) {
-                    // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
-                    // http://www.springer.com/de/book/9783540252023
-                    auto conservedRotated = ConservedVariables(conserved.rho, rvec3{conserved.m.z, conserved.m.y, -conserved.m.x}, conserved.E);
-                    return computeEigenValues<0>(conservedRotated);
-                }
+
+
                 assert(false);
 
                 return rvec5{0,0,0};
@@ -435,10 +437,17 @@ namespace alsfvm {
 
             template<>
             template<int direction>
-            __device__ __host__ matrix4 Euler<2>::computeEigenVectorMatrix(const ConservedVariables& conserved) const {
+            __device__ __host__ matrix4 Euler<2>::computeEigenVectorMatrix(const ConservedVariables& conservedConst) const {
 
 
-                if (direction == 0) {
+                ConservedVariables conserved = conservedConst;
+                if (direction  == 1) {
+                    // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
+                    // http://www.springer.com/de/book/9783540252023
+                    conserved = ConservedVariables(conserved.rho, rvec2{conserved.m.y, -conserved.m.x}, conserved.E);
+                }
+
+                if (direction < 2) {
                     matrix4 matrixWithEigenVectors;
 
                     auto primitive = computePrimitiveVariables(conserved);
@@ -464,31 +473,27 @@ namespace alsfvm {
                     matrixWithEigenVectors(3, 2) = primitive.u.y;
                     matrixWithEigenVectors(3, 3) = H + primitive.u.x*a;
 
-                    return matrixWithEigenVectors.normalized();
+                    return matrixWithEigenVectors;
                 }
-                else if (direction == 1) {
-                    // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
-                    // http://www.springer.com/de/book/9783540252023
-                    auto conservedRotated = ConservedVariables(conserved.rho, rvec2{conserved.m.y, -conserved.m.x}, conserved.E);
-                    return computeEigenVectorMatrix<0>(conservedRotated);
-                }
+
                 assert(false);
             }
 
             template<>
             template<int direction>
-            __device__ __host__ rvec4 Euler<2>::computeEigenValues(const ConservedVariables& conserved) const {
-                if (direction == 0) {
+            __device__ __host__ rvec4 Euler<2>::computeEigenValues(const ConservedVariables& conservedConst) const {
+                ConservedVariables conserved = conservedConst;
+                if (direction  == 1) {
+                    // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
+                    // http://www.springer.com/de/book/9783540252023
+                    conserved = ConservedVariables(conserved.rho, rvec2{conserved.m.y, -conserved.m.x}, conserved.E);
+                }
+                if (direction < 2) {
                     auto primitive = computePrimitiveVariables(conserved);
                     const real a = sqrt(gamma*primitive.p / conserved.rho);
                     return rvec4(primitive.u.x - a, primitive.u.x, primitive.u.x, primitive.u.x + a);
                 }
-                else if (direction == 1) {
-                    // We use the rotation trick, see 3.2.2 and Proposition 3.19 in Toro's book
-                    // http://www.springer.com/de/book/9783540252023
-                    auto conservedRotated = ConservedVariables(conserved.rho, rvec2{conserved.m.y, -conserved.m.x}, conserved.E);
-                    return computeEigenValues<0>(conservedRotated);
-                }
+
 
 
                 assert(false);
@@ -506,14 +511,14 @@ namespace alsfvm {
                 if (direction == 0) {
                     matrix3 matrixWithEigenVectors;
 #if 1
-                    const double rho = conserved.rho;
+                    const real rho = conserved.rho;
                     
                     const auto primitive = computePrimitiveVariables(conserved);
                     const real a = sqrt(gamma*primitive.p / conserved.rho);
                     const real H = (conserved.E + primitive.p) / conserved.rho;
-                    const double a1 = sqrt(rho / (2 * gamma));
-                    const double a2 = sqrt(rho*(gamma - 1) / gamma);
-                    const double a4 = a1;
+                    const real a1 = sqrt(rho / (2 * gamma));
+                    const real a2 = sqrt(rho*(gamma - 1) / gamma);
+                    const real a4 = a1;
 
                     
 

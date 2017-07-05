@@ -31,15 +31,17 @@ __global__ void performEnoReconstructionKernel(typename Equation::ConstViews inp
                                              numberOfXCells,
                                              numberOfYCells,
                                              numberOfZCells,
-                                             directionVector);
+                                             (order-1)*directionVector);
 
-    auto x = coordinates.x;
-    auto y = coordinates.y;
-    auto z = coordinates.z;
+    int x = coordinates.x;
+    int y = coordinates.y;
+    int z = coordinates.z;
 
     if (x<0 || y < 0 || z < 0) {
         return;
     }
+
+
 
 
     const size_t indexRight = input.index(x, y, z);
@@ -170,6 +172,7 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
     typename Equation::Views viewLeft(leftOut);
     typename Equation::Views viewRight(rightOut);
     typename Equation::ConstViews viewInput(inputVariables);
+
 #ifndef NDEBUG
     CUDA_SAFE_CALL(cudaDeviceSynchronize());
     CUDA_SAFE_CALL(cudaPeekAtLastError());
@@ -243,9 +246,9 @@ void ENOCUDA<Equation, order>::computeDividedDifferences(const memory::Memory<re
     const int nz = input.getSizeZ();
 
     // Sanity check, we need at least ONE point in the interior.
-    assert(nx > 2*direction.x * level);
-    assert(ny > 2*direction.y * level);
-    assert(nz > 2*direction.z * level);
+    assert(nx > int(2*direction.x * level));
+    assert(ny > int(2*direction.y * level));
+    assert(nz > int(2*direction.z * level));
 
     const ivec3 start = int(level) * direction;
     const ivec3 end = ivec3(nx, ny, nz) - int(level) * direction;

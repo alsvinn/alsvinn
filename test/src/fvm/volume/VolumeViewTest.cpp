@@ -33,7 +33,7 @@ TEST(VolumeViewTest, AccessVolumeTest) {
 
 TEST(VolumeViewTest, ReconstructionTest) {
     const std::string equation = "euler3";
-    int N = 5;
+    size_t N = 5;
     auto deviceConfiguration = alsfvm::make_shared<alsfvm::DeviceConfiguration>("cpu");
     auto memoryFactory = alsfvm::make_shared<alsfvm::memory::MemoryFactory>(deviceConfiguration);
     auto volumeFactory = alsfvm::make_shared<alsfvm::volume::VolumeFactory>(equation, memoryFactory);

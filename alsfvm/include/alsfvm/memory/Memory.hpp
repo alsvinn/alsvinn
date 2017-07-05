@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "alsfvm/types.hpp"
 #include "alsfvm/memory/MemoryBase.hpp"
 #include "alsfvm/memory/View.hpp"
@@ -9,8 +10,10 @@ namespace alsfvm {
 		/// look at the other concrete implementations to use this. 
 		///
         template<class T>
-		class Memory : public MemoryBase {
+        class Memory : public MemoryBase, public std::enable_shared_from_this<Memory<T> > {
 		public:
+
+
             ///
             /// \brief Memory constructs new memory
             /// \param nx the number of cells in x direction
@@ -43,6 +46,12 @@ namespace alsfvm {
             ///
             virtual size_t getSizeZ() const;
 
+            //! Clones the memory area, but *does not copy the content*
+            virtual std::shared_ptr<Memory<T> > makeInstance() const = 0;
+
+            //! Copies the contents of the other memory area into this one
+            virtual void copyFrom(const Memory<T>& other) = 0;
+
             ///
             /// @returns the size (in bytes) of the memory in X direction.
             /// \note use this for indexing
@@ -72,6 +81,23 @@ namespace alsfvm {
 			/// @returns true if the memory is on host, false otherwise
 			///
 			virtual bool isOnHost() const = 0;
+
+            T* data() {
+                return getPointer();
+            }
+
+            const T* data() const {
+                return getPointer();
+            }
+
+            T& operator[](size_t i) {
+                assert(isOnHost());
+                return data()[i];
+            }
+
+            T operator[](size_t i) const {
+                return data()[i];
+            }
 
 			///
 			/// Gets the pointer to the data (need not be on the host!)
@@ -220,7 +246,56 @@ namespace alsfvm {
                 T a3, const Memory<T>& v3,
                 T a4, const Memory<T>& v4, 
                 T a5, const Memory<T>& v5) = 0;
-            
+
+
+
+            //! Adds a power of the other memory area to this memory area, ie
+            //!
+            //! \f[this += pow(other, power)\f]
+            //!
+            //! @param other the other memory area to the the power of
+            //! @param power the power to use
+            virtual void addPower(const Memory<T>& other, double power) = 0;
+
+
+            //! Subtracts a power of the other memory area to this memory area, ie
+            //!
+            //! \f[this -= pow(other, power)\f]
+            //!
+            //! @param other the other memory area to the the power of
+            //! @param power the power to use
+            virtual void subtractPower(const Memory<T>& other, double power) = 0;
+
+
+            //! Copies the data to host if it is on GPU, otherwise makes a copy
+            virtual std::shared_ptr<Memory<T> > getHostMemory() = 0;
+
+            //! Computes the total variation, given here as
+            //!
+            //! \f[\sum_{i,j,k} \sqrt(\sum_{n=1}^d|u_{(i,j,k)}-u_{(i,j,k)-e_n}|^2)^p.\f]
+            //!
+            //! \note This function gives no performance guarantees
+            //!
+            //! @param p the exponent p
+            //! @param start the index to start at (inclusive)
+            //! @param end the maximum index (exclusive)
+            virtual real getTotalVariation(int p, const ivec3& start,
+                                           const ivec3& end) const = 0;
+
+            //! Computes the total variation in a given direction \$d\in\{0,1,2\}\$
+            //!
+            //! \f[\sum_{i,j,k} |u_{(i,j,k)}-u_{(i,j,k)-e_n}|^p.\f]
+            //!
+            //! \note This function gives no performance guarantees
+            //!
+            //! @param p the exponent p
+            //! @param direction the direction (between 0 and 2 inclusive)
+            //! @param start the index to start at (inclusive)
+            //! @param end the maximum index (exclusive)
+            virtual real getTotalVariation(int direction, int p, const ivec3& start,
+                                           const ivec3& end) const = 0;
+
+
 			
 		protected:
             const size_t nx;

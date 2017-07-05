@@ -39,7 +39,9 @@ namespace alsfvm {
             alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory,
             size_t nx, size_t ny, size_t nz,
             size_t numberOfGhostCells)
-            : variableNames(variableNames), nx(nx), ny(ny), nz(nz),
+            :  variableNames(variableNames),
+              memoryFactory(memoryFactory),
+              nx(nx), ny(ny), nz(nz),
             numberOfXGhostCells(numberOfGhostCells),
             numberOfYGhostCells(ny > 1 ? numberOfGhostCells : 0),
             numberOfZGhostCells(nz > 1 ? numberOfGhostCells : 0)
@@ -55,6 +57,7 @@ namespace alsfvm {
         Volume::Volume(Volume& volume, const std::vector<size_t>& components,
             const std::vector<std::string>& variableNames)
             : variableNames(variableNames),
+              memoryFactory(volume.memoryFactory),
             nx(volume.nx), ny(volume.ny), nz(volume.nz),
             numberOfXGhostCells(volume.numberOfXGhostCells),
             numberOfYGhostCells(volume.numberOfYGhostCells),
@@ -74,6 +77,16 @@ namespace alsfvm {
 
         size_t Volume::getNumberOfVariables() const {
             return variableNames.size();
+        }
+
+        ivec3 Volume::getSize() const
+        {
+            return {getTotalNumberOfXCells(), getTotalNumberOfYCells(), getTotalNumberOfZCells()};
+        }
+
+        ivec3 Volume::getNumberOfGhostCells() const
+        {
+            return {getNumberOfXGhostCells(), getNumberOfYGhostCells(), getNumberOfZGhostCells()};
         }
 
         ///
@@ -313,6 +326,11 @@ namespace alsfvm {
             return this->getScalarMemoryArea(index);
         }
 
+        alsfvm::shared_ptr<memory::Memory<real> > Volume::operator[](size_t index)
+        {
+            return getScalarMemoryArea(index);
+        }
+
         //! Adds the volumes with coefficients to this volume
         //! Here we compute the sum
         //! \f[ v_1^{\mathrm{new}}=a_1v_1+a_2v_2+a_3v_3+a_4v_4+a_5v_5+a_6v_6\f]
@@ -330,9 +348,48 @@ namespace alsfvm {
 
         ivec3 Volume::getTotalDimensions() const
         {
-            return {getTotalNumberOfXCells(),
-                    getTotalNumberOfYCells(),
-                    getNumberOfZCells()};
+            return {int(getTotalNumberOfXCells()),
+                    int(getTotalNumberOfYCells()),
+                    int(getNumberOfZCells())};
+        }
+
+        void Volume::addPower(const Volume &other, real power)
+        {
+            for(size_t i = 0; i < memoryAreas.size(); ++i) {
+                memoryAreas[i]->addPower(*other[i], power);
+            }
+
+        }
+
+
+        void Volume::subtractPower(const Volume &other, real power)
+        {
+            for(size_t i = 0; i < memoryAreas.size(); ++i) {
+                memoryAreas[i]->subtractPower(*other[i], power);
+            }
+
+        }
+
+
+        std::shared_ptr<Volume> Volume::makeInstance() const
+        {
+            return std::make_shared<Volume>(variableNames, memoryFactory,
+                                            nx, ny, nz, numberOfXGhostCells);
+        }
+
+        std::shared_ptr<Volume> Volume::makeInstance(size_t nxNew, size_t nyNew, size_t nzNew, const std::string& platform) const
+        {
+            if (platform == "default" || platform == memoryFactory->getPlatform()) {
+                return std::make_shared<Volume>(variableNames, memoryFactory,
+                                            nxNew, nyNew, nzNew, 0);
+            } else {
+                alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguraiton(new DeviceConfiguration(platform));
+                alsfvm::shared_ptr<memory::MemoryFactory>
+                        memoryFactoryForPlatform(new memory::MemoryFactory(deviceConfiguraiton));
+
+                return std::make_shared<Volume>(variableNames, memoryFactoryForPlatform, nxNew, nyNew, nzNew, 0);
+            }
+
         }
 	}
 

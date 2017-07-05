@@ -19,7 +19,7 @@ namespace alsfvm { namespace init {
 
         //! Each parameter is represented by an array 
         //! A scalar is then represented by a length one array.
-        std::vector<real> getParameter(const std::string& name) const;
+        const std::vector<real>& getParameter(const std::string& name) const;
 
     private:
         std::map<std::string,  std::vector<real> > parameters;

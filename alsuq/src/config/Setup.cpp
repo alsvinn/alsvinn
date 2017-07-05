@@ -4,6 +4,12 @@
 #include "alsuq/mpi/SimpleLoadBalancer.hpp"
 #include <boost/property_tree/xml_parser.hpp>
 #include <fstream>
+#include "alsuq/stats/StatisticsFactory.hpp"
+#include "alsfvm/io/WriterFactory.hpp"
+#include "alsuq/stats/FixedIntervalStatistics.hpp"
+#include <boost/algorithm/string.hpp>
+#include "alsutils/log.hpp"
+
 namespace alsuq { namespace config {
 // example:
 // <samples>1024</samples>
@@ -44,7 +50,8 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string &inputFilename,
     auto samplesForProc = loadBalancer.getSamples(mpiConfig);
 
     auto runner = std::make_shared<run::Runner>(simulatorCreator, sampleGenerator, samplesForProc);
-
+    auto statistics  = createStatistics(configuration);
+    runner->setStatistics(statistics);
     return runner;
 }
 
@@ -72,6 +79,10 @@ std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(Setup::ptre
         parametersToDistribution.setParameter("lower", 0);
         parametersToDistribution.setParameter("upper", 1);
 
+        parametersToDistribution.setParameter("a", 0);
+        parametersToDistribution.setParameter("b", 1);
+
+	
         parametersToDistribution.setParameter("mean", 0);
         parametersToDistribution.setParameter("sd", 1);
 
@@ -88,6 +99,71 @@ std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(Setup::ptre
     return std::make_shared<samples::SampleGenerator> (generators);
 
 
+}
+
+
+// <stats>
+//
+//   <stat>
+//   <name>
+//   structure
+//   </name>
+//   <numberOfSaves>1</numberOfSaves>
+//   <writer>
+//
+//     <type>netcdf</type>
+//     <basename>kh_structure</basename>
+//   </writer>
+//   </stat>
+//   <stat>
+//   <name>
+//     meanvar
+//   </name>
+//   <numberOfSaves>1</numberOfSaves>
+//   <writer>
+//     <type>netcdf</type>
+//     <basename>kh_structure</basename>
+//   </writer>
+//   </stat>
+// </stats>
+std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::ptree &configuration)
+{
+    auto statisticsNodes = configuration.get_child("uq.stats");
+    stats::StatisticsFactory statisticsFactory;
+    alsfvm::io::WriterFactory writerFactory;
+    auto platform = configuration.get<std::string>("fvm.platform");
+    std::vector<std::shared_ptr<stats::Statistics> > statisticsVector;
+    for (auto& statisticsNode : statisticsNodes) {
+        auto name = statisticsNode.second.get<std::string>("name");
+        boost::trim(name);
+        stats::StatisticsParameters parameters;
+        parameters.setNumberOfSamples(readNumberOfSamples(configuration));
+        parameters.setConfiguration(statisticsNode.second);
+        auto statistics = statisticsFactory.makeStatistics(platform, name, parameters);
+        auto numberOfSaves = statisticsNode.second.get<size_t>("numberOfSaves");
+
+        ALSVINN_LOG(INFO, "statistics.numberOfSaves = " << numberOfSaves);
+
+        // Make writer
+        std::string type = statisticsNode.second.get<std::string>("writer.type");
+        std::string basename = statisticsNode.second.get<std::string>("writer.basename");
+        for (auto statisticsName : statistics->getStatisticsNames()) {
+
+            auto outputname = basename + "_" + statisticsName;
+            auto baseWriter = writerFactory.createWriter(type, outputname);
+            statistics->addWriter(statisticsName, baseWriter);
+        }
+        real endTime = configuration.get<real>("fvm.endTime");
+        real timeInterval = endTime / numberOfSaves;
+        auto statisticsInterval =
+                std::shared_ptr<stats::Statistics>(
+                    new stats::FixedIntervalStatistics(statistics, timeInterval,
+                                                       endTime));
+        statisticsVector.push_back(statisticsInterval);
+
+    }
+
+    return statisticsVector;
 }
 
 size_t Setup::readNumberOfSamples(Setup::ptree &configuration)

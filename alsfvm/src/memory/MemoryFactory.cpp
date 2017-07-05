@@ -38,6 +38,11 @@ namespace alsfvm {
             } else {
 				THROW("Unknown memory type " << deviceConfiguration->getPlatform());
             }
-		}
+        }
+
+        const std::string &MemoryFactory::getPlatform() const
+        {
+            return deviceConfiguration->getPlatform();
+        }
 	}
 }

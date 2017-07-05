@@ -1,8 +1,11 @@
 #include "alsfvm/reconstruction/tecno/ReconstructionFactory.hpp"
 #include "alsfvm/reconstruction/tecno/ENOCPU.hpp"
 #include "alsfvm/reconstruction/tecno/NoReconstruction.hpp"
+
+#ifdef ALSVINN_HAVE_CUDA
 #include "alsfvm/reconstruction/tecno/ENOCUDA.hpp"
 #include "alsfvm/reconstruction/tecno/NoReconstructionCUDA.hpp"
+#endif
 
 namespace alsfvm { namespace reconstruction { namespace tecno { 
      alsfvm::shared_ptr<TecnoReconstruction>
@@ -38,6 +41,7 @@ namespace alsfvm { namespace reconstruction { namespace tecno {
                      grid.getDimensions().z));
 
              }
+#ifdef ALSVINN_HAVE_CUDA
          } else if (platform == "cuda") {
              if (name == "none") {
                  reconstructor.reset(new NoReconstructionCUDA);
@@ -60,7 +64,8 @@ namespace alsfvm { namespace reconstruction { namespace tecno {
                      grid.getDimensions().z));
 
              }
-             reconstructor.reset(new NoReconstructionCUDA);
+
+#endif	 
          }else {
              THROW("Unknown platform " << platform);
          }

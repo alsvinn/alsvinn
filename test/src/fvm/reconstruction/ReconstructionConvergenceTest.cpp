@@ -207,7 +207,7 @@ TEST_P(ReconstructionConvergenceTest, ReconstructionTest) {
         real L1DifferenceRight = 0.0;
         real LInftyDifferenceLeft = 0.0;
         real LInftyDifferenceRight = 0.0;
-        for (int x = 0; x < nx; ++x) {
+        for (size_t x = 0; x < nx; ++x) {
             const real a = x * dx;
             const real b = (x + 1) * dx;
 
@@ -245,6 +245,8 @@ INSTANTIATE_TEST_CASE_P(ReconstructionTests,
     ReconstructionConvergenceTest,
     ::testing::Values(
     ReconstructionParameters(1.99 ,  1.99, "weno2", "cuda"),
+    ReconstructionParameters(1.99 ,  1.99, "mc", "cuda"),
+    ReconstructionParameters(1.99 ,  1.99, "mc", "cpu"),
     ReconstructionParameters(1.99 ,  1.99, "weno2", "cpu"),
     ReconstructionParameters(1.99 ,  1.99, "wenof2", "cpu"),
     ReconstructionParameters(1.99,   1.99, "wenof2", "cuda"),

@@ -12,9 +12,16 @@ namespace alsfvm {
 			///
 			CudaMemory(size_t nx, size_t ny=1, size_t nz=1);
 
+
+            //! Clones the memory area, but *does not copy the content*
+            virtual std::shared_ptr<memory::Memory<T> > makeInstance() const override;
+
 			// Note: Virtual distructor since we will inherit
 			// from this. 
 			virtual ~CudaMemory();
+
+            //! Copies the contents of the other memory area into this one
+            virtual void copyFrom(const memory::Memory<T>& other) override;
 
 			///
 			/// Checks if the memory area is on the host (CPU) or 
@@ -132,6 +139,55 @@ namespace alsfvm {
                 T a3, const memory::Memory<T>& v3,
                 T a4, const memory::Memory<T>& v4,
                 T a5, const memory::Memory<T>& v5);
+
+
+
+            //! Adds a power of the other memory area to this memory area, ie
+            //!
+            //! \f[this += pow(other, power)\f]
+            //!
+            //! @param other the other memory area to the the power of
+            //! @param power the power to use
+            virtual void addPower(const memory::Memory<T>& other, double power);
+
+
+            //! Subtract a power of the other memory area to this memory area, ie
+            //!
+            //! \f[this -= pow(other, power)\f]
+            //!
+            //! @param other the other memory area to the the power of
+            //! @param power the power to use
+            virtual void subtractPower(const memory::Memory<T>& other, double power);
+
+
+            std::shared_ptr<memory::Memory<T> > getHostMemory() override;
+
+            //! Computes the total variation, given here as
+            //!
+            //! \f[\sum_{i,j,k} \sqrt(\sum_{n=1}^d|u_{(i,j,k)}-u_{(i,j,k)-e_n}|^2)^p.\f]
+            //!
+            //! \note This function gives no performance guarantees
+            //!
+            //! @param p the exponent p
+            //! @param start the index to start at (inclusive)
+            //! @param end the maximum index (exclusive)
+            virtual real getTotalVariation(int p, const ivec3& start,
+                                           const ivec3& end) const;
+
+            //! Computes the total variation in a given direction \$d\in\{0,1,2\}\$
+            //!
+            //! \f[\sum_{i,j,k} |u_{(i,j,k)}-u_{(i,j,k)-e_n}|^p.\f]
+            //!
+            //! \note This function gives no performance guarantees
+            //!
+            //! @param p the exponent p
+            //! @param direction the direction (between 0 and 2 inclusive)
+            //! @param start the index to start at (inclusive)
+            //! @param end the maximum index (exclusive)
+            virtual real getTotalVariation(int direction, int p, const ivec3& start,
+                                           const ivec3& end) const;
+
+            
 		private:
 			T* memoryPointer;
 		};

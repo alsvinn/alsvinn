@@ -53,6 +53,11 @@ namespace alsfvm {
             ///
             virtual size_t getNumberOfVariables() const;
 
+            //! Returns the size in each dimension
+            virtual ivec3 getSize() const;
+
+            //! Returns the number of ghostcells in each dimension
+            virtual ivec3 getNumberOfGhostCells() const;
             ///
             /// \brief getScalarMemoryArea gets the scalar memory area (real)
             /// \param index the index of the variable. Use getIndexFromName
@@ -102,6 +107,17 @@ namespace alsfvm {
             ///
             virtual alsfvm::shared_ptr<const memory::Memory<real> >
                 operator[](size_t index) const;
+
+            ///
+            /// \brief getScalarMemoryArea gets the scalar memory area (real)
+            /// \param index the index of the variable
+            /// \return the MemoryArea for the given name
+            /// \note Equivalent to calling
+            ///     getScalarMemoryArea(index)
+            ///
+            virtual alsfvm::shared_ptr<memory::Memory<real> >
+                operator[](size_t index);
+
 
 
             ///
@@ -223,9 +239,36 @@ namespace alsfvm {
             //!                  volume.getTotalNumberOfZCells()};
             //! \endcode
             virtual ivec3 getTotalDimensions() const;
+
+
+            //! Adds a power of the other volume to this volume, ie
+            //!
+            //! \f[this += pow(other, power)\f]
+            //!
+            //! @param other the other volume to the the power of
+            //! @param power the power to use
+            virtual void addPower(const Volume& other, real power);
+
+            //! Subtracts a power of the other volume to this volume, ie
+            //!
+            //! \f[this -= pow(other, power)\f]
+            //!
+            //! @param other the other volume to the the power of
+            //! @param power the power to use
+            virtual void subtractPower(const Volume& other, real power);
+
+
+            //! Makes a volume with the same memory areas and the same sizes
+            std::shared_ptr<volume::Volume> makeInstance() const;
+
+            //! Makes a new volume with the same names for the memory areas,
+            //! but with the newly given sizes.
+            std::shared_ptr<volume::Volume> makeInstance(size_t nx, size_t ny, size_t nz, const std::string& platform = "default") const;
+
+
         private:
             const std::vector<std::string> variableNames;
-
+            alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
             std::vector<alsfvm::shared_ptr<memory::Memory<real> > >
                 memoryAreas;
 			size_t nx;

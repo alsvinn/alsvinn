@@ -122,7 +122,6 @@ struct BurgersFluxTest : public ::testing::TestWithParam <FluxTestParameters>  {
         const size_t startK = 10;
         const size_t endK = 20;
 
-        const real constant = 42;
         std::vector<double> differences;
         std::vector<double> dx;
         for (size_t k = startK; k < endK; ++k) {

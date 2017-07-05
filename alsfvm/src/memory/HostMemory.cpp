@@ -22,9 +22,27 @@ HostMemory<T>::HostMemory(size_t nx, size_t ny, size_t nz)
 }
 
 template<class T>
+std::shared_ptr<Memory<T> > HostMemory<T>::makeInstance() const
+{
+    std::shared_ptr<Memory<T>> memoryArea;
+
+    memoryArea.reset(new HostMemory(this->nx, this->ny, this->nz));
+
+    return memoryArea;
+}
+
+template<class T>
 bool HostMemory<T>::isOnHost() const
 {
     return true;
+}
+
+template<class T>
+void HostMemory<T>::copyFrom(const Memory<T> &other)
+{
+    CHECK_SIZE_AND_HOST(other);
+
+    std::copy(other.data(), other.data() + this->getSize(), data.begin());
 }
 
 template<class T>
@@ -231,6 +249,110 @@ void HostMemory<T>::addLinearCombination(T a1,
         data[i] = a1*d1[i] + a2*d2[i] + a3*d3[i] + a4*d4[i] + a5*d5[i];
     }
 }
+
+template<class T>
+void HostMemory<T>::addPower(const Memory<T> &other, double power)
+{
+    CHECK_SIZE_AND_HOST(other);
+    #pragma omp parallel for
+    for (size_t i = 0; i < data.size(); ++i) {
+        data[i] += std::pow(other[i], power);
+    }
+}
+
+template<class T>
+void HostMemory<T>::subtractPower(const Memory<T> &other, double power)
+{
+    CHECK_SIZE_AND_HOST(other);
+    #pragma omp parallel for
+    for (size_t i = 0; i < data.size(); ++i) {
+        data[i] -= std::pow(other[i], power);
+    }
+}
+
+template<class T>
+std::shared_ptr<Memory<T> > HostMemory<T>::getHostMemory()
+{
+    return this->shared_from_this();
+}
+
+template<class T>
+real HostMemory<T>::getTotalVariation(int p, const ivec3& start,
+                                      const ivec3& end) const
+{
+    // See http://www.ams.org/journals/tran/1933-035-04/S0002-9947-1933-1501718-2/S0002-9947-1933-1501718-2.pdf
+    //
+    const size_t nx = this->nx;
+    const size_t ny = this->ny;
+    const size_t nz = this->nz;
+
+    if (nz > 1 ) {
+        THROW("Not supported for 3d yet");
+    }
+    const size_t startX = start.x + 1;
+    const size_t startY = start.y + (ny > 1 ? 1 : 0);
+    T bv = 0;
+    for(size_t z = 0; z < end.z; z++) {
+        for(size_t y = startY; y < end.y; y++) {
+            for(size_t x = startX; x < end.x; x++) {
+                size_t index = z * nx * ny + y * nx + x;
+                size_t indexXLeft = z * nx * ny + y * nx + (x-1);
+
+                size_t yBottom = ny > 0 ? y - 1 : 0;
+
+
+                size_t indexYLeft = z * nx * ny + yBottom * nx + x;
+                size_t indexLeft = z * nx * ny + yBottom * nx + (x-1);
+
+                bv += std::pow(std::sqrt(std::pow(data[index]
+                        - data[indexYLeft],2) + std::pow(data[index]
+                        - data[indexXLeft],2)), p);
+             }
+        }
+    }
+
+    return bv;
+
+}
+
+template<class T>
+real HostMemory<T>::getTotalVariation(int direction, int p, const ivec3& start,
+                                      const ivec3& end) const
+{
+    // See http://www.ams.org/journals/tran/1933-035-04/S0002-9947-1933-1501718-2/S0002-9947-1933-1501718-2.pdf
+    //
+
+    auto directionVector = make_direction_vector(direction);
+    const size_t nx = this->nx;
+    const size_t ny = this->ny;
+    const size_t nz = this->nz;
+
+    if (direction > (1+(ny>1)+(nz>1))) {
+        THROW("direction = " << direction << " is bigger than current dimension");
+    }
+    const size_t startX = start.x + directionVector.x;
+    const size_t startY = start.y + directionVector.y;
+    const size_t startZ = start.z + directionVector.z;
+    T bv = 0;
+
+    const auto view = this->getView();
+
+
+    for(size_t z = startZ; z < end.z; z++) {
+        for(size_t y = startY; y < end.y; y++) {
+            for(size_t x = startX; x < end.x; x++) {
+                size_t index = z * nx * ny + y * nx + x;
+                auto positionLeft = ivec3(x,y,z)-directionVector;
+
+                bv += std::pow(std::abs(view.at(x,y,z)-view.at(positionLeft.x,positionLeft.y, positionLeft.z)), p);
+             }
+        }
+    }
+
+    return bv;
+
+}
+
 
 INSTANTIATE_MEMORY(HostMemory)
 } // namespace memory

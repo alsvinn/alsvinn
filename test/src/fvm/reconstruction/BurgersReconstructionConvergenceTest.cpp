@@ -205,7 +205,7 @@ TEST_P(BurgersReconstructionConvergenceTest, ReconstructionTest) {
         real L1DifferenceRight = 0.0;
         real LInftyDifferenceLeft = 0.0;
         real LInftyDifferenceRight = 0.0;
-        for (int x = 0; x < nx; ++x) {
+        for (int x = 0; x < int(nx); ++x) {
             const real a = x * dx;
             const real b = (x + 1) * dx;
 

@@ -30,6 +30,8 @@ namespace memory {
 		/// \returns the pointer to the newly created memory area.
 		///
         alsfvm::shared_ptr<Memory<real> > createScalarMemory(size_t nx, size_t ny, size_t nz);
+
+        const std::string& getPlatform() const;
 	private:
 
 		alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;

@@ -3,6 +3,7 @@
 #include "alsuq/samples/SampleGenerator.hpp"
 #include "alsuq/mpi/Config.hpp"
 #include "alsuq/run/Runner.hpp"
+#include "alsuq/stats/Statistics.hpp"
 namespace alsuq { namespace config { 
 
     class Setup {
@@ -15,6 +16,8 @@ namespace alsuq { namespace config {
     private:
 
         std::shared_ptr<samples::SampleGenerator> makeSampleGenerator(ptree& configuration);
+
+        std::vector<std::shared_ptr<stats::Statistics> > createStatistics(ptree& configuration);
         size_t readNumberOfSamples(ptree& configuration);
     };
 } // namespace config

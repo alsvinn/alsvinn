@@ -373,13 +373,15 @@ namespace alsfvm {
 
 	}
 
+
+
     ///
     /// Loops through each cell midpoint, and call function
     /// with the coordinates and the corresponding index in the volume.
     ///
     inline void for_each_midpoint(const Volume& volume,
                                   const grid::Grid& grid,
-                                  const std::function < void(real x, real y, real z, size_t index) > & function) {
+                                  const std::function < void(real x, real y, real z, size_t index, size_t i, size_t j, size_t k) > & function) {
 
         const size_t nx = volume.getTotalNumberOfXCells();
         const size_t ny = volume.getTotalNumberOfYCells();
@@ -403,13 +405,28 @@ namespace alsfvm {
                             + (j - ghostY) * nxGrid + (i - ghostX);
                     auto midPoint = midPoints[midpointIndex];
 
-                    function(midPoint.x, midPoint.y, midPoint.z, index);
+                    function(midPoint.x, midPoint.y, midPoint.z, index, i-ghostX, j-ghostY, k-ghostZ);
                 }
             }
         }
 
 
     }
+
+    ///
+    /// Loops through each cell midpoint, and call function
+    /// with the coordinates and the corresponding index in the volume.
+    ///
+    /// \note This just passes through to the other function taking a bigger lambda signature.
+    ///
+    inline void for_each_midpoint(const Volume& volume,
+                                  const grid::Grid& grid,
+                                  const std::function < void(real x, real y, real z, size_t index) > & function) {
+        for_each_midpoint(volume, grid, [&](real x, real y, real z, size_t index, size_t, size_t, size_t) {
+            function(x,y,z,index);
+        });
+    }
+
 
     ///
     /// Fill the volume based on a filler function (depending on position).

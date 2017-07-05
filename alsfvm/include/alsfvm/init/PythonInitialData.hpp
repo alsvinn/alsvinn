@@ -26,6 +26,21 @@ namespace alsfvm { namespace init {
         ///  p = ...
         /// \endcode
         ///
+        /// We also accept scripts on the form of a function. This should have
+        /// form
+        /// \code{.py}
+        /// def init_global(x_midpoints, y_midpoints, z_midpoints, dx, dy, dz, rho, ux, uy, uz, p):
+        ///
+        ///     for (n,x) in enumerate(x_midpoints):
+        ///         for (m,y) in enumerate(y_midpoints):
+        ///             for (o,z) in enumerate(z_midpoints):
+        ///                 rho[n,m,o] = ...
+        ///                 ux[n,m,o] = ...
+        ///                 uy[n,m,o] = ...
+        ///                 uz[n,m,o] = ...
+        ///                 p[n,m,o] = ...
+        /// \endcode
+        ///
         ///
         /// The momentum (m) and energy will be computed automatically.
         ///

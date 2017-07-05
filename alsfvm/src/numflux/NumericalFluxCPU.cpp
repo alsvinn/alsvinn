@@ -6,7 +6,7 @@
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include <fstream>
-#include <omp.h>
+
 #include <iostream>
 
 namespace alsfvm { namespace numflux {
@@ -40,7 +40,7 @@ namespace alsfvm { namespace numflux {
         const size_t ngy = out.getNumberOfYGhostCells();
         const size_t ngz = out.getNumberOfZGhostCells();
 
-	double waveSpeedComputed = 0;
+    real waveSpeedComputed = 0;
     auto stencil = getStencil<Flux>(Flux());
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
 #pragma omp parallel for reduction(max: waveSpeedComputed)

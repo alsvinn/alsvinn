@@ -8,6 +8,5 @@ FILE(GLOB_RECURSE SRC src/*.cpp)
 
 set_source_groups( "Header Files" "${CMAKE_CURRENT_SOURCE_DIR}/include/alsutils" "${HEADERS}")
 
-ADD_LIBRARY( alsutils ${SRC} ${HEADERS})
-
+ADD_LIBRARY( alsutils SHARED ${SRC} ${HEADERS})
 
