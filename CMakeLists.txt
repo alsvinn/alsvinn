@@ -1,4 +1,21 @@
-cmake_minimum_required (VERSION 2.8.8)
+cmake_minimum_required (VERSION 3.1.0)
+SET(ALSVINN_USE_HUNTER ON CACHE BOOL "Use Hunter for automatic compiling of additional packages")
+
+SET(HUNTER_ROOT ${CMAKE_BINARY_DIR}/hunter_root)
+
+IF(${ALSVINN_USE_HUNTER})
+	include("cmake/HunterGate.cmake")
+
+	HunterGate(
+	    URL "https://github.com/ruslo/hunter/archive/v0.15.0.tar.gz"
+	        SHA1 "5ce8ae8627d94315c47a0acf246de1c0aae2b4b9"
+		)
+ELSE()
+	MACRO(hunter_add_package args)
+	     # do nothing
+	ENDMACRO()
+ENDIF()
+
 project (alsvinn)
 MACRO(set_source_groups  folder_name directory source_files)
 	foreach(f ${source_files})
@@ -16,16 +33,41 @@ MACRO(set_source_groups  folder_name directory source_files)
 		source_group("${SRCGR}" FILES ${f})
 	endforeach()
 ENDMACRO(set_source_groups)
+
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/Modules)
 SET(ALSVINN_BUILD_TESTS ON CACHE BOOL "Build unittests (requires Gtest). HIGHLY recommended!")
-SET(ALSVINN_USE_MPI OFF CACHE BOOL "Build with MPI")
+SET(ALSVINN_USE_MPI ON CACHE BOOL "Build with MPI")
 SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
 SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
+SET(ALSVINN_PROFILE OFF CACHE BOOL "Add profiling information")
 # Add the user's chosen flags to the build for this directory.
+set (CMAKE_CXX_STANDARD 11)
+
+FIND_PACKAGE(OpenMP)
 if (NOT WIN32)
-   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment -fopenmp")
+   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment ${OpenMP_CXX_FLAGS}")
+   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+
 else()
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} /openmp")
+    # On debug in Windows we want to get floating point execeptions.
+    SET(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}  " /fp:strict ")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS}  /MP")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+            MESSAGE(STATUS "Enabling openmp with flag ${OpenMP_CXX_FLAGS}")
+            # We only want to enable openmp if we are running intel
+            
+
+            if (ALSVINN_PROFILE)
+                MESSAGE(STATUS "Enabling profiling for the intel compiler")
+                MESSAGE(STATUS "See  https://software.intel.com/en-us/node/605666 for explanation")
+                # See https://software.intel.com/en-us/node/605666
+                SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD /Qopenmp /Zi /Qparallel-source-info=2 /debug:inline-debug-info")
+            else()
+                SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp ")
+                SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /openmp")
+            endif()
+    endif()
 endif()
 
 IF(WIN32) 
@@ -35,6 +77,8 @@ IF(WIN32)
 ENDIF()
 
 
+
+
 if (ALSVINN_USE_CUDA)
     find_package(CUDA REQUIRED)
 else()
@@ -42,30 +86,40 @@ else()
 endif()
 
 IF(WIN32)
-  ADD_DEFINITIONS( -DBOOST_ALL_NO_LIB )
-  ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK )
+    ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
 ENDIF()
-
-
 # Python dependency could be made optional eventually, but for now it's
 # the only way of specify initial data
 find_package(PythonLibs REQUIRED)
-
+#set(Boost_USE_STATIC_LIBS        OFF)
 # We try to limit use of boost, but we also want to avoid having to 
 # reprogram everything.
-find_package(Boost REQUIRED COMPONENTS filesystem system chrono date_time program_options)
+#set(Boost_USE_STATIC_LIBS ON)
+#add_definitions(-DBOOST_LOG_DYN_LINK)
+
+hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log)
+find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python numpy)
+
+
+if (NOT ALSVINN_USE_HUNTER)
+   add_definitions(-DBOOST_LOG_DYN_LINK)
+endif()
+
+IF(WIN32)
+  ADD_DEFINITIONS( -DBOOST_ALL_NO_LIB )
+ENDIF()
+
+if(MSVC)
+  add_definitions(-DBOOST_ALL_NO_LIB=1)
+endif()
+
 find_package (Threads)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 if(CUDA_FOUND)
-	
-  IF(NOT WIN32)
-	#Mostly only relevant for older versions of CUDA on Linux/Mac OS X, 
-	# Basically, we do not want to use std=c++11 on CUDA
-	  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
-  ENDIF()
+
   SET(CUDA_COMPILE_PTX ON)
-  #list(APPEND CUDA_NVCC_FLAGS -O3 --use_fast_math -gencode=arch=compute_20,code="compute_20,sm_20" -Xptxas -v )
-  list(APPEND CUDA_NVCC_FLAGS_RELEASE -O3 --use_fast_math -Xptxas -v -keep  -src-in-ptx -gencode=arch=compute_30,code="compute_30,sm_30")
+  #list(APPEND CUDA_NVCC_FLAGS -O3 --use_fast_math -gencode=arch=compute_60,code="compute_60,sm_60" -Xptxas -v )
+  #list(APPEND CUDA_NVCC_FLAGS_RELEASE " -O3 --use_fast_math -Xptxas -v -keep -src-in-ptx -arch=compute_30 -code=sm_30")
   list(APPEND CUDA_NVCC_FLAGS_DEBUG -G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0)
   set(ALSVINN_HAVE_CUDA On)
   add_definitions(-DALSVINN_HAVE_CUDA)
@@ -77,18 +131,58 @@ else()
 endif()
 
 find_package(HDF5 REQUIRED)
+SET(ALSVINN_LIBRARY_DIRS "" CACHE STRING "Locations to add to the library directories")
+IF(NOT HDF5_C_LIBRARY) 
+       SET(HDF5_C_LIBRARY ${HDF5_C_LIBRARIES})
+ENDIF()
+LINK_DIRECTORIES(${ALSVINN_LIBRARY_DIRS})
 
+
+
+FIND_PACKAGE(NetCDF REQUIRED)
+INCLUDE_DIRECTORIES(AFTER ${NETCDF_C_INCLUDE_DIRS})
 if(ALSVINN_USE_MPI)
   find_package(MPI REQUIRED)
+  add_definitions(-DALSVINN_USE_MPI)
+  INCLUDE_DIRECTORIES(${MPI_INCLUDE_DIRS})
+  IF (MPI_ROOT)
+    INCLUDE_DIRECTORIES(${MPI_ROOT}/include)
+  ENDIF()
+  INCLUDE_DIRECTORIES(${MPI_C_INCLUDE_PATH})
+  IF (NOT MPI_LIBRARIES)
+    SET(MPI_LIBRARIES ${MPI_C_LIBRARIES})
+  ENDIF()
+  SET(MPI_LIBRARIES ${MPI_LIBRARIES} ${MPI_C_LIBRARIES})
 else()
   set(MPI_LIBRARIES "")
+  INCLUDE_DIRECTORIES(${HDF5_INCLUDE_DIRS})
 endif()
+
+
+# This is a bit complicated, but we want to make sure we add the proper
+# hdf5 incude dirs (Cmake doesn't give us one...)
+LIST(GET HDF5_C_LIBRARY 0 HDF5_SINGLE_LIBRARY)
+
+get_filename_component(HDF5_LIB_DIR ${HDF5_SINGLE_LIBRARY} PATH)
+get_filename_component(HDF5_ROOT_DIR ${HDF5_LIB_DIR} PATH)
+INCLUDE_DIRECTORIES(BEFORE "${HDF5_ROOT_DIR}/include")
+
+include_directories(${CMAKE_SOURCE_DIR}/alsutils/include)
+include_directories(${CMAKE_SOURCE_DIR}/alsuq/include)
+include_directories(${CMAKE_SOURCE_DIR}/alsfvm/include)
+add_subdirectory("alsutils")
 
 add_subdirectory("alsfvm")
 add_subdirectory("alsvinncli")
 add_subdirectory("alsmlmccli")
+IF(ALSVINN_USE_MPI)
+    add_subdirectory("alsuq")
+    add_subdirectory("alsuqcli")
+ENDIF()
 add_subdirectory("validation")
 if(ALSVINN_BUILD_TESTS)
+  hunter_add_package(GTest)
+  find_package(GTest REQUIRED)
   add_subdirectory("test")
   add_subdirectory("system_test")
 endif()

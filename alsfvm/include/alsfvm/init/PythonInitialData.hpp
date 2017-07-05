@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/init/InitialData.hpp"
-#include  "alsfvm/equation/CellComputer.hpp"
+#include "alsfvm/equation/CellComputer.hpp"
+#include "alsfvm/init/Parameters.hpp"
 namespace alsfvm { namespace init { 
 
 ///
@@ -12,6 +13,8 @@ namespace alsfvm { namespace init {
         ///
         /// \brief PythonInitialData constructs the object
         /// \param programString the string containing the full python program.
+        /// \param parameters a list of parameters to give to the python code
+        ///        this could eg be the adiabatic constant (gamma), some uq parameters, etc
         ///
         /// The programString should be in the following format:
         /// \code{.py}
@@ -23,10 +26,26 @@ namespace alsfvm { namespace init {
         ///  p = ...
         /// \endcode
         ///
+        /// We also accept scripts on the form of a function. This should have
+        /// form
+        /// \code{.py}
+        /// def init_global(x_midpoints, y_midpoints, z_midpoints, dx, dy, dz, rho, ux, uy, uz, p):
+        ///
+        ///     for (n,x) in enumerate(x_midpoints):
+        ///         for (m,y) in enumerate(y_midpoints):
+        ///             for (o,z) in enumerate(z_midpoints):
+        ///                 rho[n,m,o] = ...
+        ///                 ux[n,m,o] = ...
+        ///                 uy[n,m,o] = ...
+        ///                 uz[n,m,o] = ...
+        ///                 p[n,m,o] = ...
+        /// \endcode
+        ///
         ///
         /// The momentum (m) and energy will be computed automatically.
         ///
-        PythonInitialData(const std::string& programString);
+        PythonInitialData(const std::string& programString,
+            const Parameters& parameters);
 
 
         ///
@@ -47,7 +66,10 @@ namespace alsfvm { namespace init {
                             equation::CellComputer& cellComputer,
                             grid::Grid& grid);
 
+        virtual void setParameters(const Parameters& parameters);
+
     private:
+        Parameters parameters;
         std::string programString;
 
     };

@@ -1,0 +1,94 @@
+<config>
+<fvm>
+  <name>
+    brownian
+  </name>
+  <platform>cpu</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>1 0 0</upperCorner>
+    <dimension>512 1 1</dimension>
+  </grid>
+  <boundary>neumann</boundary>
+  <flux>godunov</flux>
+  <endTime>0.2</endTime>
+  <equation>burgers</equation>
+  <reconstruction>none</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
+  <initialData>
+    <python>brownian.py</python>
+
+    <parameters>
+      <parameter>
+        <name>X</name>
+        <length>1048576</length>
+        <values><value>0</value></values>
+      </parameter>
+    </parameters>
+  </initialData>
+
+<writer>
+  <type>netcdf</type>
+  <basename>brownian</basename>
+  <numberOfSaves>1</numberOfSaves>
+</writer>
+</fvm>
+<uq>
+<samples>1</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>X</name>
+      <length>1048576</length>
+      <type>normal</type>
+    </parameter>
+  </parameters>
+  <stats>
+        <stat>
+      <name>
+
+	structure_basic
+      </name>
+      <numberOfSaves>1</numberOfSaves>
+      <direction>0</direction>
+      <numberOfH>32</numberOfH>
+      <p>1</p>
+      <writer>
+	<type>netcdf</type>
+        <basename>brownian</basename>
+      </writer>
+    </stat>
+    <stat>
+  <name>
+
+    structure_basic
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <direction>0</direction>
+  <numberOfH>32</numberOfH>
+  <p>2</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>brownian</basename>
+  </writer>
+</stat>
+
+<stat>
+<name>
+
+structure_basic
+</name>
+<numberOfSaves>1</numberOfSaves>
+<direction>0</direction>
+<numberOfH>32</numberOfH>
+<p>3</p>
+<writer>
+<type>netcdf</type>
+<basename>brownian</basename>
+</writer>
+</stat>
+  </stats>
+
+</uq>
+</config>

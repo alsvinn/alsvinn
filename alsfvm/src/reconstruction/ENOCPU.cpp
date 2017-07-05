@@ -1,5 +1,5 @@
 #include "alsfvm/reconstruction/ENOCPU.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include <cassert>
 #include <cmath>
 #include "alsfvm/reconstruction/ENOCoefficients.hpp"
@@ -13,14 +13,12 @@ namespace alsfvm { namespace reconstruction {
 template<int order>
 ENOCPU<order>::ENOCPU(alsfvm::shared_ptr<memory::MemoryFactory> &memoryFactory,
                       size_t nx, size_t ny, size_t nz)
+    : memoryFactory(memoryFactory)
 {
-	size_t ghostX = getNumberOfGhostCells();
-	size_t ghostY = ny > 1 ? getNumberOfGhostCells() : 0;
-	size_t ghostZ = nz > 1 ? getNumberOfGhostCells() : 0;
-    for(size_t i = 0; i < dividedDifferences.size(); i++) {
-        dividedDifferences[i] = memoryFactory->createScalarMemory(nx + 2*ghostX, ny + 2*ghostY, nz + 2*ghostZ);
-        dividedDifferences[i]->makeZero();
-    }
+    size_t ghostX = getNumberOfGhostCells();
+    size_t ghostY = ny > 1 ? getNumberOfGhostCells() : 0;
+    size_t ghostZ = nz > 1 ? getNumberOfGhostCells() : 0;
+    makeDividedDifferenceArrays(nx + 2*ghostX, ny + 2*ghostY, nz + 2*ghostZ);
 }
 
 template<int order>
@@ -32,10 +30,18 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 {
 	// We often do compute order-1.
 	static_assert(order > 0, "Can not do ENO reconstruction of order 0.");
+    const size_t nx = inputVariables.getTotalNumberOfXCells();
+    const size_t ny = inputVariables.getTotalNumberOfYCells();
+    const size_t nz = inputVariables.getTotalNumberOfZCells();
 
 	if (direction > 2) {
 		THROW("Direction can only be 0, 1 or 2, was given: " << direction);
 	}
+
+    if (inputVariables.getScalarMemoryArea(0)->getSize() != dividedDifferences[0]->getSize()) {
+        makeDividedDifferenceArrays(nx, ny, nz);
+    }
+
 	const ivec3 directionVector(direction == 0, direction == 1, direction == 2);
 
 	// make divided differences
@@ -53,9 +59,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 
 	// Now we go on to do the actual reconstruction, choosing the stencil for
 	// each point.
-	const size_t nx = inputVariables.getTotalNumberOfXCells();
-	const size_t ny = inputVariables.getTotalNumberOfYCells();
-	const size_t nz = inputVariables.getTotalNumberOfZCells();
+
 
 	// Sanity check, we need at least ONE point in the interior.
 	assert(int(nx) > 2 * directionVector.x * order);
@@ -75,6 +79,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 	for (size_t i = 0; i < order - 1; i++) {
 		dividedDifferencesPointers[i] = dividedDifferences[i]->getPointer();
 	}
+
 
 	for (size_t var = 0; var < inputVariables.getNumberOfVariables(); var++) {
 		const real* pointerIn = inputVariables.getScalarMemoryArea(var)->getPointer();
@@ -151,6 +156,16 @@ size_t ENOCPU<order>::getNumberOfGhostCells()
 }
 
 template<int order>
+void ENOCPU<order>::makeDividedDifferenceArrays(size_t nx, size_t ny, size_t nz)
+{
+
+    for(size_t i = 0; i < dividedDifferences.size(); i++) {
+        dividedDifferences[i] = memoryFactory->createScalarMemory(nx, ny, nz);
+        dividedDifferences[i]->makeZero();
+    }
+}
+
+template<int order>
 void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& input,
                                               const ivec3& direction,
                                               size_t level,
@@ -161,6 +176,7 @@ void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& input,
     const size_t nx = input.getSizeX();
     const size_t ny = input.getSizeY();
     const size_t nz = input.getSizeZ();
+
 
     // Sanity check, we need at least ONE point in the interior.
     assert(nx > 2*direction.x * level);
@@ -198,6 +214,8 @@ template class ENOCPU<1>;
 template class ENOCPU<2>;
 template class ENOCPU<3>;
 template class ENOCPU<4>;
+
+
 
 }
 }

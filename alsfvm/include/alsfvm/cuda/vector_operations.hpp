@@ -1,5 +1,5 @@
 #pragma once
-
+#include "alsfvm/types.hpp"
 /// 
 /// Various vector operations in CUDA
 ///
@@ -94,7 +94,41 @@ namespace alsfvm {
 		///
 		template<class T>
 		void divide(T* result, const T* a, T scalar, size_t size);
+        
+        //! Adds the memory with coefficients to this memory area
+        //! Here we compute the sum
+        //! \f[ v_1^{\mathrm{new}}=a_1v_1+a_2v_2+a_3v_3+a_4v_4+a_5v_5+a_6v_6\f]
+        //! where \f$v_1\f$ is the volume being operated on.
+        template<class T>
+        void add_linear_combination(T a1, T* v1,
+            T a2, const T* v2,
+            T a3, const T* v3,
+            T a4, const T* v4,
+            T a5, const T* v5,
+                                    size_t size);
+
+        //! Basically runs
+        //!
+        //! \f[a += pow(b,power)\f]
+        template<class T>
+        void add_power(T* a, const T* b, double power, size_t size);
 
 
+        //! Basically runs
+        //!
+        //! \f[a += pow(b,power)\f]
+        template<class T>
+        void subtract_power(T* a, const T* b, double power, size_t size);
+
+
+        template<class T>
+        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz, int p,
+                                  const ivec3& start, const ivec3& end);
+
+        template<class T>
+        T compute_total_variation(const T* a, size_t nx, size_t ny, size_t nz, size_t direction, int p,
+                                  const ivec3& start, const ivec3& end);
 	}
+
+
 }

@@ -2,7 +2,7 @@
 #include "alsfvm/volume/Volume.hpp"
 #include <functional>
 #include <array>
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include "alsfvm/grid/Grid.hpp"
 ///
 /// This file contains for_each functions for volumes
@@ -48,7 +48,7 @@ namespace alsfvm {
         /// \param offsetStart the triple deciding the starting index
         /// \param offsetEnd the offset for end (must be non-negative!)
         ///
-        template<size_t direction>
+        template<size_t direction, bool parallel=false>
         inline void for_each_cell_index_with_neighbours(const Volume& in,
                                                         const std::function<void(size_t leftIndex, size_t middleIndex, size_t rightIndex)>& function,
                                                         ivec3 offsetStart={0,0,0},
@@ -63,6 +63,7 @@ namespace alsfvm {
             const size_t nx = in.getTotalNumberOfXCells() - offsetEnd[0];
             const size_t ny = in.getTotalNumberOfYCells() - offsetEnd[1];
             const size_t nz = in.getTotalNumberOfZCells() - offsetEnd[2];
+            
             for (size_t z = offsetStart[2]; z < nz; z++) {
                 for (size_t y = offsetStart[1]; y < ny; y++) {
                     for (size_t x = offsetStart[0]; x < nx; x++) {
@@ -76,6 +77,33 @@ namespace alsfvm {
             }
         }
 
+
+        ///
+        /// Loops through all possible cell indexes in a cache optimal manner.
+        /// \param in the volume to loop over
+        /// \param function the function to call
+        /// \param offsetStart the triple deciding the starting index
+        /// \param offsetEnd the offset for end (must be non-negative!)
+        /// \param direction the direction to use
+        /// \note Untemplated version for ease of use, indirectly calls the template version
+        ///
+        inline void for_each_cell_index_with_neighbours(size_t direction, const Volume& in,
+            const std::function<void(size_t leftIndex, size_t middleIndex, size_t rightIndex)>& function,
+            ivec3 offsetStart = { 0,0,0 },
+            ivec3 offsetEnd = { 0,0,0 }) {
+            if (direction == 0) {
+                for_each_cell_index_with_neighbours<0>(in, function, offsetStart, offsetEnd);
+            }
+            else if (direction == 1) {
+                for_each_cell_index_with_neighbours<1>(in, function, offsetStart, offsetEnd);
+            }
+            else if (direction == 2) {
+                for_each_cell_index_with_neighbours<2>(in, function, offsetStart, offsetEnd);
+            }
+            else {
+                THROW("Unsupported direction: " << direction);
+            }
+        }
 
 
 
@@ -92,6 +120,17 @@ namespace alsfvm {
             return VariableStruct(in[0][index]);
         }
 
+
+        template<class VariableStruct>
+        inline VariableStruct expandVariableStruct(const std::array<const real*, 3>& in, size_t index) {
+            return VariableStruct(in[0][index], in[1][index], in[2][index]);
+        }
+
+
+        template<class VariableStruct>
+        inline VariableStruct expandVariableStruct(const std::array<const real*, 2>& in, size_t index) {
+            return VariableStruct(in[0][index], in[1][index]);
+        }
 
 		template<class VariableStruct>
 		inline VariableStruct expandVariableStruct(const std::array<const real*, 5>& in, size_t index) {
@@ -128,6 +167,27 @@ namespace alsfvm {
 			out[2][index] = inAsRealPointer[2];
 			out[3][index] = inAsRealPointer[3];
 		}
+
+
+        template<class VariableStruct>
+        inline void saveVariableStruct(const VariableStruct& in, size_t index, std::array<real*, 3>& out) {
+            real* inAsRealPointer = (real*)&in;
+
+            out[0][index] = inAsRealPointer[0];
+            out[1][index] = inAsRealPointer[1];
+            out[2][index] = inAsRealPointer[2];
+
+        }
+
+        template<class VariableStruct>
+        inline void saveVariableStruct(const VariableStruct& in, size_t index, std::array<real*, 2>& out) {
+            real* inAsRealPointer = (real*)&in;
+
+            out[0][index] = inAsRealPointer[0];
+            out[1][index] = inAsRealPointer[1];
+
+        }
+
 
 
 		template<class VariableStruct>
@@ -313,13 +373,15 @@ namespace alsfvm {
 
 	}
 
+
+
     ///
     /// Loops through each cell midpoint, and call function
     /// with the coordinates and the corresponding index in the volume.
     ///
     inline void for_each_midpoint(const Volume& volume,
                                   const grid::Grid& grid,
-                                  const std::function < void(real x, real y, real z, size_t index) > & function) {
+                                  const std::function < void(real x, real y, real z, size_t index, size_t i, size_t j, size_t k) > & function) {
 
         const size_t nx = volume.getTotalNumberOfXCells();
         const size_t ny = volume.getTotalNumberOfYCells();
@@ -343,13 +405,28 @@ namespace alsfvm {
                             + (j - ghostY) * nxGrid + (i - ghostX);
                     auto midPoint = midPoints[midpointIndex];
 
-                    function(midPoint.x, midPoint.y, midPoint.z, index);
+                    function(midPoint.x, midPoint.y, midPoint.z, index, i-ghostX, j-ghostY, k-ghostZ);
                 }
             }
         }
 
 
     }
+
+    ///
+    /// Loops through each cell midpoint, and call function
+    /// with the coordinates and the corresponding index in the volume.
+    ///
+    /// \note This just passes through to the other function taking a bigger lambda signature.
+    ///
+    inline void for_each_midpoint(const Volume& volume,
+                                  const grid::Grid& grid,
+                                  const std::function < void(real x, real y, real z, size_t index) > & function) {
+        for_each_midpoint(volume, grid, [&](real x, real y, real z, size_t index, size_t, size_t, size_t) {
+            function(x,y,z,index);
+        });
+    }
+
 
     ///
     /// Fill the volume based on a filler function (depending on position).

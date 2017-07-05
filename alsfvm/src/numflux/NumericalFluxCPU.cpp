@@ -1,43 +1,16 @@
 #include "alsfvm/numflux/NumericalFluxCPU.hpp"
 #include "alsfvm/numflux/numerical_flux_list.hpp"
+#include "alsfvm/numflux/numflux_util.hpp"
 #include <cassert>
 #include "alsfvm/numflux/numflux_util.hpp"
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include <fstream>
-#include <omp.h>
+
 #include <iostream>
 
 namespace alsfvm { namespace numflux {
 
-    template<class Flux, class Equation, int direction>
-    real computeNetFlux(const Equation& eq,
-                  size_t middleIndex,
-                  size_t rightIndex,
-                  typename Equation::ConstViews & left,
-                  typename Equation::ConstViews & right,
-                  typename Equation::ConservedVariables& out)
-    {
-
-        const ivec3 directionVector(direction == 0, direction==1, direction==2);
-        // This needs to be done with some smart template recursion
-
-        // This is the value for j+1/2
-        typename Equation::AllVariables rightJpHf = eq.fetchAllVariables(left, rightIndex);
-
-
-        // This is the value for j+1/2
-        typename Equation::AllVariables leftJpHf = eq.fetchAllVariables(right, middleIndex);
-
-
-
-        // F(U_l, U_r)
-        typename Equation::ConservedVariables fluxMiddleRight;
-        real waveSpeed = Flux::template computeFlux<direction>(eq, leftJpHf, rightJpHf, fluxMiddleRight);
-
-        out = fluxMiddleRight;
-		return waveSpeed;
-    }
 
     template<class Flux, class Equation, size_t direction>
     void computeNetFlux(const Equation& eq, const volume::Volume& left, const volume::Volume& right,
@@ -67,26 +40,32 @@ namespace alsfvm { namespace numflux {
         const size_t ngy = out.getNumberOfYGhostCells();
         const size_t ngz = out.getNumberOfZGhostCells();
 
-	double waveSpeedComputed = 0;
+    real waveSpeedComputed = 0;
+    auto stencil = getStencil<Flux>(Flux());
         for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
 #pragma omp parallel for reduction(max: waveSpeedComputed)
             for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
                 for(int x = int(ngx) - xDir; x < int(nx) - int(ngx); ++x) {
-                    const auto threadId = omp_get_thread_num();
-                    const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
-                    const size_t middleIndex = outViews.index(x, y, z);
+                    
+                    // Now we need to build up the stencil for this set of indices
+                    decltype(stencil) indices;
+                    for (size_t index = 0; index < stencil.size(); ++index) {
 
-
+                        indices[index] = outViews.index(
+                            x + xDir * stencil[index],
+                            y + yDir * stencil[index],
+                            z + zDir * stencil[index]);
+                    }
+                  
                     typename Equation::ConservedVariables flux;
-                    const real waveSpeedLocal = computeNetFlux<Flux, Equation, direction>(
+                    const real waveSpeedLocal = computeFluxForStencil<Flux, Equation, direction>(
                                 eq,
-                                middleIndex,
-                                rightIndex,
+                                indices,
                                 leftViews,
                                 rightViews,
                                 flux);
-
-                    eq.setViewAt(temporaryViews, middleIndex, (-1.0)*flux);
+                    auto outIndex = outViews.index(x, y, z);
+                    eq.setViewAt(temporaryViews, outIndex, (-1.0)*flux);
                     waveSpeedComputed = std::max(waveSpeedComputed, waveSpeedLocal);
                 }
             }
@@ -116,31 +95,18 @@ namespace alsfvm { namespace numflux {
                                                         alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
                                                         const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters,
                                                         alsfvm::shared_ptr<DeviceConfiguration> &deviceConfiguration)
-        : reconstruction(reconstruction), parameters(static_cast<typename Equation::Parameters&>(simulatorParameters->getEquationParameters()))
+        : volumeFactory(Equation::name, alsfvm::make_shared<memory::MemoryFactory>(deviceConfiguration)),
+          reconstruction(reconstruction), parameters(static_cast<typename Equation::Parameters&>(simulatorParameters->getEquationParameters()))
     {
         static_assert(dimension > 0, "We only support positive dimension!");
         static_assert(dimension < 4, "We only support dimension up to 3");
 
-        alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory(new memory::MemoryFactory(deviceConfiguration));
-        volume::VolumeFactory volumeFactory(Equation::name, memoryFactory);
 
-        left = volumeFactory.createConservedVolume(grid.getDimensions().x,
-                                                   grid.getDimensions().y,
-                                                   grid.getDimensions().z,
-                                                   getNumberOfGhostCells());
-        left->makeZero();
+        createVolumes(grid.getDimensions().x,
+                      grid.getDimensions().y,
+                      grid.getDimensions().z,
+                      getNumberOfGhostCells());
 
-        right = volumeFactory.createConservedVolume(grid.getDimensions().x,
-                                                   grid.getDimensions().y,
-                                                   grid.getDimensions().z,
-                                                    getNumberOfGhostCells());
-
-        right->makeZero();
-
-        temporaryVolume = volumeFactory.createConservedVolume(grid.getDimensions().x,
-                                                              grid.getDimensions().y,
-                                                              grid.getDimensions().z,
-                                                              getNumberOfGhostCells());
     }
 
     template<class Flux, class Equation, size_t dimension>
@@ -152,6 +118,16 @@ namespace alsfvm { namespace numflux {
         Equation eq(parameters);
         static_assert(dimension > 0, "We only support positive dimension!");
         static_assert(dimension < 4, "We only support dimension up to 3");
+
+        if (conservedVariables.getTotalNumberOfXCells()!= left->getTotalNumberOfXCells()
+             || conservedVariables.getTotalNumberOfYCells() != left->getTotalNumberOfYCells()
+                || conservedVariables.getTotalNumberOfZCells() != left->getTotalNumberOfZCells()) {
+
+            createVolumes(conservedVariables.getNumberOfXCells(),
+                          conservedVariables.getNumberOfYCells(),
+                          conservedVariables.getNumberOfZCells(),
+                          conservedVariables.getNumberOfXGhostCells());
+        }
 
         output.makeZero();
 
@@ -176,8 +152,30 @@ namespace alsfvm { namespace numflux {
 	///
     template<class Flux, class Equation, size_t dimension>
     size_t NumericalFluxCPU<Flux, Equation, dimension>::getNumberOfGhostCells() {
-        return reconstruction->getNumberOfGhostCells();
+        return std::max(getStencil<Flux>(Flux()).size()-1, reconstruction->getNumberOfGhostCells());
 
+    }
+
+    template<class Flux, class Equation, size_t dimension>
+    void NumericalFluxCPU<Flux, Equation, dimension>::createVolumes(size_t nx, size_t ny, size_t nz, size_t ngc)
+    {
+        left = volumeFactory.createConservedVolume(nx,
+                                                   ny,
+                                                   nz,
+                                                   ngc);
+        left->makeZero();
+
+        right = volumeFactory.createConservedVolume(nx,
+                                                    ny,
+                                                    nz,
+                                                    ngc);
+
+        right->makeZero();
+
+        temporaryVolume = volumeFactory.createConservedVolume(nx,
+                                                              ny,
+                                                              nz,
+                                                              ngc);
     }
 
     ALSFVM_FLUX_INSTANTIATE(NumericalFluxCPU)

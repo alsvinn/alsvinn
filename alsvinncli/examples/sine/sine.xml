@@ -1,16 +1,17 @@
+<config>
 <fvm>
   <name>
     sine
   </name>
   <platform>cpu</platform>
   <grid>
-    <lowerCorner>0 0 0</lowerCorner>
+    <lowerCorner>-1 0 0</lowerCorner>
     <upperCorner>1 0 0</upperCorner>
     <dimension>4096 1 1</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>godunov</flux>
-  <endTime>0.5</endTime>
+  <endTime>1.2</endTime>
   <equation>burgers</equation>
   <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
@@ -19,8 +20,9 @@
     <python>sine.py</python>
   </initialData>
   <writer>
-    <type>hdf5</type>
+    <type>netcdf</type>
     <basename>sine</basename>
-    <numberOfSaves>10</numberOfSaves>
+    <numberOfSaves>300</numberOfSaves>
   </writer>
 </fvm>
+</config>

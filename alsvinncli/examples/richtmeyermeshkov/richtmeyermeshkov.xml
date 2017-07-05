@@ -1,3 +1,4 @@
+<config>
 <fvm>
   <name>
     rm
@@ -11,7 +12,7 @@
   <boundary>periodic</boundary>
   <flux>HLL3</flux>
   <endTime>4</endTime>
-  <equation>euler</equation>
+  <equation>euler2</equation>
   <equationParameters>
     <gamma>1.4</gamma>
   </equationParameters>
@@ -20,10 +21,83 @@
   <integrator>auto</integrator>
   <initialData>
     <python>richtmeyermeshkov.py</python>
+    <parameters>
+      <parameter>
+        <name>a</name>
+        <length>40</length>
+        <values><value>0</value></values>
+      </parameter>
+    </parameters>
   </initialData>
   <writer>
-    <type>hdf5</type>
+    <type>netcdf</type>
     <basename>rm_cuda</basename>
     <numberOfSaves>10</numberOfSaves>
   </writer>
 </fvm>
+<uq>
+  <samples>2</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>a</name>
+      <length>20</length>
+      <type>uniform</type>
+    </parameter>
+  </parameters>
+  <stats>
+  <stat>
+    <name>
+      meanvar
+    </name>
+    <numberOfSaves>1</numberOfSaves>
+    <writer>
+      <type>netcdf</type>
+      <basename>rm</basename>
+    </writer>
+    </stat>
+
+<stat>
+  <name>
+    structure_basic
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <direction>0</direction>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>rm_x</basename>
+  </writer>
+  </stat>
+
+<stat>
+  <name>
+    structure_basic
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <direction>1</direction>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>rm_y</basename>
+  </writer>
+  </stat>
+
+<stat>
+  <name>
+    structure_cube
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>rm_cube</basename>
+  </writer>
+  </stat>
+  </stats>
+</uq>
+
+</config>

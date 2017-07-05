@@ -3,7 +3,8 @@
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/reconstruction/WENO2.hpp"
 #include "alsfvm/reconstruction/WENOF2.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsfvm/reconstruction/MC.hpp"
+#include "alsutils/error/Exception.hpp"
 
 namespace alsfvm { namespace reconstruction {
 
@@ -39,8 +40,8 @@ void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(cons
 
     // Sanity check, we need at least ONE point in the interior.
     assert(int(nx) > 2 * directionVector.x * 2);
-    assert((directionVector.y == 0) || (int(ny) > ngc * directionVector.y * 2));
-    assert((directionVector.z == 0) || (int(nz) > ngc * directionVector.z * 2));
+    assert((directionVector.y == 0) || (ny > ngc * directionVector.y * 2));
+    assert((directionVector.z == 0) || (nz > ngc * directionVector.z * 2));
 
     const size_t startX = directionVector.x * (ngc - 1);
     const size_t startY = directionVector.y * (ngc - 1);
@@ -74,10 +75,22 @@ size_t ReconstructionCPU<ReconstructionType, Equation>::getNumberOfGhostCells()
     return ReconstructionType::getNumberOfGhostCells();
 }
 
-template class ReconstructionCPU<WENO2<equation::euler::Euler>, equation::euler::Euler>;
-template class ReconstructionCPU<WENOF2<equation::euler::Euler>, equation::euler::Euler>;
+template class ReconstructionCPU<WENO2 <equation::euler::Euler<1>>, equation::euler::Euler<1>>;
+template class ReconstructionCPU<WENOF2<equation::euler::Euler<1>>, equation::euler::Euler<1>>;
+template class ReconstructionCPU<MC<equation::euler::Euler<1>>, equation::euler::Euler<1>>;
+
+template class ReconstructionCPU<WENO2 <equation::euler::Euler<2>>, equation::euler::Euler<2>>;
+template class ReconstructionCPU<WENOF2<equation::euler::Euler<2>>, equation::euler::Euler<2>>;
+template class ReconstructionCPU<MC<equation::euler::Euler<2>>, equation::euler::Euler<2>>;
+
+template class ReconstructionCPU<WENO2 <equation::euler::Euler<3>>, equation::euler::Euler<3>>;
+template class ReconstructionCPU<WENOF2<equation::euler::Euler<3>>, equation::euler::Euler<3>>;
+template class ReconstructionCPU<MC<equation::euler::Euler<3>>, equation::euler::Euler<3>>;
 
 
 template class ReconstructionCPU<WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>;
+template class ReconstructionCPU<MC<equation::burgers::Burgers>, equation::burgers::Burgers>;
+
+
 }
 }

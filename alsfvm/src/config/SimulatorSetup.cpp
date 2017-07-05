@@ -1,18 +1,20 @@
+#include "alsfvm/types.hpp"
 #include "alsfvm/config/SimulatorSetup.hpp"
 #include <fstream>
 #include "alsfvm/config/XMLParser.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include "alsfvm/init/PythonInitialData.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include "alsfvm/io/HDF5Writer.hpp"
 #include "alsfvm/io/FixedIntervalWriter.hpp"
 #include <boost/property_tree/xml_parser.hpp>
 #include "alsfvm/init/PythonInitialData.hpp"
 #include <boost/filesystem.hpp>
 #include "alsfvm/equation/euler/EulerParameters.hpp"
+#include "alsfvm/diffusion/DiffusionFactory.hpp"
 #include <set>
-
+#include "alsutils/log.hpp"
 namespace alsfvm { namespace config {
 // Example xml:
 // <fvm>
@@ -38,35 +40,38 @@ namespace alsfvm { namespace config {
 // </fvm>
 
 namespace {
-    template<class T>
-    vec3<T> parseVector(const std::string& vectorAsString) {
-        std::vector<std::string> splitString;
-        boost::split(splitString, vectorAsString, boost::is_any_of("\t "));
+template<class T>
+vec3<T> parseVector(const std::string& vectorAsString) {
+    std::vector<std::string> splitString;
+    boost::split(splitString, vectorAsString, boost::is_any_of("\t "));
 
-        T a = boost::lexical_cast<T>(splitString[0]);
-        T b = boost::lexical_cast<T>(splitString[1]);
-        T c = boost::lexical_cast<T>(splitString[2]);
+    T a = boost::lexical_cast<T>(splitString[0]);
+    T b = boost::lexical_cast<T>(splitString[1]);
+    T c = boost::lexical_cast<T>(splitString[2]);
 
-        return vec3<T>(a, b, c);
+    return vec3<T>(a, b, c);
 
-    }
 }
-alsfvm::shared_ptr<simulator::Simulator>
-    SimulatorSetup::readSetupFromFile(const std::string &filename)
+}
+
+std::pair<alsfvm::shared_ptr<simulator::Simulator>,
+alsfvm::shared_ptr<init::InitialData> >
+SimulatorSetup::readSetupFromFile(const std::string &filename)
 {
     basePath = boost::filesystem::path(boost::filesystem::absolute(filename)).parent_path().string();
     std::ifstream file(filename);
     XMLParser parser;
 
 
-    XMLParser::ptree configuration;
-    parser.parseFile(file, configuration);
+    XMLParser::ptree configurationBase;
+    parser.parseFile(file, configurationBase);
+    auto configuration = configurationBase.get_child("config");
 
 
     std::set<std::string> supportedNodes =
     {
         "name", "platform", "boundary", "flux", "endTime", "equation", "equationParameters",
-        "reconstruction", "cfl", "integrator", "initialData", "writer", "grid"
+        "reconstruction", "cfl", "integrator", "initialData", "writer", "grid", "diffusion"
     };
 
     for (auto node : configuration.get_child("fvm")) {
@@ -105,31 +110,38 @@ alsfvm::shared_ptr<simulator::Simulator>
     auto cellComputerFactory = alsfvm::make_shared<equation::CellComputerFactory>(parameters, deviceConfiguration);
 
 
-
+    auto diffusionOperator = createDiffusion(configuration, *grid, *parameters, deviceConfiguration, memoryFactory, *volumeFactory);
 
 
 
     auto simulator = alsfvm::make_shared<simulator::Simulator>(*parameters,
-                         grid,
-                         *volumeFactory,
-                         *integratorFactory,
-                         *boundaryFactory,
-                         *numericalFluxFactory,
-                         *cellComputerFactory,
-                         memoryFactory,
-                         initialData,
-                         endTime,
-						 deviceConfiguration,
-						 equation);
+                                                               grid,
+                                                               *volumeFactory,
+                                                               *integratorFactory,
+                                                               *boundaryFactory,
+                                                               *numericalFluxFactory,
+                                                               *cellComputerFactory,
+                                                               memoryFactory,
+                                                               endTime,
+                                                               deviceConfiguration,
+                                                               equation,
+                                                               diffusionOperator);
 
-    simulator->addWriter(writer);
+    if (writer) {
+        simulator->addWriter(writer);
+    }
 
     auto timestepAdjuster = alsfvm::dynamic_pointer_cast<integrator::TimestepAdjuster>(writer);
     if (timestepAdjuster) {
         simulator->addTimestepAdjuster(timestepAdjuster);
     }
 
-    return simulator;
+    return std::make_pair(simulator, initialData);
+}
+
+void SimulatorSetup::setWriterFactory(std::shared_ptr<io::WriterFactory> writerFactory)
+{
+    this->writerFactory = writerFactory;
 }
 
 
@@ -161,7 +173,9 @@ std::string SimulatorSetup::readEquation(const SimulatorSetup::ptree &configurat
 
 std::string SimulatorSetup::readReconstruciton(const SimulatorSetup::ptree &configuration)
 {
-    return configuration.get<std::string>("fvm.reconstruction");
+    auto reconstruction = configuration.get<std::string>("fvm.reconstruction");
+    boost::trim(reconstruction);
+    return reconstruction;
 }
 
 real SimulatorSetup::readCFLNumber(const SimulatorSetup::ptree &configuration)
@@ -207,10 +221,10 @@ alsfvm::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(const Si
             THROW("Could not open file: " << pythonFile);
         }
         std::string pythonProgram((std::istreambuf_iterator<char>(file)),
-                         std::istreambuf_iterator<char>());
+                                  std::istreambuf_iterator<char>());
 
-
-        return alsfvm::shared_ptr<init::InitialData>(new init::PythonInitialData(pythonProgram));
+        auto parameters = readParameters(configuration);
+        return alsfvm::shared_ptr<init::InitialData>(new init::PythonInitialData(pythonProgram, parameters));
     }
 
     THROW("Unknown initial data.");
@@ -218,23 +232,24 @@ alsfvm::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(const Si
 
 alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(const SimulatorSetup::ptree &configuration)
 {
-    std::string type = configuration.get<std::string>("fvm.writer.type");
-    std::string basename = configuration.get<std::string>("fvm.writer.basename");
-    alsfvm::shared_ptr<io::Writer> baseWriter;
-    if (type == "hdf5") {
-        baseWriter.reset(new io::HDF5Writer(basename));
-    } else {
-        THROW("Unknown writer: " << type);
-    }
+    auto fvmNode  = configuration.get_child("fvm");
+    if (fvmNode.find("writer") != fvmNode.not_found()) {
 
-    const auto& writerNode = configuration.get_child("fvm.writer");
-    if ( writerNode.find("numberOfSaves") != writerNode.not_found() ) {
-        size_t numberOfSaves = writerNode.get<size_t>("numberOfSaves");
-        real endTime = readEndTime(configuration);
-        real timeInterval = endTime / numberOfSaves;
-        return alsfvm::shared_ptr<io::Writer>(new io::FixedIntervalWriter(baseWriter, timeInterval, endTime));
+        std::string type = configuration.get<std::string>("fvm.writer.type");
+        std::string basename = configuration.get<std::string>("fvm.writer.basename");
+        auto baseWriter = writerFactory->createWriter(type, basename);
+        ALSVINN_LOG(INFO, "Adding writer " << basename);
+        const auto& writerNode = configuration.get_child("fvm.writer");
+        if ( writerNode.find("numberOfSaves") != writerNode.not_found() ) {
+            size_t numberOfSaves = writerNode.get<size_t>("numberOfSaves");
+            real endTime = readEndTime(configuration);
+            real timeInterval = endTime / numberOfSaves;
+            return alsfvm::shared_ptr<io::Writer>(new io::FixedIntervalWriter(baseWriter, timeInterval, endTime));
+        }
+
+        return baseWriter;
     }
-    return baseWriter;
+    return alsfvm::shared_ptr<io::Writer>();
 }
 
 std::string SimulatorSetup::readPlatform(const SimulatorSetup::ptree &configuration)
@@ -247,6 +262,54 @@ std::string SimulatorSetup::readBoundary(const SimulatorSetup::ptree &configurat
     return configuration.get<std::string>("fvm.boundary");
 }
 
+init::Parameters SimulatorSetup::readParameters(const SimulatorSetup::ptree& configuration)
+{
+    init::Parameters parameters;
+    auto fvmNode = configuration.get_child("fvm");
+    // first read in all equation parameters:
+    if (fvmNode.find("equationParameters") != fvmNode.not_found()) {
+        auto equationParameters = fvmNode.get_child("equationParameters");
+        for (auto equationParameter : equationParameters) {
+            parameters.addParameter(equationParameter.first, { real(std::atof(equationParameter.second.data().c_str())) });
+        }
+    }
+
+    auto initial = fvmNode.get_child("initialData");
+    if (initial.find("parameters") != initial.not_found()) {
+        auto initParameters = initial.get_child("parameters");
+
+        for (auto parameter : initParameters) {
+            auto name = parameter.second.get<std::string>("name");
+            auto length = parameter.second.get<int>("length");
+            std::vector<real    > value;
+
+            if (length == 1) {
+                value.resize(1);
+                value[0] = parameter.second.get<real>("value");
+            }
+            else {
+                ALSVINN_LOG(INFO, "Reading parameter array");
+                // We are given an array, and we read everything in
+                for (auto valueItem : parameter.second.get_child("values")) {
+
+                    if (boost::iequals(valueItem.first, "value")) {
+                        value.push_back(valueItem.second.get_value<real>());
+                        ALSVINN_LOG(INFO, "Read value " << value.back());
+                    }
+                }
+
+                if (value.size() == 1) {
+                    // We only got a single value
+                    value.resize(length, value[0]);
+                }
+            }
+
+            parameters.addParameter(name, value);
+        }
+    }
+    return parameters;
+}
+
 void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree &configuration, simulator::SimulatorParameters &parameters)
 {
 
@@ -255,7 +318,7 @@ void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree &configu
     auto fvmNode = configuration.get_child("fvm");
     if (fvmNode.find("equationParameters") != fvmNode.not_found()) {
         const auto equationName = readEquation(configuration);
-        if (equationName== "euler") {
+        if (equationName== "euler1" || equationName == "euler2" || equationName == "euler3") {
 
             auto& eulerParameters = static_cast<equation::euler::EulerParameters&>(equationParameters);
 
@@ -268,10 +331,39 @@ void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree &configu
     }
 }
 
+alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion(const SimulatorSetup::ptree& configuration,
+                                                                                 const grid::Grid& grid,
+                                                                                 const simulator::SimulatorParameters& simulatorParameters,
+                                                                                 alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration,
+                                                                                 alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+                                                                                 volume::VolumeFactory& volumeFactory)
+{
+    // Should look like this:
+    //   <diffusion>
+    //     <name>name</name>
+    //     <reconstruction>reconstruction</reconstruction>
+    //  </diffusion>
+    auto fvmNode = configuration.get_child("fvm");
+    std::string name = "none";
+    std::string reconstruction = "none";
+    if (fvmNode.find("diffusion") != fvmNode.not_found()) {
+
+        name = configuration.get<std::string>("fvm.diffusion.name");
+        boost::trim(name);
+        reconstruction = configuration.get<std::string>("fvm.diffusion.reconstruction");
+        boost::trim(reconstruction);
+    }
+
+    diffusion::DiffusionFactory diffusionFactory;
+
+    return diffusionFactory.createDiffusionOperator(readEquation(configuration), name, reconstruction, grid, simulatorParameters,
+                                                    deviceConfiguration, memoryFactory, volumeFactory);
+}
+
 std::string SimulatorSetup::readFlux(const SimulatorSetup::ptree &configuration)
 {
     return configuration.get<std::string>("fvm.flux");
 }
 
 }
-}
+                 }

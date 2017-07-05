@@ -6,7 +6,17 @@
 #include <algorithm>
 #include "alsfvm/memory/memory_utils.hpp"
 #include "alsfvm/cuda/vector_operations.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
+#include "alsfvm/memory/HostMemory.hpp"
+
+#define CHECK_SIZE_AND_HOST(x) { \
+    if (x.isOnHost()) {\
+        THROW(#x << " is on host."); \
+    } \
+    if (this->getSize() != x.getSize()) { \
+        THROW("Size mismatch: \n\tthis->getSize() = " << this->getSize() <<"\n\t"<<#x<<".getSize() = " << x.getSize()); \
+    } \
+}
 using namespace alsfvm::memory;
 namespace alsfvm {
 	namespace cuda {
@@ -16,16 +26,40 @@ namespace alsfvm {
 			: memory::Memory<T>(nx, ny, nz) 
 		{
 			CUDA_SAFE_CALL(cudaMalloc(&memoryPointer, nx*ny*nz*sizeof(T)));
-			CUDA_SAFE_CALL(cudaMemset(memoryPointer, 0, nx*ny*nz*sizeof(T)));
-		}
+            CUDA_SAFE_CALL(cudaMemset(memoryPointer, 0, nx*ny*nz*sizeof(T)));
+        }
+
+        template<class T>
+        std::shared_ptr<memory::Memory<T> > CudaMemory<T>::makeInstance() const
+        {
+            std::shared_ptr<memory::Memory<T> > memoryArea;
+            memoryArea.reset(new CudaMemory<T>(this->nx, this->ny, this->nz));
+
+            return memoryArea;
+        }
 
 		// Note: Virtual distructor since we will inherit
 		// from this. 
 		template<class T>
 		CudaMemory<T>::~CudaMemory() 
 		{
-			CUDA_SAFE_CALL(cudaFree(memoryPointer));
-		}
+            CUDA_SAFE_CALL(cudaFree(memoryPointer));
+        }
+
+        template<class T>
+        void CudaMemory<T>::copyFrom(const memory::Memory<T> &other)
+        {
+
+            if (other.isOnHost()) {
+                this->copyFromHost(other.getPointer(), other.getSize());
+            } else {
+                CHECK_SIZE_AND_HOST(other);
+
+                CUDA_SAFE_CALL(cudaMemcpy(memoryPointer, other.data(),
+                                          this->nx*this->ny*this->nz*sizeof(T),
+                                          cudaMemcpyDeviceToDevice));
+            }
+        }
 
 		
 
@@ -204,6 +238,74 @@ namespace alsfvm {
 				}
 			}
 		}
+
+        template<class T>
+        void CudaMemory<T>::addLinearCombination(T a1,
+            T a2, const memory::Memory<T>& v2,
+            T a3, const memory::Memory<T>& v3,
+            T a4, const memory::Memory<T>& v4,
+            T a5, const memory::Memory<T>& v5) {
+            CHECK_SIZE_AND_HOST(v2);
+            CHECK_SIZE_AND_HOST(v3);
+            CHECK_SIZE_AND_HOST(v4);
+            CHECK_SIZE_AND_HOST(v5);
+            auto d1 = getPointer();
+            auto d2 = v2.getPointer();
+            auto d3 = v3.getPointer();
+            auto d4 = v4.getPointer();
+            auto d5 = v5.getPointer();
+
+            add_linear_combination(a1, d1,
+                        a2, d2,
+                        a3, d3,
+                        a4, d4,
+                        a5, d5,
+                        this->getSize());
+            
+        }
+
+        template<class T>
+        void CudaMemory<T>::addPower(const memory::Memory<T> &other, double power)
+        {
+            CHECK_SIZE_AND_HOST(other);
+            add_power(getPointer(), other.getPointer(), power, this->getSize());
+        }
+
+
+        template<class T>
+        void CudaMemory<T>::subtractPower(const memory::Memory<T> &other, double power)
+        {
+            CHECK_SIZE_AND_HOST(other);
+            subtract_power(getPointer(), other.getPointer(), power, this->getSize());
+        }
+
+        template<class T>
+        std::shared_ptr<memory::Memory<T> > CudaMemory<T>::getHostMemory()
+        {
+            std::shared_ptr<memory::Memory<T> > pointer(new memory::HostMemory<T>(this->nx, this->ny, this->nz));
+
+            this->copyToHost(pointer->getPointer(), pointer->getSize());
+
+            return pointer;
+        }
+
+        template<class T>
+        real CudaMemory<T>::getTotalVariation(int p, const ivec3& start,
+                                              const ivec3& end) const
+        {
+            return compute_total_variation(this->getPointer(), this->nx,
+                                           this->ny,
+                                           this->nz, p, start, end);
+        }
+
+        template<class T>
+        real CudaMemory<T>::getTotalVariation(int direction, int p, const ivec3& start,
+                                              const ivec3& end) const
+        {
+            return compute_total_variation(this->getPointer(), this->nx,
+                                           this->ny,
+                                           this->nz, direction, p, start, end);
+        }
 
 		INSTANTIATE_MEMORY(CudaMemory)
 	}

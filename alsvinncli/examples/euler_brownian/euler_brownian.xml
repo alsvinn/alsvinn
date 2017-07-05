@@ -1,0 +1,55 @@
+<config>
+<fvm>
+  <name>
+    kh
+  </name>
+  <platform>cuda</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>1 1 0</upperCorner>
+    <dimension>512 512 1</dimension>
+  </grid>
+  <boundary>periodic</boundary>
+  <flux>hll3</flux>
+  <endTime>.2</endTime>
+  <equation>euler2</equation>
+  <equationParameters>
+    <gamma>1.4</gamma>
+  </equationParameters>
+  <reconstruction>wenof2</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
+
+  <initialData>
+    <python>euler_brownian.py</python>
+    <parameters>
+      <parameter>
+        <name>X</name>
+        <length>2097152</length>
+        <values><value>0</value></values>
+      </parameter>
+    </parameters>
+  </initialData>
+  <diffusion>
+    <name>none</name>
+    <reconstruction>none</reconstruction>
+  </diffusion>
+  <writer>
+    <type>netcdf</type>
+    <basename>euler_brownian</basename>
+    <numberOfSaves>1</numberOfSaves>
+  </writer>
+</fvm>
+<uq>
+  <samples>1</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>X</name>
+      <length>2097152</length>
+      <type>normal</type>
+    </parameter>
+  </parameters>
+<stats></stats>
+</uq>
+</config>

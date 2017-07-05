@@ -3,7 +3,7 @@
 #include "alsfvm/reconstruction/ENOCoefficients.hpp"
 #include <array>
 #include <limits>
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include <cassert>
 #include <type_traits>
 

@@ -3,26 +3,74 @@
 namespace alsfvm {
 	namespace equation {
 		namespace euler {
-			const std::string Euler::name = "euler";
+            template<>
+			const std::string Euler<1>::name = "euler1";
 
-            const std::vector<std::string> Euler::conservedVariables = { "rho",
+            template<>
+            const std::string Euler<2>::name = "euler2";
+
+            template<>
+            const std::string Euler<3>::name = "euler3";
+
+
+            template<>
+            const std::vector<std::string> Euler<3>::conservedVariables = { "rho",
                                                                  "mx",
                                                                  "my",
                                                                  "mz",
                                                                  "E"};
 
 
-            
-            const std::vector<std::string> Euler::primitiveVariables = { "rho",
+            template<>
+            const std::vector<std::string> Euler<3>::primitiveVariables = { "rho",
                                                                          "ux",
                                                                          "uy",
                                                                          "uz",
                                                                          "p"};
-
-            const std::vector<std::string> Euler::extraVariables = { "p",
+            template<>
+            const std::vector<std::string> Euler<3>::extraVariables = { "p",
                                                                      "ux",
                                                                      "uy",
                                                                      "uz" };
+
+            template<>
+            const std::vector<std::string> Euler<2>::conservedVariables = { "rho",
+                "mx",
+                "my",
+                "E" };
+
+
+            template<>
+            const std::vector<std::string> Euler<2>::primitiveVariables = { "rho",
+                "ux",
+                "uy",
+                "p" };
+
+            template<>
+            const std::vector<std::string> Euler<2>::extraVariables = { "p",
+                "ux",
+                "uy"
+                 };
+
+            template<>
+            const std::vector<std::string> Euler<1>::conservedVariables = { "rho",
+                "mx",
+                "E" };
+
+
+            template<>
+            const std::vector<std::string> Euler<1>::primitiveVariables = { "rho",
+                "ux",
+                "p" };
+
+
+            template<>
+            const std::vector<std::string> Euler<1>::extraVariables = { "p",
+                "ux"
+            };
+
+
+
 		}
 }
 }

@@ -1,6 +1,9 @@
 #pragma once
 #include "alsfvm/equation/burgers/Burgers.hpp"
 #include <iostream>
+
+#include <algorithm>
+
 namespace alsfvm { namespace numflux { namespace burgers { 
 
 //! The Godunov flux for the Burgers equation.
@@ -25,9 +28,9 @@ public:
     {
         using namespace equation::burgers;
         ConservedVariables fluxLeft;
-        eq.computePointFlux<direction>(AllVariables(fmax(left.u, 0)), fluxLeft);
+        eq.computePointFlux<direction>(AllVariables(fmax(left.u, real(0.0))), fluxLeft);
         ConservedVariables fluxRight;
-        eq.computePointFlux<direction>(AllVariables(fmin(right.u, 0)), fluxRight);
+        eq.computePointFlux<direction>(AllVariables(fmin(right.u, real(0.0))), fluxRight);
 
         F = ConservedVariables(fmax(fluxLeft.u, fluxRight.u));
 

@@ -1,13 +1,15 @@
 #pragma once
 #include "alsfvm/integrator/System.hpp"
 #include "alsfvm/numflux/NumericalFlux.hpp"
+#include "alsfvm/diffusion/NoDiffusion.hpp"
 
 namespace alsfvm { namespace simulator { 
 
     /// 
     class ConservedSystem : public integrator::System {
     public:
-        ConservedSystem(alsfvm::shared_ptr<numflux::NumericalFlux>& numericalFlux);
+        ConservedSystem(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux,
+                        alsfvm::shared_ptr<diffusion::DiffusionOperator> diffusionOperator);
         
         ///
         /// \brief operator () computes the right hand side of the ODE. (see
@@ -23,8 +25,15 @@ namespace alsfvm { namespace simulator {
                                 rvec3& waveSpeed, bool computeWaveSpeed,
                                 volume::Volume& output);
 
+        /// 
+        /// Returns the number of ghost cells needed.
+        /// This will take the maximum between the number of ghost cells the numerical
+        /// flux needs, and the number of ghost cells the diffusion operator needs
+        ///
+        virtual size_t getNumberOfGhostCells() const ;
     private:
         alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;
+        alsfvm::shared_ptr<diffusion::DiffusionOperator> diffusionOperator;
     };
 } // namespace alsfvm
 } // namespace simulator

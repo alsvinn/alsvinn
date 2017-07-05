@@ -1,5 +1,6 @@
 #pragma once
 #include "alsfvm/types.hpp"
+#include <cmath>
 #include "alsfvm/equation/EquationParameters.hpp"
 #include "alsfvm/equation/burgers/ConservedVariables.hpp"
 #include "alsfvm/equation/burgers/ExtraVariables.hpp"
@@ -9,7 +10,7 @@
 #include "alsfvm/equation/burgers/Views.hpp"
 #include "alsfvm/volume/Volume.hpp"
 #include "alsfvm/equation/burgers/ViewsExtra.hpp"
-
+#define USE_LOG_ENTROPY 1
 namespace alsfvm { namespace equation { namespace burgers { 
 
 class Burgers {
@@ -51,6 +52,20 @@ public:
     ///
     static const size_t  numberOfConservedVariables = 1;
 
+    ///
+    /// Gives the lower bound for the parameter the entropy functions,
+    /// corresponds to the "a" variable in the tecno variable for the Burgers
+    /// log entropy
+    ///
+    static const constexpr real entropyLowerBound = 0;
+    
+    ///
+    /// Gives the lower bound for the parameter the entropy functions,
+    /// corresponds to the "b" variable in the tecno variable for the Burgers
+    /// log entropy
+    ///
+    static const constexpr real entropyUpperBound = 2;
+
     __device__ __host__ static size_t getNumberOfConservedVariables() {
         return 1;
     }
@@ -70,7 +85,7 @@ public:
     }
 
     template<class T, class S>
-    __device__ __host__ ConservedVariables fetchConservedVariables(burgers::Views<T, S>& views, size_t index) const {
+    __device__ __host__ static  ConservedVariables fetchConservedVariables(burgers::Views<T, S>& views, size_t index)  {
         return ConservedVariables(views.u.at(index));
     }
 
@@ -81,7 +96,7 @@ public:
     ///
     /// Writes the ConservedVariable struct back to memory
     ///
-    __device__ __host__ void setViewAt(Views& output, size_t index, const ConservedVariables& input) const  {
+    __device__ __host__ static void setViewAt(Views& output, size_t index, const ConservedVariables& input)   {
         output.u.at(index) = input.u;
     }
 
@@ -97,7 +112,7 @@ public:
     ///
     /// Basically sets output[index] += input
     ///
-    __device__ __host__ void addToViewAt(Views& output, size_t index, const ConservedVariables& input) const {
+    __device__ __host__ static void addToViewAt(Views& output, size_t index, const ConservedVariables& input)  {
         output.u.at(index) += input.u;
     }
 
@@ -159,7 +174,7 @@ public:
         static_assert(direction >= 0, "Direction can not be negative");
         static_assert(direction < 3, "We only support dimension up to and inclusive 3");
 
-        return fabs(u.u);
+        return std::abs(u.u);
     }
 
     ///
@@ -175,7 +190,7 @@ public:
                                               const ExtraVariables& v) const
     {
 
-        return u.u < INFINITY && (u.u == u.u);
+        return u.u<INFINITY && (u.u == u.u);
     }
 
     __device__ __host__ AllVariables makeAllVariables(real u) const {
@@ -189,6 +204,61 @@ public:
 
     __device__ __host__ PrimitiveVariables computePrimitiveVariables(const ConservedVariables& conserved) const {
         return PrimitiveVariables(conserved.u);
+    }
+
+    /// 
+    /// Computes the entropy variable \f$v(u)\f$ given by
+    /// \f[v(u) = \partial_u E(u)\f]
+    /// corresponding to the entropy
+    /// \f[E(u)-\log(b-u)-\log(u-a)\f]
+    /// where \f$b\f$ is given as entropyUpperBound and \f$a\f$ is given as entropyLowerBound.
+    ///
+    __device__ __host__ rvec1 computeEntropyVariables(const ConservedVariables& conserved) const {
+#if USE_LOG_ENTROPY
+        return (1 / (entropyUpperBound - conserved.u)) - 1 / (conserved.u - entropyLowerBound);
+#else
+        return conserved.u;
+#endif
+        
+    }
+
+    ///
+    /// Computes the entropy potential \f$\psi(u)\f$ given by
+    /// \f[\psi(u) = v(u)f(u) - Q(u)\f]
+    /// where \f$Q(u)\f$ is defined through 
+    /// \f[Q'(u) = f'(u)E'(u)\f]
+    ///
+    __device__ __host__ rvec1 computeEntropyPotential(const ConservedVariables& conserved) const {
+#if USE_LOG_ENTROPY
+        return computeEntropyVariables(conserved)*0.5*conserved.u*conserved.u - (-2 * conserved.u
+            - entropyUpperBound*log(entropyUpperBound - conserved.u) - entropyLowerBound*log(conserved.u - entropyLowerBound));
+#else
+        return 1.0 / 6.0 * (conserved.u*conserved.u*conserved.u);
+#endif
+       
+    }
+
+    template<int direction>
+    __device__ __host__ rvec1 computeEntropyVariablesMultipliedByEigenVectorMatrix(const ConservedVariables& conserved) const {
+        
+#if USE_LOG_ENTROPY
+        return rvec1(2.0 * conserved.u / (conserved.u*(conserved.u - 2)));
+#else 
+        return rvec1(conserved.u);
+#endif
+    }
+
+    template<int direction>
+    __device__ __host__ matrix1 computeEigenVectorMatrix(const ConservedVariables& conserved) const {
+        
+        matrix1 matrixWithEigenVectors;
+        matrixWithEigenVectors(0, 0) = 1;
+        return matrixWithEigenVectors;
+    }
+
+    template<int direction>
+    __device__ __host__ rvec1 computeEigenValues(const ConservedVariables& conserved) const {
+        return conserved.u;
     }
 
 };

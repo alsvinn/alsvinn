@@ -2,13 +2,13 @@
 #include "alsfvm/simulator/SimulatorParameters.hpp"
 #include "alsfvm/equation/equation_list.hpp"
 #ifdef ALSVINN_HAVE_CUDA
-#include "alsfvm/reconstruction/WENOCUDA.hpp"
-#include "alsfvm/reconstruction/WENO2CUDA.hpp"
 #include "alsfvm/reconstruction/NoReconstructionCUDA.hpp"
 #include "alsfvm/reconstruction/ReconstructionCUDA.hpp"
+#include "alsfvm/reconstruction/ENOCUDA.hpp"
 
 #endif
 #include "alsfvm/reconstruction/WENOF2.hpp"
+#include "alsfvm/reconstruction/MC.hpp"
 #include "alsfvm/reconstruction/WENO2.hpp"
 #include "alsfvm/reconstruction/ReconstructionCPU.hpp"
 #include "alsfvm/reconstruction/ReconstructionCUDA.hpp"
@@ -17,7 +17,7 @@
 
 #include "alsfvm/reconstruction/WENOCPU.hpp"
 
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 
 namespace alsfvm { namespace reconstruction {
 
@@ -29,7 +29,9 @@ ReconstructionFactory::ReconstructionPtr
                                                 const grid::Grid& grid,
                                                 alsfvm::shared_ptr<DeviceConfiguration> &deviceConfiguration)
 {
-    if (equation != "euler" && equation != "burgers") {
+    if (equation != "euler1" && equation != "euler2" && equation != "euler3"
+            && equation != "burgers" && equation != "buckleyleverett"
+            && equation != "cubic") {
         THROW("Unknown equation " << equation);
     }
     auto& platform = deviceConfiguration->getPlatform();
@@ -57,9 +59,15 @@ ReconstructionFactory::ReconstructionPtr
 
         }
         else if (name == "weno2") {
-            if (equation == "euler") {
-                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENO2<equation::euler::Euler>, equation::euler::Euler>(simulatorParameters));
-            } else {
+            if (equation == "euler1") {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENO2<equation::euler::Euler<1> >, equation::euler::Euler<1> >(simulatorParameters));
+            } else  if (equation == "euler2") {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENO2<equation::euler::Euler<2> >, equation::euler::Euler<2> >(simulatorParameters));
+            }
+            else  if (equation == "euler3") {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENO2<equation::euler::Euler<3> >, equation::euler::Euler<3> >(simulatorParameters));
+            }
+            else {
                 reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>(simulatorParameters));
             }
 
@@ -69,11 +77,33 @@ ReconstructionFactory::ReconstructionPtr
 
         }
         else if (name == "wenof2") {
-            if (equation == "euler") {
-                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENOF2<equation::euler::Euler>, equation::euler::Euler>(simulatorParameters));
-            } else {
+            if (equation == "euler1") {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENOF2<equation::euler::Euler<1> >, equation::euler::Euler<1> >(simulatorParameters));
+            }
+            else if (equation == "euler2") {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENOF2<equation::euler::Euler<2> >, equation::euler::Euler<2> >(simulatorParameters));
+            }
+            else if (equation == "euler3") {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::WENOF2<equation::euler::Euler<3> >, equation::euler::Euler<3> >(simulatorParameters));
+            }
+            else {
                 THROW("We do not support WENO2F for Burgers.");
             }
+
+        } else if (name == "mc") {
+
+            if (equation == "euler1") {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::MC<equation::euler::Euler<1> >, equation::euler::Euler<1> >(simulatorParameters));
+            } else  if (equation == "euler2") {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::MC<equation::euler::Euler<2> >, equation::euler::Euler<2> >(simulatorParameters));
+            }
+            else  if (equation == "euler3") {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::MC<equation::euler::Euler<3> >, equation::euler::Euler<3> >(simulatorParameters));
+            }
+            else {
+                reconstructor.reset(new reconstruction::ReconstructionCPU<reconstruction::MC<equation::burgers::Burgers>, equation::burgers::Burgers>(simulatorParameters));
+            }
+
 
         }
 
@@ -87,22 +117,92 @@ ReconstructionFactory::ReconstructionPtr
             reconstructor.reset(new reconstruction::NoReconstructionCUDA);
         }
         else if (name == "eno2") {
-            THROW("eno2 not supported on CUDA at the moment.")
-
+            if (equation == "euler1") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::euler::Euler<1>, 2>(memoryFactory, grid.getDimensions().x,
+                                                                                           grid.getDimensions().y,
+                                                                                           grid.getDimensions().z));
+            } else if(equation == "euler2") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::euler::Euler<2>, 2>(memoryFactory, grid.getDimensions().x,
+                    grid.getDimensions().y,
+                    grid.getDimensions().z));
+            }
+            else if (equation == "euler3") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::euler::Euler<3>, 2>(memoryFactory, grid.getDimensions().x,
+                    grid.getDimensions().y,
+                    grid.getDimensions().z));
+            }
+            else if (equation == "burgers") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::burgers::Burgers, 2>(memoryFactory, grid.getDimensions().x,
+                                                                                               grid.getDimensions().y,
+                                                                                               grid.getDimensions().z));
+            } else {
+                THROW("We do not support ENO on CUDA for equation: " << equation);
+            }
         }
         else if (name == "eno3") {
-            THROW("eno3 not supported on CUDA at the moment.")
-
+            if (equation == "euler1") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::euler::Euler<1>, 3>(memoryFactory, grid.getDimensions().x,
+                    grid.getDimensions().y,
+                    grid.getDimensions().z));
+            }
+            else if (equation == "euler2") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::euler::Euler<2>, 3>(memoryFactory, grid.getDimensions().x,
+                    grid.getDimensions().y,
+                    grid.getDimensions().z));
+            }
+            else if (equation == "euler3") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::euler::Euler<3>, 3>(memoryFactory, grid.getDimensions().x,
+                    grid.getDimensions().y,
+                    grid.getDimensions().z));
+            }
+            else if (equation == "burgers") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::burgers::Burgers, 3>(memoryFactory, grid.getDimensions().x,
+                                                                                               grid.getDimensions().y,
+                                                                                               grid.getDimensions().z));
+            } else {
+                THROW("We do not support ENO on CUDA for equation: " << equation);
+            }
         }
         else if (name == "eno4") {
-            THROW("eno4 not supported on CUDA at the moment.")
+            if (equation == "euler1") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::euler::Euler<1>, 4>(memoryFactory, grid.getDimensions().x,
+                    grid.getDimensions().y,
+                    grid.getDimensions().z));
+            }
+            else if (equation == "euler2") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::euler::Euler<2>, 4>(memoryFactory, grid.getDimensions().x,
+                    grid.getDimensions().y,
+                    grid.getDimensions().z));
+            }
+            else if (equation == "euler3") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::euler::Euler<3>, 4>(memoryFactory, grid.getDimensions().x,
+                    grid.getDimensions().y,
+                    grid.getDimensions().z));
+            }
+            else if (equation == "burgers") {
+                reconstructor.reset(new reconstruction::ENOCUDA<equation::burgers::Burgers, 4>(memoryFactory, grid.getDimensions().x,
+                                                                                               grid.getDimensions().y,
+                                                                                               grid.getDimensions().z));
+            } else {
+                THROW("We do not support ENO on CUDA for equation: " << equation);
+            }
         }
         else if (name == "weno2") {
-            if (equation == "euler") {
+            if (equation == "euler1") {
                 //reconstructor.reset(new reconstruction::WENO2CUDA<equation::euler::Euler>());
-                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENO2<equation::euler::Euler>, equation::euler::Euler>(simulatorParameters));
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENO2<equation::euler::Euler<1>>, equation::euler::Euler<1> >(simulatorParameters));
 
-            }else if (equation == "burgers") {
+            }else if (equation == "euler2") {
+                //reconstructor.reset(new reconstruction::WENO2CUDA<equation::euler::Euler>());
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENO2<equation::euler::Euler<2>>, equation::euler::Euler<2> >(simulatorParameters));
+
+            }
+            else if (equation == "euler3") {
+                //reconstructor.reset(new reconstruction::WENO2CUDA<equation::euler::Euler>());
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENO2<equation::euler::Euler<3>>, equation::euler::Euler<3> >(simulatorParameters));
+
+            }
+            else if (equation == "burgers") {
                 reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>(simulatorParameters));
             }
             else {
@@ -115,10 +215,38 @@ ReconstructionFactory::ReconstructionPtr
 
         }
         else if (name == "wenof2") {
-            if (equation == "euler") {
-                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENOF2<equation::euler::Euler>, equation::euler::Euler>(simulatorParameters));
-            } else {
+            if (equation == "euler1") {
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENOF2<equation::euler::Euler<1> >, equation::euler::Euler<1> >(simulatorParameters));
+            } else if (equation == "euler2") {
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENOF2<equation::euler::Euler<2> >, equation::euler::Euler<2> >(simulatorParameters));
+            }
+            else if (equation == "euler3") {
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::WENOF2<equation::euler::Euler<3> >, equation::euler::Euler<3> >(simulatorParameters));
+            }
+            else {
                 THROW("We do not support WENO2F for Burgers.");
+            }
+
+        } else if (name == "mc") {
+            if (equation == "euler1") {
+
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::MC<equation::euler::Euler<1>>, equation::euler::Euler<1> >(simulatorParameters));
+
+            }else if (equation == "euler2") {
+                //reconstructor.reset(new reconstruction::WENO2CUDA<equation::euler::Euler>());
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::MC<equation::euler::Euler<2>>, equation::euler::Euler<2> >(simulatorParameters));
+
+            }
+            else if (equation == "euler3") {
+                //reconstructor.reset(new reconstruction::WENO2CUDA<equation::euler::Euler>());
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::MC<equation::euler::Euler<3>>, equation::euler::Euler<3> >(simulatorParameters));
+
+            }
+            else if (equation == "burgers") {
+                reconstructor.reset(new reconstruction::ReconstructionCUDA<reconstruction::MC<equation::burgers::Burgers>, equation::burgers::Burgers>(simulatorParameters));
+            }
+            else {
+                THROW("We do not support WENOCUDA for equation " << equation);
             }
 
         }

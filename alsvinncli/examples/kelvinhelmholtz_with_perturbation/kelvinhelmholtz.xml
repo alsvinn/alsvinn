@@ -1,0 +1,100 @@
+<config>
+  <fvm>
+    <name>
+      kh
+    </name>
+    <platform>cpu</platform>
+    <grid>
+      <lowerCorner>0 0 0</lowerCorner>
+      <upperCorner>1 1 0</upperCorner>
+      <dimension>128 128 1</dimension>
+    </grid>
+    <boundary>periodic</boundary>
+    <flux>hll3</flux>
+    <endTime>2</endTime>
+    <equation>euler2</equation>
+    <equationParameters>
+      <gamma>1.4</gamma>
+    </equationParameters>
+    <reconstruction>weno2</reconstruction>
+    <cfl>auto</cfl>
+    <integrator>auto</integrator>
+
+    <initialData>
+      <python>kelvinhelmholtz.py</python>
+      <parameters>
+	<parameter>
+          <name>a</name>
+          <length>40</length>
+          <values>
+	    <value>0.9234326942128473</value>
+	    <value>0.03863235216289492</value>
+	    <value>	0.09575404911745788</value>
+	    <value>	0.48427306418446536</value>
+	    <value>	0.6958353397798545 </value>
+	    <value>	0.9249821104863606</value>
+	    <value>	0.3297852453671380</value>
+	    <value>	0.15860468958120255</value>
+	    <value>	0.9283066637933493</value>
+	    <value>	0.12035378861373991</value>
+	    <value>	0.7948146814407594</value>
+	    <value>	0.7719422672971555</value>
+	    <value>	0.9164137551437027</value>
+	    <value>	0.05546162917194153</value>
+	    <value>	0.8158347335695608</value>
+	    <value>	0.9057200543088926</value>
+	    <value>	0.9628462910845053</value>
+	    <value>	0.433002142349315</value>
+	    <value>	0.507993637411244</value>
+	    <value>	0.8850278080396459</value>
+	    <value>	0.8267426288045159</value>
+	    <value>	0.8868377582045669</value>
+	    <value>	0.6282979618387506</value>
+	    <value>	0.09369876486381912</value>
+	    <value>	0.272204864084359</value>
+	    <value>	0.8847799815412128</value>
+	    <value>	0.3657933004070346</value>
+	    <value>	0.8420131604689651</value>
+	    <value>	0.31966770566256175</value>
+	    <value>	0.7426156212184943</value>
+	    <value>	0.9436206103771968</value>
+	    <value>	0.10541189144231966</value>
+	    <value>	0.1781011926283943</value>
+	    <value>	0.26706204832156855</value>
+	    <value>	0.9191004972716974</value>
+	    <value>	0.49610053552979494</value>
+	    <value>	0.5506475448312882</value>
+	    <value>	0.9007074654482187</value>
+	    <value>	0.6162684480358291</value>
+	    <value>	0.16610359711820444</value>
+	  </values>
+	</parameter>
+      </parameters>
+    </initialData>
+    <diffusion>
+      <name>none</name>
+      <reconstruction>none</reconstruction>
+    </diffusion>
+    <writer>
+      <type>netcdf</type>
+      <basename>kh_low</basename>
+      <numberOfSaves>4</numberOfSaves>
+    </writer>
+  </fvm>
+  <uq>
+    <samples>4</samples>
+    <generator>auto</generator>
+    <parameters>
+      <parameter>
+	<name>a</name>
+	<length>40</length>
+	<type>uniform</type>
+      </parameter>
+    </parameters>
+    <stats>
+      <stat>
+	meanvar
+      </stat>
+    </stats>
+  </uq>
+</config>

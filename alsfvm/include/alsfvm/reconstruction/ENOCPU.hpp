@@ -50,11 +50,18 @@ namespace alsfvm { namespace reconstruction {
         virtual size_t getNumberOfGhostCells();
 
     private:
+        //! Creates the divided differences arrays
+        //! @param nx number of x cells
+        //! @param ny number of y cells
+        //! @param nz number of z cells
+        void makeDividedDifferenceArrays(size_t nx, size_t ny, size_t nz);
+
         void computeDividedDifferences(const memory::Memory<real>& input,
                                        const ivec3& direction,
                                        size_t level,
                                        memory::Memory<real>& output);
 
+        alsfvm::shared_ptr<alsfvm::memory::MemoryFactory> memoryFactory;
         // For each level l, this will contain the divided differences for that
         // level.
         std::array<alsfvm::shared_ptr<memory::Memory<real> >, order - 1> dividedDifferences;

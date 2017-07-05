@@ -1,11 +1,8 @@
-
-GAMMA=5.0/3.0
-
-if x < 1.0:
-    rho = 3.0
-    ux = 0.0
-    p = 3.0
-else:
-    rho = 1.0
-    ux = 0.0
+if x < 0.0:
+    rho = 1.
+    ux = 0.
     p = 1.0
+else:
+    rho = .125
+    ux = 0.
+    p = 0.1

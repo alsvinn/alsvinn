@@ -2,7 +2,8 @@
 #include "alsfvm/integrator/ForwardEuler.hpp"
 #include "alsfvm/integrator/RungeKutta2.hpp"
 #include "alsfvm/integrator/RungeKutta3.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsfvm/integrator/RungeKutta4.hpp"
+#include "alsutils/error/Exception.hpp"
 
 namespace alsfvm { namespace integrator {
 
@@ -20,7 +21,11 @@ alsfvm::shared_ptr<Integrator> IntegratorFactory::createIntegrator(alsfvm::share
         return alsfvm::shared_ptr<Integrator>(new RungeKutta2(system));
     } else if (integratorName == "rungekutta3") {
         return alsfvm::shared_ptr<Integrator>(new RungeKutta3(system));
-    } else {
+    } 
+    else if (integratorName == "rungekutta4") {
+        return alsfvm::shared_ptr<Integrator>(new RungeKutta4(system));
+    }
+    else {
         THROW("Unknown integrator " << integratorName);
     }
 }

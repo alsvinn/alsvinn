@@ -24,3 +24,14 @@ TEST(Polyfit, LinearPolynomial) {
     ASSERT_FLOAT_EQ(a, fit[0]);
     ASSERT_FLOAT_EQ(b, fit[1]);
 }
+
+TEST(Polyfit, CompareToNumpy) {
+    std::vector<real> y = { -2.71871891, -4.06141088, -5.4221225 , -6.79844358, -8.17962513,
+        -9.56341751 };
+
+    std::vector<real> x = { 4.15888308,  4.85203026,  5.54517744,  6.23832463,  6.93147181,
+        7.62461899 };
+
+    ASSERT_FLOAT_EQ(-1.97667591575, linearFit(x, y)[0]);
+
+}

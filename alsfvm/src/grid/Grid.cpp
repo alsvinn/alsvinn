@@ -1,7 +1,29 @@
 #include "alsfvm/grid/Grid.hpp"
-
+#include <algorithm>
+#include <iostream>
 namespace alsfvm {
 	namespace grid {
+
+    namespace {
+        rvec3 computeCellLengths(const rvec3& origin, const rvec3& top,
+                                 const ivec3 dimensions) {
+            int dimensionX = dimensions[0];
+            int dimensionY = dimensions[1];
+            int dimensionZ = dimensions[2];
+
+            auto lengths = (top-origin) / rvec3(dimensionX, dimensionY, dimensionZ);
+
+            if (dimensionY == 1) {
+                lengths[1] = 1;
+            }
+
+            if (dimensionZ == 1) {
+                lengths[2] = 1;
+            }
+
+            return lengths;
+        }
+    }
 		/// 
 		/// Constructs the Grid
 		/// \param origin the origin point of the grid (the smallest point in lexicographical order)
@@ -10,9 +32,8 @@ namespace alsfvm {
 		///
 		Grid::Grid(rvec3 origin, rvec3 top, ivec3 dimensions)
 			: origin(origin), top(top), dimensions(dimensions),
-			cellLengths((top - origin) / dimensions.convert<real>())
+            cellLengths(computeCellLengths(origin, top, dimensions))
 		{
-			
 			// Create the cell midpoints
 			cellMidpoints.resize(dimensions.x*dimensions.y*dimensions.z);
 			

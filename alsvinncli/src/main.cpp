@@ -3,7 +3,23 @@
 #include <boost/chrono.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <omp.h>
+#ifdef _WIN32 
+#ifndef NDEBUG
+#include <float.h> // enable floating point exceptions on windows.
+// see https://msdn.microsoft.com/en-us/library/aa289157(VS.71).aspx#floapoint_topic8
+#endif
+#endif
 int main(int argc, char** argv) {
+#ifdef _WIN32 
+#ifndef NDEBUG
+    // see https://msdn.microsoft.com/en-us/library/aa289157(VS.71).aspx#floapoint_topic8
+    //_clearfp();
+    //unsigned int fp_control_state = _controlfp(_EM_ZERODIVIDE, _MCW_EM);
+    //_controlfp(_EM_INEXACT,0);
+    //feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+    
+#endif
+#endif
 	try {
 	        auto wallStart = boost::posix_time::second_clock::local_time();
 		auto timeStart = boost::chrono::thread_clock::now();
@@ -11,12 +27,17 @@ int main(int argc, char** argv) {
 			std::cout << "Usage:\n\t" << argv[0] << " <inputfile.xml>" << std::endl;
 			return EXIT_FAILURE;
 		}
+#ifdef _OPENMP
 		std::cout << "omp max threads= " << omp_get_max_threads() << std::endl;
+#endif
 		std::string inputfile = argv[1];
 
 		alsfvm::config::SimulatorSetup setup;
 
-		auto simulator = setup.readSetupFromFile(inputfile);
+        auto simulatorPair = setup.readSetupFromFile(inputfile);
+
+        auto simulator = simulatorPair.first;
+        simulator->setInitialValue(simulatorPair.second);
 
 		std::cout << "Running simulator... " << std::endl;
 		std::cout << std::endl << std::endl;
@@ -28,7 +49,9 @@ int main(int argc, char** argv) {
 
 		int lastPercentSeen = -1;
         size_t timestepsPerformed = 0;
+        
 		while (!simulator->atEnd()) {
+
 			simulator->performStep();
             timestepsPerformed++;
 			int percentDone = std::round(100.0 * simulator->getCurrentTime() / simulator->getEndTime());

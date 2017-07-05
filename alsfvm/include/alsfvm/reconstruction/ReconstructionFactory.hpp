@@ -25,7 +25,7 @@ namespace alsfvm { namespace reconstruction {
         //!             weno3  | third order WENO
         //!             wenof2 | second order WENOF (clamping of variables)
         //!
-        //! @param equation equation name. Currently only supports "euler" and
+        //! @param equation equation name. Currently only supports "euler1", "euler2", "euler3" and
         //!                 "burgers"
         //!
         //! @param simulatorParameters the parameters to be used (only used for WENOF)

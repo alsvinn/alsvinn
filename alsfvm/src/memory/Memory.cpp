@@ -57,6 +57,8 @@ namespace alsfvm {
             return View<const T>(getPointer(), nx, ny, nz, getExtentXInBytes(), getExtentYInBytes());
         }
 
+
+
         INSTANTIATE_MEMORY(Memory)
 	}
 }

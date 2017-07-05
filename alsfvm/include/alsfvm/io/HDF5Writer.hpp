@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/io/Writer.hpp"
-#include "hdf5.h"
+#include <hdf5.h>
+#include "alsfvm/io/hdf5_utils.hpp"
 
 namespace alsfvm {
 namespace io {
@@ -23,6 +24,8 @@ public:
     ///       proper extension (.h5).
     ///
     HDF5Writer(const std::string& basefileName);
+
+    virtual ~HDF5Writer() {}
 
     ///
     /// \brief write writes the data to disk
@@ -52,8 +55,11 @@ protected:
     /// \brief writeVolume takes each variable of the volume and writes it
     /// \param volume the volume to read from
     /// \param file the file to write to
+    /// \param accessList used for parallel hdf5
     ///
-    void writeVolume(const volume::Volume& volume, hid_t file);
+    void writeVolume(const volume::Volume& volume, hid_t file, hid_t accessList=H5P_DEFAULT);
+
+
 
     ///
     /// \brief writeMemory writes a memory area to disk
@@ -61,9 +67,32 @@ protected:
     /// \param index the index of the memory area to read from
     /// \param name the name of the memory (variable name)
     /// \param file the file to write to
+    /// \param accessList used for parallel hdf5
     ///
     void writeMemory(const volume::Volume& volume, size_t index, const std::string& name,
+                     hid_t file, hid_t accessList=H5P_DEFAULT);
+
+    ///
+    /// \brief createDatasetForMemroy creates a dataset for the given memory
+    /// \param volume the volume to read from
+    /// \param index the index of the memory area to read from
+    /// \param name the name of the memory (variable name)
+    /// \param file the file to write to
+    ///
+    virtual std::unique_ptr<HDF5Resource> createDatasetForMemory(const volume::Volume& volume, size_t index, const std::string& name,
                      hid_t file);
+
+    ///
+    /// \brief createDatasetForMemroy creates a dataset for the given memory
+    /// \param volume the volume to read from
+    /// \param index the index of the memory area to read from
+    /// \param name the name of the memory (variable name)
+    /// \param dataset the dataset to write to
+    /// \param accessList the accesslist to used (used for parallel hdf5)
+    ///
+    void writeMemoryToDataset(const volume::Volume& volume, size_t index, const std::string& name,
+                     hid_t dataset, hid_t accessList=H5P_DEFAULT);
+
 
 
     ///
@@ -91,7 +120,7 @@ protected:
     ///
     void writeIntegers(hid_t object, const std::string& name, const std::vector<int>& values);
 
-private:
+
     size_t snapshotNumber;
     const std::string basefileName;
 };

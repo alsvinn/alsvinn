@@ -37,6 +37,13 @@ namespace alsfvm {
                    size_t nx, size_t ny, size_t nz,
 				   size_t numberOfGhostCells = 0);
 
+            //! Make a volume as a view of another volume.
+            //! @param volume the volume to make a view of
+            //! @param components the components to use
+            //! @param variableNames the variableNames to use
+            Volume(Volume& volume, const std::vector<size_t>& components,
+                const std::vector<std::string>& variableNames);
+
             // We need a virtual destructor in case we want to inherit from this
 			virtual ~Volume();
 
@@ -44,8 +51,13 @@ namespace alsfvm {
             /// \brief getNumberOfVariables gets the number of variables used
             /// \return the number of variables
             ///
-			size_t getNumberOfVariables() const;
+            virtual size_t getNumberOfVariables() const;
 
+            //! Returns the size in each dimension
+            virtual ivec3 getSize() const;
+
+            //! Returns the number of ghostcells in each dimension
+            virtual ivec3 getNumberOfGhostCells() const;
             ///
             /// \brief getScalarMemoryArea gets the scalar memory area (real)
             /// \param index the index of the variable. Use getIndexFromName
@@ -53,7 +65,7 @@ namespace alsfvm {
             ///
             /// \return the MemoryArea for the given index
             ///
-            alsfvm::shared_ptr<memory::Memory<real> >&
+            virtual alsfvm::shared_ptr<memory::Memory<real> >&
                 getScalarMemoryArea(size_t index);
 
             ///
@@ -63,7 +75,7 @@ namespace alsfvm {
             ///
             /// \return the MemoryArea for the given index
             ///
-            alsfvm::shared_ptr<const memory::Memory<real> >
+            virtual alsfvm::shared_ptr<const memory::Memory<real> >
                 getScalarMemoryArea(size_t index) const;
 
 			///
@@ -73,7 +85,7 @@ namespace alsfvm {
             /// \note Equivalent to calling
             ///     getScalarMemoryArea(getIndexFromName(name))
 			///
-			alsfvm::shared_ptr<memory::Memory<real> >&
+            virtual alsfvm::shared_ptr<memory::Memory<real> >&
 				getScalarMemoryArea(const std::string& name);
 
             ///
@@ -83,8 +95,29 @@ namespace alsfvm {
             /// \note Equivalent to calling
             ///     getScalarMemoryArea(getIndexFromName(name))
             ///
-            alsfvm::shared_ptr<const memory::Memory<real> >
+            virtual alsfvm::shared_ptr<const memory::Memory<real> >
                 getScalarMemoryArea(const std::string& name) const;
+
+            ///
+            /// \brief getScalarMemoryArea gets the scalar memory area (real)
+            /// \param index the index of the variable
+            /// \return the MemoryArea for the given name
+            /// \note Equivalent to calling
+            ///     getScalarMemoryArea(index)
+            ///
+            virtual alsfvm::shared_ptr<const memory::Memory<real> >
+                operator[](size_t index) const;
+
+            ///
+            /// \brief getScalarMemoryArea gets the scalar memory area (real)
+            /// \param index the index of the variable
+            /// \return the MemoryArea for the given name
+            /// \note Equivalent to calling
+            ///     getScalarMemoryArea(index)
+            ///
+            virtual alsfvm::shared_ptr<memory::Memory<real> >
+                operator[](size_t index);
+
 
 
             ///
@@ -92,7 +125,7 @@ namespace alsfvm {
             /// \param name the name of the variable
             /// \return the index of the name.
             ///
-            size_t getIndexFromName(const std::string& name) const ;
+            virtual size_t getIndexFromName(const std::string& name) const ;
 
 			///
 			/// Gets the variable name associated to the given index
@@ -100,71 +133,71 @@ namespace alsfvm {
 			/// \returns the variable name
 			/// \note This implicitly uses the std::move-feature of C++11
 			///
-            std::string getName(size_t index) const;
+            virtual std::string getName(size_t index) const;
 
 			///
 			/// Adds each component of the other volume to this volume
 			///
-			Volume& operator+=(const Volume& other);
+            virtual Volume& operator+=(const Volume& other);
 
 
 			/// 
 			/// Multiplies each component of the volume by the scalar
 			///
-			Volume& operator*=(real scalar);
+            virtual Volume& operator*=(real scalar);
 
 			///
 			/// \returns the number of cells in X direction
 			///
-			size_t getNumberOfXCells() const;
+            virtual size_t getNumberOfXCells() const;
 
 			///
 			/// \returns the number of cells in Y direction
 			///
-			size_t getNumberOfYCells() const;
+            virtual size_t getNumberOfYCells() const;
 
 			///
 			/// \returns the number of cells in Z direction
 			///
-			size_t getNumberOfZCells() const;
+            virtual size_t getNumberOfZCells() const;
 
             ///
             /// \brief makeZero sets every element of the volume to zero (0).
             ///
-            void makeZero();
+            virtual void makeZero();
 
 			///
 			/// Gets the number of ghost cells in x direction
 			/// \note This is the number of ghost cells on one side.
 			///
-			size_t getNumberOfXGhostCells() const;
+            virtual size_t getNumberOfXGhostCells() const;
 
 			///
 			/// Gets the number of ghost cells in y direction
 			/// \note This is the number of ghost cells on one side.
 			///
-			size_t getNumberOfYGhostCells() const;
+            virtual size_t getNumberOfYGhostCells() const;
 
 			///
 			/// Gets the number of ghost cells in z direction
 			/// \note This is the number of ghost cells on one side.
 			///
-			size_t getNumberOfZGhostCells() const;
+            virtual size_t getNumberOfZGhostCells() const;
 
 			///
 			/// Returns the total number of cells in x direction, including ghost cells
 			///
-			size_t getTotalNumberOfXCells() const;
+            virtual size_t getTotalNumberOfXCells() const;
 
 			///
 			/// Returns the total number of cells in y direction, including ghost cells
 			///
-			size_t getTotalNumberOfYCells() const;
+            virtual size_t getTotalNumberOfYCells() const;
 
 			///
 			/// Returns the total number of cells in z direction, including ghost cells
 			///
-			size_t getTotalNumberOfZCells() const;
+            virtual size_t getTotalNumberOfZCells() const;
 
             ///
             /// Copies the contents of the given memory area into the buffer output.
@@ -173,24 +206,69 @@ namespace alsfvm {
             ///
             /// \note Throws an exception if outputSize < number of cells
             ///
-            void copyInternalCells(size_t memoryAreaIndex, real* output, size_t outputSize) const;
+            virtual void copyInternalCells(size_t memoryAreaIndex, real* output, size_t outputSize) const;
 
 			/// 
 			/// Copies the whole volume to the other volume
 			///
-			void copyTo(volume::Volume& other) const;
+            virtual void copyTo(volume::Volume& other) const;
 
             ///
             /// \brief setVolume sets the contents of this volume to the contenst of the other volume
             /// \param other the other volume to read from
             /// \note This does interpolation if necessary.
             ///
-            void setVolume(const volume::Volume& other);
+            virtual void setVolume(const volume::Volume& other);
+
+            //! Gets the number of space dimensions.
+            virtual size_t getDimensions() const;
+
+
+            //! Adds the volumes with coefficients to this volume
+            //! Here we compute the sum
+            //! \f[ v_1^{\mathrm{new}}=a_1v_1+a_2v_2+a_3v_3+a_4v_4+a_5v_5+a_6v_6\f]
+            //! where \f$v_1\f$ is the volume being operated on.
+            void addLinearCombination(real a1, real a2, const Volume& v2, real a3, const Volume& v3, real a4, const Volume& v4, real a5, const Volume& v5);
+
+
+            //! Gets the total size in each dimension.
+            //! Equivalent to calling
+            //! \code{.cpp}
+            //! ivec3 dimensions{volume.getTotalNumberOfXCells(),
+            //!                  volume.getTotalNumberOfYCells(),
+            //!                  volume.getTotalNumberOfZCells()};
+            //! \endcode
+            virtual ivec3 getTotalDimensions() const;
+
+
+            //! Adds a power of the other volume to this volume, ie
+            //!
+            //! \f[this += pow(other, power)\f]
+            //!
+            //! @param other the other volume to the the power of
+            //! @param power the power to use
+            virtual void addPower(const Volume& other, real power);
+
+            //! Subtracts a power of the other volume to this volume, ie
+            //!
+            //! \f[this -= pow(other, power)\f]
+            //!
+            //! @param other the other volume to the the power of
+            //! @param power the power to use
+            virtual void subtractPower(const Volume& other, real power);
+
+
+            //! Makes a volume with the same memory areas and the same sizes
+            std::shared_ptr<volume::Volume> makeInstance() const;
+
+            //! Makes a new volume with the same names for the memory areas,
+            //! but with the newly given sizes.
+            std::shared_ptr<volume::Volume> makeInstance(size_t nx, size_t ny, size_t nz, const std::string& platform = "default") const;
+
 
         private:
             const std::vector<std::string> variableNames;
-            const alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
-
+            alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
             std::vector<alsfvm::shared_ptr<memory::Memory<real> > >
                 memoryAreas;
 			size_t nx;
@@ -202,5 +280,7 @@ namespace alsfvm {
 			size_t numberOfYGhostCells;
 			size_t numberOfZGhostCells;
 		};
+
+        
 	}
 }

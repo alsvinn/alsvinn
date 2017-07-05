@@ -1,5 +1,5 @@
 #pragma once
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include <hdf5.h>
 ///
 /// This file contains various utility functions for HDF5
@@ -9,6 +9,19 @@
 #define HDF5_SAFE_CALL(x) {\
     if (x < 0) { \
         THROW("HDF5 error, call looked like: " << #x); \
+    } \
+}
+
+//! Convience macro. Runs expression, test the return value
+//! Throws an exception if return value is negative
+#define HDF5_MAKE_RESOURCE(holder, expression, closer) { \
+    auto hidValue = expression; \
+    if (hidValue < 0) { \
+        THROW("HDF5 error in running\n\t" << #expression \
+              <<"\n\n" << __FILE__ << ": " << __LINE__); \
+    } \
+    else { \
+        holder.reset(new HDF5Resource(hidValue, closer)); \
     } \
 }
 
@@ -44,13 +57,15 @@ namespace io {
             // empty
         }
 
-        inline ~HDF5Resource() {
-            HDF5_SAFE_CALL(deleter(hdf5Resource));
+        inline ~HDF5Resource() noexcept(false) {
+             HDF5_SAFE_CALL(deleter(hdf5Resource));
         }
 
         inline hid_t hid() {
             return hdf5Resource;
         }
+
+
 
     private:
         // We do not want to be able to copy this

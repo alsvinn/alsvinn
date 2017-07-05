@@ -29,6 +29,15 @@ namespace alsfvm { namespace integrator {
                                 rvec3& waveSpeed, bool computeWaveSpeed,
                                 volume::Volume& output) = 0;
 
+        /// 
+        /// Returns the number of ghost cells needed.
+        /// This will take the maximum between the number of ghost cells the numerical
+        /// flux needs, and the number of ghost cells the diffusion operator needs
+        ///
+        virtual inline size_t getNumberOfGhostCells() const {
+            return 0;
+        }
+
         virtual ~System() {/*empty*/}
     };
 } // namespace alsfvm

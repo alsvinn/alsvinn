@@ -1,6 +1,6 @@
 #include "alsfvm/equation/EquationParameterFactory.hpp"
 #include "alsfvm/equation/euler/EulerParameters.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include "alsfvm/equation/equation_list.hpp"
 
 namespace alsfvm { namespace equation {

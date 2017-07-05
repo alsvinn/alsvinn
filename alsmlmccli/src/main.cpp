@@ -48,9 +48,13 @@ int main(int argc, char** argv) {
 
 		alsfvm::config::SimulatorSetup setup;
 
-        auto simulatorCoarse = setup.readSetupFromFile(inputCoarse);
-        auto simulatorFine = setup.readSetupFromFile(inputFine);
+        auto simulatorCoarsePair = setup.readSetupFromFile(inputCoarse);
+        auto simulatorFinePair = setup.readSetupFromFile(inputFine);
+        auto simulatorCoarse = simulatorCoarsePair.first;
+        auto simulatorFine = simulatorFinePair.first;
 
+        simulatorCoarse->setInitialValue(simulatorCoarsePair.second);
+        simulatorFine->setInitialValue(simulatorFinePair.second);
 
         auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>(simulatorCoarse->getPlatformName());
         auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);

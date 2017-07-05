@@ -1,5 +1,5 @@
 #include "alsfvm/memory/MemoryFactory.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include "alsfvm/memory/HostMemory.hpp"
 #ifdef  ALSVINN_HAVE_CUDA
 #include "alsfvm/cuda/CudaMemory.hpp"
@@ -38,6 +38,11 @@ namespace alsfvm {
             } else {
 				THROW("Unknown memory type " << deviceConfiguration->getPlatform());
             }
-		}
+        }
+
+        const std::string &MemoryFactory::getPlatform() const
+        {
+            return deviceConfiguration->getPlatform();
+        }
 	}
 }

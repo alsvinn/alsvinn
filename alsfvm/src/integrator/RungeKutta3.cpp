@@ -50,7 +50,8 @@ real RungeKutta3::performSubstep(const std::vector<alsfvm::shared_ptr< volume::V
 		dt / spatialCellSizes.y,
 		dt / spatialCellSizes.z);
 
-	output *= cellScaling.x;
+    output *= cellScaling.x;
+
     output += *inputConserved[substep];
 
 

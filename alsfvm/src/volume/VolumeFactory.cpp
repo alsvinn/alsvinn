@@ -1,6 +1,6 @@
 #include <vector>
 #include "alsfvm/volume/VolumeFactory.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include "alsfvm/equation/equation_list.hpp"
 
 namespace alsfvm { namespace volume { 
@@ -78,11 +78,11 @@ namespace alsfvm { namespace volume {
 
 	/// 
 	/// Constructs the factory.
-	/// \param equation the equation name ("euler", "sw", etc.)
+	/// \param equation the equation name ("euler1", "euler2", "euler3",  "sw", etc.)
 	/// \param memoryFactory the memory factory to use
 	///
 	VolumeFactory::VolumeFactory(const std::string& equation,
-		alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory) 
+        alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory)
 		: equation(equation), memoryFactory(memoryFactory)
 	{
 

@@ -1,5 +1,5 @@
 #include "alsfvm/boundary/BoundaryCPU.hpp"
-#include "alsfvm/error/Exception.hpp"
+#include "alsutils/error/Exception.hpp"
 #include <cassert>
 #include "alsfvm/boundary/Neumann.hpp"
 #include "alsfvm/boundary/Periodic.hpp"

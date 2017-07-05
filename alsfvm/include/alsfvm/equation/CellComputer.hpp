@@ -8,6 +8,9 @@ namespace alsfvm { namespace equation {
 ///
     class CellComputer {
     public:
+        //! Default destructor to allow inheriting classes to have destructors
+        virtual ~CellComputer();
+
         ///
         /// \brief computeExtraVariables computes the extra variables (eg. pressure for euler)
         /// \param[in] conservedVariables the conserved variables to read from

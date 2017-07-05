@@ -10,6 +10,7 @@
 #include "alsfvm/simulator/SimulatorParameters.hpp"
 #include "alsfvm/init/InitialData.hpp"
 #include "alsfvm/simulator/ConservedSystem.hpp"
+#include "alsfvm/diffusion/DiffusionOperator.hpp"
 #include <vector>
 #include <memory>
 
@@ -41,10 +42,10 @@ namespace alsfvm { namespace simulator {
         /// \param numericalFluxFactory
         /// \param cellComputerFactory
         /// \param memoryFactory
-        /// \param initialData
         /// \param endTime
         /// \param deviceConfiguration
         /// \param equationName
+        /// \param diffusionOperator the diffusion operator to use
         ///
         Simulator(const SimulatorParameters& simulatorParameters,
                   alsfvm::shared_ptr<grid::Grid> & grid,
@@ -54,10 +55,11 @@ namespace alsfvm { namespace simulator {
                   numflux::NumericalFluxFactory& numericalFluxFactory,
                   equation::CellComputerFactory& cellComputerFactory,
                   alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-                  alsfvm::shared_ptr<init::InitialData>& initialData,
 				  real endTime,
 				  alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
-				  std::string& equationName);
+				  std::string& equationName,
+                  alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator
+            );
 
 
 
@@ -80,7 +82,7 @@ namespace alsfvm { namespace simulator {
         /// \brief addWriter adds a writer, this will be called every time callWriter is called
         /// \param writer
         ///
-        void addWriter(alsfvm::shared_ptr<io::Writer>& writer);
+        void addWriter(alsfvm::shared_ptr<io::Writer> writer);
 
         void addTimestepAdjuster(alsfvm::shared_ptr<integrator::TimestepAdjuster>& adjuster);
 
@@ -107,12 +109,19 @@ namespace alsfvm { namespace simulator {
         std::string getPlatformName() const;
 
         std::string getEquationName() const;
+
+        void setInitialValue(alsfvm::shared_ptr<init::InitialData>& initialData);
+
+        const std::shared_ptr<grid::Grid>& getGrid() const;
+         std::shared_ptr<grid::Grid>& getGrid();
     private:
 
         real computeTimestep();
         void checkConstraints();
         void incrementSolution();
 
+        SimulatorParameters simulatorParameters;
+        volume::VolumeFactory volumeFactory;
         TimestepInformation timestepInformation;
         alsfvm::shared_ptr<grid::Grid> grid;
         alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;
@@ -123,7 +132,7 @@ namespace alsfvm { namespace simulator {
         alsfvm::shared_ptr<volume::Volume> extraVolume;
         alsfvm::shared_ptr<equation::CellComputer> cellComputer;
 
-
+        alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator;
         std::vector<alsfvm::shared_ptr<io::Writer> > writers;
         alsfvm::shared_ptr<init::InitialData> initialData;
 
@@ -131,6 +140,7 @@ namespace alsfvm { namespace simulator {
         const real endTime;
         const std::string equationName;
         const std::string platformName;
+        alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
     };
 } // namespace alsfvm
 } // namespace simulator
