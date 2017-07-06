@@ -8,6 +8,7 @@
 #include "alsutils/error/Exception.hpp"
 #include "alsfvm/io/HDF5Writer.hpp"
 #include "alsfvm/io/FixedIntervalWriter.hpp"
+#include "alsfvm/io/CoarseGrainingIntervalWriter.hpp"
 #include <boost/property_tree/xml_parser.hpp>
 #include "alsfvm/init/PythonInitialData.hpp"
 #include <boost/filesystem.hpp>
@@ -244,6 +245,12 @@ alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(const SimulatorSetup
             size_t numberOfSaves = writerNode.get<size_t>("numberOfSaves");
             real endTime = readEndTime(configuration);
             real timeInterval = endTime / numberOfSaves;
+
+            if (writerNode.find("numberOfCoarseSaves") != writerNode.not_found()) {
+                int numberOfCoarseSaves = writerNode.get<size_t>("numberOfCoarseSaves");
+                return alsfvm::shared_ptr<io::Writer>(new io::CoarseGrainingIntervalWriter(baseWriter, timeInterval, numberOfCoarseSaves,  endTime));
+            }
+
             return alsfvm::shared_ptr<io::Writer>(new io::FixedIntervalWriter(baseWriter, timeInterval, endTime));
         }
 

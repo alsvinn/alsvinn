@@ -28,7 +28,7 @@ namespace alsfvm { namespace integrator {
     {
         real newDt = dt;
         for(auto adjuster : timestepAdjusters) {
-            newDt = adjuster->adjustTimestep(dt, timestepInformation);
+            newDt = adjuster->adjustTimestep(newDt, timestepInformation);
         }
         return newDt;
     }
