@@ -29,7 +29,8 @@ public:
     CoarseGrainingIntervalWriter(alsfvm::shared_ptr<Writer>& writer,
                                  real timeInterval,
                                  int numberOfCoarseSaves,
-                                 real endTime);
+                                 real endTime,
+                                 int numberOfSkips);
 
     virtual ~CoarseGrainingIntervalWriter() {}
     ///
@@ -50,6 +51,7 @@ private:
     alsfvm::shared_ptr<Writer> writer;
     const real timeInterval;
     const int numberOfCoarseSaves;
+    const int numberOfSkips;
     const real endTime;
     int numberSaved{0};
     int numberSmallSaved{0};

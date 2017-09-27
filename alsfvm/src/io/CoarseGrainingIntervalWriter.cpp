@@ -8,8 +8,9 @@ namespace alsfvm { namespace io {
 CoarseGrainingIntervalWriter::CoarseGrainingIntervalWriter(alsfvm::shared_ptr<Writer> &writer,
                                                            real timeInterval,
                                                            int numberOfCoarseSaves,
-                                                           real endTime)
+                                                           real endTime, int numberOfSkips)
     : writer(writer), timeInterval(timeInterval), numberOfCoarseSaves(numberOfCoarseSaves),
+      numberOfSkips(numberOfSkips),
       endTime(endTime), numberSaved(0)
 {
 
@@ -22,7 +23,7 @@ void CoarseGrainingIntervalWriter::write(const volume::Volume &conservedVariable
     dx = grid.getCellLengths().x;
     const real currentTime = timestepInformation.getCurrentTime();
 
-    if (currentTime >= numberSaved * timeInterval + dx*(numberSmallSaved)) {
+    if (currentTime >= numberSaved * timeInterval + (numberOfSkips+1)*dx*(numberSmallSaved)) {
         writer->write(conservedVariables, extraVariables, grid, timestepInformation);
         ALSVINN_LOG(INFO, "Writing at " << timestepInformation.getCurrentTime()
                     << "("
@@ -57,7 +58,7 @@ real CoarseGrainingIntervalWriter::adjustTimestep(real dt, const simulator::Time
 {
 
     if (numberSaved > 0) {
-        const real nextSaveTime = numberSaved * timeInterval + dx*(numberSmallSaved);
+        const real nextSaveTime = numberSaved * timeInterval + (numberOfSkips+1)*dx*(numberSmallSaved);
 
         return std::min(dt, nextSaveTime - timestepInformation.getCurrentTime());
     } else {

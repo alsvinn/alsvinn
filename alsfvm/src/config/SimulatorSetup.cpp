@@ -248,7 +248,12 @@ alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(const SimulatorSetup
 
             if (writerNode.find("numberOfCoarseSaves") != writerNode.not_found()) {
                 int numberOfCoarseSaves = writerNode.get<size_t>("numberOfCoarseSaves");
-                return alsfvm::shared_ptr<io::Writer>(new io::CoarseGrainingIntervalWriter(baseWriter, timeInterval, numberOfCoarseSaves,  endTime));
+                int numberOfSkips = writerNode.get<size_t>("numberOfSkips");
+                return alsfvm::shared_ptr<io::Writer>(new io::CoarseGrainingIntervalWriter(baseWriter,
+                                                                                           timeInterval,
+                                                                                           numberOfCoarseSaves,
+                                                                                           endTime,
+                                                                                           numberOfSkips));
             }
 
             return alsfvm::shared_ptr<io::Writer>(new io::FixedIntervalWriter(baseWriter, timeInterval, endTime));

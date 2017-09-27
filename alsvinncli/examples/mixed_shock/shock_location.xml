@@ -1,0 +1,73 @@
+<config>
+<fvm>
+  <name>
+    shocklocation
+  </name>
+  <platform>cpu</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>4 0 0</upperCorner>
+    <dimension>1024 1 1</dimension>
+  </grid>
+  <boundary>neumann</boundary>
+  <flux>godunov</flux>
+  <endTime>3</endTime>
+  <equation>burgers</equation>
+  <reconstruction>weno2</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
+  <initialData>
+    <python>shock_location.py</python>
+
+    <parameters>
+      <parameter>
+        <name>X</name>
+        <length>1</length>
+        <value>0</value>
+      </parameter>
+    </parameters>
+  </initialData>
+  <writer>
+    <type>netcdf</type>
+    <numberOfSaves>300</numberOfSaves>
+    <basename>shock_location</basename>
+  </writer>
+</fvm>
+<uq>
+  <samples>1024</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>X</name>
+      <length>1</length>
+      <type>uniform</type>
+    </parameter>
+  </parameters>
+  <stats>
+    <stat>
+    <name>
+      meanvar
+      </name>
+      <numberOfSaves>1</numberOfSaves>
+      <writer>
+      <type>netcdf</type>
+      <basename>shock_location</basename>
+      </writer>
+    </stat>
+
+
+<stat>
+<name>
+  onepointmoment
+  </name>
+  <p>2</p>
+  <numberOfSaves>1</numberOfSaves>
+  <writer>
+  <type>netcdf</type>
+  <basename>shock_location</basename>
+  </writer>
+</stat>
+  </stats>
+
+</uq>
+</config>
