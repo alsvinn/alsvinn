@@ -1,6 +1,8 @@
 #pragma once
 
 #include "alsfvm/types.hpp"
+#include "alsfvm/boundary/Type.hpp"
+
 namespace alsfvm {
 	namespace grid {
 		///
@@ -16,7 +18,8 @@ namespace alsfvm {
 			/// \param top the top right corner of the grid (maximum point in lexicographical order)
 			/// \param dimensions the dimensions of the grid (in number of cells in each direction)
 			///
-			Grid(rvec3 origin, rvec3 top, ivec3 dimensions);
+            Grid(rvec3 origin, rvec3 top, ivec3 dimensions,
+                 const std::array<boundary::Type,6>& boundaryConditions = boundary::allPeriodic());
 
 			///
 			/// Gets the origin point
@@ -55,6 +58,20 @@ namespace alsfvm {
 			/// \endcode
 			///
 			const std::vector<rvec3>& getCellMidpoints() const;
+
+
+            //! Gets the boundary conditions for the given side
+            //!
+            //! Index  |  Spatial side 1D | Spatial side 2D | Spatial side 3D
+            //! -------|------------------|-----------------|-----------------
+            //!    0   |       left       |     left        |    left
+            //!    1   |       right      |     right       |    right
+            //!    2   |     < not used > |     bottom      |    bottom
+            //!    3   |     < not used > |     top         |    top
+            //!    4   |     < not used > |   < not used >  |    front
+            //!    5   |     < not used > |   < not used >  |    back
+            //!
+            boundary::Type getBoundaryCondition(int side) const;
 		private:
 			rvec3 origin;
 			rvec3 top;
@@ -63,6 +80,9 @@ namespace alsfvm {
 			
 			// A vector containing all cell midpoints
 			std::vector<rvec3> cellMidpoints;
+
+            // For each side, states the boundary condition.
+            std::array<boundary::Type,6> boundaryConditions;
 		};
 	}
 }

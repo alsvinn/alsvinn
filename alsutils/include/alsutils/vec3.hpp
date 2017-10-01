@@ -130,6 +130,15 @@ namespace alsutils {
     }
 
     ///
+    /// Computes the product \f$\ (a_x\cdot b_x, a_y\cdot b_y, a_z\cdot b_z)\f$
+    /// \note Creates a new vector instance
+    ///
+    template<class T, class S>
+    __device__ __host__ inline vec3<T> operator*(const vec3<T>& a, const vec3<S>& b) {
+        return vec3<T>(a.x*b.x, a.y*b.y, a.z*b.z);
+    }
+
+    ///
     /// Computes the difference \f$ \vec{a}-\vec{b}\f$
     /// \note Creates a new vector instance
     ///

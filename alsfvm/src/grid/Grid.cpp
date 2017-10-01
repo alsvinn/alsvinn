@@ -30,9 +30,12 @@ namespace alsfvm {
 		/// \param top the top right corner of the grid (maximum point in lexicographical order)
 		/// \param dimensions the dimensions of the grid (in number of cells in each direction)
 		///
-		Grid::Grid(rvec3 origin, rvec3 top, ivec3 dimensions)
+        Grid::Grid(rvec3 origin, rvec3 top, ivec3 dimensions,
+                   const std::array<boundary::Type, 6>& boundaryConditions)
+
 			: origin(origin), top(top), dimensions(dimensions),
-            cellLengths(computeCellLengths(origin, top, dimensions))
+            cellLengths(computeCellLengths(origin, top, dimensions)),
+            boundaryConditions(boundaryConditions)
 		{
 			// Create the cell midpoints
 			cellMidpoints.resize(dimensions.x*dimensions.y*dimensions.z);
@@ -93,7 +96,12 @@ namespace alsfvm {
 		}
 
 		const std::vector<rvec3>& Grid::getCellMidpoints() const {
-			return cellMidpoints;
-		}
+            return cellMidpoints;
+        }
+
+        boundary::Type Grid::getBoundaryCondition(int side) const
+        {
+            return boundaryConditions[side];
+        }
 	}
 }
