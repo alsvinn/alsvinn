@@ -58,17 +58,34 @@ namespace alsfvm { namespace boundary {
 		}
 
 		template<class BoundaryConditions>
-		void callApplyBoundaryConditions(memory::View<real>& memoryArea, size_t numberOfGhostCells) {
-			applyBoundaryConditions<BoundaryConditions, 0, 1, 0, 0>(memoryArea, numberOfGhostCells);
-			applyBoundaryConditions<BoundaryConditions, 1, 1, 0, 0>(memoryArea, numberOfGhostCells);
+        void callApplyBoundaryConditions(memory::View<real>& memoryArea, size_t numberOfGhostCells,
+                                         const grid::Grid& grid) {
+
+            if (grid.getBoundaryCondition(0) != MPI_BC) {
+                applyBoundaryConditions<BoundaryConditions, 0, 1, 0, 0>(memoryArea, numberOfGhostCells);
+            }
+
+            if (grid.getBoundaryCondition(1) != MPI_BC) {
+                applyBoundaryConditions<BoundaryConditions, 1, 1, 0, 0>(memoryArea, numberOfGhostCells);
+            }
 
 			if (memoryArea.getNumberOfYCells() > 1) {
-				applyBoundaryConditions<BoundaryConditions, 0, 0, 1, 0>(memoryArea, numberOfGhostCells);
-				applyBoundaryConditions<BoundaryConditions, 1, 0, 1, 0>(memoryArea, numberOfGhostCells);
+                if (grid.getBoundaryCondition(2) != MPI_BC) {
+                    applyBoundaryConditions<BoundaryConditions, 0, 0, 1, 0>(memoryArea, numberOfGhostCells);
+                }
+
+                if (grid.getBoundaryCondition(3) != MPI_BC) {
+                    applyBoundaryConditions<BoundaryConditions, 1, 0, 1, 0>(memoryArea, numberOfGhostCells);
+                }
 			}
 			if (memoryArea.getNumberOfZCells() > 1) {
-				applyBoundaryConditions<BoundaryConditions, 0, 0, 0, 1>(memoryArea, numberOfGhostCells);
-				applyBoundaryConditions<BoundaryConditions, 1, 0, 0, 1>(memoryArea, numberOfGhostCells);
+                if (grid.getBoundaryCondition(4) != MPI_BC) {
+                    applyBoundaryConditions<BoundaryConditions, 0, 0, 0, 1>(memoryArea, numberOfGhostCells);
+                }
+
+                if (grid.getBoundaryCondition(5) != MPI_BC) {
+                    applyBoundaryConditions<BoundaryConditions, 1, 0, 0, 1>(memoryArea, numberOfGhostCells);
+                }
 			}
 		}
 	}
@@ -98,7 +115,7 @@ namespace alsfvm { namespace boundary {
 		const grid::Grid& grid) {
 		for (size_t var = 0; var < volume.getNumberOfVariables(); ++var) {
 			memory::View<real> memoryArea = volume.getScalarMemoryArea(var)->getView();
-			callApplyBoundaryConditions<BoundaryConditions>(memoryArea, numberOfGhostCells);
+            callApplyBoundaryConditions<BoundaryConditions>(memoryArea, numberOfGhostCells, grid);
 		}
 	}
 
