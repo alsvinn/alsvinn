@@ -4,7 +4,14 @@
 namespace alsfvm { namespace boundary { 
 
     enum Type {
-        PERIODIC, NEUMANN
+        //! Periodic boundary conditions
+        PERIODIC,
+
+        //! Neumann boundary
+        NEUMANN,
+
+        //! Boundary is handled by the MPI system (gotten from another process)
+        MPI_BC
     };
 
     //! Convenience function to create an array of length 6 with only Type::PERIODIC

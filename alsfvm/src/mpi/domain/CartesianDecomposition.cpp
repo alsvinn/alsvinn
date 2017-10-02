@@ -42,16 +42,14 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
     rvec3 startPosition = grid.getCellLengths() * startIndex;
     rvec3 endPosition = startPosition + grid.getCellLengths() * numberOfCellsPerProcessors;
 
-    // Create new local grid.
-    auto newGrid = alsfvm::make_shared<grid::Grid>(startPosition,
-                                                   endPosition,
-                                                   numberOfCellsPerProcessors);
 
-
-
-    // Find neighbours:
+    // Find neighbours and new boundary conditions:
     ivec6 neighbours;
+    std::array<boundary::Type, 6> boundaryConditions;
     for (int side = 0; side < grid.getActiveDimension()*2; ++side) {
+
+        // by default, all boundaries are now handled by MPI
+        boundaryConditions[side] = boundary::Type::MPI_BC;
         if (nodePosition[side/2] == 0) {
             // we are on the boundary
 
@@ -59,6 +57,10 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
             if (grid.getBoundaryCondition(side) != boundary::Type::PERIODIC) {
                 neighbours[side] = -1;
                 continue;
+            } else {
+
+                // the only boundary condition that isn't handled by MPI
+                boundaryConditions[side] = grid.getBoundaryCondition(side);
             }
         }
 
@@ -73,6 +75,15 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
 
         neighbours[side] = neighbourIndex;
     }
+
+
+    // Create new local grid.
+    auto newGrid = alsfvm::make_shared<grid::Grid>(startPosition,
+                                                   endPosition,
+                                                   numberOfCellsPerProcessors,
+                                                   boundaryConditions);
+
+
 
     alsfvm::shared_ptr<CellExchanger> cellExchanger(new CartesianCellExchanger(configuration, neighbours));
 

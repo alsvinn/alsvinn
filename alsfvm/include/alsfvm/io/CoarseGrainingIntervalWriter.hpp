@@ -25,6 +25,7 @@ public:
     /// \param timeInterval the time interval (will save for every time n*timeInterval)
     /// \param numberOfCoarseSaves the number of saves around a time save (corresponds to \$f\$f in the explanation for the class)
     /// \param endTime the final time for the simulation.
+    /// \param numberOfSkips the number of timesteps to skip
     ///
     CoarseGrainingIntervalWriter(alsfvm::shared_ptr<Writer>& writer,
                                  real timeInterval,
