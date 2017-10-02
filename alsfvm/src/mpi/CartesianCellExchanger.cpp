@@ -19,6 +19,17 @@ bool CartesianCellExchanger::hasSide(int side) const
     return neighbours[side] > -1;
 }
 
+real CartesianCellExchanger::max(real value)
+{
+    real maximum;
+
+    MPI_Allreduce(&value, &maximum, 1, alsutils::mpi::MpiTypes<real>::MPI_Real,
+                  MPI_MAX, configuration->getCommunicator());
+
+    return maximum;
+
+}
+
 RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume &outputVolume,
                                            const volume::Volume &inputVolume)
 {

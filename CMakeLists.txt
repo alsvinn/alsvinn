@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.1.0)
-SET(ALSVINN_USE_HUNTER ON CACHE BOOL "Use Hunter for automatic compiling of additional packages")
+SET(ALSVINN_USE_HUNTER OFF CACHE BOOL "Use Hunter for automatic compiling of additional packages")
 
 SET(HUNTER_ROOT ${CMAKE_BINARY_DIR}/hunter_root)
 

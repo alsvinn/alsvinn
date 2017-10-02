@@ -24,6 +24,15 @@ namespace alsfvm {
             return lengths;
         }
     }
+
+    Grid::Grid(rvec3 origin, rvec3 top, ivec3 dimensions,
+               const std::array<boundary::Type,6>& boundaryConditions
+            )
+        : Grid(origin, top, dimensions, boundaryConditions, {0,0,0}, dimensions)
+    {
+
+    }
+
 		/// 
 		/// Constructs the Grid
 		/// \param origin the origin point of the grid (the smallest point in lexicographical order)
@@ -31,11 +40,15 @@ namespace alsfvm {
 		/// \param dimensions the dimensions of the grid (in number of cells in each direction)
 		///
         Grid::Grid(rvec3 origin, rvec3 top, ivec3 dimensions,
-                   const std::array<boundary::Type, 6>& boundaryConditions)
+                   const std::array<boundary::Type, 6>& boundaryConditions,
+                   const ivec3& globalPosition,
+                   const ivec3& globalSize)
 
 			: origin(origin), top(top), dimensions(dimensions),
             cellLengths(computeCellLengths(origin, top, dimensions)),
-            boundaryConditions(boundaryConditions)
+            boundaryConditions(boundaryConditions),
+            globalPosition(globalPosition),
+            globalSize(globalSize)
 		{
 			// Create the cell midpoints
 			cellMidpoints.resize(dimensions.x*dimensions.y*dimensions.z);
@@ -102,6 +115,16 @@ namespace alsfvm {
         boundary::Type Grid::getBoundaryCondition(int side) const
         {
             return boundaryConditions[side];
+        }
+
+        ivec3 Grid::getGlobalPosition() const
+        {
+            return globalPosition;
+        }
+
+        ivec3 Grid::getGlobalSize() const
+        {
+            return globalSize;
         }
 	}
 }

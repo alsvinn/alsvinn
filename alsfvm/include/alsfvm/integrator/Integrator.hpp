@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/volume/Volume.hpp"
 #include "alsfvm/integrator/TimestepAdjuster.hpp"
+#include "alsfvm/integrator/WaveSpeedAdjuster.hpp"
 
 
 
@@ -77,6 +78,8 @@ namespace alsfvm { namespace integrator {
         ///
         void addTimestepAdjuster(alsfvm::shared_ptr<TimestepAdjuster>& adjuster);
 
+        void addWaveSpeedAdjuster(WaveSpeedAdjusterPtr adjuster);
+
     protected:
         ///
         /// \brief adjustTimestep adjusts the timesteps according to the timestepsadjusters
@@ -88,6 +91,7 @@ namespace alsfvm { namespace integrator {
 
     private:
         std::vector<alsfvm::shared_ptr<TimestepAdjuster> > timestepAdjusters;
+        std::vector<WaveSpeedAdjusterPtr > waveSpeedAdjusters;
 
     };
 

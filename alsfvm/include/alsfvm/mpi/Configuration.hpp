@@ -10,10 +10,13 @@ namespace alsfvm { namespace mpi {
         MPI_Comm getCommunicator();
 
         int getNodeNumber() const;
+
+        MPI_Info getInfo();
     private:
         MPI_Comm communicator;
 
         int nodeNumber;
+        MPI_Info info;
     };
 
     typedef alsfvm::shared_ptr<Configuration> ConfigurationPtr;

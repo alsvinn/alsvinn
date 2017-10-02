@@ -12,6 +12,12 @@ CartesianDecomposition::CartesianDecomposition(const DomainDecompositionParamete
 
 }
 
+CartesianDecomposition::CartesianDecomposition(int nx, int ny, int nz)
+    : numberOfProcessors(nx, ny, nz)
+{
+
+}
+
 DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configuration,
                                                     const grid::Grid &grid)
 {
@@ -81,7 +87,9 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
     auto newGrid = alsfvm::make_shared<grid::Grid>(startPosition,
                                                    endPosition,
                                                    numberOfCellsPerProcessors,
-                                                   boundaryConditions);
+                                                   boundaryConditions,
+                                                   startIndex,
+                                                   grid.getDimensions());
 
 
 

@@ -6,7 +6,7 @@ Configuration::Configuration(MPI_Comm communicator)
     : communicator(communicator)
 {
     MPI_Comm_rank(communicator, &nodeNumber);
-
+    info = MPI_INFO_NULL;
 }
 
 MPI_Comm Configuration::getCommunicator()
@@ -17,6 +17,11 @@ MPI_Comm Configuration::getCommunicator()
 int Configuration::getNodeNumber() const
 {
 
+}
+
+MPI_Info Configuration::getInfo()
+{
+    return info;
 }
 
 }

@@ -16,6 +16,12 @@
 #include "alsfvm/diffusion/DiffusionFactory.hpp"
 #include <set>
 #include "alsutils/log.hpp"
+
+#ifdef ALSVINN_USE_MPI
+#include "alsfvm/mpi/domain/CartesianDecomposition.hpp"
+#include "alsfvm/io/MpiWriterFactory.hpp"
+#endif
+
 namespace alsfvm { namespace config {
 // Example xml:
 // <fvm>
@@ -59,6 +65,9 @@ std::pair<alsfvm::shared_ptr<simulator::Simulator>,
 alsfvm::shared_ptr<init::InitialData> >
 SimulatorSetup::readSetupFromFile(const std::string &filename)
 {
+    if (!boost::filesystem::exists(filename)) {
+        THROW("Input file does not exist\n" << filename );
+    }
     basePath = boost::filesystem::path(boost::filesystem::absolute(filename)).parent_path().string();
     std::ifstream file(filename);
     XMLParser parser;
@@ -80,8 +89,16 @@ SimulatorSetup::readSetupFromFile(const std::string &filename)
             THROW("Unsupported configuration option " << node.first);
         }
     }
-    auto grid = createGrid(configuration);
+    auto grid = createGrid(configuration); 
     auto boundary = readBoundary(configuration);
+
+#ifdef ALSVINN_USE_MPI
+    if (useMPI) {
+        auto domainInformation = decomposeGrid(grid);
+        grid = domainInformation->getGrid();
+    }
+#endif
+
     real endTime = readEndTime(configuration);
 
     auto equation = readEquation(configuration);
@@ -145,6 +162,20 @@ void SimulatorSetup::setWriterFactory(std::shared_ptr<io::WriterFactory> writerF
     this->writerFactory = writerFactory;
 }
 
+#ifdef ALSVINN_USE_MPI
+void SimulatorSetup::enableMPI(MPI_Comm communicator, int multiX, int multiY, int multiZ)
+{
+    mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(communicator);
+    this->multiX = multiX;
+    this->multiY = multiY;
+    this->multiZ = multiZ;
+
+    alsfvm::shared_ptr<io::WriterFactory> writerFactory;
+    writerFactory.reset(new io::MpiWriterFactory(mpiConfiguration));
+    setWriterFactory(writerFactory);
+}
+#endif
+
 
 alsfvm::shared_ptr<grid::Grid> SimulatorSetup::createGrid(const SimulatorSetup::ptree &configuration)
 {
@@ -159,7 +190,20 @@ alsfvm::shared_ptr<grid::Grid> SimulatorSetup::createGrid(const SimulatorSetup::
     auto upperCorner = parseVector<real>(upperCornerString);
     auto dimension = parseVector<int>(dimensionString);
 
-    return alsfvm::make_shared<grid::Grid>(lowerCorner, upperCorner, dimension);
+    auto boundaryName = readBoundary(configuration);
+
+    std::array<boundary::Type, 6> boundaryConditions;
+
+    if (boundaryName == "periodic") {
+        boundaryConditions = boundary::allPeriodic();
+    } else if (boundaryName == "neumann") {
+        boundaryConditions = boundary::allNeumann();
+    } else {
+        THROW("Unknown boundary conditions " << boundaryName);
+    }
+
+    return alsfvm::make_shared<grid::Grid>(lowerCorner, upperCorner, dimension,
+                                           boundaryConditions);
 }
 
 real SimulatorSetup::readEndTime(const SimulatorSetup::ptree &configuration)
@@ -375,6 +419,15 @@ alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion
 std::string SimulatorSetup::readFlux(const SimulatorSetup::ptree &configuration)
 {
     return configuration.get<std::string>("fvm.flux");
+}
+
+mpi::domain::DomainInformationPtr SimulatorSetup::decomposeGrid(const alsfvm::shared_ptr<grid::Grid> &grid)
+{
+    // for now we assume we have a cartesian grid
+    mpi::domain::CartesianDecomposition cartesianDecomposition(multiX, multiY, multiZ);
+
+    return cartesianDecomposition.decompose(mpiConfiguration, *grid);
+
 }
 
 }

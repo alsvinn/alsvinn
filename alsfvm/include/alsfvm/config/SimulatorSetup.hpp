@@ -6,6 +6,11 @@
 #include "alsfvm/diffusion/DiffusionOperator.hpp"
 #include "alsfvm/init/Parameters.hpp"
 #include "alsfvm/io/WriterFactory.hpp"
+#ifdef ALSVINN_USE_MPI
+#include <mpi.h>
+#include "alsfvm/mpi/domain/DomainInformation.hpp"
+#endif
+
 namespace alsfvm { namespace config { 
 
     class SimulatorSetup {
@@ -18,6 +23,11 @@ namespace alsfvm { namespace config {
 
         void setWriterFactory(std::shared_ptr<io::WriterFactory> writerFactory);
 
+#ifdef ALSVINN_USE_MPI
+
+        //! Call to enable mpi. Has to be called *before* readSetupFromFile.
+        void enableMPI(MPI_Comm communicator, int multiX, int multiY, int multiZ);
+#endif
     protected:
 
         alsfvm::shared_ptr<init::InitialData> createInitialData(const ptree& configuration);
@@ -45,6 +55,16 @@ namespace alsfvm { namespace config {
 
         std::shared_ptr<io::WriterFactory> writerFactory{new io::WriterFactory};
         std::string basePath;
+
+
+#ifdef ALSVINN_USE_MPI
+        mpi::domain::DomainInformationPtr decomposeGrid(const alsfvm::shared_ptr<grid::Grid>& grid);
+        bool useMPI{false};
+        mpi::ConfigurationPtr mpiConfiguration;
+        int multiX;
+        int multiY;
+        int multiZ;
+#endif
     };
 } // namespace alsfvm
 } // namespace config

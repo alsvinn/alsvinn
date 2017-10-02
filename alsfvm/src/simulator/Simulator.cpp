@@ -195,7 +195,14 @@ void Simulator::incrementSolution()
 	real dt = 0;
     for (size_t substep = 0; substep < integrator->getNumberOfSubsteps(); ++substep) {
         auto& conservedNext = conservedVolumes[substep + 1];
-        dt = integrator->performSubstep(conservedVolumes, grid->getCellLengths(), dt, cflNumber, *conservedNext, substep, timestepInformation);
+        dt = integrator->performSubstep(conservedVolumes,
+                                        grid->getCellLengths(),
+                                        dt,
+                                        cflNumber,
+                                        *conservedNext,
+                                        substep,
+                                        timestepInformation);
+        doCellExchange(*conservedNext);
         boundary->applyBoundaryConditions(*conservedNext, *grid);
     }
     conservedVolumes[0].swap(conservedVolumes.back());
@@ -204,5 +211,21 @@ void Simulator::incrementSolution()
     timestepInformation.incrementTime(dt);
 }
 
+void Simulator::doCellExchange(volume::Volume& volume)
+{
+#ifdef ALSVINN_USE_MPI
+    if (cellExchanger) {
+        cellExchanger->exchangeCells(volume, volume).waitForAll();
+    }
+#endif
 }
+
+#ifdef ALSVINN_USE_MPI
+void Simulator::setCellExchanger(mpi::CellExchangerPtr value)
+{
+    cellExchanger = value;
+    integrator->addWaveSpeedAdjuster(alsfvm::dynamic_pointer_cast<integrator::WaveSpeedAdjuster>(cellExchanger));
 }
+#endif
+}
+                 }

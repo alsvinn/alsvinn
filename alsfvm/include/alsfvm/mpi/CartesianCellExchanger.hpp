@@ -35,6 +35,8 @@ namespace alsfvm { namespace mpi {
 
         bool hasSide(int side) const;
 
+        real max(real value) override;
+
     private:
         ConfigurationPtr configuration;
 

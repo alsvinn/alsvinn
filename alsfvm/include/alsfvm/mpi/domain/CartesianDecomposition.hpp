@@ -7,6 +7,8 @@ namespace alsfvm { namespace mpi { namespace domain {
     class CartesianDecomposition : public DomainDecomposition {
     public:
         CartesianDecomposition(const DomainDecompositionParameters& parameters);
+        CartesianDecomposition(int nx, int ny, int nz);
+
 
         virtual DomainInformationPtr decompose(ConfigurationPtr configuration,
                                             const grid::Grid &grid
