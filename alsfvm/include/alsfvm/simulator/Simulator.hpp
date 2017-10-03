@@ -126,7 +126,7 @@ namespace alsfvm { namespace simulator {
 
     private:
 
-         real computeTimestep();
+
          void checkConstraints();
         void incrementSolution();
         void doCellExchange(volume::Volume& volume);

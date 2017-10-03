@@ -1,5 +1,5 @@
 #pragma once
-
+#include <sstream>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -19,7 +19,9 @@
 
 
 #define ALSVINN_LOG(severity, message) { \
-    BOOST_LOG_SEV(::alsutils::log::alsvinnLogger::get(), severity) << message; \
+    std::stringstream ssForLog; \
+    ssForLog << message; \
+    BOOST_LOG_SEV(::alsutils::log::alsvinnLogger::get(), severity) << ssForLog.str(); \
     }
 
 namespace alsutils {

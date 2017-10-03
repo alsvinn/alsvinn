@@ -22,7 +22,6 @@ bool CartesianCellExchanger::hasSide(int side) const
 real CartesianCellExchanger::max(real value)
 {
     real maximum;
-
     MPI_Allreduce(&value, &maximum, 1, alsutils::mpi::MpiTypes<real>::MPI_Real,
                   MPI_MAX, configuration->getCommunicator());
 
@@ -43,9 +42,17 @@ RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume &outputVol
     for (int side = 0; side < 2 * dimensions; ++side) {
         if (hasSide(side)) {
             for (int var = 0; var < inputVolume.getNumberOfVariables(); ++ var) {
+                auto opposite_side = [](int s) {
+                    int d = s/2;
+                    int i = s%2;
+
+                    return (i+1)%2 + d*2;
+                };
+
+
                 container.addRequest(Request::isend(*inputVolume[var],
                                                     1,
-                                                    datatypesSend[side].indexedDatatype(),
+                                                    datatypesSend[side]->indexedDatatype(),
                                                     neighbours[side],
                                                     0,
                                                     *configuration
@@ -53,16 +60,16 @@ RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume &outputVol
 
                 container.addRequest(Request::ireceive(*outputVolume[var],
                                                        1,
-                                                       datatypesReceive[side].indexedDatatype(),
-                                                       neighbours[side],
+                                                       datatypesReceive[opposite_side(side)]->indexedDatatype(),
+                                                       neighbours[opposite_side(side)],
                                                        0,
                                                        *configuration
                                                        ));
 
+
             }
         }
     }
-
     return container;
 
 }
@@ -85,9 +92,8 @@ void CartesianCellExchanger::createDataTypeSend(int side, const volume::Volume &
                                                          ghostCells);
 
 
-
-    datatypesSend.push_back(MpiIndexType(numberOfSegments, lengths, displacements,
-                                  alsutils::mpi::MpiTypes<real>::MPI_Real));
+    datatypesSend.push_back(MpiIndexType::makeInstance(numberOfSegments, lengths, displacements,
+                                  MPI_DOUBLE));
 }
 
 void CartesianCellExchanger::createDataTypeReceive(int side, const volume::Volume &volume)
@@ -108,8 +114,8 @@ void CartesianCellExchanger::createDataTypeReceive(int side, const volume::Volum
                                                          ghostCells);
 
 
-    datatypesReceive.push_back(MpiIndexType(numberOfSegments, lengths, displacements,
-                                  alsutils::mpi::MpiTypes<real>::MPI_Real));
+    datatypesReceive.push_back(MpiIndexType::makeInstance(numberOfSegments, lengths, displacements,
+                                  MPI_DOUBLE));
 }
 
 void CartesianCellExchanger::createDataTypes(const volume::Volume &volume)

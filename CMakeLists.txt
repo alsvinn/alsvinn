@@ -190,3 +190,8 @@ endif()
 if(ALSVINN_BUILD_DOXYGEN)
 	add_subdirectory("doxygen")
 endif()
+
+
+if(ALSVINN_USE_MPI)
+    add_subdirectory("mpi_test")
+endif()

@@ -1,6 +1,7 @@
 #include "alsfvm/mpi/domain/CartesianDecomposition.hpp"
 #include "alsutils/error/Exception.hpp"
 #include "alsfvm/mpi/CartesianCellExchanger.hpp"
+#include "alsutils/log.hpp"
 
 namespace alsfvm { namespace mpi { namespace domain {
 
@@ -42,7 +43,8 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
 
     ivec3 numberOfCellsPerProcessors = dimensions / numberOfProcessors;
     // startIndex for the grid
-    ivec3 startIndex = (numberOfCellsPerProcessors) * nodePosition;
+    ivec3 startIndex = numberOfCellsPerProcessors * nodePosition;
+
 
     // Geometrical position
     rvec3 startPosition = grid.getCellLengths() * startIndex;
@@ -52,27 +54,32 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
     // Find neighbours and new boundary conditions:
     ivec6 neighbours;
     std::array<boundary::Type, 6> boundaryConditions;
-    for (int side = 0; side < grid.getActiveDimension()*2; ++side) {
-
+    for(int side = 0; side < 6; ++side) {
         // by default, all boundaries are now handled by MPI
         boundaryConditions[side] = boundary::Type::MPI_BC;
+    }
+    for (int side = 0; side < grid.getActiveDimension()*2; ++side) {
+
+
         if (nodePosition[side/2] == 0) {
             // we are on the boundary
 
             // We should only exchange if it is periodic
             if (grid.getBoundaryCondition(side) != boundary::Type::PERIODIC) {
                 neighbours[side] = -1;
-                continue;
-            } else {
-
-                // the only boundary condition that isn't handled by MPI
                 boundaryConditions[side] = grid.getBoundaryCondition(side);
+                continue;
             }
         }
 
         ivec3 neighbourPosition = nodePosition;
-        neighbourPosition[side] -= 1;
-        neighbourPosition[side] %= numberOfProcessors[side];
+        const int i = side % 2;
+        neighbourPosition[side/2] += -(i==0) + (i==1);
+        if (neighbourPosition[side/2] < 0) {
+            neighbourPosition[side/2] += numberOfProcessors[side/2];
+        }
+        neighbourPosition[side/2] %= numberOfProcessors[side/2];
+
 
 
         int neighbourIndex = neighbourPosition.x +

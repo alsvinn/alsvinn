@@ -41,10 +41,10 @@ namespace alsfvm { namespace mpi {
     inline  RequestPtr Request::isend(const Data& data, int count, MPI_Datatype datatype,
                             int destination, int tag, Configuration& configuration)
     {
-        std::unique_ptr<Request> requestPointer(new Request());
+        std::shared_ptr<Request> requestPointer(new Request());
 
 
-        MPI_Isend((void*)data.getPointer(), count, datatype, destination, tag, configuration.getCommunicator(),
+        MPI_Isend((const void*)data.getPointer(), count, datatype, destination, tag, configuration.getCommunicator(),
                   &requestPointer->request);
 
         return requestPointer;
@@ -54,10 +54,10 @@ namespace alsfvm { namespace mpi {
     inline  RequestPtr Request::ireceive(Data& receiveBuffer, int count, MPI_Datatype datatype,
                                       int source, int tag, Configuration configuration)
     {
-        std::unique_ptr<Request> requestPointer(new Request());
+        std::shared_ptr<Request> requestPointer(new Request());
 
 
-        MPI_Isend((void*)receiveBuffer.getPointer(), count, datatype, source, tag, configuration.getCommunicator(),
+        MPI_Irecv((void*)receiveBuffer.getPointer(), count, datatype, source, tag, configuration.getCommunicator(),
                   &requestPointer->request);
 
         return requestPointer;

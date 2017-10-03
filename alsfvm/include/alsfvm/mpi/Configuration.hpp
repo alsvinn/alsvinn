@@ -11,11 +11,14 @@ namespace alsfvm { namespace mpi {
 
         int getNodeNumber() const;
 
+        int getNumberOfNodes() const;
+
         MPI_Info getInfo();
     private:
         MPI_Comm communicator;
 
         int nodeNumber;
+        int numberOfNodes;
         MPI_Info info;
     };
 

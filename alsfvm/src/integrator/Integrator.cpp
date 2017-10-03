@@ -13,9 +13,9 @@ namespace alsfvm { namespace integrator {
 		}
 
         for (auto& adjuster : waveSpeedAdjusters) {
+
             waveSpeedTotal = adjuster->adjustWaveSpeed(waveSpeedTotal);
         }
-
 
 
 		const real dt = cfl / waveSpeedTotal;

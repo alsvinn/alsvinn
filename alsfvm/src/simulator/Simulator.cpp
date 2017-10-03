@@ -1,7 +1,10 @@
 #include "alsfvm/simulator/Simulator.hpp"
 #include "alsutils/error/Exception.hpp"
 #include <iostream>
+#include "alsutils/log.hpp"
 
+#include <boost/chrono.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 namespace alsfvm { namespace simulator {
 
 Simulator::Simulator(const SimulatorParameters& simulatorParameters,
@@ -34,7 +37,7 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
     const size_t nx = grid->getDimensions().x;
     const size_t ny = grid->getDimensions().y;
     const size_t nz = grid->getDimensions().z;
-
+    ALSVINN_LOG(INFO, "Dimensions are " << nx << ", " << ny << ", " << nz);
     for (size_t i = 0; i < integrator->getNumberOfSubsteps() + 1; ++i) {
         conservedVolumes.push_back(
                 volumeFactory.createConservedVolume(nx, ny, nz,
@@ -160,25 +163,6 @@ void Simulator::callWriters()
     }
 }
 
-real Simulator::computeTimestep()
-{
-    const size_t dimension = grid->getActiveDimension();
-    real waveSpeedTotal = 0;
-    for (size_t direction = 0; direction < dimension; ++direction) {
-        const real waveSpeed =
-                cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extraVolume, direction);
-			
-        const real cellLength = grid->getCellLengths()[direction];
-        waveSpeedTotal += waveSpeed / cellLength;
-    }
-
-
-
-    const real dt = cflNumber / waveSpeedTotal;
-
-    return dt;
-}
-
 void Simulator::checkConstraints()
 {
     const bool obeys = cellComputer->obeysConstraints(*conservedVolumes[0],
@@ -194,6 +178,7 @@ void Simulator::incrementSolution()
 {
 	real dt = 0;
     for (size_t substep = 0; substep < integrator->getNumberOfSubsteps(); ++substep) {
+        doCellExchange(*conservedVolumes[substep]);
         auto& conservedNext = conservedVolumes[substep + 1];
         dt = integrator->performSubstep(conservedVolumes,
                                         grid->getCellLengths(),
@@ -202,7 +187,9 @@ void Simulator::incrementSolution()
                                         *conservedNext,
                                         substep,
                                         timestepInformation);
-        doCellExchange(*conservedNext);
+
+
+
         boundary->applyBoundaryConditions(*conservedNext, *grid);
     }
     conservedVolumes[0].swap(conservedVolumes.back());

@@ -93,9 +93,11 @@ SimulatorSetup::readSetupFromFile(const std::string &filename)
     auto boundary = readBoundary(configuration);
 
 #ifdef ALSVINN_USE_MPI
+    mpi::CellExchangerPtr cellExchangerPtr;
     if (useMPI) {
         auto domainInformation = decomposeGrid(grid);
         grid = domainInformation->getGrid();
+        cellExchangerPtr = domainInformation->getCellExchanger();
     }
 #endif
 
@@ -145,6 +147,8 @@ SimulatorSetup::readSetupFromFile(const std::string &filename)
                                                                equation,
                                                                diffusionOperator);
 
+    simulator->setCellExchanger(cellExchangerPtr);
+
     if (writer) {
         simulator->addWriter(writer);
     }
@@ -165,6 +169,7 @@ void SimulatorSetup::setWriterFactory(std::shared_ptr<io::WriterFactory> writerF
 #ifdef ALSVINN_USE_MPI
 void SimulatorSetup::enableMPI(MPI_Comm communicator, int multiX, int multiY, int multiZ)
 {
+    useMPI = true;
     mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(communicator);
     this->multiX = multiX;
     this->multiY = multiY;

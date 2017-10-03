@@ -18,7 +18,7 @@ void Request::wait()
 
 Request::~Request()
 {
-
+    this->wait();
 }
 
 }

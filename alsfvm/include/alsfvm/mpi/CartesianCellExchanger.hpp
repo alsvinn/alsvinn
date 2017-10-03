@@ -42,8 +42,8 @@ namespace alsfvm { namespace mpi {
 
         const ivec6 neighbours;
 
-        std::vector<MpiIndexType> datatypesReceive;
-        std::vector<MpiIndexType> datatypesSend;
+        std::vector<MpiIndexTypePtr> datatypesReceive;
+        std::vector<MpiIndexTypePtr> datatypesSend;
 
         void createDataTypes(const volume::Volume& volume);
         void createDataTypeSend(int side, const volume::Volume &volume);

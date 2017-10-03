@@ -27,6 +27,9 @@ int main(int argc, char** argv) {
                 ("help", "Produces this help message")
 
         #ifdef ALSVINN_USE_MPI
+                ("automatic-x,x", "Divides all cores available in the X direction")
+                ("automatic-y,y", "Divides all cores available in the Y direction")
+                ("automatic-z,z", "Divides all cores available in the Z direction")
                 ("multi-x", value<int>()->default_value(1),
                  "number of processors to use in x direction")
                 ("multi-y", value<int>()->default_value(1),
@@ -92,11 +95,32 @@ int main(int argc, char** argv) {
 		alsfvm::config::SimulatorSetup setup;
 
 #ifdef ALSVINN_USE_MPI
-        const int multiX = vm["multi-x"].as<int>();
-        const int multiY = vm["multi-y"].as<int>();
-        const int multiZ = vm["multi-z"].as<int>();
+
+        int multiX = vm["multi-x"].as<int>();
+        int multiY = vm["multi-y"].as<int>();
+        int multiZ = vm["multi-z"].as<int>();
 
 
+        if (vm.count("automatic-x")) {
+           multiX = numberOfProcessors;
+           multiY = 1;
+           multiZ = 1;
+
+        }
+
+        if (vm.count("automatic-y")) {
+            multiX = 1;
+            multiY = numberOfProcessors;
+            multiZ = 1;
+
+        }
+
+        if (vm.count("automatic-z")) {
+            multiX = 1;
+            multiY = 1;
+            multiZ = numberOfProcessors;
+
+        }
         if (numberOfProcessors != multiX*multiY*multiZ) {
             THROW("The total number of processors required is: " << multiX*multiY*multiZ
                   << "\n"<<"The total number given was: " << numberOfProcessors);
@@ -147,7 +171,7 @@ int main(int argc, char** argv) {
         ALSVINN_LOG(INFO, "Duration: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeEnd - timeStart).count() << " ms");
         ALSVINN_LOG(INFO, "Duration (wall time): " << (wallEnd - wallStart));
 
-        MPI_SAFE_CALL(MPI_Finalize());
+
 	}
 	catch (std::runtime_error& e) {
         ALSVINN_LOG(ERROR, "Error!" << std::endl
@@ -155,5 +179,7 @@ int main(int argc, char** argv) {
 
 		return EXIT_FAILURE;
 	}
+
+     MPI_SAFE_CALL(MPI_Finalize());
     return EXIT_SUCCESS;
 }

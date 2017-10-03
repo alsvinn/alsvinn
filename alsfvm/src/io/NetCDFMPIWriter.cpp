@@ -155,9 +155,10 @@ void NetCDFMPIWriter::writeMemory(netcdf_raw_ptr baseGroup,
     std::vector<double> data(dataTmp.size());
     std::copy(dataTmp.begin(), dataTmp.end(), data.begin());
     auto globalPosition = alsutils::mpi::to_mpi_offset(grid.getGlobalPosition());
-    auto globalSize = alsutils::mpi::to_mpi_offset(grid.getDimensions());
+    auto localSize = alsutils::mpi::to_mpi_offset(grid.getDimensions());
+
     NETCDF_SAFE_CALl(ncmpi_put_vara_double_all(baseGroup, dataset, globalPosition.data(),
-                                               globalSize.data(),
+                                               localSize.data(),
                                                data.data()));
 }
 
