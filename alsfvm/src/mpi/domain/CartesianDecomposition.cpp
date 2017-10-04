@@ -68,7 +68,6 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
 
             // We should only exchange if it is periodic
             if (grid.getBoundaryCondition(side) != boundary::Type::PERIODIC) {
-                std::cout << "Node : " << nodeNumber << " side " << side << " sizes = " << numberOfProcessors << " node position = " << nodePosition << " setting " << grid.getBoundaryCondition(side) << std::endl;
                 neighbours[side] = -1;
                 boundaryConditions[side] = grid.getBoundaryCondition(side);
                 continue;

@@ -12,7 +12,6 @@ CartesianCellExchanger::CartesianCellExchanger(ConfigurationPtr &configuration,
                                                const ivec6 &neighbours)
     : configuration(configuration), neighbours(neighbours)
 {
-    ALSVINN_LOG(INFO, "Neighbours in constructor = " << neighbours);
 
 }
 
@@ -60,7 +59,7 @@ RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume &outputVol
 
 
             if (hasSide(side)) {
-                ALSVINN_LOG(INFO, std::endl << configuration->getNodeNumber() <<" sending " << side << " to " << neighbours[side]);
+
                 container.addRequest(Request::isend(*inputVolume[var],
                                                     1,
                                                     datatypesSend[side]->indexedDatatype(),
@@ -72,7 +71,6 @@ RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume &outputVol
 
 
             if (hasSide(opposite_side(side))) {
-                ALSVINN_LOG(INFO, std::endl << configuration->getNodeNumber() <<" receiving " << opposite_side(side) << " from " << neighbours[opposite_side(side)]);
 
                 container.addRequest(Request::ireceive(*outputVolume[var],
                                                        1,
