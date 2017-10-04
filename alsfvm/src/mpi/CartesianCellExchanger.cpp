@@ -72,6 +72,7 @@ RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume &outputVol
                                                        ));
 
 
+                container.waitForAll();
             }
         }
     }

@@ -1,3 +1,6 @@
+//! This file tests almost the same as CartesianCellExchanger, only with the Euler
+//! variables (there was a bug earlier where the simulation would hang, therefore this is tested,
+//! also it helps getting the exchange tested for more than one pair of variables)
 #include <gtest/gtest.h>
 #include "alsfvm/mpi/domain/CartesianDecomposition.hpp"
 #include "alsfvm/volume/make_volume.hpp"
@@ -7,7 +10,7 @@
 
 using namespace alsfvm;
 
-TEST(CartesianCellExchanger, Test1D) {
+TEST(CartesianCellExchangerEuler, Test1D) {
     auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
     const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
     const int rank = mpiConfiguration->getNodeNumber();
@@ -19,7 +22,7 @@ TEST(CartesianCellExchanger, Test1D) {
     rvec3 upperCorner = {1,0,0};
 
     const std::string platform = "cpu";
-    const std::string equation = "burgers";
+    const std::string equation = "euler1";
 
     const int ghostCells = 3;
 
@@ -51,19 +54,29 @@ TEST(CartesianCellExchanger, Test1D) {
 
 
 
-    for (int i = ghostCells; i < N + ghostCells; ++i) {
-        (*volume->getScalarMemoryArea(0))[i] = i-ghostCells + N*rank;
+    auto valueAtIndex = [&](int i,  int rank, int var) {
+        return (i-ghostCells + N*rank)*volume->getNumberOfVariables() + var;
+    };
+    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+        for (int i = ghostCells; i < N + ghostCells; ++i) {
+            (*volume->getScalarMemoryArea(var))[i] = valueAtIndex(i,rank,var);
+        }
     }
     const real magicValue = 42*numberOfProcessors+rank;
-    for(int i = 0; i < ghostCells; ++i) {
-        (*volume->getScalarMemoryArea(0))[i] = magicValue;
-        (*volume->getScalarMemoryArea(0))[N+ghostCells + i] = magicValue;
+
+    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+        for(int i = 0; i < ghostCells; ++i) {
+            (*volume->getScalarMemoryArea(0))[i] = magicValue;
+            (*volume->getScalarMemoryArea(0))[N+ghostCells + i] = magicValue;
+        }
     }
 
 
+    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
     for (int i = ghostCells; i < N + ghostCells; ++i) {
-        auto value = (*volume->getScalarMemoryArea(0))[i];
-        ASSERT_EQ(i-ghostCells + N*rank, value);
+           auto value = (*volume->getScalarMemoryArea(var))[i];
+            ASSERT_EQ(valueAtIndex(i,rank,var), value);
+    }
     }
 
     // Make sure max works
@@ -76,7 +89,17 @@ TEST(CartesianCellExchanger, Test1D) {
     information->getCellExchanger()->exchangeCells(*volume, *volume).waitForAll();
 
 
+    auto rankIndex = [&](int x) {
+        const int nx = numberOfProcessors;
+        if (x < 0) {
+            x += nx;
+        }
+        if (x > nx-1) {
+            x -= nx;
+        }
+        return x;
 
+    };
 
     if(numberOfProcessors==1) {
         return;
@@ -85,27 +108,29 @@ TEST(CartesianCellExchanger, Test1D) {
 
 
     // left side
-    for (int i = 0; i < ghostCells; ++i) {
-        int index = i;
-        auto value = (*volume->getScalarMemoryArea(0))[index];
+    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+        for (int i = 0; i < ghostCells; ++i) {
+            int index = i;
+            auto value = (*volume->getScalarMemoryArea(var))[index];
 
-        int expectedValue = N*rank - (ghostCells-i);
-        if (rank == 0) {
-            expectedValue = N*(numberOfProcessors) - (ghostCells-i);
+            int expectedValue = valueAtIndex(N+i, rankIndex(rank-1), var);
+
+
+            EXPECT_EQ(expectedValue, value)
+                    << "Failed at left ghost index " << i << "  on processor " << rank
+                    << "\nvar = " << volume->getName(var) << "(" << var << ")";
         }
 
-        EXPECT_EQ(expectedValue, value)
-                << "Failed at left ghost index " << i << "  on processor " << rank;
-    }
+        // right side
+        for (int i = 0; i < ghostCells; ++i) {
+            int index = N+ghostCells+i;
+            auto value = (*volume->getScalarMemoryArea(var))[index];
+            int expectedValue = valueAtIndex(i+ghostCells, rankIndex(rank + 1), var);
 
-    // right side
-    for (int i = 0; i < ghostCells; ++i) {
-        int index = N+ghostCells+i;
-        auto value = (*volume->getScalarMemoryArea(0))[index];
-        int expectedValue = N*((rank+1)%numberOfProcessors) + (i);
-
-        EXPECT_EQ(expectedValue, value)
-                << "Failed at right ghost index " << i << "  on processor " << rank;
+            EXPECT_EQ(expectedValue, value)
+                    << "Failed at right ghost index " << i << "  on processor " << rank
+                    << "\nvar = " << volume->getName(var) << "(" << var << ")";
+        }
     }
 
 #if 0 //debug output
@@ -132,7 +157,7 @@ TEST(CartesianCellExchanger, Test1D) {
 
 }
 
-TEST(CartesianCellExchanger, Test2D) {
+TEST(CartesianCellExchangerEuler, Test2D) {
      MPI_Barrier(MPI_COMM_WORLD);
     auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
     const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
@@ -150,7 +175,7 @@ TEST(CartesianCellExchanger, Test2D) {
     rvec3 upperCorner = {1,1,0};
 
     const std::string platform = "cpu";
-    const std::string equation = "burgers";
+    const std::string equation = "euler2";
 
     const int ghostCells = 3;
 
@@ -190,9 +215,14 @@ TEST(CartesianCellExchanger, Test2D) {
 
 
     const int M = N + 2*ghostCells;
+
+
+    // Set a default magicVAlue to make debugging easier
     const real magicValue = N*N*42*numberOfProcessors+rank;
-    for(int i = 0; i < M*M; ++i) {
-        (*volume->getScalarMemoryArea(0))[i] = magicValue;
+    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+        for(int i = 0; i < M*M; ++i) {
+            (*volume->getScalarMemoryArea(var))[i] = magicValue;
+        }
     }
 
     // Computes the x component of the rank
@@ -205,9 +235,9 @@ TEST(CartesianCellExchanger, Test2D) {
         return r/nx;
     };
 
-    auto computeValue = [&](int i, int j, int r) {
+    auto computeValue = [&](int i, int j, int r, int var) {
 
-        return (i-ghostCells + xComponent(r)*N) + (j-ghostCells + yComponent(r)*N)*N;
+        return ((i-ghostCells + xComponent(r)*N) + (j-ghostCells + yComponent(r)*N)*N)*volume->getNumberOfVariables() + var;
     };
 
     auto rankIndex = [&](int x, int y) {
@@ -228,19 +258,22 @@ TEST(CartesianCellExchanger, Test2D) {
         return x + y*nx;
     };
 
-    for (int i = ghostCells; i < N + ghostCells; ++i) {
-        for (int j = ghostCells; j < N + ghostCells; ++j) {
-            (*volume->getScalarMemoryArea(0))[j*M+i] = computeValue(i,j, rank);
+    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+        for (int i = ghostCells; i < N + ghostCells; ++i) {
+            for (int j = ghostCells; j < N + ghostCells; ++j) {
+                (*volume->getScalarMemoryArea(var))[j*M+i] = computeValue(i,j, rank,var);
+            }
         }
     }
 
 
 
-
-    for (int i = ghostCells; i < N + ghostCells; ++i) {
-        for (int j = ghostCells; j < N + ghostCells; ++j) {
-            auto value = (*volume->getScalarMemoryArea(0))[j*M+i];
-            ASSERT_EQ(computeValue(i,j, rank), value);
+    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+        for (int i = ghostCells; i < N + ghostCells; ++i) {
+            for (int j = ghostCells; j < N + ghostCells; ++j) {
+                auto value = (*volume->getScalarMemoryArea(var))[j*M+i];
+                ASSERT_EQ(computeValue(i,j, rank, var), value);
+            }
         }
     }
 
@@ -301,8 +334,8 @@ TEST(CartesianCellExchanger, Test2D) {
             << "\n\tyRank             = " << yRank
             << "\n\tumberOfProcessors = " << numberOfProcessors;
 
- MPI_Barrier(MPI_COMM_WORLD);
 
+    //ASSERT_EQ((((rank%nx)+1)%nx) + (rank/nx)*nx, neighbours[0]);
 
     information->getCellExchanger()->exchangeCells(*volume, *volume).waitForAll();
 
@@ -333,58 +366,60 @@ TEST(CartesianCellExchanger, Test2D) {
     MPI_Barrier(MPI_COMM_WORLD);
 #endif
 
-    // left side
-    for (int i = 0; i < ghostCells; ++i) {
-        for (int j = ghostCells; j < N + ghostCells; ++j) {
-            int index = i + j*M;
-            auto value = (*volume->getScalarMemoryArea(0))[index];
+    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
 
-            int expectedValue = computeValue((i+N),j,rankIndex(xRank - 1, yRank));
+        // left side
+        for (int i = 0; i < ghostCells; ++i) {
+            for (int j = ghostCells; j < N + ghostCells; ++j) {
+                int index = i + j*M;
+                auto value = (*volume->getScalarMemoryArea(var))[index];
+
+                int expectedValue = computeValue((i+N),j,rankIndex(xRank - 1, yRank), var);
 
 
-            ASSERT_EQ(expectedValue, value)
-                    << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
+                ASSERT_EQ(expectedValue, value)
+                        << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
+            }
+        }
+
+        // right side
+        for (int i = N+ghostCells; i < M; ++i) {
+            for (int j = ghostCells; j < N + ghostCells; ++j) {
+                int index = i + j*M;
+                auto value = (*volume->getScalarMemoryArea(var))[index];
+
+                int expectedValue = computeValue((i-N),j,rankIndex(xRank + 1, yRank), var);
+
+                ASSERT_EQ(expectedValue, value)
+                        << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
+            }
+        }
+
+
+        // bottom side
+        for (int i = ghostCells; i < N+ghostCells; ++i) {
+            for (int j = 0; j < ghostCells; ++j) {
+                int index = i + j*M;
+                auto value = (*volume->getScalarMemoryArea(var))[index];
+
+                int expectedValue = computeValue(i, j+N,rankIndex(xRank, yRank-1), var);
+
+                ASSERT_EQ(expectedValue, value)
+                        << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
+            }
+        }
+
+        // top side
+        for (int i = ghostCells; i < N+ghostCells; ++i) {
+            for (int j = N+ghostCells; j < M; ++j) {
+                int index = i + j*M;
+                auto value = (*volume->getScalarMemoryArea(var))[index];
+
+                int expectedValue = computeValue(i, j-N,rankIndex(xRank, yRank+1), var);
+
+                ASSERT_EQ(expectedValue, value)
+                        << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
+            }
         }
     }
-
-    // right side
-    for (int i = N+ghostCells; i < M; ++i) {
-        for (int j = ghostCells; j < N + ghostCells; ++j) {
-            int index = i + j*M;
-            auto value = (*volume->getScalarMemoryArea(0))[index];
-
-            int expectedValue = computeValue((i-N),j,rankIndex(xRank + 1, yRank));
-
-            ASSERT_EQ(expectedValue, value)
-                    << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
-        }
-    }
-
-
-    // bottom side
-    for (int i = ghostCells; i < N+ghostCells; ++i) {
-        for (int j = 0; j < ghostCells; ++j) {
-            int index = i + j*M;
-            auto value = (*volume->getScalarMemoryArea(0))[index];
-
-            int expectedValue = computeValue(i, j+N,rankIndex(xRank, yRank-1));
-
-            ASSERT_EQ(expectedValue, value)
-                    << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
-        }
-    }
-
-    // top side
-    for (int i = ghostCells; i < N+ghostCells; ++i) {
-        for (int j = N+ghostCells; j < M; ++j) {
-            int index = i + j*M;
-            auto value = (*volume->getScalarMemoryArea(0))[index];
-
-            int expectedValue = computeValue(i, j-N,rankIndex(xRank, yRank+1));
-
-            ASSERT_EQ(expectedValue, value)
-                    << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
-        }
-    }
-
 }

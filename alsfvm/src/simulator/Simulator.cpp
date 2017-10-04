@@ -200,10 +200,13 @@ void Simulator::incrementSolution()
 
 void Simulator::doCellExchange(volume::Volume& volume)
 {
+
 #ifdef ALSVINN_USE_MPI
+    ALSVINN_LOG(INFO, "Doing cell exchange");
     if (cellExchanger) {
         cellExchanger->exchangeCells(volume, volume).waitForAll();
     }
+    ALSVINN_LOG(INFO, "Cell exchange done");
 #endif
 }
 

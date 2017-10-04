@@ -47,12 +47,7 @@ int main(int argc, char** argv) {
 
         options_description allOptions;
         allOptions.add(description).add(hiddenDescription);
-#ifdef ALSVINN_USE_MPI
 
-        ALSVINN_LOG(INFO, "MPI enabled");
-#else
-        ALSVINN_LOG(INFO, "MPI disabled");
-#endif
 
         positional_options_description p;
         p.add("input", -1);
@@ -80,7 +75,14 @@ int main(int argc, char** argv) {
       int numberOfProcessors;
 
       MPI_SAFE_CALL(MPI_Comm_size(MPI_COMM_WORLD, &numberOfProcessors));
+
+
+        alsutils::log::setLogFile("alsvinncli_mpi_log_" + std::to_string(mpiRank)
+                                  + ".txt");
+        ALSVINN_LOG(INFO, "MPI enabled");
 #else
+        ALSVINN_LOG(INFO, "MPI disabled");
+
         int mpiRank = 0;
 #endif
         auto wallStart = boost::posix_time::second_clock::local_time();
