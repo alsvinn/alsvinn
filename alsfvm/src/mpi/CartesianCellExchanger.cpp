@@ -3,6 +3,7 @@
 #include "alsfvm/mpi/cartesian/number_of_segments.hpp"
 #include "alsfvm/mpi/cartesian/displacements.hpp"
 #include "alsfvm/mpi/cartesian/lengths.hpp"
+#include "alsutils/log.hpp"
 
 
 namespace alsfvm { namespace mpi {
@@ -11,11 +12,13 @@ CartesianCellExchanger::CartesianCellExchanger(ConfigurationPtr &configuration,
                                                const ivec6 &neighbours)
     : configuration(configuration), neighbours(neighbours)
 {
+    ALSVINN_LOG(INFO, "Neighbours in constructor = " << neighbours);
 
 }
 
 bool CartesianCellExchanger::hasSide(int side) const
 {
+
     return neighbours[side] > -1;
 }
 
@@ -35,7 +38,7 @@ ivec6 CartesianCellExchanger::getNeighbours() const
 }
 
 RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume &outputVolume,
-                                           const volume::Volume &inputVolume)
+                                                       const volume::Volume &inputVolume)
 {
     if (datatypesReceive.size() == 0) {
         createDataTypes(outputVolume);
@@ -45,16 +48,19 @@ RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume &outputVol
 
     RequestContainer container;
     for (int side = 0; side < 2 * dimensions; ++side) {
-        if (hasSide(side)) {
-            for (int var = 0; var < inputVolume.getNumberOfVariables(); ++ var) {
-                auto opposite_side = [](int s) {
-                    int d = s/2;
-                    int i = s%2;
-
-                    return (i+1)%2 + d*2;
-                };
 
 
+        for (int var = 0; var < inputVolume.getNumberOfVariables(); ++ var) {
+            auto opposite_side = [](int s) {
+                int d = s/2;
+                int i = s%2;
+
+                return (i+1)%2 + d*2;
+            };
+
+
+            if (hasSide(side)) {
+                ALSVINN_LOG(INFO, std::endl << configuration->getNodeNumber() <<" sending " << side << " to " << neighbours[side]);
                 container.addRequest(Request::isend(*inputVolume[var],
                                                     1,
                                                     datatypesSend[side]->indexedDatatype(),
@@ -62,19 +68,24 @@ RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume &outputVol
                                                     side+var*6,
                                                     *configuration
                                                     ));
+            }
+
+
+            if (hasSide(opposite_side(side))) {
+                ALSVINN_LOG(INFO, std::endl << configuration->getNodeNumber() <<" receiving " << opposite_side(side) << " from " << neighbours[opposite_side(side)]);
 
                 container.addRequest(Request::ireceive(*outputVolume[var],
                                                        1,
                                                        datatypesReceive[opposite_side(side)]->indexedDatatype(),
-                                                       neighbours[opposite_side(side)],
-                                                       side+var*6,
-                                                       *configuration
-                                                       ));
-
-
-                container.waitForAll();
+                                     neighbours[opposite_side(side)],
+                        side+var*6,
+                        *configuration
+                        ));
             }
+
+
         }
+
     }
     return container;
 
@@ -99,7 +110,7 @@ void CartesianCellExchanger::createDataTypeSend(int side, const volume::Volume &
 
 
     datatypesSend.push_back(MpiIndexType::makeInstance(numberOfSegments, lengths, displacements,
-                                  MPI_DOUBLE));
+                                                       MPI_DOUBLE));
 }
 
 void CartesianCellExchanger::createDataTypeReceive(int side, const volume::Volume &volume)
@@ -121,7 +132,7 @@ void CartesianCellExchanger::createDataTypeReceive(int side, const volume::Volum
 
 
     datatypesReceive.push_back(MpiIndexType::makeInstance(numberOfSegments, lengths, displacements,
-                                  MPI_DOUBLE));
+                                                          MPI_DOUBLE));
 }
 
 void CartesianCellExchanger::createDataTypes(const volume::Volume &volume)
@@ -137,4 +148,4 @@ void CartesianCellExchanger::createDataTypes(const volume::Volume &volume)
 }
 
 }
-}
+                 }

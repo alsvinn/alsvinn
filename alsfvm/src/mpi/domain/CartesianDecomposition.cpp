@@ -37,6 +37,7 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
         }
     }
 
+
     int nodeNumber = configuration->getNodeNumber();
     // Find the x,y, z position of the nodeNumber.
     ivec3 nodePosition = cartesian::getCoordinates(nodeNumber, numberOfProcessors);
@@ -58,14 +59,16 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
         // by default, all boundaries are now handled by MPI
         boundaryConditions[side] = boundary::Type::MPI_BC;
     }
+
     for (int side = 0; side < grid.getActiveDimension()*2; ++side) {
 
 
-        if (nodePosition[side/2] == 0) {
+        if ((side % 2 == 0 && nodePosition[side/2] == 0) || (side % 2 ==1 && nodePosition[side/2] == numberOfProcessors[side/2]-1)) {
             // we are on the boundary
 
             // We should only exchange if it is periodic
             if (grid.getBoundaryCondition(side) != boundary::Type::PERIODIC) {
+                std::cout << "Node : " << nodeNumber << " side " << side << " sizes = " << numberOfProcessors << " node position = " << nodePosition << " setting " << grid.getBoundaryCondition(side) << std::endl;
                 neighbours[side] = -1;
                 boundaryConditions[side] = grid.getBoundaryCondition(side);
                 continue;
@@ -85,6 +88,9 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
 
         int neighbourIndex = cartesian::getRankIndex(neighbourPosition, numberOfProcessors);
 
+        if (neighbourIndex < 0) {
+            THROW("NeighbourIndex got negative, this should not happen");
+        }
         neighbours[side] = neighbourIndex;
     }
 
