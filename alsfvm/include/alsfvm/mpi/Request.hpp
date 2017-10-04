@@ -44,7 +44,7 @@ namespace alsfvm { namespace mpi {
         std::shared_ptr<Request> requestPointer(new Request());
 
 
-        MPI_Isend((const void*)data.getPointer(), count, datatype, destination, tag, configuration.getCommunicator(),
+        MPI_Isend((void*)data.getPointer(), count, datatype, destination, tag, configuration.getCommunicator(),
                   &requestPointer->request);
 
         return requestPointer;

@@ -185,6 +185,10 @@ if(ALSVINN_BUILD_TESTS)
   find_package(GTest REQUIRED)
   add_subdirectory("test")
   add_subdirectory("system_test")
+  if(ALSVINN_USE_MPI)
+    add_subdirectory("mpi_test")
+endif()
+
 endif()
 
 if(ALSVINN_BUILD_DOXYGEN)
@@ -192,6 +196,3 @@ if(ALSVINN_BUILD_DOXYGEN)
 endif()
 
 
-if(ALSVINN_USE_MPI)
-    add_subdirectory("mpi_test")
-endif()

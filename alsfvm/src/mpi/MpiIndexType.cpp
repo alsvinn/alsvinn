@@ -8,8 +8,8 @@ MpiIndexType::MpiIndexType(int numberOfBlocks,
                            const std::vector<int> &offsets,
                            MPI_Datatype datatype)
 {
-    MPI_Type_indexed(numberOfBlocks, blockLengths.data(),
-                     offsets.data(),
+  MPI_Type_indexed(numberOfBlocks, (int*)blockLengths.data(),
+		   (int*)offsets.data(),
                      datatype,
                      &indexedDatatypeMember);
     MPI_Type_commit(&indexedDatatypeMember);
