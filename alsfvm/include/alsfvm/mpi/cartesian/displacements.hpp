@@ -53,7 +53,9 @@ inline std::vector<int> computeDisplacements(int side, int dimensions, ivec3 num
                 if (i == 0 && side == 1) {
                     displacements[i] -= ghostCells;
                 }
-                displacements[i] += baseOffset;
+                if (i == 0) {
+                    displacements[i] += baseOffset;
+                }
                 if (i > 0) {
                     displacements[i] += displacements[i-1];
                 }
@@ -65,14 +67,16 @@ inline std::vector<int> computeDisplacements(int side, int dimensions, ivec3 num
                     // we only have two segments in dimension 2 for the y-direction,
                     // and the first one is 0 displacement, therefore, we do not add
                     // displacements[i-1]
-                    displacements[i] += numberOfCellsPerDirection.x*(numberOfCellsPerDirection.y+baseOffset)
+                    displacements[i] += numberOfCellsPerDirection.x*(numberOfCellsPerDirection.y)
                             - numberOfCellsPerDirection.x*ghostCells;
                 }
 
             }
         } else {
             if ( side < 2) {
-                displacements[i] += baseOffset;
+                if (i == 0) {
+                    displacements[i] += baseOffset;
+                }
                 if (side > 0 || i > 0) {
                     displacements[i] += (numberOfCellsPerDirection.x);
                 }
@@ -84,7 +88,9 @@ inline std::vector<int> computeDisplacements(int side, int dimensions, ivec3 num
                 }
 
             } else if (side < 4) {
-                displacements[i] += baseOffset * numberOfCellsPerDirection.x;
+                if (i == 0) {
+                    displacements[i] += baseOffset * numberOfCellsPerDirection.x;
+                }
 
                 if (side > 2 || i > 0) {
                     displacements[i] = numberOfCellsPerDirection.x*(numberOfCellsPerDirection.y);

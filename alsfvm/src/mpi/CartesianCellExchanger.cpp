@@ -29,6 +29,11 @@ real CartesianCellExchanger::max(real value)
 
 }
 
+ivec6 CartesianCellExchanger::getNeighbours() const
+{
+    return neighbours;
+}
+
 RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume &outputVolume,
                                            const volume::Volume &inputVolume)
 {
@@ -54,7 +59,7 @@ RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume &outputVol
                                                     1,
                                                     datatypesSend[side]->indexedDatatype(),
                                                     neighbours[side],
-                                                    0,
+                                                    side+var*6,
                                                     *configuration
                                                     ));
 
@@ -62,7 +67,7 @@ RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume &outputVol
                                                        1,
                                                        datatypesReceive[opposite_side(side)]->indexedDatatype(),
                                                        neighbours[opposite_side(side)],
-                                                       0,
+                                                       side+var*6,
                                                        *configuration
                                                        ));
 

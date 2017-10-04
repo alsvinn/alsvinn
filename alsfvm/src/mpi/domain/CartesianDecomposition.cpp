@@ -2,6 +2,8 @@
 #include "alsutils/error/Exception.hpp"
 #include "alsfvm/mpi/CartesianCellExchanger.hpp"
 #include "alsutils/log.hpp"
+#include "alsfvm/mpi/cartesian/rank_index.hpp"
+#include "alsfvm/mpi/cartesian/rank_component.hpp"
 
 namespace alsfvm { namespace mpi { namespace domain {
 
@@ -37,9 +39,7 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
 
     int nodeNumber = configuration->getNodeNumber();
     // Find the x,y, z position of the nodeNumber.
-    ivec3 nodePosition = ivec3{nodeNumber/(numberOfProcessors.y*numberOfProcessors.z),
-        nodeNumber/(numberOfProcessors.z) % numberOfProcessors.y,
-        nodeNumber % numberOfProcessors.z};
+    ivec3 nodePosition = cartesian::getCoordinates(nodeNumber, numberOfProcessors);
 
     ivec3 numberOfCellsPerProcessors = dimensions / numberOfProcessors;
     // startIndex for the grid
@@ -82,9 +82,8 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
 
 
 
-        int neighbourIndex = neighbourPosition.x +
-                neighbourPosition.y * numberOfProcessors.x
-                + neighbourPosition.z * numberOfProcessors.x * numberOfProcessors.y;
+
+        int neighbourIndex = cartesian::getRankIndex(neighbourPosition, numberOfProcessors);
 
         neighbours[side] = neighbourIndex;
     }

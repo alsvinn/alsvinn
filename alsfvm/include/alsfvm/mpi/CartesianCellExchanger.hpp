@@ -37,6 +37,8 @@ namespace alsfvm { namespace mpi {
 
         real max(real value) override;
 
+        ivec6 getNeighbours() const;
+
     private:
         ConfigurationPtr configuration;
 
