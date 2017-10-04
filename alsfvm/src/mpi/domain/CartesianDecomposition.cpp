@@ -48,9 +48,13 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
 
 
     // Geometrical position
-    rvec3 startPosition = grid.getCellLengths() * startIndex;
+    rvec3 startPosition = grid.getCellLengths() * startIndex + grid.getOrigin();
     rvec3 endPosition = startPosition + grid.getCellLengths() * numberOfCellsPerProcessors;
 
+    // make sure it is one dimensional:
+    for (int dim = grid.getActiveDimension(); dim < 3; ++dim) {
+        endPosition[dim] = startPosition[dim];
+    }
 
     // Find neighbours and new boundary conditions:
     ivec6 neighbours;

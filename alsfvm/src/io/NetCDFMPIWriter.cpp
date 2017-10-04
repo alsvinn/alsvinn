@@ -154,8 +154,10 @@ void NetCDFMPIWriter::writeMemory(netcdf_raw_ptr baseGroup,
 
     std::vector<double> data(dataTmp.size());
     std::copy(dataTmp.begin(), dataTmp.end(), data.begin());
-    auto globalPosition = alsutils::mpi::to_mpi_offset(grid.getGlobalPosition());
-    auto localSize = alsutils::mpi::to_mpi_offset(grid.getDimensions());
+
+    // we need to exhcange the order since netcdf uses y major.
+    auto globalPosition = alsutils::mpi::to_mpi_offset(ivec3(grid.getGlobalPosition().y, grid.getGlobalPosition().x, 0));
+    auto localSize = alsutils::mpi::to_mpi_offset(ivec3(grid.getDimensions().y, grid.getDimensions().x, 1));
 
     NETCDF_SAFE_CALl(ncmpi_put_vara_double_all(baseGroup, dataset, globalPosition.data(),
                                                localSize.data(),

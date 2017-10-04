@@ -45,6 +45,12 @@ TEST(CartesianCellExchanger, Test1D) {
     ASSERT_EQ(1, newDimensions.z);
 
 
+    auto globalPosition = newGrid->getGlobalPosition();
+
+    ASSERT_EQ(globalPosition[0], rank*N);
+    ASSERT_EQ(globalPosition[1], 0);
+    ASSERT_EQ(globalPosition[2], 0);
+
     for(int side= 0; side < 6; ++side) {
         ASSERT_EQ(boundary::MPI_BC, newGrid->getBoundaryCondition(side));
     }
@@ -146,8 +152,8 @@ TEST(CartesianCellExchanger, Test2D) {
     }
 
 
-    rvec3 lowerCorner = {0,0,0};
-    rvec3 upperCorner = {1,1,0};
+    rvec3 lowerCorner = {-3,3,0};
+    rvec3 upperCorner = {4,4,0};
 
     const std::string platform = "cpu";
     const std::string equation = "burgers";
@@ -182,7 +188,6 @@ TEST(CartesianCellExchanger, Test2D) {
     ASSERT_EQ(N, newDimensions.x);
     ASSERT_EQ(N, newDimensions.y);
     ASSERT_EQ(1, newDimensions.z);
-
 
     for(int side= 0; side < 6; ++side) {
         ASSERT_EQ(boundary::MPI_BC, newGrid->getBoundaryCondition(side));
@@ -259,6 +264,54 @@ TEST(CartesianCellExchanger, Test2D) {
     }
     int xRank = xComponent(rank);
     int yRank = yComponent(rank);
+
+
+    auto globalPosition = newGrid->getGlobalPosition();
+    ASSERT_EQ(globalPosition[0], xRank*N);
+    ASSERT_EQ(globalPosition[1], yRank*N);
+    ASSERT_EQ(globalPosition[2], 0);
+
+
+    auto newLowerCorner = newGrid->getOrigin();
+    ASSERT_DOUBLE_EQ(lowerCorner[0] + xRank*N*grid->getCellLengths()[0], newLowerCorner[0])
+            << "Failed with"
+            << "\n\trank              = " << rank
+            << "\n\tnx                = " << nx
+            << "\n\tny                = " << ny
+            << "\n\txRank             = " << xRank
+            << "\n\tyRank             = " << yRank
+            << "\n\tumberOfProcessors = " << numberOfProcessors;
+
+    ASSERT_DOUBLE_EQ(lowerCorner[1] + yRank*N*grid->getCellLengths()[1], newLowerCorner[1])
+            << "Failed with"
+            << "\n\trank              = " << rank
+            << "\n\tnx                = " << nx
+            << "\n\tny                = " << ny
+            << "\n\txRank             = " << xRank
+            << "\n\tyRank             = " << yRank
+            << "\n\tumberOfProcessors = " << numberOfProcessors;
+    ASSERT_DOUBLE_EQ(0, newLowerCorner[2]);
+
+    auto newUpperCorner = newGrid->getTop();
+    ASSERT_DOUBLE_EQ(lowerCorner[0] + (xRank+1)*N*grid->getCellLengths()[0], newUpperCorner[0])
+            << "Failed with"
+            << "\n\trank              = " << rank
+            << "\n\tnx                = " << nx
+            << "\n\tny                = " << ny
+            << "\n\txRank             = " << xRank
+            << "\n\tyRank             = " << yRank
+            << "\n\tumberOfProcessors = " << numberOfProcessors;
+    ASSERT_DOUBLE_EQ(lowerCorner[1] + (yRank+1)*N*grid->getCellLengths()[1], newUpperCorner[1])
+            << "Failed with"
+            << "\n\trank              = " << rank
+            << "\n\tnx                = " << nx
+            << "\n\tny                = " << ny
+            << "\n\txRank             = " << xRank
+            << "\n\tyRank             = " << yRank
+            << "\n\tumberOfProcessors = " << numberOfProcessors;
+    ASSERT_DOUBLE_EQ(0, newUpperCorner[2]);
+
+
     ASSERT_EQ(rankIndex(xRank-1, yRank), neighbours[0])
             << "Failed with"
             << "\n\trank              = " << rank
