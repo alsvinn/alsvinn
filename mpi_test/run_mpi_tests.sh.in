@@ -1,0 +1,20 @@
+#!/bin/bash
+######
+# Small script to run the mpi tests for different number of processors
+#####
+set -e
+MPI_TEST_EXECUTABLE=${CMAKE_BINARY_DIR}/mpi_test/alstest_mpi
+NUMBER_OF_CORES=`nproc --all`
+
+N=1
+
+while [ $N -le $((4*$NUMBER_OF_CORES)) ]
+do
+    echo ""
+    echo "####################"
+    echo "## processors = $N #"
+    echo "####################"
+    echo ""
+    mpirun -np $N $MPI_TEST_EXECUTABLE;
+    N=$((2*$N))
+done
