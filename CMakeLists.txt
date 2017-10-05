@@ -44,6 +44,7 @@ SET(ALSVINN_PROFILE OFF CACHE BOOL "Add profiling information")
 # Add the user's chosen flags to the build for this directory.
 set (CMAKE_CXX_STANDARD 11)
 
+ADD_DEFINITIONS(-DMPICH_RDMA_ENABLED_CUDA=1)
 FIND_PACKAGE(OpenMP)
 if (NOT WIN32)
    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment ${OpenMP_CXX_FLAGS} -fPIC")
