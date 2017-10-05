@@ -3,7 +3,7 @@
   <name>
     taylorgreen
   </name>
-  <platform>cuda</platform>
+  <platform>cpu</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 1</upperCorner>
