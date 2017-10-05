@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 
 
         options_description hiddenDescription;
-        hiddenDescription.add_options()("input", value<std::string>()->required(), "Input xml file to use");
+        hiddenDescription.add_options()("input", value<std::string>(), "Input xml file to use");
 
 
         options_description allOptions;
@@ -54,11 +54,32 @@ int main(int argc, char** argv) {
 
         variables_map vm;
 
-        store(command_line_parser(argc, argv).options(allOptions).positional(p).run(), vm);
-        notify(vm);
+        try {
+            store(command_line_parser(argc, argv).options(allOptions).positional(p).run(), vm);
+            notify(vm);
+        } catch(std::runtime_error& error) {
+            std::cout << error.what() << std::endl;
+            std::cout << "Usage:\n\t" << argv[0] << " <options> <inputfile.xml>" << std::endl<< std::endl;
 
+            std::cout << description << std::endl;
+
+            std::exit(EXIT_FAILURE);
+        }
+
+        if (vm.count("input") == 0) {
+            std::cout << "No input file given!" << std::endl;
+
+
+            if (!vm.count("help")) {
+                std::cout << "Usage:\n\t" << argv[0] << " <options> <inputfile.xml>" << std::endl<< std::endl;
+
+                std::cout << description << std::endl;
+
+                std::exit(EXIT_FAILURE);
+            }
+        }
         if (vm.count("help")) {
-            std::cout << "Usage:\n\t" << argv[0] << "<options> <inputfile.xml>" << std::endl;
+            std::cout << "Usage:\n\t" << argv[0] << " <options> <inputfile.xml>" << std::endl<< std::endl;
 
             std::cout << description << std::endl;
 
