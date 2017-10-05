@@ -3,11 +3,11 @@
   <name>
     kh
   </name>
-  <platform>cuda</platform>
+  <platform>cpu</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>1024 1024 1</dimension>
+    <dimension>64 64 1</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>hll3</flux>
@@ -37,7 +37,7 @@
   <writer>
     <type>netcdf</type>
     <basename>kh</basename>
-    <numberOfSaves>1</numberOfSaves>
+    <numberOfSaves>10</numberOfSaves>
   </writer>
 </fvm>
 <uq>

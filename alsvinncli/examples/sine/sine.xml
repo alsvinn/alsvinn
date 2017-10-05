@@ -11,7 +11,7 @@
   </grid>
   <boundary>periodic</boundary>
   <flux>godunov</flux>
-  <endTime>1.2</endTime>
+  <endTime>2</endTime>
   <equation>burgers</equation>
   <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
@@ -22,7 +22,7 @@
   <writer>
     <type>netcdf</type>
     <basename>sine</basename>
-    <numberOfSaves>300</numberOfSaves>
+    <numberOfSaves>10</numberOfSaves>
   </writer>
 </fvm>
 </config>

@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.1.0)
-SET(ALSVINN_USE_HUNTER ON CACHE BOOL "Use Hunter for automatic compiling of additional packages")
+SET(ALSVINN_USE_HUNTER OFF CACHE BOOL "Use Hunter for automatic compiling of additional packages")
 
 SET(HUNTER_ROOT ${CMAKE_BINARY_DIR}/hunter_root)
 
@@ -46,7 +46,7 @@ set (CMAKE_CXX_STANDARD 11)
 
 FIND_PACKAGE(OpenMP)
 if (NOT WIN32)
-   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment ${OpenMP_CXX_FLAGS}")
+   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment ${OpenMP_CXX_FLAGS} -fPIC")
    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 
 else()
@@ -142,6 +142,7 @@ LINK_DIRECTORIES(${ALSVINN_LIBRARY_DIRS})
 FIND_PACKAGE(NetCDF REQUIRED)
 INCLUDE_DIRECTORIES(AFTER ${NETCDF_C_INCLUDE_DIRS})
 if(ALSVINN_USE_MPI)
+  SET(MPI_CXX_SKIP_MPICXX ON)
   find_package(MPI REQUIRED)
   add_definitions(-DALSVINN_USE_MPI)
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_DIRS})
@@ -163,9 +164,9 @@ endif()
 # hdf5 incude dirs (Cmake doesn't give us one...)
 LIST(GET HDF5_C_LIBRARY 0 HDF5_SINGLE_LIBRARY)
 
-get_filename_component(HDF5_LIB_DIR ${HDF5_SINGLE_LIBRARY} PATH)
-get_filename_component(HDF5_ROOT_DIR ${HDF5_LIB_DIR} PATH)
-INCLUDE_DIRECTORIES(BEFORE "${HDF5_ROOT_DIR}/include")
+#get_filename_component(HDF5_LIB_DIR ${HDF5_SINGLE_LIBRARY} PATH)
+#get_filename_component(HDF5_ROOT_DIR ${HDF5_LIB_DIR} PATH)
+#INCLUDE_DIRECTORIES(BEFORE "${HDF5_ROOT_DIR}/include")
 
 include_directories(${CMAKE_SOURCE_DIR}/alsutils/include)
 include_directories(${CMAKE_SOURCE_DIR}/alsuq/include)
@@ -185,8 +186,14 @@ if(ALSVINN_BUILD_TESTS)
   find_package(GTest REQUIRED)
   add_subdirectory("test")
   add_subdirectory("system_test")
+  if(ALSVINN_USE_MPI)
+    add_subdirectory("mpi_test")
+endif()
+
 endif()
 
 if(ALSVINN_BUILD_DOXYGEN)
 	add_subdirectory("doxygen")
 endif()
+
+

@@ -4,7 +4,7 @@
 
 #include <memory>
 
-namespace alsfvm { namespace io { 
+namespace alsfvm { namespace io {
 
 ///
 /// \brief The FixedIntervalWriter class is a decorator for another writer.

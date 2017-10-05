@@ -1,0 +1,107 @@
+<config>
+<fvm>
+  <name>
+    kh
+  </name>
+  <platform>cuda</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>1 1 0</upperCorner>
+    <dimension>512 512 1</dimension>
+  </grid>
+  <boundary>periodic</boundary>
+  <flux>hll3</flux>
+  <endTime>2</endTime>
+  <equation>euler2</equation>
+  <equationParameters>
+    <gamma>1.4</gamma>
+  </equationParameters>
+  <reconstruction>weno2</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
+
+  <initialData>
+    <python>kelvinhelmholtz.py</python>
+    <parameters>
+      <parameter>
+        <name>a</name>
+        <length>40</length>
+        <values><value>0</value></values>
+      </parameter>
+    </parameters>
+  </initialData>
+  <diffusion>
+    <name>none</name>
+    <reconstruction>none</reconstruction>
+  </diffusion>
+  <writer>
+    <type>netcdf</type>
+    <basename>kh</basename>
+    <numberOfSaves>1</numberOfSaves>
+  </writer>
+</fvm>
+<uq>
+  <samples>2</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>a</name>
+      <length>40</length>
+      <type>normal</type>
+    </parameter>
+  </parameters>
+  <stats>
+  <stat>
+    <name>
+      meanvar
+    </name>
+    <numberOfSaves>1</numberOfSaves>
+    <writer>
+      <type>netcdf</type>
+      <basename>kh</basename>
+    </writer>
+    </stat>
+
+<stat>
+  <name>
+    structure_basic
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <direction>0</direction>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>kh_x</basename>
+  </writer>
+  </stat>
+
+<stat>
+  <name>
+    structure_basic
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <direction>1</direction>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>kh_y</basename>
+  </writer>
+  </stat>
+
+<stat>
+  <name>
+    structure_cube
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>kh_cube</basename>
+  </writer>
+  </stat>
+  </stats>
+</uq>
+</config>

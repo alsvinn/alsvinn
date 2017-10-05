@@ -12,6 +12,10 @@ namespace alsfvm { namespace integrator {
 			waveSpeedTotal += waveSpeed / cellLength;
 		}
 
+        for (auto& adjuster : waveSpeedAdjusters) {
+
+            waveSpeedTotal = adjuster->adjustWaveSpeed(waveSpeedTotal);
+        }
 
 
 		const real dt = cfl / waveSpeedTotal;
@@ -24,11 +28,16 @@ namespace alsfvm { namespace integrator {
         timestepAdjusters.push_back(adjuster);
     }
 
+    void Integrator::addWaveSpeedAdjuster(WaveSpeedAdjusterPtr adjuster)
+    {
+        waveSpeedAdjusters.push_back(adjuster);
+    }
+
     real Integrator::adjustTimestep(real dt, const simulator::TimestepInformation &timestepInformation) const
     {
         real newDt = dt;
         for(auto adjuster : timestepAdjusters) {
-            newDt = adjuster->adjustTimestep(dt, timestepInformation);
+            newDt = adjuster->adjustTimestep(newDt, timestepInformation);
         }
         return newDt;
     }

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "alsfvm/types.hpp"
+#include "alsfvm/boundary/Type.hpp"
+
 namespace alsfvm {
 	namespace grid {
 		///
@@ -15,8 +17,116 @@ namespace alsfvm {
 			/// \param origin the origin point of the grid (the smallest point in lexicographical order)
 			/// \param top the top right corner of the grid (maximum point in lexicographical order)
 			/// \param dimensions the dimensions of the grid (in number of cells in each direction)
-			///
-			Grid(rvec3 origin, rvec3 top, ivec3 dimensions);
+            /// \param boundaryConditions for each side, list the boundary conditions.
+            /// Index  |  Spatial side 1D | Spatial side 2D | Spatial side 3D
+            /// -------|------------------|-----------------|-----------------
+            ///    0   |       left       |     left        |    left
+            ///    1   |       right      |     right       |    right
+            ///    2   |     < not used > |     bottom      |    bottom
+            ///    3   |     < not used > |     top         |    top
+            ///    4   |     < not used > |   < not used >  |    front
+            ///    5   |     < not used > |   < not used >  |    back
+            ///
+
+            ///
+            Grid(rvec3 origin, rvec3 top, ivec3 dimensions,
+                 const std::array<boundary::Type,6>& boundaryConditions = boundary::allPeriodic()
+                );
+
+            ///
+            /// Constructs the Grid
+            /// \param origin the origin point of the grid (the smallest point in lexicographical order)
+            /// \param top the top right corner of the grid (maximum point in lexicographical order)
+            /// \param dimensions the dimensions of the grid (in number of cells in each direction)
+            /// \param boundaryConditions for each side, list the boundary conditions.
+            /// Index  |  Spatial side 1D | Spatial side 2D | Spatial side 3D
+            /// -------|------------------|-----------------|-----------------
+            ///    0   |       left       |     left        |    left
+            ///    1   |       right      |     right       |    right
+            ///    2   |     < not used > |     bottom      |    bottom
+            ///    3   |     < not used > |     top         |    top
+            ///    4   |     < not used > |   < not used >  |    front
+            ///    5   |     < not used > |   < not used >  |    back
+            ///
+            /// \param globalPosition the global position of the current grid in the large grid (used for MPI)
+            /// \param globalSize the total size of the grid
+            ///
+            Grid(rvec3 origin, rvec3 top, ivec3 dimensions,
+                 const std::array<boundary::Type,6>& boundaryConditions,
+                 const ivec3& globalPosition,
+                 const ivec3& globalSize);
+
+
+            ///
+            /// Constructs the Grid
+            ///
+            /// This is the "least dummy proof version", since it lets the user
+            /// specify the cellLengths. This should only be used for domain
+            /// decomposition in MPI for instance. Unless you know what you are
+            /// doing, don't use this version.
+            ///
+            /// \param origin the origin point of the grid (the smallest point in lexicographical order)
+            /// \param top the top right corner of the grid (maximum point in lexicographical order)
+            /// \param dimensions the dimensions of the grid (in number of cells in each direction)
+            /// \param boundaryConditions for each side, list the boundary conditions.
+            /// Index  |  Spatial side 1D | Spatial side 2D | Spatial side 3D
+            /// -------|------------------|-----------------|-----------------
+            ///    0   |       left       |     left        |    left
+            ///    1   |       right      |     right       |    right
+            ///    2   |     < not used > |     bottom      |    bottom
+            ///    3   |     < not used > |     top         |    top
+            ///    4   |     < not used > |   < not used >  |    front
+            ///    5   |     < not used > |   < not used >  |    back
+            ///
+            /// \param globalPosition the global position of the current grid in the large grid (used for MPI)
+            /// \param globalSize the total size of the grid
+            /// \param cellLengths the cell lengths in each direction
+            ///
+            /// \note The user is responsible for cellLengths being compatible
+            ///       with the rest of the parameters.
+            ///
+            Grid(rvec3 origin, rvec3 top, ivec3 dimensions,
+                 const std::array<boundary::Type,6>& boundaryConditions,
+                 const ivec3& globalPosition,
+                 const ivec3& globalSize,
+                 const rvec3& cellLengths);
+
+            ///
+            /// Constructs the Grid
+            ///
+            /// This is the "least dummy proof version", since it lets the user
+            /// specify the cellLengths. This should only be used for domain
+            /// decomposition in MPI for instance. Unless you know what you are
+            /// doing, don't use this version.
+            ///
+            /// \param origin the origin point of the grid (the smallest point in lexicographical order)
+            /// \param top the top right corner of the grid (maximum point in lexicographical order)
+            /// \param dimensions the dimensions of the grid (in number of cells in each direction)
+            /// \param boundaryConditions for each side, list the boundary conditions.
+            /// Index  |  Spatial side 1D | Spatial side 2D | Spatial side 3D
+            /// -------|------------------|-----------------|-----------------
+            ///    0   |       left       |     left        |    left
+            ///    1   |       right      |     right       |    right
+            ///    2   |     < not used > |     bottom      |    bottom
+            ///    3   |     < not used > |     top         |    top
+            ///    4   |     < not used > |   < not used >  |    front
+            ///    5   |     < not used > |   < not used >  |    back
+            ///
+            /// \param globalPosition the global position of the current grid in the large grid (used for MPI)
+            /// \param globalSize the total size of the grid
+            /// \param cellLengths the cell lengths in each direction
+            /// \param cellMidpoints are the cell midpoints with respect to a
+            ///                      larger grid, and indexed according to globalPosition
+            ///
+            /// \note The user is responsible for cellLengths being compatible
+            ///       with the rest of the parameters.
+            ///
+            Grid(rvec3 origin, rvec3 top, ivec3 dimensions,
+                 const std::array<boundary::Type,6>& boundaryConditions,
+                 const ivec3& globalPosition,
+                 const ivec3& globalSize,
+                 const rvec3& cellLengths,
+                 const std::vector<rvec3>& cellMidpoints);
 
 			///
 			/// Gets the origin point
@@ -55,6 +165,23 @@ namespace alsfvm {
 			/// \endcode
 			///
 			const std::vector<rvec3>& getCellMidpoints() const;
+
+
+            //! Gets the boundary conditions for the given side
+            //!
+            //! Index  |  Spatial side 1D | Spatial side 2D | Spatial side 3D
+            //! -------|------------------|-----------------|-----------------
+            //!    0   |       left       |     left        |    left
+            //!    1   |       right      |     right       |    right
+            //!    2   |     < not used > |     bottom      |    bottom
+            //!    3   |     < not used > |     top         |    top
+            //!    4   |     < not used > |   < not used >  |    front
+            //!    5   |     < not used > |   < not used >  |    back
+            //!
+            boundary::Type getBoundaryCondition(int side) const;
+
+            ivec3 getGlobalPosition() const;
+            ivec3 getGlobalSize() const;
 		private:
 			rvec3 origin;
 			rvec3 top;
@@ -63,6 +190,15 @@ namespace alsfvm {
 			
 			// A vector containing all cell midpoints
 			std::vector<rvec3> cellMidpoints;
+
+            // For each side, states the boundary condition.
+            std::array<boundary::Type,6> boundaryConditions;
+
+            // the global position (in case of using MPI)
+            ivec3 globalPosition;
+
+            // the global size
+            ivec3 globalSize;
 		};
 	}
 }

@@ -14,6 +14,10 @@
 #include <vector>
 #include <memory>
 
+#ifdef ALSVINN_USE_MPI
+#include "alsfvm/mpi/CellExchanger.hpp"
+#endif
+
 namespace alsfvm { namespace simulator {
 
 ///
@@ -114,11 +118,18 @@ namespace alsfvm { namespace simulator {
 
         const std::shared_ptr<grid::Grid>& getGrid() const;
          std::shared_ptr<grid::Grid>& getGrid();
+
+#ifdef ALSVINN_USE_MPI
+        void setCellExchanger(mpi::CellExchangerPtr value);
+#endif
+
+
     private:
 
-        real computeTimestep();
-        void checkConstraints();
+
+         void checkConstraints();
         void incrementSolution();
+        void doCellExchange(volume::Volume& volume);
 
         SimulatorParameters simulatorParameters;
         volume::VolumeFactory volumeFactory;
@@ -141,6 +152,10 @@ namespace alsfvm { namespace simulator {
         const std::string equationName;
         const std::string platformName;
         alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+
+#ifdef ALSVINN_USE_MPI
+        mpi::CellExchangerPtr cellExchanger;
+#endif
     };
 } // namespace alsfvm
 } // namespace simulator

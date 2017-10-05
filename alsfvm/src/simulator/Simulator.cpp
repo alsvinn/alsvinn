@@ -1,7 +1,10 @@
 #include "alsfvm/simulator/Simulator.hpp"
 #include "alsutils/error/Exception.hpp"
 #include <iostream>
+#include "alsutils/log.hpp"
 
+#include <boost/chrono.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 namespace alsfvm { namespace simulator {
 
 Simulator::Simulator(const SimulatorParameters& simulatorParameters,
@@ -34,7 +37,7 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
     const size_t nx = grid->getDimensions().x;
     const size_t ny = grid->getDimensions().y;
     const size_t nz = grid->getDimensions().z;
-
+    ALSVINN_LOG(INFO, "Dimensions are " << nx << ", " << ny << ", " << nz);
     for (size_t i = 0; i < integrator->getNumberOfSubsteps() + 1; ++i) {
         conservedVolumes.push_back(
                 volumeFactory.createConservedVolume(nx, ny, nz,
@@ -137,6 +140,27 @@ void Simulator::setInitialValue(alsfvm::shared_ptr<init::InitialData> &initialDa
 
 
     boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
+
+#if 0 // debug output.. can be removed.
+    for (int k = 0; k < conservedVolumes[0]->getTotalNumberOfZCells(); ++k) {
+        for (int j = 0; j < conservedVolumes[0]->getTotalNumberOfYCells(); ++j) {
+            for (int i = 0; i < conservedVolumes[0]->getTotalNumberOfXCells(); ++i) {
+                int nxx = conservedVolumes[0]->getTotalNumberOfXCells();
+                int nzz = conservedVolumes[0]->getTotalNumberOfZCells();
+                int nyy = conservedVolumes[0]->getTotalNumberOfYCells();
+
+
+                int index = k*nyy*nxx+j*nxx+i;
+
+                std::cout << conservedVolumes[0]->getScalarMemoryArea("mx")->getPointer()[index] << " ";
+
+            }
+            std::cout << "\n";
+        }
+        std::cout << "\n";
+        std::cout << "\n";
+    }
+#endif
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
 }
 
@@ -160,25 +184,6 @@ void Simulator::callWriters()
     }
 }
 
-real Simulator::computeTimestep()
-{
-    const size_t dimension = grid->getActiveDimension();
-    real waveSpeedTotal = 0;
-    for (size_t direction = 0; direction < dimension; ++direction) {
-        const real waveSpeed =
-                cellComputer->computeMaxWaveSpeed(*conservedVolumes[0], *extraVolume, direction);
-			
-        const real cellLength = grid->getCellLengths()[direction];
-        waveSpeedTotal += waveSpeed / cellLength;
-    }
-
-
-
-    const real dt = cflNumber / waveSpeedTotal;
-
-    return dt;
-}
-
 void Simulator::checkConstraints()
 {
     const bool obeys = cellComputer->obeysConstraints(*conservedVolumes[0],
@@ -194,8 +199,18 @@ void Simulator::incrementSolution()
 {
 	real dt = 0;
     for (size_t substep = 0; substep < integrator->getNumberOfSubsteps(); ++substep) {
+        doCellExchange(*conservedVolumes[substep]);
         auto& conservedNext = conservedVolumes[substep + 1];
-        dt = integrator->performSubstep(conservedVolumes, grid->getCellLengths(), dt, cflNumber, *conservedNext, substep, timestepInformation);
+        dt = integrator->performSubstep(conservedVolumes,
+                                        grid->getCellLengths(),
+                                        dt,
+                                        cflNumber,
+                                        *conservedNext,
+                                        substep,
+                                        timestepInformation);
+
+
+
         boundary->applyBoundaryConditions(*conservedNext, *grid);
     }
     conservedVolumes[0].swap(conservedVolumes.back());
@@ -204,5 +219,22 @@ void Simulator::incrementSolution()
     timestepInformation.incrementTime(dt);
 }
 
+void Simulator::doCellExchange(volume::Volume& volume)
+{
+
+#ifdef ALSVINN_USE_MPI
+    if (cellExchanger) {
+        cellExchanger->exchangeCells(volume, volume).waitForAll();
+    }
+#endif
 }
+
+#ifdef ALSVINN_USE_MPI
+void Simulator::setCellExchanger(mpi::CellExchangerPtr value)
+{
+    cellExchanger = value;
+    integrator->addWaveSpeedAdjuster(alsfvm::dynamic_pointer_cast<integrator::WaveSpeedAdjuster>(cellExchanger));
 }
+#endif
+}
+                 }

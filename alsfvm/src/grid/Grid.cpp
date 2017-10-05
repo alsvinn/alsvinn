@@ -24,19 +24,50 @@ namespace alsfvm {
             return lengths;
         }
     }
+
+    Grid::Grid(rvec3 origin, rvec3 top, ivec3 dimensions,
+               const std::array<boundary::Type,6>& boundaryConditions
+            )
+        : Grid(origin, top, dimensions, boundaryConditions, {0,0,0}, dimensions)
+    {
+
+    }
+
 		/// 
 		/// Constructs the Grid
 		/// \param origin the origin point of the grid (the smallest point in lexicographical order)
 		/// \param top the top right corner of the grid (maximum point in lexicographical order)
 		/// \param dimensions the dimensions of the grid (in number of cells in each direction)
 		///
-		Grid::Grid(rvec3 origin, rvec3 top, ivec3 dimensions)
-			: origin(origin), top(top), dimensions(dimensions),
-            cellLengths(computeCellLengths(origin, top, dimensions))
+        Grid::Grid(rvec3 origin, rvec3 top, ivec3 dimensions,
+                   const std::array<boundary::Type, 6>& boundaryConditions,
+                   const ivec3& globalPosition,
+                   const ivec3& globalSize)
+
+            : Grid(origin, top, dimensions, boundaryConditions, globalPosition, globalSize,
+                        computeCellLengths(origin, top, dimensions))
+
 		{
-			// Create the cell midpoints
-			cellMidpoints.resize(dimensions.x*dimensions.y*dimensions.z);
-			
+
+        }
+
+        Grid::Grid(rvec3 origin,
+                   rvec3 top,
+                   ivec3 dimensions,
+                   const std::array<boundary::Type, 6> &boundaryConditions,
+                   const ivec3 &globalPosition,
+                   const ivec3 &globalSize,
+                   const rvec3 &cellLengths)
+            : origin(origin), top(top), dimensions(dimensions),
+            cellLengths(cellLengths),
+            boundaryConditions(boundaryConditions),
+            globalPosition(globalPosition),
+            globalSize(globalSize)
+
+        {
+            // Create the cell midpoints
+            cellMidpoints.resize(dimensions.x*dimensions.y*dimensions.z);
+
             for (int z = 0; z < dimensions.z; z++) {
                 for (int y = 0; y < dimensions.y; y++) {
                     for (int x = 0; x < dimensions.x; x++) {
@@ -44,11 +75,44 @@ namespace alsfvm {
                                 + rvec3(cellLengths.x*x, cellLengths.y*y, cellLengths.z*z)
                                 + cellLengths / real(2.0);
 
-						cellMidpoints[z*dimensions.x*dimensions.y + y*dimensions.x + x] = position;
-					}
-				}
-			}
-		}
+                        cellMidpoints[z*dimensions.x*dimensions.y + y*dimensions.x + x] = position;
+                    }
+                }
+            }
+        }
+
+        Grid::Grid(rvec3 origin,
+                   rvec3 top,
+                   ivec3 dimensions,
+                   const std::array<boundary::Type, 6> &boundaryConditions,
+                   const ivec3 &globalPosition,
+                   const ivec3 &globalSize,
+                   const rvec3 &cellLengths,
+                   const std::vector<rvec3> &cellMidpointsGlobal)
+            : origin(origin), top(top), dimensions(dimensions),
+        cellLengths(cellLengths),
+        boundaryConditions(boundaryConditions),
+        globalPosition(globalPosition),
+        globalSize(globalSize)
+
+    {
+        // Create the cell midpoints
+        cellMidpoints.resize(dimensions.x*dimensions.y*dimensions.z);
+
+        for (int z = 0; z < dimensions.z; z++) {
+            for (int y = 0; y < dimensions.y; y++) {
+                for (int x = 0; x < dimensions.x; x++) {
+                    const int indexGlobal = (z+globalPosition.z)*globalSize.x*globalSize.y
+                            + (y + globalPosition.y) * globalSize.x
+                            + (x + globalPosition.x);
+                    rvec3 position = cellMidpointsGlobal[indexGlobal];
+
+                    cellMidpoints[z*dimensions.x*dimensions.y + y*dimensions.x + x] = position;
+                }
+            }
+        }
+
+        }
 
 		///
 		/// Gets the origin point
@@ -93,7 +157,22 @@ namespace alsfvm {
 		}
 
 		const std::vector<rvec3>& Grid::getCellMidpoints() const {
-			return cellMidpoints;
-		}
+            return cellMidpoints;
+        }
+
+        boundary::Type Grid::getBoundaryCondition(int side) const
+        {
+            return boundaryConditions[side];
+        }
+
+        ivec3 Grid::getGlobalPosition() const
+        {
+            return globalPosition;
+        }
+
+        ivec3 Grid::getGlobalSize() const
+        {
+            return globalSize;
+        }
 	}
 }

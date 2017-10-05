@@ -4,7 +4,7 @@
 namespace alsfvm { namespace io { 
 
     //! Writes to the mpi version of netcdf.
-    //! \note Due to the new mpi of pNetCDF, this can not be combined
+    //! @note Due to the new mpi of pNetCDF, this can not be combined
     //! in any meaningful way with the old NetCDFWriter class, the code is pretty
     //! much disjoint.
     //!
@@ -17,7 +17,7 @@ namespace alsfvm { namespace io {
         /// \param basefileName the basefilename to use (this could be eg.
         ///                     "some_simulation".
         /// \param groupNames names of groups to create in the file
-        ///        (this is especially useful for MPI)
+        ///        (this is especially useful for MPI). If left blank (""), no prefix will be given
         /// \param groupIndex the groupIndex to write to
         ///
         /// \param newFile should we create (or overwrite) the file? If false,
@@ -73,12 +73,12 @@ namespace alsfvm { namespace io {
         //! @note should only be called once per file
         //!
         //! @param basegroup the basegroup to use (or file)
-        //! @param volume the volume from which to extract  size information
+        //! @param grid the grid from which to extract  size information
         //! @param newFile if true, we will create the dimensions, otherwise
         //!                we will try to open the dimensions from the file
         //!
         //! @return the dimensions created by netcdf
-        virtual dimension_vector createDimensions(netcdf_raw_ptr basegroup, const volume::Volume &volume,
+        virtual dimension_vector createDimensions(netcdf_raw_ptr basegroup, const grid::Grid &griod,
                                                   bool newFile);
 
 
@@ -123,7 +123,11 @@ namespace alsfvm { namespace io {
         //! @param volume the volume is used to get size information
         //! @param memoryIndex the scalar memory index of the volume
         //!
-        virtual void writeMemory(netcdf_raw_ptr baseGroup, netcdf_raw_ptr dataset,  const volume::Volume &volume, size_t memoryIndex);
+        virtual void writeMemory(netcdf_raw_ptr baseGroup,
+                                 netcdf_raw_ptr dataset,
+                                 const volume::Volume &volume,
+                                 size_t memoryIndex,
+                                 const grid::Grid& grid);
 
 
         //! Writes the volume (ie looops over all memory areas and writes each memory area)
@@ -135,8 +139,11 @@ namespace alsfvm { namespace io {
         //!                 ordered according to the volume (makeDataset does this automatically)
         //!
         //!
-        virtual void writeVolume(netcdf_raw_ptr baseGroup, const volume::Volume& volume, std::array<netcdf_raw_ptr, 3> dimensions,
-                                 const std::vector<netcdf_raw_ptr>& datasets);
+        virtual void writeVolume(netcdf_raw_ptr baseGroup,
+                                 const volume::Volume& volume,
+                                 std::array<netcdf_raw_ptr, 3> dimensions,
+                                 const std::vector<netcdf_raw_ptr>& datasets,
+                                 const grid::Grid& grid);
 
 
     private:

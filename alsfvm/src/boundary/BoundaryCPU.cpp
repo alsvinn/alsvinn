@@ -12,7 +12,8 @@ namespace alsfvm { namespace boundary {
 		/// \param dimensions the number of dimensions(1,2 or 3).
 		///
 		template<class BoundaryConditions>
-        void applyBoundary(volume::Volume& volume, const size_t dimensions, const size_t numberOfGhostCells) {
+        void applyBoundary(volume::Volume& volume, const size_t dimensions, const size_t numberOfGhostCells,
+                           const grid::Grid& grid) {
             const size_t nx = volume.getTotalNumberOfXCells();
             const size_t ny = volume.getTotalNumberOfYCells();
             const size_t nz = volume.getTotalNumberOfZCells();
@@ -34,6 +35,14 @@ namespace alsfvm { namespace boundary {
                 for (size_t d = 0; d < dimensions; d++) {
 					// i=0 represents bottom, i=1 represents top
 					for (int i = 0; i < 2; i++) {
+                        const int side = 2*d + i;
+
+                        if (grid.getBoundaryCondition(side) == MPI_BC) {
+
+                            continue;
+                        }
+
+
 						const bool zDir = (d == 2);
 						const bool yDir = (d == 1);
 						const bool xDir = (d == 0);
@@ -59,6 +68,7 @@ namespace alsfvm { namespace boundary {
                         for (size_t z = zStart; z < zEnd; z++) {
                             for (size_t y = yStart; y < yEnd; y++) {
                                 for (size_t x = xStart; x < xEnd; x++) {
+
 									for (size_t ghostCell = 1; ghostCell <= numberOfGhostCells; ghostCell++) {
                                         BoundaryConditions::applyBoundary(view, x, y, z, ghostCell, numberOfGhostCells, i == 1, xDir, yDir, zDir);
 									}
@@ -83,7 +93,7 @@ namespace alsfvm { namespace boundary {
 	template<class BoundaryConditions>
 	void BoundaryCPU<BoundaryConditions>::applyBoundaryConditions(volume::Volume& volume, const grid::Grid& grid)
 	{
-        applyBoundary<BoundaryConditions>(volume, grid.getActiveDimension(), numberOfGhostCells);
+        applyBoundary<BoundaryConditions>(volume, grid.getActiveDimension(), numberOfGhostCells, grid);
 
 	}
 

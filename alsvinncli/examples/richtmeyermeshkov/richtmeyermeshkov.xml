@@ -16,7 +16,7 @@
   <equationParameters>
     <gamma>1.4</gamma>
   </equationParameters>
-  <reconstruction>wenof2</reconstruction>
+  <reconstruction>mc</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>
   <initialData>

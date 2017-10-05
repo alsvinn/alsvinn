@@ -56,6 +56,9 @@ namespace alsfvm {
             //! Returns the size in each dimension
             virtual ivec3 getSize() const;
 
+            //! Gets the size without ghost cells in each dimension
+            virtual ivec3 getInnerSize() const;
+
             //! Returns the number of ghostcells in each dimension
             virtual ivec3 getNumberOfGhostCells() const;
             ///

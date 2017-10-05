@@ -11,8 +11,8 @@ namespace alsfvm { namespace boundary {
 	///
 	/// Instantiates the boundary factory
 	/// \param name the name of the boundary type
-	/// Parameter | Description
-	/// ----------|------------
+    ///   Parameter | Description
+    ///   ----------|------------
 	/// "neumann"   | Neumann boundary conditions
 	/// "periodic"  | Periodic boundary conditions
 	/// 

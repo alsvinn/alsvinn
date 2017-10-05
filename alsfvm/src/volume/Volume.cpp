@@ -84,6 +84,11 @@ namespace alsfvm {
             return {getTotalNumberOfXCells(), getTotalNumberOfYCells(), getTotalNumberOfZCells()};
         }
 
+        ivec3 Volume::getInnerSize() const
+        {
+            return {getNumberOfXCells(), getNumberOfYCells(), getNumberOfZCells()};
+        }
+
         ivec3 Volume::getNumberOfGhostCells() const
         {
             return {getNumberOfXGhostCells(), getNumberOfYGhostCells(), getNumberOfZGhostCells()};
