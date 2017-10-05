@@ -140,6 +140,27 @@ void Simulator::setInitialValue(alsfvm::shared_ptr<init::InitialData> &initialDa
 
 
     boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
+
+#if 0 // debug output.. can be removed.
+    for (int k = 0; k < conservedVolumes[0]->getTotalNumberOfZCells(); ++k) {
+        for (int j = 0; j < conservedVolumes[0]->getTotalNumberOfYCells(); ++j) {
+            for (int i = 0; i < conservedVolumes[0]->getTotalNumberOfXCells(); ++i) {
+                int nxx = conservedVolumes[0]->getTotalNumberOfXCells();
+                int nzz = conservedVolumes[0]->getTotalNumberOfZCells();
+                int nyy = conservedVolumes[0]->getTotalNumberOfYCells();
+
+
+                int index = k*nyy*nxx+j*nxx+i;
+
+                std::cout << conservedVolumes[0]->getScalarMemoryArea("mx")->getPointer()[index] << " ";
+
+            }
+            std::cout << "\n";
+        }
+        std::cout << "\n";
+        std::cout << "\n";
+    }
+#endif
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
 }
 

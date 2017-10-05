@@ -24,6 +24,7 @@ CartesianDecomposition::CartesianDecomposition(int nx, int ny, int nz)
 DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configuration,
                                                     const grid::Grid &grid)
 {
+
     auto dimensions = grid.getDimensions();
 
     // Make sure we can evenly divide the dimensions. ie that
@@ -64,6 +65,7 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
         boundaryConditions[side] = boundary::Type::MPI_BC;
     }
 
+
     for (int side = 0; side < grid.getActiveDimension()*2; ++side) {
 
 
@@ -71,12 +73,13 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
             // we are on the boundary
 
             // We should only exchange if it is periodic
-            if (grid.getBoundaryCondition(side) != boundary::Type::PERIODIC) {
+            if (grid.getBoundaryCondition(side) != boundary::Type::PERIODIC || numberOfProcessors[side/2] == 1) {
                 neighbours[side] = -1;
                 boundaryConditions[side] = grid.getBoundaryCondition(side);
                 continue;
             }
         }
+
 
         ivec3 neighbourPosition = nodePosition;
         const int i = side % 2;
@@ -104,7 +107,9 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
                                                    numberOfCellsPerProcessors,
                                                    boundaryConditions,
                                                    startIndex,
-                                                   grid.getDimensions());
+                                                   grid.getDimensions(),
+                                                   grid.getCellLengths(),
+                                                   grid.getCellMidpoints());
 
 
 

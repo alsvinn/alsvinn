@@ -93,7 +93,7 @@ inline std::vector<int> computeDisplacements(int side, int dimensions, ivec3 num
                 }
 
                 if (side > 2 || i > 0) {
-                    displacements[i] = numberOfCellsPerDirection.x*(numberOfCellsPerDirection.y);
+                    displacements[i] += numberOfCellsPerDirection.x*(numberOfCellsPerDirection.y);
                 }
                 if (i == 0 && side == 3) {
                     displacements[i] -= ghostCells * numberOfCellsPerDirection.x;
@@ -105,10 +105,11 @@ inline std::vector<int> computeDisplacements(int side, int dimensions, ivec3 num
 
             } else {
 
+                displacements[i] +=numberOfCellsPerDirection.x*numberOfCellsPerDirection.y*(baseOffset);
                 // There is only one segment in the z direction, and it only needs
                 // displacement if it is the back side
                 if (side == 5) {
-                    displacements[i] = numberOfCellsPerDirection.x*numberOfCellsPerDirection.y*(numberOfCellsPerDirection.z+baseOffset)-
+                    displacements[i] += numberOfCellsPerDirection.x*numberOfCellsPerDirection.y*(numberOfCellsPerDirection.z)-
                             numberOfCellsPerDirection.x*numberOfCellsPerDirection.y*ghostCells;
                 }
 

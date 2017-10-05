@@ -209,10 +209,11 @@ void HostMemory<T>::makeZero()
     }
 }
 
-
 template <class T>
 void HostMemory<T>::copyInternalCells(size_t startX, size_t endX, size_t startY, size_t endY, size_t startZ, size_t endZ, T *output, size_t outputSize)
 {
+
+
     const size_t nx = this->nx;
     const size_t ny = this->ny;
     const size_t numberOfY = endY-startY;

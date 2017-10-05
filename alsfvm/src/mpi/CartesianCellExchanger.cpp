@@ -24,7 +24,7 @@ bool CartesianCellExchanger::hasSide(int side) const
 real CartesianCellExchanger::max(real value)
 {
     real maximum;
-    MPI_Allreduce(&value, &maximum, 1, alsutils::mpi::MpiTypes<real>::MPI_Real,
+    MPI_Allreduce(&value, &maximum, 1, MPI_DOUBLE,
                   MPI_MAX, configuration->getCommunicator());
 
     return maximum;

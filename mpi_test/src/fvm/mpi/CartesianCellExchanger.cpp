@@ -50,9 +50,19 @@ TEST(CartesianCellExchanger, Test1D) {
     ASSERT_EQ(globalPosition[0], rank*N);
     ASSERT_EQ(globalPosition[1], 0);
     ASSERT_EQ(globalPosition[2], 0);
-
+    ivec3 numberOfProcessorsPerDirection = {numberOfProcessors, 1, 1};
     for(int side= 0; side < 6; ++side) {
-        ASSERT_EQ(boundary::MPI_BC, newGrid->getBoundaryCondition(side));
+        if (side < 2 && numberOfProcessors > 1) {
+            ASSERT_EQ(boundary::MPI_BC, newGrid->getBoundaryCondition(side))
+                    << "side = " << side;
+
+        } else if(side < 2) {
+            ASSERT_EQ(boundary::PERIODIC, newGrid->getBoundaryCondition(side))
+                    << "side = " << side;;
+        } else {
+            ASSERT_EQ(boundary::MPI_BC, newGrid->getBoundaryCondition(side))
+                    << "side = " << side;
+        }
     }
 
 
@@ -271,6 +281,10 @@ TEST(CartesianCellExchanger, Test2D) {
     ASSERT_EQ(globalPosition[1], yRank*N);
     ASSERT_EQ(globalPosition[2], 0);
 
+    ASSERT_EQ(newGrid->getCellLengths()[0], grid->getCellLengths()[0]);
+    ASSERT_EQ(newGrid->getCellLengths()[1], grid->getCellLengths()[1]);
+    ASSERT_EQ(newGrid->getCellLengths()[2], grid->getCellLengths()[2]);
+
 
     auto newLowerCorner = newGrid->getOrigin();
     ASSERT_DOUBLE_EQ(lowerCorner[0] + xRank*N*grid->getCellLengths()[0], newLowerCorner[0])
@@ -310,6 +324,47 @@ TEST(CartesianCellExchanger, Test2D) {
             << "\n\tyRank             = " << yRank
             << "\n\tumberOfProcessors = " << numberOfProcessors;
     ASSERT_DOUBLE_EQ(0, newUpperCorner[2]);
+
+
+
+
+
+
+
+
+    // Cell midpoint test
+    auto newMidpoints = newGrid->getCellMidpoints();
+    auto oldMidpoints = grid->getCellMidpoints();
+
+
+    for (int y = 0; y < N; ++y) {
+        for (int x = 0; x < N; ++x) {
+            int indexLocal = y*N+x;
+
+            int indexGlobal = (yRank*N+y)*grid->getDimensions().x + xRank*N + x;
+
+            ASSERT_EQ(oldMidpoints[indexGlobal], newMidpoints[indexLocal])
+                    << "Failed with"
+                    << "\n\trank              = " << rank
+                    << "\n\tnx                = " << nx
+                    << "\n\tny                = " << ny
+                    << "\n\txRank             = " << xRank
+                    << "\n\tyRank             = " << yRank
+                    << "\n\tumberOfProcessors = " << numberOfProcessors
+                    << "\n\tindexLocal        = " << indexLocal
+                    << "\n\tindexGlobal       = " << indexGlobal
+                    << "\n\tx                 = " << x
+                    << "\n\ty                 = " << y
+                    <<"\n\tN                  = " << N
+                       ;
+
+
+        }
+    }
+
+
+
+
 
 
     ASSERT_EQ(rankIndex(xRank-1, yRank), neighbours[0])

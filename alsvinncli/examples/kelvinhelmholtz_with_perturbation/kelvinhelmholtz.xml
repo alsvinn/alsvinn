@@ -77,8 +77,8 @@
     </diffusion>
     <writer>
       <type>netcdf</type>
-      <basename>kh_low</basename>
-      <numberOfSaves>4</numberOfSaves>
+      <basename>kh</basename>
+      <numberOfSaves>10</numberOfSaves>
     </writer>
   </fvm>
   <uq>

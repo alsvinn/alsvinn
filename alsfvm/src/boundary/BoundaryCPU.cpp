@@ -38,8 +38,10 @@ namespace alsfvm { namespace boundary {
                         const int side = 2*d + i;
 
                         if (grid.getBoundaryCondition(side) == MPI_BC) {
+
                             continue;
                         }
+
 
 						const bool zDir = (d == 2);
 						const bool yDir = (d == 1);

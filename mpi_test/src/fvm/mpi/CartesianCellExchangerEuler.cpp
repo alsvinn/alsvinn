@@ -48,8 +48,19 @@ TEST(CartesianCellExchangerEuler, Test1D) {
     ASSERT_EQ(1, newDimensions.z);
 
 
+
     for(int side= 0; side < 6; ++side) {
-        ASSERT_EQ(boundary::MPI_BC, newGrid->getBoundaryCondition(side));
+        if (side < 2 && numberOfProcessors > 1) {
+            ASSERT_EQ(boundary::MPI_BC, newGrid->getBoundaryCondition(side))
+                    << "side = " << side;
+
+        } else if(side < 2) {
+            ASSERT_EQ(boundary::PERIODIC, newGrid->getBoundaryCondition(side))
+                    << "side = " << side;;
+        } else {
+            ASSERT_EQ(boundary::MPI_BC, newGrid->getBoundaryCondition(side))
+                    << "side = " << side;
+        }
     }
 
 

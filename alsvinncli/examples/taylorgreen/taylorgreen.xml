@@ -3,16 +3,16 @@
   <name>
     taylorgreen
   </name>
-  <platform>cpu</platform>
+  <platform>cuda</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 1</upperCorner>
-    <dimension>64 64 64</dimension>
+    <dimension>32 32 32</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>HLL3</flux>
-  <endTime>60</endTime>
-  <equation>euler</equation>
+  <endTime>0.000000001</endTime>
+  <equation>euler3</equation>
   <reconstruction>none</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>
@@ -20,7 +20,7 @@
     <python>taylorgreen.py</python>
   </initialData>
   <writer>
-    <type>hdf5</type>
+    <type>netcdf</type>
     <basename>tg</basename>
     <numberOfSaves>10</numberOfSaves>
   </writer>
