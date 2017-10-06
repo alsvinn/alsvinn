@@ -20,7 +20,7 @@ bool hasGPUDirectSupport() {
 #ifdef ALSVINN_HAS_GPU_DIRECT
     return true;
 #else
-    return false
+    return false;
 #endif
 }
 }}

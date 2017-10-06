@@ -236,7 +236,7 @@ void Simulator::doCellExchange(volume::Volume& volume)
 #ifdef ALSVINN_USE_MPI
 
     if (cellExchanger) {
-#ifdef ALSVINN_USE_GPU_DIRECT
+#ifdef ALSVINN_HAS_GPU_DIRECT
         cellExchanger->exchangeCells(volume, volume).waitForAll();
 #else
         auto cpuVolume = volume.getCopyOnCPU();
