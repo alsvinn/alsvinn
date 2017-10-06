@@ -49,6 +49,7 @@ IF(${HOST_NAME} MATCHES "daint")
 ENDIF()
 
 if (ALSVINN_MPI_GPU_DIRECT)
+   message(info "Enabling GPU direct")
     ADD_DEFINITIONS(-DALSVINN_HAS_GPU_DIRECT)
 endif()
 # Add the user's chosen flags to the build for this directory.
