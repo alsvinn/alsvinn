@@ -8,6 +8,7 @@
 #include "alsfvm/cuda/vector_operations.hpp"
 #include "alsutils/error/Exception.hpp"
 #include "alsfvm/memory/HostMemory.hpp"
+#include "alsutils/log.hpp"
 
 #define CHECK_SIZE_AND_HOST(x) { \
     if (x.isOnHost()) {\
@@ -217,6 +218,17 @@ namespace alsfvm {
 			size_t startY, size_t endY,
 			size_t startZ, size_t endZ,
 			T* output, size_t outputSize) {
+            ALSVINN_LOG(INFO, "startX = " << startX);
+            ALSVINN_LOG(INFO, "endX = " << endX);
+
+            ALSVINN_LOG(INFO, "startY = " << startY);
+            ALSVINN_LOG(INFO, "endY = " << endY);
+
+            ALSVINN_LOG(INFO, "startZ = " << startZ);
+            ALSVINN_LOG(INFO, "endZ = " << endZ);
+
+
+
 			// Until we start using cudamalloc3d, we need to do this
 			// by first copying the memory to cpu, then reformatting it on cpu
 			std::vector<T> temporaryStorage(this->getSize());

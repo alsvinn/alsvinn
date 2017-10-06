@@ -7,7 +7,7 @@ INCLUDE_DIRECTORIES("../alsfvm/include")
 CUDA_ADD_EXECUTABLE(alsvinncli ${SRC} ${EXAMPLES})
 
 if(ALSVINN_USE_CUDA)
-	SET(CUDARTLIB "-lcudart")
+        SET(CUDARTLIB ${CUDART_LIBRARY})
 ELSE()
 	SET(CUDARTLIB "")
 endif()

@@ -21,6 +21,7 @@ namespace alsutils { namespace mpi {
 //!
 //!   4. Can I tell at compile time or runtime whether I have CUDA-aware support?
 bool hasGPUDirectSupport() {
+#if 0
 #if defined(MPIX_CUDA_AWARE_SUPPORT)
 #if !MPIX_CUDA_AWARE_SUPPORT
     return false; // Library exist but does not have support
@@ -39,5 +40,12 @@ bool hasGPUDirectSupport() {
 
 #endif /* MPIX_CUDA_AWARE_SUPPORT */
     return false;
+#endif
+#endif
+#ifdef ALSVINN_HAS_GPU_DIRECT
+    return true;
+#else
+    return false
+#endif
 }
 }}

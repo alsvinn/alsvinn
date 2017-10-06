@@ -2,7 +2,7 @@
 #include "alsutils/error/Exception.hpp"
 #include <iostream>
 #include "alsutils/log.hpp"
-
+#include <fstream>
 #include <boost/chrono.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 namespace alsfvm { namespace simulator {
@@ -141,26 +141,10 @@ void Simulator::setInitialValue(alsfvm::shared_ptr<init::InitialData> &initialDa
 
     boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
 
-#if 0 // debug output.. can be removed.
-    for (int k = 0; k < conservedVolumes[0]->getTotalNumberOfZCells(); ++k) {
-        for (int j = 0; j < conservedVolumes[0]->getTotalNumberOfYCells(); ++j) {
-            for (int i = 0; i < conservedVolumes[0]->getTotalNumberOfXCells(); ++i) {
-                int nxx = conservedVolumes[0]->getTotalNumberOfXCells();
-                int nzz = conservedVolumes[0]->getTotalNumberOfZCells();
-                int nyy = conservedVolumes[0]->getTotalNumberOfYCells();
 
 
-                int index = k*nyy*nxx+j*nxx+i;
 
-                std::cout << conservedVolumes[0]->getScalarMemoryArea("mx")->getPointer()[index] << " ";
 
-            }
-            std::cout << "\n";
-        }
-        std::cout << "\n";
-        std::cout << "\n";
-    }
-#endif
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
 }
 
@@ -176,6 +160,33 @@ std::shared_ptr<grid::Grid> &Simulator::getGrid()
 
 void Simulator::callWriters()
 {
+    if (timestepInformation.getCurrentTime()==2) {
+#if 1 // debug output.. can be removed.
+        int rank = 0;
+        int size = 1;
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+         std::ofstream output("output_" + std::to_string(size) + "_" + std::to_string(rank) + ".txt");
+
+         int gc = conservedVolumes[0]->getNumberOfXGhostCells();
+         auto cpuVolume = conservedVolumes[0]->getCopyOnCPU();
+        for (int j = gc; j < conservedVolumes[0]->getTotalNumberOfYCells()-gc; ++j) {
+            for (int i = gc; i < conservedVolumes[0]->getTotalNumberOfXCells()-gc; ++i) {
+                int nxx = conservedVolumes[0]->getTotalNumberOfXCells();
+                int nzz = conservedVolumes[0]->getTotalNumberOfZCells();
+                int nyy = conservedVolumes[0]->getTotalNumberOfYCells();
+
+
+                int index = j*nxx+i;
+
+                output << cpuVolume->getScalarMemoryArea("rho")->getPointer()[index] << " ";
+
+            }
+            output << "\n";
+        }
+#endif
+    }
     for(auto writer : writers) {
         writer->write(*conservedVolumes[0],
                       *extraVolume,
@@ -223,8 +234,17 @@ void Simulator::doCellExchange(volume::Volume& volume)
 {
 
 #ifdef ALSVINN_USE_MPI
+
     if (cellExchanger) {
+#ifdef ALSVINN_USE_GPU_DIRECT
         cellExchanger->exchangeCells(volume, volume).waitForAll();
+#else
+        auto cpuVolume = volume.getCopyOnCPU();
+        cellExchanger->exchangeCells(*cpuVolume, *cpuVolume).waitForAll();
+        if (platformName != "cpu") {
+            cpuVolume->copyTo(volume);
+        }
+#endif
     }
 #endif
 }

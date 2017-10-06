@@ -41,6 +41,16 @@ SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
 SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
 SET(ALSVINN_PROFILE OFF CACHE BOOL "Add profiling information")
+SET(ALSVINN_MPI_GPU_DIRECT OFF CACHE BOOL "Use NVidia's GPU direct to do MPI transfers (this is faster, but not only available)")
+
+SITE_NAME(HOST_NAME)
+IF(${HOST_NAME} MATCHES "daint")
+    SET(ALSVINN_MPI_GPU_DIRECT ON)
+ENDIF()
+
+if (ALSVINN_MPI_GPU_DIRECT)
+    ADD_DEFINITIONS(-DALSVINN_HAS_GPU_DIRECT)
+endif()
 # Add the user's chosen flags to the build for this directory.
 set (CMAKE_CXX_STANDARD 11)
 
@@ -125,6 +135,7 @@ if(CUDA_FOUND)
   set(ALSVINN_HAVE_CUDA On)
   add_definitions(-DALSVINN_HAVE_CUDA)
   INCLUDE_DIRECTORIES(${CUDA_INCLUDE_DIRS})
+
 else()
   set(ALSVINN_HAVE_CUDA Off)
   set(CUDA_INCLUDE_DIRS "")
