@@ -160,33 +160,6 @@ std::shared_ptr<grid::Grid> &Simulator::getGrid()
 
 void Simulator::callWriters()
 {
-    if (timestepInformation.getCurrentTime()==2) {
-#if 1 // debug output.. can be removed.
-        int rank = 0;
-        int size = 1;
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-         std::ofstream output("output_" + std::to_string(size) + "_" + std::to_string(rank) + ".txt");
-
-         int gc = conservedVolumes[0]->getNumberOfXGhostCells();
-         auto cpuVolume = conservedVolumes[0]->getCopyOnCPU();
-        for (int j = gc; j < conservedVolumes[0]->getTotalNumberOfYCells()-gc; ++j) {
-            for (int i = gc; i < conservedVolumes[0]->getTotalNumberOfXCells()-gc; ++i) {
-                int nxx = conservedVolumes[0]->getTotalNumberOfXCells();
-                int nzz = conservedVolumes[0]->getTotalNumberOfZCells();
-                int nyy = conservedVolumes[0]->getTotalNumberOfYCells();
-
-
-                int index = j*nxx+i;
-
-                output << cpuVolume->getScalarMemoryArea("rho")->getPointer()[index] << " ";
-
-            }
-            output << "\n";
-        }
-#endif
-    }
     for(auto writer : writers) {
         writer->write(*conservedVolumes[0],
                       *extraVolume,

@@ -3,6 +3,8 @@
 #include "alsutils/log.hpp"
 #include "alsutils/mpi/to_mpi_offset.hpp"
 
+#include <fstream>
+
 namespace alsfvm { namespace io {
 
 NetCDFMPIWriter::NetCDFMPIWriter(const std::string &basefileName,
@@ -67,6 +69,7 @@ NetCDFMPIWriter::dimension_vector NetCDFMPIWriter::createDimensions(netcdf_raw_p
     netcdf_raw_ptr xdim, ydim, zdim;
 
     if (newFile) {
+        ALSVINN_LOG(INFO, "Making new file with sizes " << grid.getGlobalSize());
         NETCDF_SAFE_CALl(ncmpi_def_dim(baseGroup, "x", grid.getGlobalSize()[0],
                                        &xdim));
         NETCDF_SAFE_CALl(ncmpi_def_dim(baseGroup, "y", grid.getGlobalSize()[1],
@@ -150,6 +153,7 @@ void NetCDFMPIWriter::writeMemory(netcdf_raw_ptr baseGroup,
 {
     std::vector<real> dataTmp(volume.getNumberOfXCells() * volume.getNumberOfYCells() * volume.getNumberOfZCells());
 
+    //auto volumeCPU = const_cast<volume::Volume&>(volume).getCopyOnCPU();
     volume.copyInternalCells(memoryIndex, dataTmp.data(), dataTmp.size());
 
     std::vector<double> data(dataTmp.size());
@@ -173,6 +177,10 @@ void NetCDFMPIWriter::writeMemory(netcdf_raw_ptr baseGroup,
         std::swap(globalPosition[0], globalPosition[1]);
         std::swap(localSize[0], localSize[1]);
     }
+
+
+
+
 
     NETCDF_SAFE_CALl(ncmpi_put_vara_double_all(baseGroup, dataset, globalPosition.data(),
                                                localSize.data(),
