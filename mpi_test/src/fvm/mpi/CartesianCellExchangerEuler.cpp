@@ -451,7 +451,7 @@ TEST_P(CartesianCellExchangerEulerTest, Test2D) {
 INSTANTIATE_TEST_CASE_P(CartesianCellExchangerEuler,
                         CartesianCellExchangerEulerTest,
                         ::testing::Values("cpu"
-                                          #ifdef DALSVINN_HAS_GPU_DIRECT
+                                          #ifdef ALSVINN_HAS_GPU_DIRECT
                                           , "cuda"
                                           #endif
                                           ));
