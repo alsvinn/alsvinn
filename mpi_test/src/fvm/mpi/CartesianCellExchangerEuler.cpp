@@ -10,7 +10,18 @@
 
 using namespace alsfvm;
 
-TEST(CartesianCellExchangerEuler, Test1D) {
+class CartesianCellExchangerEulerTest :  public ::testing::TestWithParam<std::string> {
+public:
+    CartesianCellExchangerEulerTest()
+        :
+        platform(this->GetParam())
+    {
+    }
+
+    const std::string platform = "cpu";
+};
+
+TEST_P(CartesianCellExchangerEulerTest, Test1D) {
     auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
     const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
     const int rank = mpiConfiguration->getNodeNumber();
@@ -21,7 +32,6 @@ TEST(CartesianCellExchangerEuler, Test1D) {
     rvec3 lowerCorner = {0,0,0};
     rvec3 upperCorner = {1,0,0};
 
-    const std::string platform = "cpu";
     const std::string equation = "euler1";
 
     const int ghostCells = 3;
@@ -68,24 +78,26 @@ TEST(CartesianCellExchangerEuler, Test1D) {
     auto valueAtIndex = [&](int i,  int rank, int var) {
         return (i-ghostCells + N*rank)*volume->getNumberOfVariables() + var;
     };
+
+    auto cpuVolume = volume->getCopyOnCPU();
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = ghostCells; i < N + ghostCells; ++i) {
-            (*volume->getScalarMemoryArea(var))[i] = valueAtIndex(i,rank,var);
+            (*cpuVolume->getScalarMemoryArea(var))[i] = valueAtIndex(i,rank,var);
         }
     }
     const real magicValue = 42*numberOfProcessors+rank;
 
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
         for(int i = 0; i < ghostCells; ++i) {
-            (*volume->getScalarMemoryArea(0))[i] = magicValue;
-            (*volume->getScalarMemoryArea(0))[N+ghostCells + i] = magicValue;
+            (*cpuVolume->getScalarMemoryArea(0))[i] = magicValue;
+            (*cpuVolume->getScalarMemoryArea(0))[N+ghostCells + i] = magicValue;
         }
     }
 
 
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
     for (int i = ghostCells; i < N + ghostCells; ++i) {
-           auto value = (*volume->getScalarMemoryArea(var))[i];
+           auto value = (*cpuVolume->getScalarMemoryArea(var))[i];
             ASSERT_EQ(valueAtIndex(i,rank,var), value);
     }
     }
@@ -96,9 +108,9 @@ TEST(CartesianCellExchangerEuler, Test1D) {
 
     ASSERT_EQ(42*(numberOfProcessors-1), maxWaveSpeed);
 
-
+    cpuVolume->copyTo(*volume);
     information->getCellExchanger()->exchangeCells(*volume, *volume).waitForAll();
-
+    volume->copyTo(*cpuVolume);
 
     auto rankIndex = [&](int x) {
         const int nx = numberOfProcessors;
@@ -122,7 +134,7 @@ TEST(CartesianCellExchangerEuler, Test1D) {
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = 0; i < ghostCells; ++i) {
             int index = i;
-            auto value = (*volume->getScalarMemoryArea(var))[index];
+            auto value = (*cpuVolume->getScalarMemoryArea(var))[index];
 
             int expectedValue = valueAtIndex(N+i, rankIndex(rank-1), var);
 
@@ -135,7 +147,7 @@ TEST(CartesianCellExchangerEuler, Test1D) {
         // right side
         for (int i = 0; i < ghostCells; ++i) {
             int index = N+ghostCells+i;
-            auto value = (*volume->getScalarMemoryArea(var))[index];
+            auto value = (*cpuVolume->getScalarMemoryArea(var))[index];
             int expectedValue = valueAtIndex(i+ghostCells, rankIndex(rank + 1), var);
 
             EXPECT_EQ(expectedValue, value)
@@ -168,7 +180,7 @@ TEST(CartesianCellExchangerEuler, Test1D) {
 
 }
 
-TEST(CartesianCellExchangerEuler, Test2D) {
+TEST_P(CartesianCellExchangerEulerTest, Test2D) {
      MPI_Barrier(MPI_COMM_WORLD);
     auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
     const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
@@ -185,7 +197,6 @@ TEST(CartesianCellExchangerEuler, Test2D) {
     rvec3 lowerCorner = {0,0,0};
     rvec3 upperCorner = {1,1,0};
 
-    const std::string platform = "cpu";
     const std::string equation = "euler2";
 
     const int ghostCells = 3;
@@ -208,7 +219,7 @@ TEST(CartesianCellExchangerEuler, Test2D) {
         {N,N,1},
                                               ghostCells);
 
-
+    auto cpuVolume = volume->getCopyOnCPU();
     mpi::domain::CartesianDecomposition decomposer(nx, ny, 1);
 
     auto information = decomposer.decompose(mpiConfiguration, *grid);
@@ -232,7 +243,7 @@ TEST(CartesianCellExchangerEuler, Test2D) {
     const real magicValue = N*N*42*numberOfProcessors+rank;
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
         for(int i = 0; i < M*M; ++i) {
-            (*volume->getScalarMemoryArea(var))[i] = magicValue;
+            (*cpuVolume->getScalarMemoryArea(var))[i] = magicValue;
         }
     }
 
@@ -272,7 +283,7 @@ TEST(CartesianCellExchangerEuler, Test2D) {
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = ghostCells; i < N + ghostCells; ++i) {
             for (int j = ghostCells; j < N + ghostCells; ++j) {
-                (*volume->getScalarMemoryArea(var))[j*M+i] = computeValue(i,j, rank,var);
+                (*cpuVolume->getScalarMemoryArea(var))[j*M+i] = computeValue(i,j, rank,var);
             }
         }
     }
@@ -282,7 +293,7 @@ TEST(CartesianCellExchangerEuler, Test2D) {
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = ghostCells; i < N + ghostCells; ++i) {
             for (int j = ghostCells; j < N + ghostCells; ++j) {
-                auto value = (*volume->getScalarMemoryArea(var))[j*M+i];
+                auto value = (*cpuVolume->getScalarMemoryArea(var))[j*M+i];
                 ASSERT_EQ(computeValue(i,j, rank, var), value);
             }
         }
@@ -347,9 +358,9 @@ TEST(CartesianCellExchangerEuler, Test2D) {
 
 
     //ASSERT_EQ((((rank%nx)+1)%nx) + (rank/nx)*nx, neighbours[0]);
-
+    cpuVolume->copyTo(*volume);
     information->getCellExchanger()->exchangeCells(*volume, *volume).waitForAll();
-
+    volume->copyTo(*cpuVolume);
 
     if(numberOfProcessors==1) {
         return;
@@ -383,7 +394,7 @@ TEST(CartesianCellExchangerEuler, Test2D) {
         for (int i = 0; i < ghostCells; ++i) {
             for (int j = ghostCells; j < N + ghostCells; ++j) {
                 int index = i + j*M;
-                auto value = (*volume->getScalarMemoryArea(var))[index];
+                auto value = (*cpuVolume->getScalarMemoryArea(var))[index];
 
                 int expectedValue = computeValue((i+N),j,rankIndex(xRank - 1, yRank), var);
 
@@ -397,7 +408,7 @@ TEST(CartesianCellExchangerEuler, Test2D) {
         for (int i = N+ghostCells; i < M; ++i) {
             for (int j = ghostCells; j < N + ghostCells; ++j) {
                 int index = i + j*M;
-                auto value = (*volume->getScalarMemoryArea(var))[index];
+                auto value = (*cpuVolume->getScalarMemoryArea(var))[index];
 
                 int expectedValue = computeValue((i-N),j,rankIndex(xRank + 1, yRank), var);
 
@@ -411,7 +422,7 @@ TEST(CartesianCellExchangerEuler, Test2D) {
         for (int i = ghostCells; i < N+ghostCells; ++i) {
             for (int j = 0; j < ghostCells; ++j) {
                 int index = i + j*M;
-                auto value = (*volume->getScalarMemoryArea(var))[index];
+                auto value = (*cpuVolume->getScalarMemoryArea(var))[index];
 
                 int expectedValue = computeValue(i, j+N,rankIndex(xRank, yRank-1), var);
 
@@ -424,7 +435,7 @@ TEST(CartesianCellExchangerEuler, Test2D) {
         for (int i = ghostCells; i < N+ghostCells; ++i) {
             for (int j = N+ghostCells; j < M; ++j) {
                 int index = i + j*M;
-                auto value = (*volume->getScalarMemoryArea(var))[index];
+                auto value = (*cpuVolume->getScalarMemoryArea(var))[index];
 
                 int expectedValue = computeValue(i, j-N,rankIndex(xRank, yRank+1), var);
 
@@ -434,3 +445,13 @@ TEST(CartesianCellExchangerEuler, Test2D) {
         }
     }
 }
+
+
+
+INSTANTIATE_TEST_CASE_P(CartesianCellExchangerEuler,
+                        CartesianCellExchangerEulerTest,
+                        ::testing::Values("cpu"
+                                          #ifdef DALSVINN_HAS_GPU_DIRECT
+                                          , "cuda"
+                                          #endif
+                                          ));
