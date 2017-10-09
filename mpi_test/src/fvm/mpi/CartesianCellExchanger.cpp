@@ -141,6 +141,12 @@ TEST_P(CartesianCellExchangerTest, Test1D) {
                 << "Failed at right ghost index " << i << "  on processor " << rank;
     }
 
+    // inner side
+    for (int i = ghostCells; i < N + ghostCells; ++i) {
+        auto value = (*cpuVolume->getScalarMemoryArea(0))[i];
+        ASSERT_EQ(i-ghostCells + N*rank, value);
+    }
+
 #if 0 //debug output
     MPI_Barrier(MPI_COMM_WORLD);
     if (rank == 0) {
@@ -513,6 +519,15 @@ TEST_P(CartesianCellExchangerTest, Test2D) {
                     << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
         }
     }
+
+    // inner side
+    for (int i = ghostCells; i < N + ghostCells; ++i) {
+        for (int j = ghostCells; j < N + ghostCells; ++j) {
+            auto value = (*cpuVolume->getScalarMemoryArea(0))[j*M+i];
+            ASSERT_EQ(computeValue(i,j, rank), value);
+        }
+    }
+
 
 }
 

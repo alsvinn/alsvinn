@@ -155,6 +155,13 @@ TEST_P(CartesianCellExchangerEulerTest, Test1D) {
                     << "\nvar = " << volume->getName(var) << "(" << var << ")";
         }
     }
+    // Inner
+    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+    for (int i = ghostCells; i < N + ghostCells; ++i) {
+           auto value = (*cpuVolume->getScalarMemoryArea(var))[i];
+            ASSERT_EQ(valueAtIndex(i,rank,var), value);
+    }
+    }
 
 #if 0 //debug output
     MPI_Barrier(MPI_COMM_WORLD);
@@ -441,6 +448,15 @@ TEST_P(CartesianCellExchangerEulerTest, Test2D) {
 
                 ASSERT_EQ(expectedValue, value)
                         << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
+            }
+        }
+    }
+    // inner
+    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+        for (int i = ghostCells; i < N + ghostCells; ++i) {
+            for (int j = ghostCells; j < N + ghostCells; ++j) {
+                auto value = (*cpuVolume->getScalarMemoryArea(var))[j*M+i];
+                ASSERT_EQ(computeValue(i,j, rank, var), value);
             }
         }
     }
