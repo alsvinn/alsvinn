@@ -132,6 +132,8 @@ namespace alsfvm { namespace mpi {
             extractSideDevice<<<(size+numberOfThreads-1)/numberOfThreads, numberOfThreads>>>(buffers[var][side]->getView(),
                                                                                              inputVolume.getScalarMemoryArea(var)->getView(),
                                                                                              start, end);
+
+            buffers[var][side]->copyToHost(cpuBuffers->getPointer());
         }
     }
 
@@ -224,8 +226,10 @@ namespace alsfvm { namespace mpi {
 
     void CudaCartesianCellExchanger::makeBuffers(const volume::Volume &inputVolume) {
         buffers.resize(inputVolume.getNumberOfVariables());
+        cpuBuffers.resize(buffers.size());
         for (int var = 0; var < inputVolume.getNumberOfVariables(); ++var) {
             buffers[var].resize(6);
+            cpuBuffers[var].resize(6);
             for(int side = 0; side < 6; ++side) {
                 if (hasSide(side)) {
                     const int nx = (side>1)*inputVolume.getTotalNumberOfXCells() +
@@ -241,6 +245,8 @@ namespace alsfvm { namespace mpi {
 
 
                     buffers[var][side] = alsfvm::make_shared<alsfvm::cuda::CudaMemory<real>>(nx, ny, nz);
+
+                    cpuBuffers[var][side] = alsfvm::make_shared<alsfvm::memory::HostMemory<real>>(nx, ny, nz);
                 }
             }
         }

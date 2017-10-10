@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/mpi/CellExchanger.hpp"
 #include "alsfvm/cuda/CudaMemory.hpp"
+#include "alsfvm/memory/HostMemory.hpp"
 
 namespace alsfvm { namespace mpi { 
 
@@ -40,6 +41,8 @@ namespace alsfvm { namespace mpi {
 
         // for each variable, for each side
         std::vector<std::vector<alsfvm::shared_ptr<cuda::CudaMemory<real> > > > buffers;
+
+        std::vector<std::vector<alsfvm::shared_ptr<memory::HostMemory<real> > > > cpuBuffers;
         void makeBuffers(const volume::Volume &inputVolume);
 
         void extractSides(const volume::Volume &inputVolume);
