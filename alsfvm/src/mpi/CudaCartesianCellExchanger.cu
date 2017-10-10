@@ -76,19 +76,19 @@ RequestContainer CudaCartesianCellExchanger::exchangeCells(volume::Volume &outpu
         const int i = side%2;
         return (i+1)%2 + (side/2)*2;
     };
-
+    const int dimensions = inputVolume.getDimensions();
     RequestContainer container;
-    for(int side = 0; side < 6; ++side) {
+    for(int side = 0; side < 2*dimensions; ++side) {
         for (int var = 0; var < inputVolume.getNumberOfVariables(); ++var) {
             if (hasSide(side)) {
-                container.addRequest(Request::isend(*cpuBuffers[var][side], buffers[var][side]->getSize(),
+                container.addRequest(Request::isend(*cpuBuffers[var][side], cpuBuffers[var][side]->getSize(),
                                                     MPI_DOUBLE, neighbours[side],
                                                     var*6+side,
                                                     *configuration));
             }
 
             if(hasSide(oppositeSide(side))) {
-                container.addRequest(Request::ireceive(*cpuBuffers[var][oppositeSide(side)], buffers[var][oppositeSide(side)]->getSize(),
+                container.addRequest(Request::ireceive(*cpuBuffers[var][oppositeSide(side)], cpuBuffers[var][oppositeSide(side)]->getSize(),
                         MPI_DOUBLE, neighbours[oppositeSide(side)],
                         var*6+side,
                         *configuration));
@@ -96,11 +96,14 @@ RequestContainer CudaCartesianCellExchanger::exchangeCells(volume::Volume &outpu
         }
     }
 
+
     container.waitForAll();
+
 
     insertSides(outputVolume);
 
-    return container;
+    RequestContainer emptyContainer;
+    return emptyContainer;
 }
 
 int CudaCartesianCellExchanger::getNumberOfActiveSides() const {
