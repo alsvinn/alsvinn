@@ -81,14 +81,14 @@ RequestContainer CudaCartesianCellExchanger::exchangeCells(volume::Volume &outpu
     for(int side = 0; side < 6; ++side) {
         for (int var = 0; var < inputVolume.getNumberOfVariables(); ++var) {
             if (hasSide(side)) {
-                container.addRequest(Request::isend(*buffers[var][side], buffers[var][side]->getSize(),
+                container.addRequest(Request::isend(*cpuBuffers[var][side], buffers[var][side]->getSize(),
                                                     MPI_DOUBLE, neighbours[side],
                                                     var*6+side,
                                                     *configuration));
             }
 
             if(hasSide(oppositeSide(side))) {
-                container.addRequest(Request::ireceive(*buffers[var][oppositeSide(side)], buffers[var][oppositeSide(side)]->getSize(),
+                container.addRequest(Request::ireceive(*cpuBuffers[var][oppositeSide(side)], buffers[var][oppositeSide(side)]->getSize(),
                         MPI_DOUBLE, neighbours[oppositeSide(side)],
                         var*6+side,
                         *configuration));
