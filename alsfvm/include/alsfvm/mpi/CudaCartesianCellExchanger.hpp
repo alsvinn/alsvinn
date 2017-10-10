@@ -35,6 +35,7 @@ namespace alsfvm { namespace mpi {
 
         int getNumberOfActiveSides() const;
 
+        ivec6 getNeighbours()  const override;
     private:
         ConfigurationPtr configuration;
         ivec6 neighbours;

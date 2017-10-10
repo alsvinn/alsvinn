@@ -133,7 +133,7 @@ void CudaCartesianCellExchanger::extractSide(const ivec3 &start,
     for (int var  = 0; var < inputVolume.getNumberOfVariables(); ++var) {
         const auto diff = end - start;
         const int size = diff.x*diff.y*diff.z;
-        if (size == 0) {
+        if (size <= 0) {
             return;
         }
 
@@ -148,7 +148,9 @@ void CudaCartesianCellExchanger::extractSide(const ivec3 &start,
     }
 }
 
-
+ivec6 CudaCartesianCellExchanger::getNeighbours() const {
+    return neighbours;
+}
 void CudaCartesianCellExchanger::extractSides(const volume::Volume &inputVolume) {
     const int nx = inputVolume.getTotalNumberOfXCells();
     const int ny = inputVolume.getTotalNumberOfYCells();
@@ -160,30 +162,30 @@ void CudaCartesianCellExchanger::extractSides(const volume::Volume &inputVolume)
 
 
     if (hasSide(0)) {
-        extractSide({0,0,0},{ngx, ny, nz}, 0, inputVolume);
+        extractSide({ngx,0,0},{2*ngx, ny, nz}, 0, inputVolume);
     }
     if (hasSide(1)) {
 
-        extractSide({nx-ngx,0,0},{nx, ny, nz}, 1, inputVolume);
+        extractSide({nx-2*ngx,0,0},{nx-ngx, ny, nz}, 1, inputVolume);
     }
 
     if (hasSide(2)) {
 
-        extractSide({0,0,0},{nx, ngy, nz}, 2, inputVolume);
+        extractSide({0,ngy,0},{nx, 2*ngy, nz}, 2, inputVolume);
     }
     if (hasSide(3)) {
 
-        extractSide({0,ny-ngy,0},{nx, ny, nz}, 3, inputVolume);
+        extractSide({0,ny-2*ngy,0},{nx, ny-ngy, nz}, 3, inputVolume);
     }
 
     if(hasSide(4)) {
 
-        extractSide({0,0,0},{nx, ny, ngz}, 4, inputVolume);
+        extractSide({0,0, ngz},{nx, ny, 2*ngz}, 4, inputVolume);
     }
 
     if(hasSide(5)) {
 
-        extractSide({0,0,nz-ngz},{nx, ny, nz}, 5, inputVolume);
+        extractSide({0,0,nz-2*ngz},{nx, ny, nz-ngz}, 5, inputVolume);
     }
 
 }

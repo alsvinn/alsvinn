@@ -18,7 +18,7 @@ public:
 };
 
 TEST_P(CartesianCellExchangerTest, Test1D) {
-    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
+    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD, platform);
     const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
     const int rank = mpiConfiguration->getNodeNumber();
 
@@ -116,6 +116,28 @@ TEST_P(CartesianCellExchangerTest, Test1D) {
     }
 
 
+#if 0 //debug output
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (rank == 0) {
+        for (int i = 0; i < N + 2*ghostCells; ++i) {
+            auto value = (*cpuVolume->getScalarMemoryArea(0))[i];
+            std::cout << value << std::endl;
+        }
+        std::cout << "_______________________________" << std::endl;
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (rank == 1) {
+        for (int i = 0; i < N + 2*ghostCells; ++i) {
+            auto value = (*cpuVolume->getScalarMemoryArea(0))[i];
+            std::cout << value << std::endl;
+        }
+        std::cout << "_______________________________" << std::endl;
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
+#endif
+
 
     // left side
     for (int i = 0; i < ghostCells; ++i) {
@@ -147,33 +169,11 @@ TEST_P(CartesianCellExchangerTest, Test1D) {
         ASSERT_EQ(i-ghostCells + N*rank, value);
     }
 
-#if 0 //debug output
-    MPI_Barrier(MPI_COMM_WORLD);
-    if (rank == 0) {
-        for (int i = 0; i < N + 2*ghostCells; ++i) {
-            auto value = (*volume->getScalarMemoryArea(0))[i];
-            std::cout << value << std::endl;
-        }
-        std::cout << "_______________________________" << std::endl;
-    }
-
-    MPI_Barrier(MPI_COMM_WORLD);
-    MPI_Barrier(MPI_COMM_WORLD);
-    if (rank == 1) {
-        for (int i = 0; i < N + 2*ghostCells; ++i) {
-            auto value = (*volume->getScalarMemoryArea(0))[i];
-            std::cout << value << std::endl;
-        }
-        std::cout << "_______________________________" << std::endl;
-    }
-    MPI_Barrier(MPI_COMM_WORLD);
-#endif
-
 }
 
 TEST_P(CartesianCellExchangerTest, Test2D) {
      MPI_Barrier(MPI_COMM_WORLD);
-    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
+    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD, platform);
     const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
     const int rank = mpiConfiguration->getNodeNumber();
 
@@ -291,7 +291,7 @@ TEST_P(CartesianCellExchangerTest, Test2D) {
     ASSERT_EQ(42*(numberOfProcessors-1), maxWaveSpeed);
 
 
-    auto neighbours = alsfvm::dynamic_pointer_cast<mpi::CartesianCellExchanger>(information->getCellExchanger())->getNeighbours();
+    auto neighbours =information->getCellExchanger()->getNeighbours();
 
     for (int i = 0; i < 6; ++i) {
         ASSERT_LE(0, neighbours[i]);
@@ -535,7 +535,7 @@ TEST_P(CartesianCellExchangerTest, Test2D) {
 INSTANTIATE_TEST_CASE_P(CartesianCellExchanger,
                         CartesianCellExchangerTest,
                         ::testing::Values("cpu"
-                                          #ifdef ALSVINN_HAS_GPU_DIRECT
+
                                           , "cuda"
-                                          #endif
+
                                           ));

@@ -22,7 +22,7 @@ public:
 };
 
 TEST_P(CartesianCellExchangerEulerTest, Test1D) {
-    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
+    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD, platform);
     const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
     const int rank = mpiConfiguration->getNodeNumber();
 
@@ -189,7 +189,7 @@ TEST_P(CartesianCellExchangerEulerTest, Test1D) {
 
 TEST_P(CartesianCellExchangerEulerTest, Test2D) {
      MPI_Barrier(MPI_COMM_WORLD);
-    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
+    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD, platform);
     const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
     const int rank = mpiConfiguration->getNodeNumber();
 
@@ -318,7 +318,7 @@ TEST_P(CartesianCellExchangerEulerTest, Test2D) {
     ASSERT_EQ(42*(numberOfProcessors-1), maxWaveSpeed);
 
 
-    auto neighbours = alsfvm::dynamic_pointer_cast<mpi::CartesianCellExchanger>(information->getCellExchanger())->getNeighbours();
+    auto neighbours = information->getCellExchanger()->getNeighbours();
 
  
     int xRank = xComponent(rank);
@@ -519,7 +519,7 @@ TEST_P(CartesianCellExchangerEulerTest, Test2D) {
 INSTANTIATE_TEST_CASE_P(CartesianCellExchangerEuler,
                         CartesianCellExchangerEulerTest,
                         ::testing::Values("cpu"
-                                          #ifdef ALSVINN_HAS_GPU_DIRECT
+
                                           , "cuda"
-                                          #endif
+
                                           ));

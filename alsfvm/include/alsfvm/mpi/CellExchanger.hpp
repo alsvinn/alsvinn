@@ -20,6 +20,8 @@ namespace alsfvm { namespace mpi {
 
         //! Does the maximum over all wave speeds across processors
         real adjustWaveSpeed(real waveSpeed);
+
+        virtual ivec6 getNeighbours() const = 0;
     };
 
     typedef alsfvm::shared_ptr<CellExchanger> CellExchangerPtr;
