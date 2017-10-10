@@ -7,10 +7,12 @@
 #include <cstdlib>
 int main(int argc, char **argv) {
 #ifdef ALSVINN_USE_MPI
+#ifdef DALSVINN_HAS_GPU_DIRECT
   setenv("MPICH_RDMA_ENABLED_CUDA", "1", 1);
   setenv("MV2_USE_CUDA", "1", 1);
+#endif
   MPI_Init(NULL, NULL);
-
+#ifdef DALSVINN_HAS_GPU_DIRECT
 
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -29,7 +31,7 @@ int main(int argc, char **argv) {
       MPI_Wait(&requestReceive, MPI_STATUS_IGNORE);
 
     }
-
+#endif
 #endif
 
 
