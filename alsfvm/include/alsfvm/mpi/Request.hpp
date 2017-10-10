@@ -2,6 +2,7 @@
 #include <mpi.h>
 #include "alsfvm/mpi/Configuration.hpp"
 #include <memory>
+#include <thrust/host_vector.h>
 
 namespace alsfvm { namespace mpi { 
 
@@ -24,6 +25,7 @@ namespace alsfvm { namespace mpi {
         template<class Data>
         static RequestPtr ireceive(Data& receiveBuffer, int count, MPI_Datatype datatype,
                                    int source, int tag, Configuration configuration);
+
 
         //! Wait for the request to finish, maps to MPI_Wait.
         void wait();
@@ -58,6 +60,34 @@ namespace alsfvm { namespace mpi {
 
 
         MPI_Irecv((void*)receiveBuffer.getPointer(), count, datatype, source, tag, configuration.getCommunicator(),
+                  &requestPointer->request);
+
+        return requestPointer;
+    }
+
+
+
+    template<>
+    inline  RequestPtr Request::isend(const thrust::host_vector<real>& data, int count, MPI_Datatype datatype,
+                            int destination, int tag, Configuration& configuration)
+    {
+        std::shared_ptr<Request> requestPointer(new Request());
+
+
+        MPI_Isend((void*)data.data(), count, datatype, destination, tag, configuration.getCommunicator(),
+                  &requestPointer->request);
+
+        return requestPointer;
+    }
+
+    template<>
+    inline  RequestPtr Request::ireceive(thrust::host_vector<real>& receiveBuffer, int count, MPI_Datatype datatype,
+                                      int source, int tag, Configuration configuration)
+    {
+        std::shared_ptr<Request> requestPointer(new Request());
+
+
+        MPI_Irecv((void*)receiveBuffer.data(), count, datatype, source, tag, configuration.getCommunicator(),
                   &requestPointer->request);
 
         return requestPointer;

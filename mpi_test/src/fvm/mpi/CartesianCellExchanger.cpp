@@ -178,7 +178,7 @@ TEST_P(CartesianCellExchangerTest, Test2D) {
     const int rank = mpiConfiguration->getNodeNumber();
 
 
-    const int N = 8*numberOfProcessors;
+    const int N = 8;//numberOfProcessors;
 
     if (numberOfProcessors < 4) {
         return;

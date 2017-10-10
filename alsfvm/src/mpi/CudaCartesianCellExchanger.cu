@@ -81,14 +81,14 @@ RequestContainer CudaCartesianCellExchanger::exchangeCells(volume::Volume &outpu
     for(int side = 0; side < 2*dimensions; ++side) {
         for (int var = 0; var < inputVolume.getNumberOfVariables(); ++var) {
             if (hasSide(side)) {
-                container.addRequest(Request::isend(*cpuBuffers[var][side], cpuBuffers[var][side]->getSize(),
+                container.addRequest(Request::isend(cpuBuffers[var][side], cpuBuffers[var][side].size(),
                                                     MPI_DOUBLE, neighbours[side],
                                                     var*6+side,
                                                     *configuration));
             }
 
             if(hasSide(oppositeSide(side))) {
-                container.addRequest(Request::ireceive(*cpuBuffers[var][oppositeSide(side)], cpuBuffers[var][oppositeSide(side)]->getSize(),
+                container.addRequest(Request::ireceive(cpuBuffers[var][oppositeSide(side)], cpuBuffers[var][oppositeSide(side)].size(),
                         MPI_DOUBLE, neighbours[oppositeSide(side)],
                         var*6+side,
                         *configuration));
@@ -144,8 +144,12 @@ void CudaCartesianCellExchanger::extractSide(const ivec3 &start,
                                                                                          start,
                                                                                          end);
 
-        buffers[var][side]->copyToHost(cpuBuffers[var][side]->getPointer(), cpuBuffers[var][side]->getSize());
+        CUDA_SAFE_CALL(cudaMemcpyAsync(cpuBuffers[var][side].data(), buffers[var][side]->getPointer(),
+                                       buffers[var][side]->getSize()*sizeof(real), cudaMemcpyDeviceToHost));
+
     }
+
+    CUDA_SAFE_CALL(cudaStreamSynchronize(0));
 }
 
 ivec6 CudaCartesianCellExchanger::getNeighbours() const {
@@ -201,7 +205,11 @@ void CudaCartesianCellExchanger::insertSide(const ivec3 &start,
         if (size == 0) {
             return;
         }
-        buffers[var][side]->copyFromHost(cpuBuffers[var][side]->getPointer(), cpuBuffers[var][side]->getSize());
+
+        CUDA_SAFE_CALL(cudaMemcpyAsync(buffers[var][side]->getPointer(),
+                                       cpuBuffers[var][side].data(),
+                                       buffers[var][side]->getSize()*sizeof(real), cudaMemcpyHostToHost));
+
         const int numberOfThreads = 512;
         insertSideDevice<<<(size+numberOfThreads-1)/numberOfThreads, numberOfThreads>>>(
                                                                                           outputVolume.getScalarMemoryArea(var)->getView(),
@@ -209,6 +217,8 @@ void CudaCartesianCellExchanger::insertSide(const ivec3 &start,
                                                                                           start,
                                                                                           end);
     }
+
+    CUDA_SAFE_CALL(cudaStreamSynchronize(0));
 }
 
 
@@ -268,7 +278,7 @@ void CudaCartesianCellExchanger::makeBuffers(const volume::Volume &inputVolume) 
 
                 buffers[var][side] = alsfvm::make_shared<alsfvm::cuda::CudaMemory<real>>(nx, ny, nz);
 
-                cpuBuffers[var][side] = alsfvm::make_shared<alsfvm::memory::HostMemory<real>>(nx, ny, nz);
+                cpuBuffers[var][side].resize(nx*ny*nz,0);//alsfvm::make_shared<alsfvm::memory::HostMemory<real>>(nx, ny, nz);
             }
         }
     }
