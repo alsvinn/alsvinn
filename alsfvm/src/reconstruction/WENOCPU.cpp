@@ -58,7 +58,8 @@ void WENOCPU<order>::performReconstruction(const volume::Volume& inputVariables,
                                            size_t direction,
                                            size_t indicatorVariable,
                                            volume::Volume& leftOut,
-                                           volume::Volume& rightOut)
+                                           volume::Volume& rightOut, const ivec3& start,
+                                           const ivec3& end)
 {
 
     // We often do compute order-1.

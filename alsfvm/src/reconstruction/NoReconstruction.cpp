@@ -25,7 +25,8 @@ void NoReconstruction::performReconstruction(const volume::Volume& inputVariable
                            size_t direction,
                            size_t indicatorVariable,
                            volume::Volume& leftOut,
-                           volume::Volume& rightOut)
+                           volume::Volume& rightOut, const ivec3& start,
+                                             const ivec3& end)
 {
     for (size_t var = 0; var < inputVariables.getNumberOfVariables(); var++) {
         auto pointerIn = inputVariables.getScalarMemoryArea(var)->getPointer();

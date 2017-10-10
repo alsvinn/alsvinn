@@ -68,10 +68,10 @@ namespace alsfvm {
 
             template<size_t dimension, class Equation, class ReconstructionType>
             void performReconstructionDevice(const Equation& equation, const volume::Volume& inputVariables,
-                size_t direction,
-                size_t indicatorVariable,
-                volume::Volume& leftOut,
-                volume::Volume& rightOut) {
+                                             size_t direction,
+                                             size_t indicatorVariable,
+                                             volume::Volume& leftOut,
+                                             volume::Volume& rightOut) {
                 assert(direction < 3);
                 switch (direction) {
                 case 0:
@@ -118,7 +118,8 @@ namespace alsfvm {
             size_t direction,
             size_t indicatorVariable,
             volume::Volume& leftOut,
-            volume::Volume& rightOut)
+            volume::Volume& rightOut, const ivec3& start,
+                                                                                     const ivec3& end)
         {
             size_t dimension = 1 + (leftOut.getNumberOfYCells() > 1) + (leftOut.getNumberOfZCells() > 1);
 

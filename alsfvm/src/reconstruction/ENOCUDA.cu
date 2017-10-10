@@ -104,10 +104,12 @@ ENOCUDA<Equation, order>::ENOCUDA(alsfvm::shared_ptr<memory::MemoryFactory> &mem
 
 template<class Equation, int order>
 void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &inputVariables,
-	size_t direction,
-	size_t indicatorVariable,
-	volume::Volume &leftOut,
-	volume::Volume &rightOut)
+                                                     size_t direction,
+                                                     size_t indicatorVariable,
+                                                     volume::Volume &leftOut,
+                                                     volume::Volume &rightOut,
+                                                     const ivec3& startIndex,
+                                                     const ivec3& endIndex)
 {
 	// We often do compute order-1.
 	static_assert(order > 0, "Can not do ENO reconstruction of order 0.");

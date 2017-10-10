@@ -7,11 +7,12 @@ namespace alsfvm { namespace reconstruction {
 	}
 
 
-	void NoReconstructionCUDA::performReconstruction(const volume::Volume& inputVariables,
-		size_t direction,
-		size_t indicatorVariable,
-		volume::Volume& leftOut,
-		volume::Volume& rightOut) {
+    void NoReconstructionCUDA::performReconstruction(const volume::Volume& inputVariables,
+                                                     size_t direction,
+                                                     size_t indicatorVariable,
+                                                     volume::Volume& leftOut,
+                                                     volume::Volume& rightOut, const ivec3& start,
+                                                     const ivec3& end) {
 
 		for (size_t var = 0; var < inputVariables.getNumberOfVariables(); ++var) {
 			CUDA_SAFE_CALL(cudaMemcpyAsync(leftOut.getScalarMemoryArea(var)->getPointer(), inputVariables.getScalarMemoryArea(var)->getPointer(),
