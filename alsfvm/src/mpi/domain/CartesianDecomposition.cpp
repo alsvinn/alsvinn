@@ -1,6 +1,7 @@
 #include "alsfvm/mpi/domain/CartesianDecomposition.hpp"
 #include "alsutils/error/Exception.hpp"
 #include "alsfvm/mpi/CartesianCellExchanger.hpp"
+#include "alsfvm/mpi/CudaCartesianCellExchanger.hpp"
 #include "alsutils/log.hpp"
 #include "alsfvm/mpi/cartesian/rank_index.hpp"
 #include "alsfvm/mpi/cartesian/rank_component.hpp"
@@ -113,7 +114,12 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
 
 
 
-    alsfvm::shared_ptr<CellExchanger> cellExchanger(new CartesianCellExchanger(configuration, neighbours));
+    alsfvm::shared_ptr<CellExchanger> cellExchanger;
+    if (configuration->getPlatform() == "cpu") {
+        cellExchanger.reset(new CartesianCellExchanger(configuration, neighbours));
+    } else {
+        cellExchanger.reset(new CudaCartesianCellExchanger(configuration, neighbours));
+    }
 
     auto information = alsfvm::make_shared<DomainInformation>(newGrid, cellExchanger);
 

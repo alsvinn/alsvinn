@@ -2,8 +2,9 @@
 
 namespace alsfvm { namespace mpi {
 
-Configuration::Configuration(MPI_Comm communicator)
-    : communicator(communicator)
+Configuration::Configuration(MPI_Comm communicator,
+                             const std::string& platform)
+    : communicator(communicator), platform(platform)
 {
     MPI_Comm_rank(communicator, &nodeNumber);
     MPI_Comm_size(communicator, &numberOfNodes);
@@ -30,5 +31,10 @@ MPI_Info Configuration::getInfo()
     return info;
 }
 
+std::string Configuration::getPlatform() const
+{
+    return platform;
 }
+
 }
+                 }

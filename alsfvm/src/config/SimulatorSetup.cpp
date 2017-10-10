@@ -95,6 +95,7 @@ SimulatorSetup::readSetupFromFile(const std::string &filename)
 #ifdef ALSVINN_USE_MPI
     mpi::CellExchangerPtr cellExchangerPtr;
     if (useMPI) {
+        this->mpiConfiguration = alsfvm::make_shared<alsfvm::mpi::Configuration>(this->mpiConfiguration->getCommunicator(), readPlatform(configuration));
         auto domainInformation = decomposeGrid(grid);
         grid = domainInformation->getGrid();
         cellExchangerPtr = domainInformation->getCellExchanger();
