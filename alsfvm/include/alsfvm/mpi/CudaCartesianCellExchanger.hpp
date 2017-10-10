@@ -44,8 +44,10 @@ namespace alsfvm { namespace mpi {
         // for each variable, for each side
         std::vector<std::vector<alsfvm::shared_ptr<cuda::CudaMemory<real> > > > buffers;
 
-        std::vector<std::vector<thrust::host_vector<real> > > cpuBuffers;
+        std::vector<std::vector<thrust::host_vector<real> > > cpuBuffersSend;
+        std::vector<std::vector<thrust::host_vector<real> > > cpuBuffersReceive;
         void makeBuffers(const volume::Volume &inputVolume);
+        void makeStreams(const volume::Volume &inputVolume);
 
         void extractSides(const volume::Volume &inputVolume);
         void extractSide(const ivec3& start, const ivec3& end,
@@ -56,6 +58,12 @@ namespace alsfvm { namespace mpi {
         void insertSide(const ivec3& start, const ivec3& end,
                          int side,
                           volume::Volume& outputVolume);
+
+
+        std::vector<std::vector<cudaStream_t> > memoryStreams;
+
+        std::vector<std::vector<RequestPtr> > receiveRequests;
+        std::vector<std::vector<RequestPtr> > sendRequests;
 
 
     };

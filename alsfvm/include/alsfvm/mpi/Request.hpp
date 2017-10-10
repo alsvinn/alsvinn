@@ -34,7 +34,8 @@ namespace alsfvm { namespace mpi {
 
         ~Request();
     private:
-        MPI_Request request;
+
+        MPI_Request request{NULL};
     };
 
     typedef Request::RequestPtr RequestPtr;
