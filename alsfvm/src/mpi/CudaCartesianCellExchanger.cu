@@ -1,6 +1,6 @@
 #include "alsfvm/mpi/CudaCartesianCellExchanger.hpp"
 #include "alsutils/mpi/safe_call.hpp"
-
+#include "alsfvm/cuda/cuda_utils.hpp"
 namespace alsfvm { namespace mpi { 
 
     namespace {
@@ -64,6 +64,7 @@ namespace alsfvm { namespace mpi {
 
     RequestContainer CudaCartesianCellExchanger::exchangeCells(volume::Volume &outputVolume,
                                                                const volume::Volume &inputVolume) {
+							       
 
         if (buffers.size() == 0){
             makeBuffers(inputVolume);
@@ -87,8 +88,8 @@ namespace alsfvm { namespace mpi {
                 }
 
                 if(hasSide(oppositeSide(side))) {
-                    container.addRequest(Request::ireceive(*buffers[var][side], buffers[var][side]->getSize(),
-                                                        MPI_DOUBLE, neighbours[side],
+                    container.addRequest(Request::ireceive(*buffers[var][oppositeSide(side)], buffers[var][oppositeSide(side)]->getSize(),
+                                                        MPI_DOUBLE, neighbours[oppositeSide(side)],
                                                         var*6+side,
                                                         *configuration));
                 }
@@ -97,7 +98,9 @@ namespace alsfvm { namespace mpi {
 
         container.waitForAll();
 
+	insertSides(outputVolume);
 
+	return container;
     }
 
     int CudaCartesianCellExchanger::getNumberOfActiveSides() const {
@@ -127,13 +130,17 @@ namespace alsfvm { namespace mpi {
         for (int var  = 0; var < inputVolume.getNumberOfVariables(); ++var) {
             const auto diff = end - start;
             const int size = diff.x*diff.y*diff.z;
+	    if (size == 0) {
+	       return;
+	    }	       
 
             const int numberOfThreads = 512;
+
             extractSideDevice<<<(size+numberOfThreads-1)/numberOfThreads, numberOfThreads>>>(buffers[var][side]->getView(),
                                                                                              inputVolume.getScalarMemoryArea(var)->getView(),
-                                                                                             start, end);
+                                                                                             start,
+            end);
 
-            buffers[var][side]->copyToHost(cpuBuffers->getPointer());
         }
     }
 
@@ -152,22 +159,27 @@ namespace alsfvm { namespace mpi {
             extractSide({0,0,0},{ngx, ny, nz}, 0, inputVolume);
         }
         if (hasSide(1)) {
-            extractSide({nx-ngx,0,0},{nx, ny, nz}, 0, inputVolume);
+
+            extractSide({nx-ngx,0,0},{nx, ny, nz}, 1, inputVolume);
         }
 
         if (hasSide(2)) {
-            extractSide({0,0,0},{nx, ngy, nz}, 0, inputVolume);
+
+            extractSide({0,0,0},{nx, ngy, nz}, 2, inputVolume);
         }
         if (hasSide(3)) {
-            extractSide({0,ny-ngy,0},{nx, ny, nz}, 0, inputVolume);
+
+            extractSide({0,ny-ngy,0},{nx, ny, nz}, 3, inputVolume);
         }
 
         if(hasSide(4)) {
-            extractSide({0,0,0},{nx, ny, ngz}, 0, inputVolume);
+
+            extractSide({0,0,0},{nx, ny, ngz}, 4, inputVolume);
         }
 
         if(hasSide(5)) {
-            extractSide({0,0,nz-ngz},{nx, ny, nz}, 0, inputVolume);
+
+            extractSide({0,0,nz-ngz},{nx, ny, nz}, 5, inputVolume);
         }
 
     }
@@ -180,12 +192,15 @@ namespace alsfvm { namespace mpi {
         for (int var  = 0; var < outputVolume.getNumberOfVariables(); ++var) {
             const auto diff = end - start;
             const int size = diff.x*diff.y*diff.z;
-
+	    if (size == 0) {
+	       return;
+            }
             const int numberOfThreads = 512;
             insertSideDevice<<<(size+numberOfThreads-1)/numberOfThreads, numberOfThreads>>>(
                                                                                              outputVolume.getScalarMemoryArea(var)->getView(),
                                                                                               buffers[var][side]->getView(),
-                                                                                             start, end);
+                                                                                             start,
+            end);
         }
     }
 
@@ -204,22 +219,22 @@ namespace alsfvm { namespace mpi {
             insertSide({0,0,0},{ngx, ny, nz}, 0, outputVolume);
         }
         if (hasSide(1)) {
-            insertSide({nx-ngx,0,0},{nx, ny, nz}, 0, outputVolume);
+            insertSide({nx-ngx,0,0},{nx, ny, nz}, 1, outputVolume);
         }
 
         if (hasSide(2)) {
-            insertSide({0,0,0},{nx, ngy, nz}, 0, outputVolume);
+            insertSide({0,0,0},{nx, ngy, nz}, 2, outputVolume);
         }
         if (hasSide(3)) {
-            insertSide({0,ny-ngy,0},{nx, ny, nz}, 0, outputVolume);
+            insertSide({0,ny-ngy,0},{nx, ny, nz}, 3, outputVolume);
         }
 
         if(hasSide(4)) {
-            insertSide({0,0,0},{nx, ny, ngz}, 0, outputVolume);
+            insertSide({0,0,0},{nx, ny, ngz}, 4, outputVolume);
         }
 
         if(hasSide(5)) {
-            insertSide({0,0,nz-ngz},{nx, ny, nz}, 0, outputVolume);
+            insertSide({0,0,nz-ngz},{nx, ny, nz}, 5, outputVolume);
         }
 
     }
