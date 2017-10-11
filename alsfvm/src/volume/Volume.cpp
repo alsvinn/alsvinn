@@ -355,7 +355,7 @@ namespace alsfvm {
         {
             return {int(getTotalNumberOfXCells()),
                     int(getTotalNumberOfYCells()),
-                    int(getNumberOfZCells())};
+                    int(getTotalNumberOfZCells())};
         }
 
         void Volume::addPower(const Volume &other, real power)

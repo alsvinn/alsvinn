@@ -17,7 +17,8 @@ namespace alsfvm { namespace numflux {
 
 		template<class Equation, size_t dimension, bool xDir, bool yDir, bool zDir, size_t direction>
 		__global__ void combineFluxDevice(Equation equation, typename Equation::ConstViews input, typename Equation::Views output,
-			const size_t numberOfXCells, const size_t numberOfYCells, const size_t numberOfZCells, const size_t numberOfGhostCells) {
+            const size_t numberOfXCells, const size_t numberOfYCells, const size_t numberOfZCells, const size_t numberOfGhostCells,
+                                          ivec3 start, ivec3 end) {
 
 			const size_t index = threadIdx.x + blockDim.x * blockIdx.x;
 
@@ -26,9 +27,9 @@ namespace alsfvm { namespace numflux {
 			const size_t yInternalFormat = (index / numberOfXCells) % numberOfYCells;
 			const size_t zInternalFormat = (index) / (numberOfXCells * numberOfYCells);
 
-			const size_t x = xInternalFormat + numberOfGhostCells - xDir;
-			const size_t y = yInternalFormat + (dimension > 1) * numberOfGhostCells - yDir;
-			const size_t z = zInternalFormat + (dimension > 2) * numberOfGhostCells - zDir;
+            const size_t x = xInternalFormat + numberOfGhostCells - xDir + start.x;
+            const size_t y = yInternalFormat + (dimension > 1) * numberOfGhostCells - yDir + start.y;
+            const size_t z = zInternalFormat + (dimension > 2) * numberOfGhostCells - zDir + start.z;
 
 			if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells || zInternalFormat >= numberOfZCells) {
 				return;
@@ -53,7 +54,7 @@ namespace alsfvm { namespace numflux {
             const size_t numberOfYCells, 
             const size_t numberOfZCells, 
             real* waveSpeeds, 
-            const size_t numberOfGhostCells) {
+            const size_t numberOfGhostCells, ivec3 start, ivec3 end) {
 
 			const size_t index = threadIdx.x + blockDim.x * blockIdx.x;
 			// We have
@@ -62,9 +63,9 @@ namespace alsfvm { namespace numflux {
 			const size_t yInternalFormat = (index / numberOfXCells) % numberOfYCells;
 			const size_t zInternalFormat = (index) / (numberOfXCells * numberOfYCells);
 			
-			const size_t x = xInternalFormat +  numberOfGhostCells - xDir;
-			const size_t y = yInternalFormat + (dimension > 1) * (numberOfGhostCells - yDir);
-			const size_t z = zInternalFormat + (dimension > 2) * (numberOfGhostCells - zDir);
+            const size_t x = xInternalFormat +  numberOfGhostCells - xDir + start.x;
+            const size_t y = yInternalFormat + (dimension > 1) * (numberOfGhostCells - yDir) + start.y;
+            const size_t z = zInternalFormat + (dimension > 2) * (numberOfGhostCells - zDir) + start.z;
 
 			if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells || zInternalFormat >= numberOfZCells) {
 				return;
@@ -93,12 +94,65 @@ namespace alsfvm { namespace numflux {
 			equation.setViewAt(output, outputIndex, (-1.0)*fluxMiddleRight);
 		}
 
+        template<class Equation, size_t dimension>
+        __global__ void makeZeroDevice(Equation equation,
+                                        typename Equation::Views view,
+                                       const size_t numberOfXCells,
+                                       const size_t numberOfYCells,
+                                       const size_t numberOfZCells,
+
+                                       const size_t numberOfGhostCells, ivec3 start, ivec3 end) {
+
+            const size_t index = threadIdx.x + blockDim.x * blockIdx.x;
+
+
+            const size_t xInternalFormat = index % numberOfXCells;
+            const size_t yInternalFormat = (index / numberOfXCells) % numberOfYCells;
+            const size_t zInternalFormat = (index) / (numberOfXCells * numberOfYCells);
+
+            const size_t x = xInternalFormat + numberOfGhostCells  + start.x;
+            const size_t y = yInternalFormat + (dimension > 1) * numberOfGhostCells  + start.y;
+            const size_t z = zInternalFormat + (dimension > 2) * numberOfGhostCells  + start.z;
+
+            if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells || zInternalFormat >= numberOfZCells) {
+                return;
+            }
+
+            typename Equation::ConservedVariables zero;
+            equation.setViewAt(view, view.index(x,y,z), zero);
+
+        }
+
+        template< class Equation, size_t dimension>
+        void makeZero(volume::Volume& volume,
+                      const ivec3& start,
+                      const ivec3& end,
+                      const Equation& equation)
+        {
+            const int numberOfGhostCells = volume.getNumberOfGhostCells().x;
+            const int numberOfXCells = int(volume.getTotalNumberOfXCells()) - 2 * numberOfGhostCells - start.x + end.x;
+            const int numberOfYCells = int(volume.getTotalNumberOfYCells()) - 2 * (dimension > 1) * numberOfGhostCells  - start.y + end.y;
+            const int numberOfZCells = int(volume.getTotalNumberOfZCells()) - 2 * (dimension > 2) * numberOfGhostCells  - start.z + end.z;
+
+
+
+            typename Equation::Views viewOut(volume);
+
+            size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
+            size_t blockSize = 128;
+
+            makeZeroDevice<Equation, dimension>
+                << <(totalSize + blockSize - 1) / blockSize, blockSize >> >
+                (equation, viewOut, numberOfXCells, numberOfYCells, numberOfZCells, numberOfGhostCells, start, end);
+
+        }
+
 		template<class Flux, class Equation,  size_t dimension, bool xDir, bool yDir, bool zDir, size_t direction>
         void computeFlux(const Equation& equation,
                          const volume::Volume& left,
                          const volume::Volume& right,
                          volume::Volume& output,
-                         size_t numberOfGhostCells,
+                         int numberOfGhostCells,
                          real& waveSpeed,  const ivec3& start,
                          const ivec3& end) {
 			static thrust::device_vector<real> waveSpeeds;
@@ -106,20 +160,21 @@ namespace alsfvm { namespace numflux {
 			CUDA_SAFE_CALL(cudaDeviceSynchronize());
 			CUDA_SAFE_CALL(cudaGetLastError());
 
-			const size_t numberOfXCells = left.getTotalNumberOfXCells() - 2 * numberOfGhostCells + xDir;
-			const size_t numberOfYCells = left.getTotalNumberOfYCells() - 2 * (dimension > 1) * numberOfGhostCells + yDir;
-			const size_t numberOfZCells = left.getTotalNumberOfZCells() - 2 * (dimension > 2) * numberOfGhostCells + zDir;
-			
+            const int numberOfXCells = int(left.getTotalNumberOfXCells()) - 2 * numberOfGhostCells + xDir - start.x + end.x;
+            const int numberOfYCells = int(left.getTotalNumberOfYCells()) - 2 * (dimension > 1) * numberOfGhostCells + yDir - start.y + end.y;
+            const int numberOfZCells = int(left.getTotalNumberOfZCells()) - 2 * (dimension > 2) * numberOfGhostCells + zDir - start.z + end.z;
 			typename Equation::ConstViews viewLeft(left);
 			typename Equation::ConstViews viewRight(right);
 			typename Equation::Views viewOut(output);
 
 			size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
 
-			size_t blockSize = 128;
+            size_t blockSize = 128;
 			computeFluxDevice <Flux, Equation, dimension, xDir, yDir, zDir, direction>
 				<< <(totalSize + blockSize - 1) /blockSize, blockSize>> >
-				(equation, viewLeft, viewRight, viewOut, numberOfXCells, numberOfYCells, numberOfZCells, thrust::raw_pointer_cast(&waveSpeeds[0]), numberOfGhostCells);
+                (equation, viewLeft, viewRight, viewOut, numberOfXCells,
+                 numberOfYCells, numberOfZCells,
+                 thrust::raw_pointer_cast(&waveSpeeds[0]), numberOfGhostCells, start, end);
 			
 			waveSpeed = thrust::reduce(waveSpeeds.begin(), waveSpeeds.end(), 0.0, thrust::maximum<real>());
 			CUDA_SAFE_CALL(cudaDeviceSynchronize());
@@ -130,25 +185,25 @@ namespace alsfvm { namespace numflux {
 
 
 		template<class Equation, size_t dimension, bool xDir, bool yDir, bool zDir, size_t direction>
-        void combineFlux(const Equation& equation, const volume::Volume& input, volume::Volume& output, size_t numberOfGhostCells
+        void combineFlux(const Equation& equation, const volume::Volume& input, volume::Volume& output, int numberOfGhostCells
                          ,  const ivec3& start,
                                                       const ivec3& end) {
 			CUDA_SAFE_CALL(cudaDeviceSynchronize());
 			CUDA_SAFE_CALL(cudaGetLastError());
 
-			const size_t numberOfXCells = input.getTotalNumberOfXCells() - 2 * numberOfGhostCells;
-			const size_t numberOfYCells = input.getTotalNumberOfYCells() - 2 * (dimension > 1) * numberOfGhostCells;
-			const size_t numberOfZCells = input.getTotalNumberOfZCells() - 2 * (dimension > 2) * numberOfGhostCells;
+            const int numberOfXCells = int(input.getTotalNumberOfXCells()) - 2 * numberOfGhostCells - start.x + end.x;
+            const int numberOfYCells = int(input.getTotalNumberOfYCells()) - 2 * (dimension > 1) * numberOfGhostCells  - start.y + end.y;
+            const int numberOfZCells = int(input.getTotalNumberOfZCells()) - 2 * (dimension > 2) * numberOfGhostCells  - start.z + end.z;
 
 			typename Equation::ConstViews inputView(input);
 			typename Equation::Views viewOut(output);
 
 			size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
-
 			size_t blockSize = 128;
+
 			combineFluxDevice <Equation, dimension, xDir, yDir, zDir, direction>
 				<< <(totalSize + blockSize - 1) / blockSize, blockSize >> >
-				(equation, inputView, viewOut, numberOfXCells, numberOfYCells, numberOfZCells, numberOfGhostCells);
+                (equation, inputView, viewOut, numberOfXCells, numberOfYCells, numberOfZCells, numberOfGhostCells, start, end);
 
 			CUDA_SAFE_CALL(cudaDeviceSynchronize());
 			CUDA_SAFE_CALL(cudaGetLastError());
@@ -228,7 +283,8 @@ namespace alsfvm { namespace numflux {
 		static_assert(dimension > 0, "We only support positive dimension!");
 		static_assert(dimension < 4, "We only support dimension up to 3");
 
-		output.makeZero();
+        makeZero<Equation, dimension>(output, start,
+                 end, equation);
 
         callComputeFlux<Flux, Equation, dimension>(equation,
                                                    conservedVariables,

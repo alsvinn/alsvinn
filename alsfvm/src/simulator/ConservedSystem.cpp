@@ -1,5 +1,6 @@
 #include "alsfvm/simulator/ConservedSystem.hpp"
 #include <algorithm>
+#include <thread>
 namespace alsfvm { namespace simulator {
 
 ConservedSystem::ConservedSystem(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux,
@@ -14,8 +15,53 @@ void ConservedSystem::operator()(const volume::Volume &conservedVariables,
                                  bool computeWaveSpeed,
                                  volume::Volume &output)
 {
+    std::thread cellExchangeThread([&]() {
+        if (cellExchanger) {
+            cellExchanger->exchangeCells(output, output).waitForAll();
+        }
+    });
+
+    const auto ghostCells = output.getNumberOfGhostCells();
+    const auto size = output.getTotalDimensions();
+    const int dimensions = output.getDimensions();
     numericalFlux->computeFlux(conservedVariables, waveSpeed, computeWaveSpeed,
-                               output);
+                               output, ghostCells, -1*ghostCells);
+
+
+
+    cellExchangeThread.join();
+
+
+    // Now compute the sides
+    for (int d = 0; d < dimensions; ++d) {
+
+        ivec3 startBottom = {0,0,0};
+        ivec3 endBottom = {0,0,0};
+
+
+        endBottom [d] = -size[d]+3*ghostCells[d];
+        rvec3 waveSpeedBottom = 0;
+        numericalFlux->computeFlux(conservedVariables, waveSpeedBottom, computeWaveSpeed,
+                                   output,
+                                   startBottom, endBottom);
+        for (int k = 0; k < 3; ++k) {
+            waveSpeed[k] = std::max(waveSpeed[k], waveSpeedBottom[k]);
+        }
+
+        ivec3 startTop= {0, 0, 0};
+        startTop[d] = size[d]-3 *ghostCells[d];
+
+        ivec3 endTop= {0,0,0};
+        rvec3 waveSpeedTop = 0;
+        numericalFlux->computeFlux(conservedVariables, waveSpeedTop, computeWaveSpeed,
+                                   output,
+                                   startTop,
+                                   endTop);
+
+        for (int k = 0; k < 3; ++k) {
+            waveSpeed[k] = std::max(waveSpeed[k], waveSpeedTop[k]);
+        }
+    }
 
     diffusionOperator->applyDiffusion(output, conservedVariables);
 }
@@ -28,7 +74,12 @@ void ConservedSystem::operator()(const volume::Volume &conservedVariables,
 ///
 size_t ConservedSystem::getNumberOfGhostCells() const {
     return std::max(numericalFlux->getNumberOfGhostCells(),
-        diffusionOperator->getNumberOfGhostCells());
+                    diffusionOperator->getNumberOfGhostCells());
+}
+
+void ConservedSystem::setCellExchanger(mpi::CellExchangerPtr cellExchanger)
+{
+    this->cellExchanger = cellExchanger;
 }
 
 

@@ -207,7 +207,7 @@ void Simulator::doCellExchange(volume::Volume& volume)
 {
 
 #ifdef ALSVINN_USE_MPI
-
+return;
     if (cellExchanger) {
 #ifdef ALSVINN_HAS_GPU_DIRECT
         cellExchanger->exchangeCells(volume, volume).waitForAll();
@@ -226,6 +226,7 @@ void Simulator::doCellExchange(volume::Volume& volume)
 void Simulator::setCellExchanger(mpi::CellExchangerPtr value)
 {
     cellExchanger = value;
+    system->setCellExchanger(value);
     integrator->addWaveSpeedAdjuster(alsfvm::dynamic_pointer_cast<integrator::WaveSpeedAdjuster>(cellExchanger));
 }
 #endif

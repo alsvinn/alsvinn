@@ -1,5 +1,7 @@
 #pragma once
 #include "alsfvm/volume/Volume.hpp"
+#include "alsfvm/mpi/CellExchanger.hpp"
+
 
 namespace alsfvm { namespace integrator { 
 
@@ -37,6 +39,8 @@ namespace alsfvm { namespace integrator {
         virtual inline size_t getNumberOfGhostCells() const {
             return 0;
         }
+
+        virtual void setCellExchanger(mpi::CellExchangerPtr cellExchanger) {}
 
         virtual ~System() {/*empty*/}
     };
