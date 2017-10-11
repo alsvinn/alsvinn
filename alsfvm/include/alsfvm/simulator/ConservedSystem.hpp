@@ -21,7 +21,7 @@ namespace alsfvm { namespace simulator {
         /// \param[out] output will at end of invocation contain the values of
         ///                    \f$F(\vec{u})\f$
         ///
-        virtual void operator()(const volume::Volume& conservedVariables,
+        virtual void operator()( volume::Volume& conservedVariables,
                                 rvec3& waveSpeed, bool computeWaveSpeed,
                                 volume::Volume& output);
 

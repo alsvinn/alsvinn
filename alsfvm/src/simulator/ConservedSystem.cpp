@@ -10,14 +10,14 @@ ConservedSystem::ConservedSystem(alsfvm::shared_ptr<numflux::NumericalFlux> nume
 
 }
 
-void ConservedSystem::operator()(const volume::Volume &conservedVariables,
+void ConservedSystem::operator()( volume::Volume &conservedVariables,
                                  rvec3 &waveSpeed,
                                  bool computeWaveSpeed,
                                  volume::Volume &output)
 {
     std::thread cellExchangeThread([&]() {
         if (cellExchanger) {
-            cellExchanger->exchangeCells(output, output).waitForAll();
+            cellExchanger->exchangeCells(conservedVariables, conservedVariables).waitForAll();
         }
     });
 
@@ -28,8 +28,7 @@ void ConservedSystem::operator()(const volume::Volume &conservedVariables,
                                output, ghostCells, -1*ghostCells);
 
 
-
-    cellExchangeThread.join();
+     cellExchangeThread.join();
 
 
     // Now compute the sides

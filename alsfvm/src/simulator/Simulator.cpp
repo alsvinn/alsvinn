@@ -183,7 +183,7 @@ void Simulator::incrementSolution()
 {
 	real dt = 0;
     for (size_t substep = 0; substep < integrator->getNumberOfSubsteps(); ++substep) {
-        doCellExchange(*conservedVolumes[substep]);
+
         auto& conservedNext = conservedVolumes[substep + 1];
         dt = integrator->performSubstep(conservedVolumes,
                                         grid->getCellLengths(),
@@ -205,21 +205,6 @@ void Simulator::incrementSolution()
 
 void Simulator::doCellExchange(volume::Volume& volume)
 {
-
-#ifdef ALSVINN_USE_MPI
-return;
-    if (cellExchanger) {
-#ifdef ALSVINN_HAS_GPU_DIRECT
-        cellExchanger->exchangeCells(volume, volume).waitForAll();
-#else
-        auto cpuVolume = volume.getCopyOnCPU();
-        cellExchanger->exchangeCells(*cpuVolume, *cpuVolume).waitForAll();
-        if (platformName != "cpu") {
-            cpuVolume->copyTo(volume);
-        }
-#endif
-    }
-#endif
 }
 
 #ifdef ALSVINN_USE_MPI
