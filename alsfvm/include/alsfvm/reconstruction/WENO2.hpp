@@ -63,7 +63,7 @@ namespace alsfvm { namespace reconstruction {
 #endif
         }
 
-        __device__ __host__ static size_t getNumberOfGhostCells() {
+        __device__ __host__ static int getNumberOfGhostCells() {
             return 2;
         }
     };

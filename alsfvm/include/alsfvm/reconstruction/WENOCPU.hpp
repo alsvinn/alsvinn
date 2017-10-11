@@ -27,12 +27,13 @@ namespace alsfvm { namespace reconstruction {
 		///
 		/// \param[out] rightOut at the end, will contain the right interpolated values
 		///                     for all grid cells in the interior.
-		///
-		virtual void performReconstruction(const volume::Volume& inputVariables,
-			size_t direction,
-			size_t indicatorVariable,
-			volume::Volume& leftOut,
-			volume::Volume& rightOut);
+        ///
+        virtual void performReconstruction(const volume::Volume& inputVariables,
+                                           size_t direction,
+                                           size_t indicatorVariable,
+                                           volume::Volume& leftOut,
+                                           volume::Volume& rightOut, const ivec3& start={0,0,0},
+                                           const ivec3& end={0,0,0});
 
 		///
 		/// \brief getNumberOfGhostCells returns the number of ghost cells we need

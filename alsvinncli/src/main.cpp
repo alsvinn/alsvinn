@@ -119,6 +119,7 @@ int main(int argc, char** argv) {
         int mpiRank = 0;
 #endif
         auto wallStart = boost::posix_time::second_clock::local_time();
+
 		auto timeStart = boost::chrono::thread_clock::now();
 
 #ifdef _OPENMP

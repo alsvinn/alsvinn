@@ -17,10 +17,11 @@ ReconstructionCPU<ReconstructionType, Equation>::ReconstructionCPU(const simulat
 
 template<class ReconstructionType, class Equation>
 void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(const volume::Volume &inputVariables,
-                                              size_t direction,
-                                              size_t indicatorVariable,
-                                              volume::Volume &leftOut,
-                                              volume::Volume &rightOut)
+                                                                            size_t direction,
+                                                                            size_t indicatorVariable,
+                                                                            volume::Volume &leftOut,
+                                                                            volume::Volume &rightOut, const ivec3& start,
+                                                                            const ivec3& end)
 {
 
 

@@ -1,5 +1,7 @@
 #pragma once
 #include "alsfvm/volume/Volume.hpp"
+#include "alsfvm/mpi/CellExchanger.hpp"
+
 
 namespace alsfvm { namespace integrator { 
 
@@ -25,7 +27,7 @@ namespace alsfvm { namespace integrator {
         /// \param[out] output will at end of invocation contain the values of
         ///                    \f$F(\vec{u})\f$
         ///
-        virtual void operator()(const volume::Volume& conservedVariables,
+        virtual void operator()( volume::Volume& conservedVariables,
                                 rvec3& waveSpeed, bool computeWaveSpeed,
                                 volume::Volume& output) = 0;
 
@@ -37,6 +39,8 @@ namespace alsfvm { namespace integrator {
         virtual inline size_t getNumberOfGhostCells() const {
             return 0;
         }
+
+        virtual void setCellExchanger(mpi::CellExchangerPtr cellExchanger) {}
 
         virtual ~System() {/*empty*/}
     };

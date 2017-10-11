@@ -2,7 +2,7 @@
 #include "alsfvm/integrator/System.hpp"
 #include "alsfvm/numflux/NumericalFlux.hpp"
 #include "alsfvm/diffusion/NoDiffusion.hpp"
-
+#include "alsfvm/mpi/CellExchanger.hpp"
 namespace alsfvm { namespace simulator { 
 
     /// 
@@ -21,7 +21,7 @@ namespace alsfvm { namespace simulator {
         /// \param[out] output will at end of invocation contain the values of
         ///                    \f$F(\vec{u})\f$
         ///
-        virtual void operator()(const volume::Volume& conservedVariables,
+        virtual void operator()( volume::Volume& conservedVariables,
                                 rvec3& waveSpeed, bool computeWaveSpeed,
                                 volume::Volume& output);
 
@@ -31,9 +31,13 @@ namespace alsfvm { namespace simulator {
         /// flux needs, and the number of ghost cells the diffusion operator needs
         ///
         virtual size_t getNumberOfGhostCells() const ;
+
+        void setCellExchanger(mpi::CellExchangerPtr cellExchanger);
     private:
         alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;
         alsfvm::shared_ptr<diffusion::DiffusionOperator> diffusionOperator;
+
+        mpi::CellExchangerPtr cellExchanger{nullptr};
     };
 } // namespace alsfvm
 } // namespace simulator

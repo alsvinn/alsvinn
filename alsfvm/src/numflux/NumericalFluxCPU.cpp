@@ -112,7 +112,8 @@ namespace alsfvm { namespace numflux {
     template<class Flux, class Equation, size_t dimension>
     void NumericalFluxCPU<Flux, Equation, dimension>::computeFlux(const volume::Volume& conservedVariables,
 		rvec3& waveSpeed, bool computeWaveSpeed,
-		volume::Volume& output
+        volume::Volume& output, const ivec3& start,
+                                                                  const ivec3& end
 		) 
 	{
         Equation eq(parameters);

@@ -26,7 +26,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 	size_t direction,
 	size_t indicatorVariable,
 	volume::Volume &leftOut,
-	volume::Volume &rightOut)
+	volume::Volume &rightOut, const ivec3 &start, const ivec3 &end)
 {
 	// We often do compute order-1.
 	static_assert(order > 0, "Can not do ENO reconstruction of order 0.");
