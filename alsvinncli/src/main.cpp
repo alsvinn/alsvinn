@@ -24,8 +24,9 @@
 
 
 int main(int argc, char** argv) {
-
   setenv("MPICH_RDMA_ENABLED_CUDA", "1", 1);
+  setenv("MV2_USE_CUDA", "1", 1);
+
 
 	try {
 
