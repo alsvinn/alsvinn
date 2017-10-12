@@ -69,8 +69,6 @@ void callReconstructionDevice(const Equation& equation, const volume::Volume& in
                                                                                                               numberOfZCells,
                                                                                                               start, end);
 
-    CUDA_SAFE_CALL(cudaDeviceSynchronize());
-    CUDA_SAFE_CALL(cudaGetLastError());
 
 
 }

@@ -157,8 +157,6 @@ namespace alsfvm { namespace numflux {
                          const ivec3& end) {
 			static thrust::device_vector<real> waveSpeeds;
 			waveSpeeds.resize(left.getScalarMemoryArea(0)->getSize(), 0.0);
-			CUDA_SAFE_CALL(cudaDeviceSynchronize());
-			CUDA_SAFE_CALL(cudaGetLastError());
 
             const int numberOfXCells = int(left.getTotalNumberOfXCells()) - 2 * numberOfGhostCells + xDir - start.x + end.x;
             const int numberOfYCells = int(left.getTotalNumberOfYCells()) - 2 * (dimension > 1) * numberOfGhostCells + yDir - start.y + end.y;
@@ -177,10 +175,7 @@ namespace alsfvm { namespace numflux {
                  thrust::raw_pointer_cast(&waveSpeeds[0]), numberOfGhostCells, start, end);
 			
 			waveSpeed = thrust::reduce(waveSpeeds.begin(), waveSpeeds.end(), 0.0, thrust::maximum<real>());
-			CUDA_SAFE_CALL(cudaDeviceSynchronize());
 
-			
-			CUDA_SAFE_CALL(cudaGetLastError());
 		}
 
 
@@ -188,8 +183,6 @@ namespace alsfvm { namespace numflux {
         void combineFlux(const Equation& equation, const volume::Volume& input, volume::Volume& output, int numberOfGhostCells
                          ,  const ivec3& start,
                                                       const ivec3& end) {
-			CUDA_SAFE_CALL(cudaDeviceSynchronize());
-			CUDA_SAFE_CALL(cudaGetLastError());
 
             const int numberOfXCells = int(input.getTotalNumberOfXCells()) - 2 * numberOfGhostCells - start.x + end.x;
             const int numberOfYCells = int(input.getTotalNumberOfYCells()) - 2 * (dimension > 1) * numberOfGhostCells  - start.y + end.y;
@@ -205,8 +198,6 @@ namespace alsfvm { namespace numflux {
 				<< <(totalSize + blockSize - 1) / blockSize, blockSize >> >
                 (equation, inputView, viewOut, numberOfXCells, numberOfYCells, numberOfZCells, numberOfGhostCells, start, end);
 
-			CUDA_SAFE_CALL(cudaDeviceSynchronize());
-			CUDA_SAFE_CALL(cudaGetLastError());
 		}
 
 		template<class Flux, class Equation, size_t dimension>
