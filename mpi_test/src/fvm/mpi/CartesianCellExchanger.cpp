@@ -116,7 +116,7 @@ TEST_P(CartesianCellExchangerTest, Test1D) {
     }
 
 
-#if 1 //debug output
+#if 0 //debug output
     MPI_Barrier(MPI_COMM_WORLD);
     if (rank == 0) {
         for (int i = 0; i < N + 2*ghostCells; ++i) {

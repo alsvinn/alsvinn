@@ -79,6 +79,7 @@ RequestContainer CudaCartesianCellExchanger::exchangeCells(volume::Volume &outpu
         }
     }
 
+
     extractSides(inputVolume);
 
     auto oppositeSide = [&](int side) {
@@ -92,7 +93,6 @@ RequestContainer CudaCartesianCellExchanger::exchangeCells(volume::Volume &outpu
     for (int var = 0; var < inputVolume.getNumberOfVariables(); ++var) {
 
         for(int side = 0; side < 2*dimensions; ++side) {
-
             if (hasSide(side)) {
                 CUDA_SAFE_CALL(cudaStreamSynchronize(memoryStreams[var][side]));
                 sendRequests[var][side] = (Request::isend(cpuBuffersSend[var][side], cpuBuffersSend[var][side].size(),

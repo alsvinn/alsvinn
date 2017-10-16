@@ -130,7 +130,11 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 if(CUDA_FOUND)
 
   SET(CUDA_COMPILE_PTX ON)
-  list(APPEND CUDA_NVCC_FLAGS -O3 --use_fast_math -gencode=arch=compute_60,code="compute_60,sm_60" -Xptxas -v )
+  list(APPEND CUDA_NVCC_FLAGS --use_fast_math  -Xptxas -v)
+
+  #list(APPEND CUDA_NVCC_FLAGS "-arch=compute_60 -code=sm_60" )
+  list(APPEND CUDA_NVCC_FLAGS "-arch=compute_50 -code=sm_50" )
+  #list(APPEND CUDA_NVCC_FLAGS -gencode="arch=compute_30,code=sm_30" )
   #list(APPEND CUDA_NVCC_FLAGS_RELEASE " -O3 --use_fast_math -Xptxas -v -keep -src-in-ptx -arch=compute_30 -code=sm_30")
   list(APPEND CUDA_NVCC_FLAGS_DEBUG -G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0)
   set(ALSVINN_HAVE_CUDA On)

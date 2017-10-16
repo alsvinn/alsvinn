@@ -87,7 +87,7 @@ namespace alsfvm { namespace numflux {
 
 			typename Equation::ConservedVariables fluxMiddleRight;
             auto outputIndex = output.index(x, y, z);
-            waveSpeeds[outputIndex] = computeFluxForStencil<Flux, Equation, direction> (equation, indices, left, right, fluxMiddleRight);
+            waveSpeeds[index] = computeFluxForStencil<Flux, Equation, direction> (equation, indices, left, right, fluxMiddleRight);
 			
           
 
@@ -174,7 +174,7 @@ namespace alsfvm { namespace numflux {
                  numberOfYCells, numberOfZCells,
                  thrust::raw_pointer_cast(&waveSpeeds[0]), numberOfGhostCells, start, end);
 			
-			waveSpeed = thrust::reduce(waveSpeeds.begin(), waveSpeeds.end(), 0.0, thrust::maximum<real>());
+            waveSpeed = thrust::reduce(waveSpeeds.begin(), waveSpeeds.begin()+totalSize, 0.0, thrust::maximum<real>());
 
 		}
 
