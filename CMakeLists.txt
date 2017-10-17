@@ -212,5 +212,6 @@ endif()
 if(ALSVINN_BUILD_DOXYGEN)
 	add_subdirectory("doxygen")
 endif()
+add_subdirectory("python")
 
 

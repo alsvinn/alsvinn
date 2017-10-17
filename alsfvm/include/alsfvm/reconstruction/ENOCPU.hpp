@@ -60,7 +60,9 @@ namespace alsfvm { namespace reconstruction {
         void computeDividedDifferences(const memory::Memory<real>& input,
                                        const ivec3& direction,
                                        size_t level,
-                                       memory::Memory<real>& output);
+                                       memory::Memory<real>& output,
+                                       const ivec3& start,
+                                       const ivec3& end);
 
         alsfvm::shared_ptr<alsfvm::memory::MemoryFactory> memoryFactory;
         // For each level l, this will contain the divided differences for that
