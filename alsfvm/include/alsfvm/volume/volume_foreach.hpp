@@ -28,12 +28,15 @@ namespace alsfvm {
 		template<class Function>
         inline void for_each_cell_index(const Volume& in, const Function& function, ivec3 offsetStart={0,0,0},
                  ivec3 offsetEnd = {0,0,0}) {
-            const size_t nx = in.getTotalNumberOfXCells() + offsetEnd[0];
-            const size_t ny = in.getTotalNumberOfYCells() + offsetEnd[1];
-            const size_t nz = in.getTotalNumberOfZCells() + offsetEnd[2];
-            for (size_t k = offsetStart[2]; k < nz; k++) {
-                for (size_t j = offsetStart[1]; j < ny; j++) {
-                    for (size_t i = offsetStart[0]; i < nx; i++) {
+            const size_t nx = in.getTotalNumberOfXCells();
+            const size_t ny = in.getTotalNumberOfYCells();
+            const size_t nz = in.getTotalNumberOfZCells();
+            const size_t endx = in.getTotalNumberOfXCells() + offsetEnd[0];
+            const size_t endy = in.getTotalNumberOfYCells() + offsetEnd[1];
+            const size_t endz = in.getTotalNumberOfZCells() + offsetEnd[2];
+            for (size_t k = offsetStart[2]; k < endz; k++) {
+                for (size_t j = offsetStart[1]; j < endy; j++) {
+                    for (size_t i = offsetStart[0]; i < endx; i++) {
                         size_t index = k*nx*ny + j*nx + i;
 						function(index);
 					}
@@ -531,6 +534,50 @@ inline void fill_volume(Volume& out,
                             + (x + xDir);
 
                     function(leftIndex, index, rightIndex);
+                }
+            }
+        }
+    }
+
+
+    ///
+    /// Loops through each internal (subject to direction) volume cell,
+    /// and calls the loop function
+    ///
+    /// Example
+    /// \code{.cpp}
+    /// for_each_internal_volume_indexvolume, [](size_t l, size_t m, size_t r) {
+    ///     // now l is the left index, m is the middle index and r is the right index
+    /// });
+    /// \endcode
+    inline void for_each_internal_volume_index(const Volume& volume,
+                                               const std::function<void( size_t indexMiddle)>& function) {
+
+
+        const size_t ngx = volume.getNumberOfXGhostCells();
+        const size_t ngy = volume.getNumberOfYGhostCells();
+        const size_t ngz = volume.getNumberOfZGhostCells();
+        const size_t nx = volume.getTotalNumberOfXCells();
+        const size_t ny = volume.getTotalNumberOfYCells();
+        const size_t nz = volume.getTotalNumberOfZCells();
+
+        const size_t startZ = ngz;
+        const size_t startY = ngy;
+        const size_t startX = ngx;
+
+        const size_t endZ = nz - ngz;
+        const size_t endY = ny - ngy;
+        const size_t endX = nx - ngx;
+
+
+
+        for (size_t z = startZ; z < endZ; z++) {
+            for(size_t y = startY; y < endY; y++) {
+                for (size_t x = startX; x < endX; x++) {
+                    const size_t index = z * nx * ny + y * nx + x;
+
+
+                    function(index);
                 }
             }
         }

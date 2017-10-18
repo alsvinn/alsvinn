@@ -9,13 +9,18 @@ import netCDF4
 import matplotlib
 import matplotlib.pyplot
 class Alsvinn(object):
-    def __init__(self, xml_file=None, configuration=None):
+    def __init__(self, xml_file=None, configuration=None, alsvinncli=alsvinn.config.ALSVINNCLI_PATH,
+                 prepend_alsvinncli=''):
         self.settings = {"fvm" : {}}
         self.fvmSettings = self.settings["fvm"]
         if xml_file != None:
             self.read_xml(xml_file)
         elif configuration != None:
             self.fvmSettings = configuration
+        self.alsvinncli = alsvinncli
+        self.prepend_alsvinncli = prepend_alsvinncli
+
+
 
 
     def __xml_item_func(self, parent_tag):
@@ -71,6 +76,14 @@ class Alsvinn(object):
 
 
 
+    def set_lower_corner(self, corner):
+        self.fvmSettings['grid']['lowerCorner'] = corner
+
+    def set_upper_corner(self, corner):
+        self.fvmSettings['grid']['upperCorner'] = corner
+
+    def set_dimension(self, dim):
+        self.fvmSettings['grid']['dimension'] = dim
 
 
     def __make_float(self, text):
@@ -115,10 +128,11 @@ class Alsvinn(object):
             f.write(xmlDocument.toprettyxml())
 
         if mpi_threads == 1:
-            os.system("%s %s" % (alsvinn.config.ALSVINNCLI_PATH, xmlFilename))
+            os.system("%s %s %s" % (self.prepend_alsvinncli, self.alsvinncli, xmlFilename))
         else:
-            os.system("mpirun -np {mpi_threads} {alsvinncli} --multi-x {multix} --multi-y {multiy} --multi-z {multiz} {xml}".format(
-                mpi_threads=mpi_threads, multix=multix, multiy=multiy,multiz=multiz,xml=xmlFilename, alsvinncli=alsvinn.config.ALSVINNCLI_PATH)
+            os.system("{prepend} mpirun -np {mpi_threads} {alsvinncli} --multi-x {multix} --multi-y {multiy} --multi-z {multiz} {xml}".format(
+                mpi_threads=mpi_threads, multix=multix, multiy=multiy,multiz=multiz,xml=xmlFilename, alsvinncli=self.alsvinncli,
+            prepend = self.prepend_alsvinncli)
             )
 
 
@@ -232,67 +246,131 @@ class Alsvinn(object):
             if child.nodeType == child.TEXT_NODE:
                 continue
             key = child.tagName
-
+            values = []
+            names = []
+            textNode = False
             for possibleValue in child.childNodes:
                 if possibleValue.nodeType == child.TEXT_NODE:
                     if possibleValue.nodeValue.strip() != '':
-                        value = possibleValue
+                        values.append(possibleValue)
+                        textNode = True
                 else:
-                    value = possibleValue
-                    break
+                    values.append(possibleValue)
+                    names.append(possibleValue.tagName)
 
-            if value.nodeType == child.TEXT_NODE:
-                output[key] = value.nodeValue.strip()
-            else:
+
+
+            if textNode:
+                output[key] = values[0].nodeValue.strip()
+            elif len(set(names)) == len(values):
                 output[key] = {}
                 self.__readValues(output[key], child)
+            else:
+                output[key] = []
+                for value in values:
+                    output[key].append(value.firstChild.nodeValue)
 
 
-def run(name="alsvinn_experiment", equation='euler1',
-        lower_corner=[-5, 0, 0],
-        upper_corner=[5, 0, 0],
-        dimension=[128, 1, 1],
-        flux="hll3",
-        T=1.3,
-        boundary="neumann",
-        reconstruction="weno2",
-        cfl="auto",
-        integrator="auto",
-        initial_parameters={},
-        number_of_saves=1,
-        initial_data_file="%s/sodshocktube/sodshocktube.py" % alsvinn.config.ALSVINN_EXAMPLES_PATH,
+def run(name="alsvinn_experiment", equation=None,
+        lower_corner=None,
+        upper_corner=None,
+        dimension=None,
+        flux=None,
+        T=None,
+        boundary=None,
+        reconstruction=None,
+        cfl=None,
+        integrator=None,
+        initial_parameters=None,
+        number_of_saves=None,
+        initial_data_file=None,
         initial_data_script=None,
         base_xml=None,
-        equation_parameters={"gamma": 1.4},
-        platform="cpu"
+        equation_parameters=None,
+        platform=None,
+        alsvinncli=alsvinn.config.ALSVINNCLI_PATH,
+        prepend_alsvinncli=''
         ):
 
 
     if base_xml is not None:
-        alsvinn_object = Alsvinn(base_xml)
+        alsvinn_object = Alsvinn(base_xml, alsvinncli=alsvinncli, prepend_alsvinncli=prepend_alsvinncli)
     else:
-        alsvinn_object = Alsvinn()
+        alsvinn_object = Alsvinn(alsvinncli=alsvinncli, prepend_alsvinncli=prepend_alsvinncli)
+        if lower_corner is None:
+            lower_corner = [-5, 0, 0]
+        if upper_corner is None:
+            upper_corner = [5, 0, 0]
+        if dimension is None:
+            dimension = [128, 1, 1]
+        if flux is None:
+            flux = "hll3"
+        if T is None:
+            T = 1.3
+        if boundary is None:
+            boundary = "neumann"
+        if reconstruction is None:
+            reconstruction = "weno2"
+        if cfl is None:
+            cfl = "auto"
+        if integrator is None:
+            integrator = "auto"
+
+        if initial_parameters is None:
+            initial_parameters = {}
+
+        if number_of_saves is None:
+            number_of_saves = 1
+
+        if initial_data_file is None:
+            initial_data_file = "%s/sodshocktube/sodshocktube.py" % alsvinn.config.ALSVINN_EXAMPLES_PATH
+
+        if equation_parameters is None:
+            equation_parameters = {"gamma": 1.4}
+
+        if platform is None:
+            platform = "cpu"
+    if name is not None:
         alsvinn_object.set_fvm_value("name", name)
+    if equation is not None:
         alsvinn_object.set_fvm_value("equation", equation)
+    if flux is not None:
         alsvinn_object.set_fvm_value("flux", flux)
+    if T is not None:
         alsvinn_object.set_fvm_value("endTime", T)
+    if boundary is not None:
         alsvinn_object.set_fvm_value("boundary", boundary)
+    if reconstruction is not None:
+
         alsvinn_object.set_fvm_value("reconstruction", reconstruction)
+    if cfl is not None:
         alsvinn_object.set_fvm_value("cfl", cfl)
+    if platform is not None:
         alsvinn_object.set_fvm_value("platform", platform)
+
+    if integrator is not None:
         alsvinn_object.set_fvm_value("integrator", integrator)
+    if number_of_saves is not None:
         alsvinn_object.set_fvm_writer("netcdf", name, number_of_saves)
+
+    if dimension is not None and upper_corner is not None and lower_corner is not None:
         alsvinn_object.set_cartesian_grid(lower_corner, upper_corner, dimension)
-
-        if initial_data_script != None:
-            initial_data_file = name + ".py"
-            with open(initial_data_file, "w") as f:
-                f.write(initial_data_script)
-        else:
-            shutil.copyfile(initial_data_file, name+'.py')
-            initial_data_file=name+'.py'
-
+    elif dimension is not None:
+        alsvinn_object.set_dimension(dimension)
+    elif lower_corner is not None:
+        alsvinn_object.set_lower_corner(lower_corner)
+    elif upper_corner is not None:
+        alsvinn_object.set_upper_corner(upper_corner)
+    if initial_data_script != None:
+        initial_data_file = name + ".py"
+        with open(initial_data_file, "w") as f:
+            f.write(initial_data_script)
         alsvinn_object.set_initial_data(initial_data_file, initial_parameters)
+    elif initial_data_file is not None:
+        shutil.copyfile(initial_data_file, name+'.py')
+        initial_data_file=name+'.py'
+        alsvinn_object.set_initial_data(initial_data_file, initial_parameters)
+    if equation_parameters is not None:
         alsvinn_object.set_equation_parameters(equation_parameters)
     alsvinn_object.run()
     return alsvinn_object

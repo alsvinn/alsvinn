@@ -37,13 +37,15 @@ TEST(BurgersWenoTest, ConstantZeroTestSecondOrder) {
     
 
     wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
-
-    for_each_internal_volume_index(*left, 0, [&](size_t, size_t middle, size_t) {
+    const int ngx =  wenoCPU->getNumberOfGhostCells();
+    const int ngy =  wenoCPU->getNumberOfGhostCells();
+    const int ngz = 0;
+    for_each_cell_index(*left, [&](size_t middle) {
         ASSERT_EQ(0, left->getScalarMemoryArea(0)->getPointer()[middle]);
 
 
         ASSERT_EQ(0, right->getScalarMemoryArea(0)->getPointer()[middle]);
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 TEST(BurgersWenoTest, ConstantZeroTestThirdOrder) {
@@ -68,12 +70,14 @@ TEST(BurgersWenoTest, ConstantZeroTestThirdOrder) {
 
 
     wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
-
-    for_each_internal_volume_index(*left, 0, [&](size_t, size_t middle, size_t) {
+    const int ngx =  wenoCPU->getNumberOfGhostCells();
+    const int ngy =  wenoCPU->getNumberOfGhostCells();
+    const int ngz = 0;
+    for_each_cell_index(*left,  [&](size_t middle) {
         ASSERT_EQ(0, left->getScalarMemoryArea(0)->getPointer()[middle]);
 
         ASSERT_EQ(0, right->getScalarMemoryArea(0)->getPointer()[middle]);
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 TEST(BurgersWenoTest, ConstantOneTestSecondOrder) {
@@ -102,13 +106,15 @@ TEST(BurgersWenoTest, ConstantOneTestSecondOrder) {
   
 
     wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
-
-    for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
+    const int ngx =  wenoCPU->getNumberOfGhostCells();
+    const int ngy =  wenoCPU->getNumberOfGhostCells();
+    const int ngz = 0;
+    for_each_cell_index(*left, [&]( size_t middle ) {
         ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle] , 1e-8);
        
         ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle] , 1e-8);
        
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 TEST(BurgersWenoTest, ConstantOneTestThirdOrder) {
@@ -136,13 +142,15 @@ TEST(BurgersWenoTest, ConstantOneTestThirdOrder) {
 
 
     wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
-
-    for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
+    const int ngx =  wenoCPU->getNumberOfGhostCells();
+    const int ngy =  wenoCPU->getNumberOfGhostCells();
+    const int ngz = 0;
+    for_each_cell_index(*left, [&]( size_t middle ) {
         ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle] , 1e-8);
         
         ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle] , 1e-8);
         
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 TEST(BurgersWenoTest, ReconstructionSimple) {
