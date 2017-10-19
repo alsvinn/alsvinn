@@ -1,3 +1,10 @@
+"""
+This module file is solely for running and plotting alsvinn results
+it does not contain any alsvinn logic. You can obtain all the results by just running the alsvinncli executable
+
+This file is meant for scripting purposes (integrates well with jupyter notebook for instance)
+
+"""
 import alsvinn.config
 import xml.dom.minidom
 import numpy
@@ -8,9 +15,12 @@ import shutil
 import netCDF4
 import matplotlib
 import matplotlib.pyplot
+import subprocess
+
 class Alsvinn(object):
     def __init__(self, xml_file=None, configuration=None, alsvinncli=alsvinn.config.ALSVINNCLI_PATH,
-                 prepend_alsvinncli=''):
+                 prepend_alsvinncli='',
+                 omp_num_threads=None):
         self.settings = {"fvm" : {}}
         self.fvmSettings = self.settings["fvm"]
         if xml_file != None:
@@ -19,6 +29,7 @@ class Alsvinn(object):
             self.fvmSettings = configuration
         self.alsvinncli = alsvinncli
         self.prepend_alsvinncli = prepend_alsvinncli
+        self.omp_num_threads=omp_num_threads
 
 
 
@@ -109,7 +120,8 @@ class Alsvinn(object):
                 vector[n] = int(splitted[n])
         return vector
 
-    def run(self, mpi_threads=1, multix=1,multiy=1,multiz=1):
+    def run(self, multix=1,multiy=1,multiz=1):
+        mpi_threads = multix*multiy*multiz
         xmlFilename = self.fvmSettings["name"] + ".xml"
 
         settings = copy.deepcopy(self.settings)
@@ -128,12 +140,28 @@ class Alsvinn(object):
             f.write(xmlDocument.toprettyxml())
 
         if mpi_threads == 1:
-            os.system("%s %s %s" % (self.prepend_alsvinncli, self.alsvinncli, xmlFilename))
+            commandArray = [str(self.alsvinncli), str(xmlFilename)]
         else:
-            os.system("{prepend} mpirun -np {mpi_threads} {alsvinncli} --multi-x {multix} --multi-y {multiy} --multi-z {multiz} {xml}".format(
-                mpi_threads=mpi_threads, multix=multix, multiy=multiy,multiz=multiz,xml=xmlFilename, alsvinncli=self.alsvinncli,
-            prepend = self.prepend_alsvinncli)
+
+            commandArray = [ 'mpirun', '-np', str(mpi_threads), self.alsvinncli,
+                            '--multi-x', str(multix), '--multi-y', str(multiy), '--multi-z', str(multiz), xmlFilename]
+
+        if self.prepend_alsvinncli and self.prepend_alsvinncli.strip() != '':
+            commandArray  = self.prepend_alsvinncli.split() + commandArray
+        env = copy.deepcopy(os.environ)
+        if self.omp_num_threads:
+            env['OMP_NUM_THREADS'] = str(self.omp_num_threads)
+        commandObject = subprocess.Popen(commandArray, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
+        output, error = commandObject.communicate()
+        returnCode = commandObject.returncode
+
+        if returnCode != 0:
+            errorMessage = ("Error running alsvinncli.\n\n The command used was\n\n\t{command}\n\nThe output was:\n" \
+            + "\n----------------\n{output}\n----------------\n\nThe error output was:\n\n----------------\n{error}\n\n----------------\n\nAlso check the log files 'alsvinncli_mpi_log_<n>.txt'").format(
+                command=' '.join(commandArray), output=str(output).replace('\\n','\n'), error=str(error).replace('\\n','\n')
             )
+            raise Exception(errorMessage)
+
 
 
     def __make_string(self, dictionary, keys):
@@ -289,14 +317,18 @@ def run(name="alsvinn_experiment", equation=None,
         equation_parameters=None,
         platform=None,
         alsvinncli=alsvinn.config.ALSVINNCLI_PATH,
-        prepend_alsvinncli=''
+        prepend_alsvinncli='',
+        omp_num_threads=None,
+        multix=1,
+    multiy=1,
+    multiz=1
         ):
 
 
     if base_xml is not None:
-        alsvinn_object = Alsvinn(base_xml, alsvinncli=alsvinncli, prepend_alsvinncli=prepend_alsvinncli)
+        alsvinn_object = Alsvinn(base_xml, alsvinncli=alsvinncli, prepend_alsvinncli=prepend_alsvinncli, omp_num_threads=omp_num_threads)
     else:
-        alsvinn_object = Alsvinn(alsvinncli=alsvinncli, prepend_alsvinncli=prepend_alsvinncli)
+        alsvinn_object = Alsvinn(alsvinncli=alsvinncli, prepend_alsvinncli=prepend_alsvinncli, omp_num_threads=omp_num_threads)
         if lower_corner is None:
             lower_corner = [-5, 0, 0]
         if upper_corner is None:
@@ -372,7 +404,7 @@ def run(name="alsvinn_experiment", equation=None,
         alsvinn_object.set_initial_data(initial_data_file, initial_parameters)
     if equation_parameters is not None:
         alsvinn_object.set_equation_parameters(equation_parameters)
-    alsvinn_object.run()
+    alsvinn_object.run(multix=multix, multiy=multiy,multiz=multiz)
     return alsvinn_object
 
 

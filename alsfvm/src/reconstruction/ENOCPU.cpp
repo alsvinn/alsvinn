@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include <fstream>
+#include "alsutils/log.hpp"
 
 namespace alsfvm { namespace reconstruction {
 
@@ -83,7 +84,14 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 	for (size_t i = 0; i < order - 1; i++) {
 		dividedDifferencesPointers[i] = dividedDifferences[i]->getPointer();
 	}
-
+#if 0
+    static std::array<int,3> first;
+        if (first[direction]<8) {
+          ALSVINN_LOG(INFO, "new " << direction << " start = (" << startX << ", " << startY << ", " << startZ << ")");
+          ALSVINN_LOG(INFO, "new " << direction << "end   = (" << endX << ", " << endY << ", " << endZ << ")");
+        }
+        first[direction]++;
+#endif
 
 	for (size_t var = 0; var < inputVariables.getNumberOfVariables(); var++) {
 		const real* pointerIn = inputVariables.getScalarMemoryArea(var)->getPointer();
@@ -91,9 +99,9 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 		real* pointerOutRight = rightOut.getScalarMemoryArea(var)->getPointer();
 
         for (int z = startZ; z < endZ; z++) {
-//#pragma omp parallel for
+#pragma omp parallel for
             for (int y = startY; y < endY; y++) {
-//#pragma omp simd
+#pragma omp simd
                 for (int x = startX; x < int(endX); x++) {
 
 
@@ -189,18 +197,26 @@ void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& input,
     assert(ny > 2*direction.y * level);
     assert(nz > 2*direction.z * level);
 
-    const int startX = (direction.x == 0) * order + direction.x * level + start.x;
+    const int startX =        (direction.x == 0) * order + direction.x * level + start.x;
     const int startY = (ny>1)*(direction.y == 0) * order + direction.y * level + start.y;
     const int startZ = (nz>1)*(direction.z == 0) * order + direction.z * level + start.z;
 
-    const int endX = nx - ((direction.x == 0) * order        + direction.x * level) + end.x;
-    const int endY = ny - ((ny>1)*(direction.y == 0) * order + direction.y * level) + end.y;
-    const int endZ = nz - ((nz>1)*(direction.z == 0) * order + direction.z * level) + end.z;
+    const int endX = nx -        ((direction.x == 0) * (order - 1) + direction.x * (level-1)) + end.x;
+    const int endY = ny - ((ny>1)*(direction.y == 0) * (order - 1) + direction.y * (level-1)) + end.y;
+    const int endZ = nz - ((nz>1)*(direction.z == 0) * (order - 1) + direction.z * (level-1)) + end.z;
 
+#if 0
+    static std::array<int,order*3> first;
+       if (first[(direction[1])*order + level]<8) {
+           ALSVINN_LOG(INFO, "level = " << level << " direction = " << direction << " start = (" << startX << ", " << startY << ", " << startZ << ")");
+           ALSVINN_LOG(INFO, "level = " << level << " direction = " << direction << " end   = (" << endX << ", " << endY << ", " << endZ << ")");
+       }
+       first[(direction[1])*order + level]++;
+#endif
     const real* pointerIn = input.getPointer();
 
     real* pointerOut = output.getPointer();
-	
+
     for (int z = startZ; z < endZ; z++) {
         for(int y = startY; y < endY; y++) {
             for(int x = startX; x < endX; x++) {

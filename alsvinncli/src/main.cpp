@@ -189,7 +189,7 @@ int main(int argc, char** argv) {
 			int percentDone = std::round(100.0 * simulator->getCurrentTime() / simulator->getEndTime());
 			if (percentDone != lastPercentSeen) {
                 if (mpiRank == 0) {
-                    std::cout << "\rPercent done: " << percentDone << std::flush;
+                    std::cout << "#" << std::flush;
                 }
 				lastPercentSeen = percentDone;
 			}

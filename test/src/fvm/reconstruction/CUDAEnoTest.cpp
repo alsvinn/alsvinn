@@ -18,6 +18,11 @@ public:
     size_t ny = 10;
     size_t nz = 1;
 
+    int ngx = 0;
+    int ngy = 0;
+    int ngz = 0;
+
+
     Grid grid;
 
     alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
@@ -70,6 +75,8 @@ public:
     void makeReconstruction(const std::string& name) {
         wenoCUDA = reconstructionFactory.createReconstruction(name, "euler3", simulatorParameters, memoryFactory, grid, deviceConfiguration);
 
+        ngx = wenoCUDA->getNumberOfGhostCells();
+        ngy = wenoCUDA->getNumberOfGhostCells();
         conserved = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
         left = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
         right = volumeFactory.createConservedVolume(nx, ny, nz, wenoCUDA->getNumberOfGhostCells());
@@ -90,7 +97,8 @@ TEST_F(CUDAEnoTest, ConstantZeroTestSecondOrder) {
 
     right->copyTo(*rightCPU);
     left->copyTo(*leftCPU);
-    for_each_internal_volume_index(*leftCPU, 0, [&](size_t, size_t middle, size_t) {
+
+    for_each_cell_index(*leftCPU, [&](size_t middle) {
         ASSERT_EQ(0, leftCPU->getScalarMemoryArea(0)->getPointer()[middle]);
         ASSERT_EQ(0, leftCPU->getScalarMemoryArea(1)->getPointer()[middle]);
         ASSERT_EQ(0, leftCPU->getScalarMemoryArea(2)->getPointer()[middle]);
@@ -102,7 +110,7 @@ TEST_F(CUDAEnoTest, ConstantZeroTestSecondOrder) {
         ASSERT_EQ(0, rightCPU->getScalarMemoryArea(2)->getPointer()[middle]);
         ASSERT_EQ(0, rightCPU->getScalarMemoryArea(3)->getPointer()[middle]);
         ASSERT_EQ(0, rightCPU->getScalarMemoryArea(4)->getPointer()[middle]);
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 TEST_F(CUDAEnoTest, ConstantOneTestSecondOrder) {
     makeReconstruction("eno2");
@@ -123,19 +131,19 @@ TEST_F(CUDAEnoTest, ConstantOneTestSecondOrder) {
     left->copyTo(*leftCPU);
     right->copyTo(*rightCPU);
 
-    for_each_internal_volume_index(*left, 0, [&](size_t, size_t middle, size_t) {
-        ASSERT_NEAR(1, leftCPU->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, leftCPU->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, leftCPU->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, leftCPU->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
+    for_each_cell_index(*left, [&](size_t middle) {
+        ASSERT_NEAR(1,  leftCPU->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1,  leftCPU->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1,  leftCPU->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1,  leftCPU->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
         ASSERT_NEAR(10, leftCPU->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
 
-        ASSERT_NEAR(1, rightCPU->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, rightCPU->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, rightCPU->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, rightCPU->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
         ASSERT_NEAR(10, rightCPU->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 
@@ -154,9 +162,9 @@ TEST_F(CUDAEnoTest, ReconstructionSimple) {
 
 
     // This is the main ingredient:
-    conservedCPU->getScalarMemoryArea("rho")->getPointer()[1] = 2;
-    conservedCPU->getScalarMemoryArea("rho")->getPointer()[2] = 0;
-    conservedCPU->getScalarMemoryArea("rho")->getPointer()[3] = 1;
+    conservedCPU->getScalarMemoryArea("rho")->getPointer()[4*(nx+4)+1] = 2;
+    conservedCPU->getScalarMemoryArea("rho")->getPointer()[4*(nx+4)+2] = 0;
+    conservedCPU->getScalarMemoryArea("rho")->getPointer()[4*(nx+4)+3] = 1;
 
     conservedCPU->copyTo(*conserved);
 
@@ -166,6 +174,6 @@ TEST_F(CUDAEnoTest, ReconstructionSimple) {
     
     right->copyTo(*rightCPU);
     left->copyTo(*leftCPU);
-    ASSERT_EQ(1.0 / 2.0, rightCPU->getScalarMemoryArea("rho")->getPointer()[2]);
-    ASSERT_EQ(-1.0 / 2.0, leftCPU->getScalarMemoryArea("rho")->getPointer()[2]);
+    ASSERT_EQ(1.0 / 2.0, rightCPU->getScalarMemoryArea("rho")->getPointer()[4*(nx+4)+2]);
+    ASSERT_EQ(-1.0 / 2.0, leftCPU->getScalarMemoryArea("rho")->getPointer()[4*(nx+4)+2]);
 }
