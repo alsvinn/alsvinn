@@ -14,7 +14,7 @@ namespace {
         ODESystem(real dt) : dt(dt) {}
         size_t getNumberOfGhostCells() { return 0; }
 
-        void operator()(const volume::Volume& conservedVariables,
+        void operator()( volume::Volume& conservedVariables,
             rvec3& waveSpeeds, bool computeWaveSpeeds,
             volume::Volume& output)
         {

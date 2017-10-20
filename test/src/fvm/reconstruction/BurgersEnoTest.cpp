@@ -30,12 +30,16 @@ TEST(BurgersEnoTest, ConstantZeroTestSecondOrder) {
     conserved->makeZero();
 
     
+    const int ngx = enoCPU.getNumberOfGhostCells();
+    const int ngy = enoCPU.getNumberOfGhostCells();
+    const int ngz = 0;
 
     enoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
 
-    for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
-        ASSERT_EQ(0, left->getScalarMemoryArea(0)->getPointer()[middle]);
-    });
+    for_each_cell_index(*left, [&](size_t middle ) {
+        ASSERT_EQ(0, left->getScalarMemoryArea(0)->getPointer()[middle])
+                << "Failed at index " << middle;
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 
@@ -55,14 +59,17 @@ TEST(BurgersEnoTest, ConstantZeroTestThirdOrder) {
     conserved->makeZero();
 
 
+    const int ngx = enoCPU.getNumberOfGhostCells();
+    const int ngy = enoCPU.getNumberOfGhostCells();
+    const int ngz = 0;
 
     enoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
 
-    for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
+    for_each_cell_index(*left, [&](size_t middle ) {
         ASSERT_EQ(0, left->getScalarMemoryArea(0)->getPointer()[middle]);
 
         ASSERT_EQ(0, right->getScalarMemoryArea(0)->getPointer()[middle]);
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 TEST(BurgersEnoTest, ConstantOneTestSecondOrder) {
@@ -83,13 +90,17 @@ TEST(BurgersEnoTest, ConstantOneTestSecondOrder) {
     });
   
 
+    const int ngx = enoCPU.getNumberOfGhostCells();
+    const int ngy = enoCPU.getNumberOfGhostCells();
+    const int ngz = 0;
+
     enoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
 
-    for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
+    for_each_cell_index(*left, [&](size_t middle ) {
         ASSERT_EQ(1, left->getScalarMemoryArea(0)->getPointer()[middle]);
 
         ASSERT_EQ(1, right->getScalarMemoryArea(0)->getPointer()[middle]);
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 TEST(BurgersEnoTest, ConstantOneTestThirdOrder) {
@@ -104,7 +115,9 @@ TEST(BurgersEnoTest, ConstantOneTestThirdOrder) {
     auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
     auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
     auto right = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-
+    const int ngx = enoCPU.getNumberOfGhostCells();
+    const int ngy = enoCPU.getNumberOfGhostCells();
+    const int ngz = 0;
     for_each_cell_index(*conserved, [&] (size_t index) {
         conserved->getScalarMemoryArea("u")->getPointer()[index] = 1;
     });
@@ -112,9 +125,9 @@ TEST(BurgersEnoTest, ConstantOneTestThirdOrder) {
 
     enoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
 
-    for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
+    for_each_cell_index(*left, [&]( size_t middle ) {
         ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 TEST(BurgersEnoTest, ReconstructionSimple) {

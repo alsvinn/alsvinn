@@ -27,6 +27,9 @@ namespace alsfvm { namespace config {
 
         //! Call to enable mpi. Has to be called *before* readSetupFromFile.
         void enableMPI(MPI_Comm communicator, int multiX, int multiY, int multiZ);
+
+        //! Call to enable mpi. Has to be called *before* readSetupFromFile.
+        void enableMPI(mpi::ConfigurationPtr configuration, int multiX, int multiY, int multiZ);
 #endif
     protected:
 

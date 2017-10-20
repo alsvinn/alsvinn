@@ -13,9 +13,9 @@
 using namespace alsfvm;
 
 TEST(CartesianCellExchangerEulerNeumann, Test1D) {
-    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
-    const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
-    const int rank = mpiConfiguration->getNodeNumber();
+    auto mpiConfiguration = alsfvm::make_shared<alsfvm::mpi::Configuration>(MPI_COMM_WORLD);
+    const int numberOfProcessors = mpiConfiguration->getNumberOfProcesses();
+    const int rank = mpiConfiguration->getRank();
 
 
     const int N = 16*numberOfProcessors;
@@ -39,7 +39,7 @@ TEST(CartesianCellExchangerEulerNeumann, Test1D) {
                                               ghostCells);
 
 
-    mpi::domain::CartesianDecomposition decomposer(numberOfProcessors, 1, 1);
+    alsfvm::mpi::domain::CartesianDecomposition decomposer(numberOfProcessors, 1, 1);
 
     auto information = decomposer.decompose(mpiConfiguration, *grid);
 
@@ -178,9 +178,9 @@ TEST(CartesianCellExchangerEulerNeumann, Test1D) {
 
 TEST(CartesianCellExchangerEulerNeumann, Test2D) {
      MPI_Barrier(MPI_COMM_WORLD);
-    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
-    const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
-    const int rank = mpiConfiguration->getNodeNumber();
+    auto mpiConfiguration = alsfvm::make_shared<alsfvm::mpi::Configuration>(MPI_COMM_WORLD);
+    const int numberOfProcessors = mpiConfiguration->getNumberOfProcesses();
+    const int rank = mpiConfiguration->getRank();
 
 
     const int N = 8*numberOfProcessors;
@@ -217,7 +217,7 @@ TEST(CartesianCellExchangerEulerNeumann, Test2D) {
                                               ghostCells);
 
 
-    mpi::domain::CartesianDecomposition decomposer(nx, ny, 1);
+    alsfvm::mpi::domain::CartesianDecomposition decomposer(nx, ny, 1);
 
     auto information = decomposer.decompose(mpiConfiguration, *grid);
 
@@ -315,7 +315,7 @@ TEST(CartesianCellExchangerEulerNeumann, Test2D) {
             ASSERT_EQ(boundary::MPI_BC, newGrid->getBoundaryCondition(side));
         }
     }
-    auto neighbours = alsfvm::dynamic_pointer_cast<mpi::CartesianCellExchanger>(information->getCellExchanger())->getNeighbours();
+    auto neighbours = alsfvm::dynamic_pointer_cast<alsfvm::mpi::CartesianCellExchanger>(information->getCellExchanger())->getNeighbours();
 
     if (xRank != 0) {
         ASSERT_EQ(rankIndex(xRank-1, yRank), neighbours[0])

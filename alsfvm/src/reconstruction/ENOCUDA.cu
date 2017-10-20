@@ -8,6 +8,7 @@
 #include <fstream>
 #include "alsfvm/equation/equation_list.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
+#include "alsutils/log.hpp"
 
 namespace alsfvm { namespace reconstruction {
 
@@ -22,7 +23,9 @@ __global__ void performEnoReconstructionKernel(typename Equation::ConstViews inp
                                                int numberOfXCells,
                                                int numberOfYCells,
                                                int numberOfZCells,
-                                               ivec3 directionVector
+                                               ivec3 directionVector,
+                                               ivec3 start,
+                                               ivec3 spaceFillingVector
                                                ) {
 
 
@@ -31,7 +34,7 @@ __global__ void performEnoReconstructionKernel(typename Equation::ConstViews inp
                                              numberOfXCells,
                                              numberOfYCells,
                                              numberOfZCells,
-                                             (order-1)*directionVector);
+                                             (order)*spaceFillingVector-directionVector+start);
 
     int x = coordinates.x;
     int y = coordinates.y;
@@ -104,10 +107,12 @@ ENOCUDA<Equation, order>::ENOCUDA(alsfvm::shared_ptr<memory::MemoryFactory> &mem
 
 template<class Equation, int order>
 void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &inputVariables,
-	size_t direction,
-	size_t indicatorVariable,
-	volume::Volume &leftOut,
-	volume::Volume &rightOut)
+                                                     size_t direction,
+                                                     size_t indicatorVariable,
+                                                     volume::Volume &leftOut,
+                                                     volume::Volume &rightOut,
+                                                     const ivec3& startIndex,
+                                                     const ivec3& endIndex)
 {
 	// We often do compute order-1.
 	static_assert(order > 0, "Can not do ENO reconstruction of order 0.");
@@ -117,16 +122,17 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
 	}
     const ivec3 directionVector = make_direction_vector(direction);
 
+
 	// make divided differences
 
 	computeDividedDifferences(*inputVariables.getScalarMemoryArea(indicatorVariable),
-        (order-1)*directionVector,
+        directionVector,
 		1,
-		*dividedDifferences[0]);
+        *dividedDifferences[0], startIndex, endIndex);
 
 	for (size_t i = 1; i < order - 1; i++) {
 		computeDividedDifferences(*dividedDifferences[i - 1],
-			directionVector, i + 1, *dividedDifferences[i]);
+            directionVector, i + 1, *dividedDifferences[i], startIndex, endIndex);
 	}
 
 	// done computing divided differences
@@ -156,12 +162,19 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
             coefficients[i][j] = ENOCoeffiecients<order>::coefficients[i][j];
         }
     }
+    const ivec3 spaceFillingVector = make_space_filling_vector(nx, ny, nz);
+    const ivec3 start = (order*spaceFillingVector - directionVector)+ startIndex;
+    const ivec3 end = ivec3(nx, ny, nz) - (order* spaceFillingVector-directionVector)+ endIndex;
 
-    const ivec3 start = (order - 1) * directionVector;
-    const ivec3 end = ivec3(nx, ny, nz) - (order-1) * directionVector;
+#if 0 // debug output
+    static std::array<int,3> first;
+        if (first[direction]<8) {
+          ALSVINN_LOG(INFO, "new direction = " << direction << " start = (" << start.x << ", " << start.y << ", " << start.z << ")");
+          ALSVINN_LOG(INFO, "new direction = " << direction << "end   = (" << end.x << ", " << end.y << ", " << end.z << ")");
+        }
+        first[direction]++;
 
-
-
+#endif
     const int blockSize = 512;
 
     auto launchParameters = cuda::makeKernelLaunchParameters(start, end, blockSize);
@@ -185,7 +198,8 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
                                                             numberOfCellsPerDimension.x,
                                                             numberOfCellsPerDimension.y,
                                                             numberOfCellsPerDimension.z,
-                                                            directionVector);
+                                                            directionVector, startIndex,
+                                                                             spaceFillingVector);
 #ifndef NDEBUG
     CUDA_SAFE_CALL(cudaPeekAtLastError());
     CUDA_SAFE_CALL(cudaDeviceSynchronize());
@@ -199,6 +213,7 @@ size_t ENOCUDA<Equation, order>::getNumberOfGhostCells()
     return order;
 }
 
+template<int order>
 __global__ void computeDividedDifferencesKernel(real* output,
                                                 const real* input,
                                                 size_t numberOfXCells, // total number of
@@ -208,7 +223,9 @@ __global__ void computeDividedDifferencesKernel(real* output,
                                                 size_t ny, // in each
                                                 size_t nz, // direction
                                                 ivec3 direction,
-                                                size_t level
+                                                size_t level,
+                                                ivec3 start,
+                                                ivec3 spaceFillingVector
                                                 ) {
     const int index = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -219,10 +236,9 @@ __global__ void computeDividedDifferencesKernel(real* output,
     if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells || zInternalFormat >= numberOfZCells) {
         return;
     }
-    const int x = xInternalFormat + (level) * direction[0];
-    const int y = yInternalFormat + (level) * direction[1];
-    const int z = zInternalFormat + (level) * direction[2];
-
+    const int x = xInternalFormat + (level) * direction[0] + (order )*spaceFillingVector.x * (direction[0] ==0) + start.x;
+    const int y = yInternalFormat + (level) * direction[1] + (order )*spaceFillingVector.y * (direction[1] ==0) + start.y;
+    const int z = zInternalFormat + (level) * direction[2] + (order )*spaceFillingVector.z * (direction[2] ==0) + start.z;
 
     const int indexRight = z*nx*ny + y * nx + x;
     const int indexLeft = (z - direction.z) * nx * ny
@@ -237,7 +253,9 @@ template<class Equation, int order>
 void ENOCUDA<Equation, order>::computeDividedDifferences(const memory::Memory<real>& input,
                                               const ivec3& direction,
                                               size_t level,
-                                              memory::Memory<real>& output)
+                                              memory::Memory<real>& output,
+                                                         const ivec3& startIndex,
+                                                         const ivec3& endIndex)
 {
 
 
@@ -245,13 +263,16 @@ void ENOCUDA<Equation, order>::computeDividedDifferences(const memory::Memory<re
     const int ny = input.getSizeY();
     const int nz = input.getSizeZ();
 
+    const auto spaceFillingVector = make_space_filling_vector(nx, ny, nz);
+
     // Sanity check, we need at least ONE point in the interior.
     assert(nx > int(2*direction.x * level));
     assert(ny > int(2*direction.y * level));
     assert(nz > int(2*direction.z * level));
 
-    const ivec3 start = int(level) * direction;
-    const ivec3 end = ivec3(nx, ny, nz) - int(level) * direction;
+    const ivec3 directionComplement = ivec3(direction.x==0, direction.y==0, direction.z==0);
+    const ivec3 start = int(level) * direction + (order)*directionComplement * spaceFillingVector + startIndex;
+    const ivec3 end = ivec3(nx, ny, nz) - int(level-1) * direction - (order-1)*directionComplement * spaceFillingVector + endIndex;
 
     const real* pointerIn = input.getPointer();
 
@@ -267,14 +288,23 @@ void ENOCUDA<Equation, order>::computeDividedDifferences(const memory::Memory<re
             size_t(numberOfCellsPerDimension.z);
 
     const size_t gridSize = (totalNumberOfCells + blockSize -1 )/ blockSize;
-
-    computeDividedDifferencesKernel<<<gridSize, blockSize>>>(pointerOut, pointerIn,
+#if 0
+    static std::array<int,order*3> first;
+        if (first[(direction[1])*order + level]<8) {
+            ALSVINN_LOG(INFO, "level = " << level << " direction = " << direction << " start = (" << start.x << ", " << start.y << ", " << start.z << ")");
+            ALSVINN_LOG(INFO, "level = " << level << " direction = " << direction << " end   = (" << end.x << ", " << end.y << ", " << end.z << ")");
+        }
+        first[(direction[1])*order + level] ++;
+#endif
+    computeDividedDifferencesKernel<order><<<gridSize, blockSize>>>(pointerOut, pointerIn,
                                                              numberOfCellsPerDimension.x,
                                                              numberOfCellsPerDimension.y,
                                                              numberOfCellsPerDimension.z,
                                                              nx, ny, nz,
                                                              direction,
-                                                             level);
+                                                             level,
+                                                                    startIndex,
+                                                                    spaceFillingVector);
 }
 
 template class ENOCUDA<alsfvm::equation::euler::Euler<1>, 2>;

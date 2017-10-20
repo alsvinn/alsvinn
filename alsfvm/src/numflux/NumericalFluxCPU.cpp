@@ -16,7 +16,8 @@ namespace alsfvm { namespace numflux {
     void computeNetFlux(const Equation& eq, const volume::Volume& left, const volume::Volume& right,
                         volume::Volume& out,
                         volume::Volume& temporaryVolume,
-                        real& waveSpeed, size_t numberOfGhostCells) {
+                        real& waveSpeed, size_t numberOfGhostCells,
+                        const ivec3 start, const ivec3 end) {
         // We will automate the creation of these pointer arrays soon,
         // for now we keep them to keep things simple.
 
@@ -33,19 +34,19 @@ namespace alsfvm { namespace numflux {
         const bool yDir = direction == 1;
         const bool zDir = direction == 2;
 
-        const size_t nx = out.getTotalNumberOfXCells();
-        const size_t ny = out.getTotalNumberOfYCells();
-        const size_t nz = out.getTotalNumberOfZCells();
-        const size_t ngx = out.getNumberOfXGhostCells();
-        const size_t ngy = out.getNumberOfYGhostCells();
-        const size_t ngz = out.getNumberOfZGhostCells();
+        const int nx = out.getTotalNumberOfXCells();
+        const int ny = out.getTotalNumberOfYCells();
+        const int nz = out.getTotalNumberOfZCells();
+        const int ngx = out.getNumberOfXGhostCells();
+        const int ngy = out.getNumberOfYGhostCells();
+        const int ngz = out.getNumberOfZGhostCells();
 
     real waveSpeedComputed = 0;
     auto stencil = getStencil<Flux>(Flux());
-        for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
+        for(int z = ngz - zDir+start.z; z < nz - ngz+end.z; ++z) {
 #pragma omp parallel for reduction(max: waveSpeedComputed)
-            for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
-                for(int x = int(ngx) - xDir; x < int(nx) - int(ngx); ++x) {
+            for(int y = ngy - yDir + start.y; y < ny - ngy + end.y; ++y) {
+                for(int x = int(ngx) - xDir + start.x; x < int(nx) - int(ngx) + end.x; ++x) {
                     
                     // Now we need to build up the stencil for this set of indices
                     decltype(stencil) indices;
@@ -71,13 +72,13 @@ namespace alsfvm { namespace numflux {
             }
         }
 	waveSpeed = waveSpeedComputed;
-        for(size_t z = ngz - zDir; z < nz - ngz; ++z) {
+        for(int z = ngz - zDir + start.z; z < nz - ngz+end.z-zDir; ++z) {
 #pragma omp parallel for
-            for(size_t y = ngy - yDir; y < ny - ngy; ++y) {
+            for(int y = ngy - yDir + start.y; y < ny - ngy+end.y-yDir; ++y) {
 
-                for(int x = int(ngx) - xDir; x < int(nx - ngx); ++x) {
+                for(int x = int(ngx) - xDir + start.x; x < int(nx - ngx) + end.x-xDir; ++x) {
 
-		  const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
+                    const size_t rightIndex = outViews.index(x+xDir, y+yDir, z+zDir);
                     const size_t middleIndex = outViews.index(x, y, z);
                     auto fluxMiddleRight = eq.fetchConservedVariables(temporaryViews, rightIndex);
                     auto fluxLeftMiddle = (-1.0)*eq.fetchConservedVariables(temporaryViews, middleIndex);
@@ -89,6 +90,32 @@ namespace alsfvm { namespace numflux {
         }
     }
 
+
+    template<class Equation>
+    void makeZero(Equation& equation, volume::Volume& out,
+                        const ivec3 start, const ivec3 end) {
+
+        const int nx = out.getTotalNumberOfXCells();
+        const int ny = out.getTotalNumberOfYCells();
+        const int nz = out.getTotalNumberOfZCells();
+        const int ngx = out.getNumberOfXGhostCells();
+        const int ngy = out.getNumberOfYGhostCells();
+        const int ngz = out.getNumberOfZGhostCells();
+
+        typename Equation::Views outViews(out);
+
+        for(int z = ngz + start.z; z < nz - ngz+end.z; ++z) {
+#pragma omp parallel for
+            for(int y = ngy + start.y; y < ny - ngy+end.y; ++y) {
+
+                for(int x = int(ngx) + start.x; x < int(nx - ngx) + end.x; ++x) {
+                    typename Equation::ConservedVariables zero;
+                    equation.setViewAt(outViews, outViews.index(x,y,z), zero);
+                }
+            }
+        }
+
+    }
 
     template<class Flux, class Equation, size_t dimension>
     NumericalFluxCPU<Flux, Equation, dimension>::NumericalFluxCPU(const grid::Grid &grid,
@@ -112,13 +139,15 @@ namespace alsfvm { namespace numflux {
     template<class Flux, class Equation, size_t dimension>
     void NumericalFluxCPU<Flux, Equation, dimension>::computeFlux(const volume::Volume& conservedVariables,
 		rvec3& waveSpeed, bool computeWaveSpeed,
-		volume::Volume& output
+        volume::Volume& output, const ivec3& start,
+                                                                  const ivec3& end
 		) 
 	{
         Equation eq(parameters);
         static_assert(dimension > 0, "We only support positive dimension!");
         static_assert(dimension < 4, "We only support dimension up to 3");
 
+        // Make sure we have the correct size.
         if (conservedVariables.getTotalNumberOfXCells()!= left->getTotalNumberOfXCells()
              || conservedVariables.getTotalNumberOfYCells() != left->getTotalNumberOfYCells()
                 || conservedVariables.getTotalNumberOfZCells() != left->getTotalNumberOfZCells()) {
@@ -129,20 +158,31 @@ namespace alsfvm { namespace numflux {
                           conservedVariables.getNumberOfXGhostCells());
         }
 
-        output.makeZero();
+        makeZero(eq, output, start, end);
 
-        reconstruction->performReconstruction(conservedVariables, 0, 0, *left, *right);
-        computeNetFlux<Flux, Equation, 0>(eq, *left, *right, output, *temporaryVolume, waveSpeed.x, getNumberOfGhostCells());
+        reconstruction->performReconstruction(conservedVariables, 0, 0,
+                                              *left, *right, start, end);
+        computeNetFlux<Flux, Equation, 0>(eq, *left, *right, output,
+                                          *temporaryVolume, waveSpeed.x,
+                                          getNumberOfGhostCells(), start, end);
 
         if (dimension > 1) {
-            reconstruction->performReconstruction(conservedVariables, 1, 0, *left, *right);
-            computeNetFlux<Flux, Equation, 1>(eq, *left, *right, output, *temporaryVolume, waveSpeed.y, getNumberOfGhostCells());
+            reconstruction->performReconstruction(conservedVariables, 1, 0,
+                                                  *left, *right, start, end);
+            computeNetFlux<Flux, Equation, 1>(eq, *left, *right, output,
+                                              *temporaryVolume,
+                                              waveSpeed.y, getNumberOfGhostCells(),
+                                              start, end);
         }
 
 
         if (dimension > 2) {
-            reconstruction->performReconstruction(conservedVariables, 2, 0, *left, *right);
-            computeNetFlux<Flux, Equation, 2>(eq, *left, *right, output, *temporaryVolume, waveSpeed.z, getNumberOfGhostCells());
+            reconstruction->performReconstruction(conservedVariables, 2, 0,
+                                                  *left, *right, start, end);
+            computeNetFlux<Flux, Equation, 2>(eq, *left, *right, output,
+                                              *temporaryVolume, waveSpeed.z,
+                                              getNumberOfGhostCells(),
+                                              start, end);
         }
 
 	}

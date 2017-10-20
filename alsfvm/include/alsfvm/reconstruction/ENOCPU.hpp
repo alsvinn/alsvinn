@@ -40,7 +40,8 @@ namespace alsfvm { namespace reconstruction {
                                    size_t direction,
                                    size_t indicatorVariable,
                                    volume::Volume& leftOut,
-                                   volume::Volume& rightOut);
+                                   volume::Volume& rightOut, const ivec3& start = {0,0,0},
+                                           const ivec3& end = {0,0,0});
 
         ///
         /// \brief getNumberOfGhostCells returns the number of ghost cells we need
@@ -59,7 +60,9 @@ namespace alsfvm { namespace reconstruction {
         void computeDividedDifferences(const memory::Memory<real>& input,
                                        const ivec3& direction,
                                        size_t level,
-                                       memory::Memory<real>& output);
+                                       memory::Memory<real>& output,
+                                       const ivec3& start,
+                                       const ivec3& end);
 
         alsfvm::shared_ptr<alsfvm::memory::MemoryFactory> memoryFactory;
         // For each level l, this will contain the divided differences for that

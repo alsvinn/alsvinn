@@ -1,6 +1,6 @@
 #pragma once
 #include "alsfvm/io/Writer.hpp"
-#include "alsuq/mpi/Config.hpp"
+#include "alsuq/mpi/Configuration.hpp"
 
 namespace alsuq { namespace stats { 
 

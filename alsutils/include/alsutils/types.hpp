@@ -72,6 +72,9 @@ namespace alsutils {
         return ivec3( direction == 0, direction == 1, direction == 2 );
     }
 
+    inline __device__ __host__ ivec3 make_space_filling_vector(int nx, int ny, int nz) {
+        return ivec3(nx > 1, ny > 1, nz > 1);
+    }
     typedef matrix<real, 1, 1> matrix1;
 
     typedef matrix<real, 2, 2> matrix2;

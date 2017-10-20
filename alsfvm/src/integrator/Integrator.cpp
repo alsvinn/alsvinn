@@ -4,18 +4,20 @@ namespace alsfvm { namespace integrator {
     real Integrator::computeTimestep(const rvec3& waveSpeeds, const rvec3& cellLengths, real cfl, const simulator::TimestepInformation& timestepInformation) const {
 		real waveSpeedTotal = 0;
 		for (size_t direction = 0; direction < 3; ++direction) {
-			const real waveSpeed = waveSpeeds[direction];
+            real waveSpeed = waveSpeeds[direction];
+
 			if (cellLengths[direction] == 0) {
 				continue;
 			}
+
+            for (auto& adjuster : waveSpeedAdjusters) {
+                waveSpeed = adjuster->adjustWaveSpeed(waveSpeed);
+            }
 			const real cellLength = cellLengths[direction];
 			waveSpeedTotal += waveSpeed / cellLength;
 		}
 
-        for (auto& adjuster : waveSpeedAdjusters) {
 
-            waveSpeedTotal = adjuster->adjustWaveSpeed(waveSpeedTotal);
-        }
 
 
 		const real dt = cfl / waveSpeedTotal;

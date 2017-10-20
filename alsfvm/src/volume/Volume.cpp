@@ -355,7 +355,7 @@ namespace alsfvm {
         {
             return {int(getTotalNumberOfXCells()),
                     int(getTotalNumberOfYCells()),
-                    int(getNumberOfZCells())};
+                    int(getTotalNumberOfZCells())};
         }
 
         void Volume::addPower(const Volume &other, real power)
@@ -395,6 +395,25 @@ namespace alsfvm {
                 return std::make_shared<Volume>(variableNames, memoryFactoryForPlatform, nxNew, nyNew, nzNew, 0);
             }
 
+        }
+
+        std::shared_ptr<Volume> Volume::getCopyOnCPU()
+        {
+            if (getScalarMemoryArea(0)->isOnHost()) {
+                return shared_from_this();
+            } else {
+                alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguraiton(new DeviceConfiguration("cpu"));
+                alsfvm::shared_ptr<memory::MemoryFactory>
+                        memoryFactoryForPlatform(new memory::MemoryFactory(deviceConfiguraiton));
+
+                auto cpu =  std::make_shared<Volume>(variableNames,
+                                                     memoryFactoryForPlatform,
+                                                     nx, ny, nz, numberOfXGhostCells);
+
+                this->copyTo(*cpu);
+
+                return cpu;
+            }
         }
 	}
 

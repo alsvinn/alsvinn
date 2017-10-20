@@ -1,0 +1,14 @@
+ALSVINN_PATH="${CMAKE_SOURCE_DIR}"
+ALSVINNCLI_PATH="${CMAKE_BINARY_DIR}/alsvinncli/alsvinncli"
+ALSVINNUQCLI_PATH="${CMAKE_BINARY_DIR}/alsuqcli/alsuqcli"
+if "${ALSVINN_USE_CUDA}".lower() == "on":
+  ALSVINN_HAS_GPU=True
+else:
+  ALSVINN_HAS_GPU=False
+
+if "${ALSVINN_USE_MPI}".lower() == "on":
+  ALSVINN_HAS_MPI=True
+else:
+  ALSVINN_HAS_MPI=False
+
+ALSVINN_EXAMPLES_PATH="%s/alsvinncli/examples" % ALSVINN_PATH

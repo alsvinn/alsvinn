@@ -12,13 +12,14 @@ Request::Request()
 
 void Request::wait()
 {
-    MPI_Status status;
-    MPI_SAFE_CALL(MPI_Wait(&request, &status));
+    MPI_SAFE_CALL(MPI_Wait(&request, MPI_STATUS_IGNORE));
 }
 
 Request::~Request()
 {
-    this->wait();
+    if (request != NULL) {
+        this->wait();
+    }
 }
 
 }

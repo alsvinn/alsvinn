@@ -4,7 +4,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <omp.h>
 #include "alsutils/log.hpp"
-
+#include <boost/program_options.hpp>
 
 int main(int argc, char** argv) {
     int rank = 0;
@@ -12,18 +12,95 @@ int main(int argc, char** argv) {
 
         auto wallStart = boost::posix_time::second_clock::local_time();
         auto timeStart = boost::chrono::thread_clock::now();
-        if (argc != 2) {
-            std::cout << "Usage:\n\t" << argv[0] << " <inputfile.xml>" << std::endl;
-            return EXIT_FAILURE;
-        }
-        std::string inputfile = argv[1];
+        using namespace boost::program_options;
+        options_description description;
+        // See http://www.boost.org/doc/libs/1_58_0/doc/html/program_options/tutorial.html
+        // especially for "positional arguments"
+        description.add_options()
+                ("help", "Produces this help message")
 
+        #ifdef ALSVINN_USE_MPI
+                ("multi-sample", value<int>()->default_value(1),
+                 "number of processors to use in the sample direction")
+                ("multi-x", value<int>()->default_value(1),
+                 "number of processors to use in x direction")
+                ("multi-y", value<int>()->default_value(1),
+                 "number of processors to use in y direction")
+                ("multi-z", value<int>()->default_value(1),
+                 "number of processors to use in z direction");
+        #else
+            ;
+        #endif
+
+
+        options_description hiddenDescription;
+        hiddenDescription.add_options()("input", value<std::string>(), "Input xml file to use");
+
+
+        options_description allOptions;
+        allOptions.add(description).add(hiddenDescription);
+
+
+        positional_options_description p;
+        p.add("input", -1);
+
+        variables_map vm;
+
+        try {
+            store(command_line_parser(argc, argv).options(allOptions).positional(p).run(), vm);
+            notify(vm);
+        } catch(std::runtime_error& error) {
+            std::cout << error.what() << std::endl;
+            std::cout << "Usage:\n\t" << argv[0] << " <options> <inputfile.xml>" << std::endl<< std::endl;
+
+            std::cout << description << std::endl;
+
+            std::exit(EXIT_FAILURE);
+        }
+
+        if (vm.count("input") == 0) {
+            std::cout << "No input file given!" << std::endl;
+
+
+            if (!vm.count("help")) {
+                std::cout << "Usage:\n\t" << argv[0] << " <options> <inputfile.xml>" << std::endl<< std::endl;
+
+                std::cout << description << std::endl;
+
+                std::exit(EXIT_FAILURE);
+            }
+        }
+        if (vm.count("help")) {
+            std::cout << "Usage:\n\t" << argv[0] << " <options> <inputfile.xml>" << std::endl<< std::endl;
+
+            std::cout << description << std::endl;
+
+            std::exit(EXIT_FAILURE);
+
+        }
 
         MPI_Init(&argc, &argv);
-        alsuq::mpi::Config mpiConfig;
-        rank = mpiConfig.getRank();
-        alsutils::log::setLogFile("alsuqcli_mpi_log_" + std::to_string(mpiConfig.getRank())
+        alsuq::mpi::ConfigurationPtr mpiConfig(new alsuq::mpi::Configuration(MPI_COMM_WORLD));
+        rank = mpiConfig->getRank();
+        alsutils::log::setLogFile("alsuqcli_mpi_log_" + std::to_string(mpiConfig->getRank())
                                   + ".txt");
+
+
+
+        std::string inputfile = vm["input"].as<std::string>();
+
+
+
+        const int multiX = vm["multi-x"].as<int>();
+        const int multiY = vm["multi-y"].as<int>();
+        const int multiZ = vm["multi-z"].as<int>();
+        const int multiSample = vm["multi-sample"].as<int>();
+
+        if (mpiConfig->getNumberOfProcesses() != multiSample * multiX * multiY * multiZ) {
+            THROW("The total number of processors required is: " << multiSample*multiX*multiY*multiZ
+                  << "\n"<<"The total number given was: " << mpiConfig->getNumberOfProcesses() );
+        }
+
 
 
         ALSVINN_LOG(INFO, "omp max threads= " << omp_get_max_threads());
@@ -34,7 +111,8 @@ int main(int argc, char** argv) {
 
         alsuq::config::Setup setup;
 
-        auto runner = setup.makeRunner(inputfile, mpiConfig);
+        auto runner = setup.makeRunner(inputfile, mpiConfig, multiSample,
+                                       alsuq::ivec3(multiX, multiY, multiZ));
 
         ALSVINN_LOG(INFO, "Running simulator... ");
 

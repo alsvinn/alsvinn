@@ -16,9 +16,20 @@
 // see https://msdn.microsoft.com/en-us/library/aa289157(VS.71).aspx#floapoint_topic8
 #endif
 #endif
+#include <cstdlib>
+#ifdef ALSVINN_HAVE_CUDA
+#include <cuda.h>
+#include <cuda_runtime.h>
+#endif
+
+
 int main(int argc, char** argv) {
+  setenv("MPICH_RDMA_ENABLED_CUDA", "1", 1);
+  setenv("MV2_USE_CUDA", "1", 1);
+
 
 	try {
+
         using namespace boost::program_options;
         options_description description;
         // See http://www.boost.org/doc/libs/1_58_0/doc/html/program_options/tutorial.html
@@ -89,7 +100,8 @@ int main(int argc, char** argv) {
 #ifdef ALSVINN_USE_MPI
       int mpiRank;
 
-      MPI_SAFE_CALL(MPI_Init(&argc, &argv));
+  MPI_SAFE_CALL(MPI_Init(NULL, NULL));
+
 
       MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank));
 
@@ -107,6 +119,7 @@ int main(int argc, char** argv) {
         int mpiRank = 0;
 #endif
         auto wallStart = boost::posix_time::second_clock::local_time();
+
 		auto timeStart = boost::chrono::thread_clock::now();
 
 #ifdef _OPENMP
@@ -176,7 +189,7 @@ int main(int argc, char** argv) {
 			int percentDone = std::round(100.0 * simulator->getCurrentTime() / simulator->getEndTime());
 			if (percentDone != lastPercentSeen) {
                 if (mpiRank == 0) {
-                    std::cout << "\rPercent done: " << percentDone << std::flush;
+                    std::cout << "#" << std::flush;
                 }
 				lastPercentSeen = percentDone;
 			}

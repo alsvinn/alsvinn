@@ -17,10 +17,11 @@ ReconstructionCPU<ReconstructionType, Equation>::ReconstructionCPU(const simulat
 
 template<class ReconstructionType, class Equation>
 void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(const volume::Volume &inputVariables,
-                                              size_t direction,
-                                              size_t indicatorVariable,
-                                              volume::Volume &leftOut,
-                                              volume::Volume &rightOut)
+                                                                            size_t direction,
+                                                                            size_t indicatorVariable,
+                                                                            volume::Volume &leftOut,
+                                                                            volume::Volume &rightOut, const ivec3& start,
+                                                                            const ivec3& end)
 {
 
 
@@ -32,24 +33,28 @@ void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(cons
 
     // Now we go on to do the actual reconstruction, choosing the stencil for
     // each point.
-    const size_t nx = inputVariables.getTotalNumberOfXCells();
-    const size_t ny = inputVariables.getTotalNumberOfYCells();
-    const size_t nz = inputVariables.getTotalNumberOfZCells();
+    const int nx = inputVariables.getTotalNumberOfXCells();
+    const int ny = inputVariables.getTotalNumberOfYCells();
+    const int nz = inputVariables.getTotalNumberOfZCells();
 
-    const size_t ngc = this->getNumberOfGhostCells();
+    const int dimension = inputVariables.getDimensions();
+    const int ngx = this->getNumberOfGhostCells();
+    const int ngy = (dimension > 1) * this->getNumberOfGhostCells();
+    const int ngz = (dimension > 2) * this->getNumberOfGhostCells();
+
 
     // Sanity check, we need at least ONE point in the interior.
     assert(int(nx) > 2 * directionVector.x * 2);
-    assert((directionVector.y == 0) || (ny > ngc * directionVector.y * 2));
-    assert((directionVector.z == 0) || (nz > ngc * directionVector.z * 2));
+    assert((directionVector.y == 0) || (ny > ngy * directionVector.y * 2));
+    assert((directionVector.z == 0) || (nz > ngz * directionVector.z * 2));
 
-    const size_t startX = directionVector.x * (ngc - 1);
-    const size_t startY = directionVector.y * (ngc - 1);
-    const size_t startZ = directionVector.z * (ngc - 1);
+    const int startX = (ngx - directionVector.x * 1) + start.x;
+    const int startY = (ngy - directionVector.y * 1) + start.y;
+    const int startZ = (ngz - directionVector.z * 1) + start.z;
 
-    const size_t endX = nx - directionVector.x * (ngc - 1);
-    const size_t endY = ny - directionVector.y * (ngc - 1);
-    const size_t endZ = nz - directionVector.z * (ngc - 1);
+    const int endX = nx - (ngx - directionVector.x * 1) + end.x;
+    const int endY = ny - (ngy - directionVector.y * 1) + end.y;
+    const int endZ = nz - (ngz - directionVector.z * 1) + end.z;
 
 
     typename Equation::ConstViews viewIn(inputVariables);
@@ -57,9 +62,9 @@ void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(cons
     typename Equation::Views viewRight(rightOut);
 
     Equation eq(parameters);
-    for (size_t z = startZ; z < endZ; z++) {
+    for (int z = startZ; z < endZ; z++) {
 #pragma omp parallel for
-        for (size_t y = startY; y < endY; y++) {
+        for (int y = startY; y < endY; y++) {
             for (int x = startX; x < int(endX); x++) {
                 ReconstructionType::reconstruct(eq, viewIn, x, y, z, viewLeft, viewRight,
                                                 directionVector.x, directionVector.y,

@@ -29,7 +29,8 @@ namespace alsfvm { namespace reconstruction {
 			size_t direction,
 			size_t indicatorVariable,
 			volume::Volume& leftOut,
-			volume::Volume& rightOut);
+            volume::Volume& rightOut, const ivec3& start={0,0,0},
+                                           const ivec3& end={0,0,0});
 
 		size_t getNumberOfGhostCells();
 

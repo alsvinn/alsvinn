@@ -10,10 +10,21 @@
 
 using namespace alsfvm;
 
-TEST(CartesianCellExchangerEuler, Test1D) {
-    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
-    const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
-    const int rank = mpiConfiguration->getNodeNumber();
+class CartesianCellExchangerEulerTest :  public ::testing::TestWithParam<std::string> {
+public:
+    CartesianCellExchangerEulerTest()
+        :
+        platform(this->GetParam())
+    {
+    }
+
+    const std::string platform = "cpu";
+};
+
+TEST_P(CartesianCellExchangerEulerTest, Test1D) {
+    auto mpiConfiguration = alsfvm::make_shared<alsfvm::mpi::Configuration>(MPI_COMM_WORLD, platform);
+    const int numberOfProcessors = mpiConfiguration->getNumberOfProcesses();
+    const int rank = mpiConfiguration->getRank();
 
 
     const int N = 16*numberOfProcessors;
@@ -21,7 +32,6 @@ TEST(CartesianCellExchangerEuler, Test1D) {
     rvec3 lowerCorner = {0,0,0};
     rvec3 upperCorner = {1,0,0};
 
-    const std::string platform = "cpu";
     const std::string equation = "euler1";
 
     const int ghostCells = 3;
@@ -37,7 +47,7 @@ TEST(CartesianCellExchangerEuler, Test1D) {
                                               ghostCells);
 
 
-    mpi::domain::CartesianDecomposition decomposer(numberOfProcessors, 1, 1);
+    alsfvm::mpi::domain::CartesianDecomposition decomposer(numberOfProcessors, 1, 1);
 
     auto information = decomposer.decompose(mpiConfiguration, *grid);
 
@@ -68,24 +78,26 @@ TEST(CartesianCellExchangerEuler, Test1D) {
     auto valueAtIndex = [&](int i,  int rank, int var) {
         return (i-ghostCells + N*rank)*volume->getNumberOfVariables() + var;
     };
+
+    auto cpuVolume = volume->getCopyOnCPU();
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = ghostCells; i < N + ghostCells; ++i) {
-            (*volume->getScalarMemoryArea(var))[i] = valueAtIndex(i,rank,var);
+            (*cpuVolume->getScalarMemoryArea(var))[i] = valueAtIndex(i,rank,var);
         }
     }
     const real magicValue = 42*numberOfProcessors+rank;
 
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
         for(int i = 0; i < ghostCells; ++i) {
-            (*volume->getScalarMemoryArea(0))[i] = magicValue;
-            (*volume->getScalarMemoryArea(0))[N+ghostCells + i] = magicValue;
+            (*cpuVolume->getScalarMemoryArea(0))[i] = magicValue;
+            (*cpuVolume->getScalarMemoryArea(0))[N+ghostCells + i] = magicValue;
         }
     }
 
 
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
     for (int i = ghostCells; i < N + ghostCells; ++i) {
-           auto value = (*volume->getScalarMemoryArea(var))[i];
+           auto value = (*cpuVolume->getScalarMemoryArea(var))[i];
             ASSERT_EQ(valueAtIndex(i,rank,var), value);
     }
     }
@@ -96,9 +108,9 @@ TEST(CartesianCellExchangerEuler, Test1D) {
 
     ASSERT_EQ(42*(numberOfProcessors-1), maxWaveSpeed);
 
-
+    cpuVolume->copyTo(*volume);
     information->getCellExchanger()->exchangeCells(*volume, *volume).waitForAll();
-
+    volume->copyTo(*cpuVolume);
 
     auto rankIndex = [&](int x) {
         const int nx = numberOfProcessors;
@@ -122,7 +134,7 @@ TEST(CartesianCellExchangerEuler, Test1D) {
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = 0; i < ghostCells; ++i) {
             int index = i;
-            auto value = (*volume->getScalarMemoryArea(var))[index];
+            auto value = (*cpuVolume->getScalarMemoryArea(var))[index];
 
             int expectedValue = valueAtIndex(N+i, rankIndex(rank-1), var);
 
@@ -135,13 +147,20 @@ TEST(CartesianCellExchangerEuler, Test1D) {
         // right side
         for (int i = 0; i < ghostCells; ++i) {
             int index = N+ghostCells+i;
-            auto value = (*volume->getScalarMemoryArea(var))[index];
+            auto value = (*cpuVolume->getScalarMemoryArea(var))[index];
             int expectedValue = valueAtIndex(i+ghostCells, rankIndex(rank + 1), var);
 
             EXPECT_EQ(expectedValue, value)
                     << "Failed at right ghost index " << i << "  on processor " << rank
                     << "\nvar = " << volume->getName(var) << "(" << var << ")";
         }
+    }
+    // Inner
+    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+    for (int i = ghostCells; i < N + ghostCells; ++i) {
+           auto value = (*cpuVolume->getScalarMemoryArea(var))[i];
+            ASSERT_EQ(valueAtIndex(i,rank,var), value);
+    }
     }
 
 #if 0 //debug output
@@ -168,24 +187,20 @@ TEST(CartesianCellExchangerEuler, Test1D) {
 
 }
 
-TEST(CartesianCellExchangerEuler, Test2D) {
+TEST_P(CartesianCellExchangerEulerTest, Test2D) {
      MPI_Barrier(MPI_COMM_WORLD);
-    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
-    const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
-    const int rank = mpiConfiguration->getNodeNumber();
+    auto mpiConfiguration = alsfvm::make_shared<alsfvm::mpi::Configuration>(MPI_COMM_WORLD, platform);
+    const int numberOfProcessors = mpiConfiguration->getNumberOfProcesses();
+    const int rank = mpiConfiguration->getRank();
 
 
-    const int N = 8*numberOfProcessors;
+    const int N = 8;
 
-    if (numberOfProcessors < 4) {
-        return;
-    }
 
 
     rvec3 lowerCorner = {0,0,0};
     rvec3 upperCorner = {1,1,0};
 
-    const std::string platform = "cpu";
     const std::string equation = "euler2";
 
     const int ghostCells = 3;
@@ -208,8 +223,8 @@ TEST(CartesianCellExchangerEuler, Test2D) {
         {N,N,1},
                                               ghostCells);
 
-
-    mpi::domain::CartesianDecomposition decomposer(nx, ny, 1);
+    auto cpuVolume = volume->getCopyOnCPU();
+    alsfvm::mpi::domain::CartesianDecomposition decomposer(nx, ny, 1);
 
     auto information = decomposer.decompose(mpiConfiguration, *grid);
 
@@ -221,7 +236,15 @@ TEST(CartesianCellExchangerEuler, Test2D) {
 
 
     for(int side= 0; side < 6; ++side) {
+      if (side == 0 && numberOfProcessors == 1) { 
+	ASSERT_EQ(boundary::PERIODIC, newGrid->getBoundaryCondition(side));
+      } else if (side == 1 && numberOfProcessors == 1) { 
+	ASSERT_EQ(boundary::PERIODIC, newGrid->getBoundaryCondition(side));
+      } else if (side > 1 && side < 4 && numberOfProcessors < 4) {
+	ASSERT_EQ(boundary::PERIODIC, newGrid->getBoundaryCondition(side));
+      } else {
         ASSERT_EQ(boundary::MPI_BC, newGrid->getBoundaryCondition(side));
+      }
     }
 
 
@@ -232,7 +255,7 @@ TEST(CartesianCellExchangerEuler, Test2D) {
     const real magicValue = N*N*42*numberOfProcessors+rank;
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
         for(int i = 0; i < M*M; ++i) {
-            (*volume->getScalarMemoryArea(var))[i] = magicValue;
+            (*cpuVolume->getScalarMemoryArea(var))[i] = magicValue;
         }
     }
 
@@ -272,7 +295,7 @@ TEST(CartesianCellExchangerEuler, Test2D) {
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = ghostCells; i < N + ghostCells; ++i) {
             for (int j = ghostCells; j < N + ghostCells; ++j) {
-                (*volume->getScalarMemoryArea(var))[j*M+i] = computeValue(i,j, rank,var);
+                (*cpuVolume->getScalarMemoryArea(var))[j*M+i] = computeValue(i,j, rank,var);
             }
         }
     }
@@ -282,7 +305,7 @@ TEST(CartesianCellExchangerEuler, Test2D) {
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = ghostCells; i < N + ghostCells; ++i) {
             for (int j = ghostCells; j < N + ghostCells; ++j) {
-                auto value = (*volume->getScalarMemoryArea(var))[j*M+i];
+                auto value = (*cpuVolume->getScalarMemoryArea(var))[j*M+i];
                 ASSERT_EQ(computeValue(i,j, rank, var), value);
             }
         }
@@ -295,15 +318,13 @@ TEST(CartesianCellExchangerEuler, Test2D) {
     ASSERT_EQ(42*(numberOfProcessors-1), maxWaveSpeed);
 
 
-    auto neighbours = alsfvm::dynamic_pointer_cast<mpi::CartesianCellExchanger>(information->getCellExchanger())->getNeighbours();
+    auto neighbours = information->getCellExchanger()->getNeighbours();
 
-    for (int i = 0; i < 6; ++i) {
-        ASSERT_LE(0, neighbours[i]);
-        ASSERT_LT(neighbours[i], numberOfProcessors);
-    }
+ 
     int xRank = xComponent(rank);
     int yRank = yComponent(rank);
-    ASSERT_EQ(rankIndex(xRank-1, yRank), neighbours[0])
+    if (nx > 1) {
+      ASSERT_EQ(rankIndex(xRank-1, yRank), neighbours[0])
             << "Failed with"
             << "\n\trank              = " << rank
             << "\n\tnx                = " << nx
@@ -311,9 +332,8 @@ TEST(CartesianCellExchangerEuler, Test2D) {
             << "\n\txRank             = " << xRank
             << "\n\tyRank             = " << yRank
             << "\n\tumberOfProcessors = " << numberOfProcessors;
-
-
-    ASSERT_EQ(rankIndex(xRank+1, yRank), neighbours[1])
+    } else {
+      ASSERT_EQ(-1, neighbours[0])
             << "Failed with"
             << "\n\trank              = " << rank
             << "\n\tnx                = " << nx
@@ -321,10 +341,30 @@ TEST(CartesianCellExchangerEuler, Test2D) {
             << "\n\txRank             = " << xRank
             << "\n\tyRank             = " << yRank
             << "\n\tumberOfProcessors = " << numberOfProcessors;
+    }
+
+    if (nx > 1) {
+      ASSERT_EQ(rankIndex(xRank+1, yRank), neighbours[1])
+            << "Failed with"
+            << "\n\trank              = " << rank
+            << "\n\tnx                = " << nx
+            << "\n\tny                = " << ny
+            << "\n\txRank             = " << xRank
+            << "\n\tyRank             = " << yRank
+            << "\n\tumberOfProcessors = " << numberOfProcessors;
+    } else {
+      ASSERT_EQ(-1, neighbours[1])
+            << "Failed with"
+            << "\n\trank              = " << rank
+            << "\n\tnx                = " << nx
+            << "\n\tny                = " << ny
+            << "\n\txRank             = " << xRank
+            << "\n\tyRank             = " << yRank
+            << "\n\tumberOfProcessors = " << numberOfProcessors;
+    }
 
 
-
-
+    if (ny > 1) {
    ASSERT_EQ(rankIndex(xRank, yRank - 1), neighbours[2])
            << "Failed with"
            << "\n\trank              = " << rank
@@ -345,11 +385,31 @@ TEST(CartesianCellExchangerEuler, Test2D) {
             << "\n\tyRank             = " << yRank
             << "\n\tumberOfProcessors = " << numberOfProcessors;
 
+    } else {
+   ASSERT_EQ(-1, neighbours[2])
+           << "Failed with"
+           << "\n\trank              = " << rank
+           << "\n\tnx                = " << nx
+           << "\n\tny                = " << ny
+           << "\n\txRank             = " << xRank
+           << "\n\tyRank             = " << yRank
+           << "\n\tumberOfProcessors = " << numberOfProcessors;
 
+
+
+    ASSERT_EQ(-1, neighbours[3])
+            << "Failed with"
+            << "\n\trank              = " << rank
+            << "\n\tnx                = " << nx
+            << "\n\tny                = " << ny
+            << "\n\txRank             = " << xRank
+            << "\n\tyRank             = " << yRank
+            << "\n\tumberOfProcessors = " << numberOfProcessors;
+    }
     //ASSERT_EQ((((rank%nx)+1)%nx) + (rank/nx)*nx, neighbours[0]);
-
+    cpuVolume->copyTo(*volume);
     information->getCellExchanger()->exchangeCells(*volume, *volume).waitForAll();
-
+    volume->copyTo(*cpuVolume);
 
     if(numberOfProcessors==1) {
         return;
@@ -379,14 +439,17 @@ TEST(CartesianCellExchangerEuler, Test2D) {
 
     for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
 
+      
         // left side
         for (int i = 0; i < ghostCells; ++i) {
             for (int j = ghostCells; j < N + ghostCells; ++j) {
                 int index = i + j*M;
-                auto value = (*volume->getScalarMemoryArea(var))[index];
+                auto value = (*cpuVolume->getScalarMemoryArea(var))[index];
 
                 int expectedValue = computeValue((i+N),j,rankIndex(xRank - 1, yRank), var);
-
+		if (nx == 1) {
+		  expectedValue = magicValue;
+		}
 
                 ASSERT_EQ(expectedValue, value)
                         << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
@@ -397,10 +460,12 @@ TEST(CartesianCellExchangerEuler, Test2D) {
         for (int i = N+ghostCells; i < M; ++i) {
             for (int j = ghostCells; j < N + ghostCells; ++j) {
                 int index = i + j*M;
-                auto value = (*volume->getScalarMemoryArea(var))[index];
+                auto value = (*cpuVolume->getScalarMemoryArea(var))[index];
 
                 int expectedValue = computeValue((i-N),j,rankIndex(xRank + 1, yRank), var);
-
+		if (nx == 1) {
+		  expectedValue = magicValue;
+		}
                 ASSERT_EQ(expectedValue, value)
                         << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
             }
@@ -411,10 +476,12 @@ TEST(CartesianCellExchangerEuler, Test2D) {
         for (int i = ghostCells; i < N+ghostCells; ++i) {
             for (int j = 0; j < ghostCells; ++j) {
                 int index = i + j*M;
-                auto value = (*volume->getScalarMemoryArea(var))[index];
+                auto value = (*cpuVolume->getScalarMemoryArea(var))[index];
 
                 int expectedValue = computeValue(i, j+N,rankIndex(xRank, yRank-1), var);
-
+		if (ny == 1) {
+		  expectedValue = magicValue;
+		}
                 ASSERT_EQ(expectedValue, value)
                         << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
             }
@@ -424,13 +491,35 @@ TEST(CartesianCellExchangerEuler, Test2D) {
         for (int i = ghostCells; i < N+ghostCells; ++i) {
             for (int j = N+ghostCells; j < M; ++j) {
                 int index = i + j*M;
-                auto value = (*volume->getScalarMemoryArea(var))[index];
+                auto value = (*cpuVolume->getScalarMemoryArea(var))[index];
 
                 int expectedValue = computeValue(i, j-N,rankIndex(xRank, yRank+1), var);
-
+		if (ny == 1) {
+		  expectedValue = magicValue;
+		}
                 ASSERT_EQ(expectedValue, value)
                         << "Failed at left ghost index " << i << " and j = " << j << "  on processor " << rank;
             }
         }
     }
+    // inner
+    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+        for (int i = ghostCells; i < N + ghostCells; ++i) {
+            for (int j = ghostCells; j < N + ghostCells; ++j) {
+
+                auto value = (*cpuVolume->getScalarMemoryArea(var))[j*M+i];
+                ASSERT_EQ(computeValue(i,j, rank, var), value);
+            }
+        }
+    }
 }
+
+
+
+INSTANTIATE_TEST_CASE_P(CartesianCellExchangerEuler,
+                        CartesianCellExchangerEulerTest,
+                        ::testing::Values("cpu"
+
+                                          , "cuda"
+
+                                          ));

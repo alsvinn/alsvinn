@@ -191,5 +191,6 @@ namespace alsfvm {
 		private:
 			T* memoryPointer;
 		};
+
 	}
 }

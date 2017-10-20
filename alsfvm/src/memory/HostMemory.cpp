@@ -3,6 +3,8 @@
 #include <cassert>
 #include <algorithm>
 #include "alsutils/error/Exception.hpp"
+#include "alsutils/log.hpp"
+
 #define CHECK_SIZE_AND_HOST(x) { \
     if (!x.isOnHost()) {\
         THROW(#x << " is not on host."); \

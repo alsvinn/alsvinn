@@ -6,11 +6,13 @@ namespace alsuq { namespace run {
 
 Runner::Runner(std::shared_ptr<SimulatorCreator> simulatorCreator,
                std::shared_ptr<samples::SampleGenerator> sampleGenerator,
-               std::vector<size_t> sampleNumbers)
+               std::vector<size_t> sampleNumbers,
+               alsutils::mpi::ConfigurationPtr mpiConfig)
     : simulatorCreator(simulatorCreator),
       sampleGenerator(sampleGenerator),
       parameterNames(sampleGenerator->getParameterList()),
-      sampleNumbers(sampleNumbers)
+      sampleNumbers(sampleNumbers),
+      mpiConfig(mpiConfig)
 
 {
 
@@ -50,7 +52,7 @@ void Runner::run()
     for(auto& statisticsWriter : statistics) {
         statisticsWriter->combineStatistics();
 
-        if (mpiConfig.getRank() == 0) {
+        if (mpiConfig->getRank() == 0) {
             statisticsWriter->finalize();
             statisticsWriter->writeStatistics(*grid);
         }

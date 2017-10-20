@@ -2,7 +2,7 @@
 #include "alsutils/error/Exception.hpp"
 #include <iostream>
 #include "alsutils/log.hpp"
-
+#include <fstream>
 #include <boost/chrono.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 namespace alsfvm { namespace simulator {
@@ -141,26 +141,10 @@ void Simulator::setInitialValue(alsfvm::shared_ptr<init::InitialData> &initialDa
 
     boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
 
-#if 0 // debug output.. can be removed.
-    for (int k = 0; k < conservedVolumes[0]->getTotalNumberOfZCells(); ++k) {
-        for (int j = 0; j < conservedVolumes[0]->getTotalNumberOfYCells(); ++j) {
-            for (int i = 0; i < conservedVolumes[0]->getTotalNumberOfXCells(); ++i) {
-                int nxx = conservedVolumes[0]->getTotalNumberOfXCells();
-                int nzz = conservedVolumes[0]->getTotalNumberOfZCells();
-                int nyy = conservedVolumes[0]->getTotalNumberOfYCells();
 
 
-                int index = k*nyy*nxx+j*nxx+i;
 
-                std::cout << conservedVolumes[0]->getScalarMemoryArea("mx")->getPointer()[index] << " ";
 
-            }
-            std::cout << "\n";
-        }
-        std::cout << "\n";
-        std::cout << "\n";
-    }
-#endif
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
 }
 
@@ -199,7 +183,7 @@ void Simulator::incrementSolution()
 {
 	real dt = 0;
     for (size_t substep = 0; substep < integrator->getNumberOfSubsteps(); ++substep) {
-        doCellExchange(*conservedVolumes[substep]);
+
         auto& conservedNext = conservedVolumes[substep + 1];
         dt = integrator->performSubstep(conservedVolumes,
                                         grid->getCellLengths(),
@@ -221,18 +205,13 @@ void Simulator::incrementSolution()
 
 void Simulator::doCellExchange(volume::Volume& volume)
 {
-
-#ifdef ALSVINN_USE_MPI
-    if (cellExchanger) {
-        cellExchanger->exchangeCells(volume, volume).waitForAll();
-    }
-#endif
 }
 
 #ifdef ALSVINN_USE_MPI
 void Simulator::setCellExchanger(mpi::CellExchangerPtr value)
 {
     cellExchanger = value;
+    system->setCellExchanger(value);
     integrator->addWaveSpeedAdjuster(alsfvm::dynamic_pointer_cast<integrator::WaveSpeedAdjuster>(cellExchanger));
 }
 #endif

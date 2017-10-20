@@ -9,7 +9,8 @@ namespace alsuq { namespace run {
     public:
         Runner(std::shared_ptr<SimulatorCreator> simulatorCreator,
                std::shared_ptr<samples::SampleGenerator> sampleGenerator,
-               std::vector<size_t> sampleNumbers);
+               std::vector<size_t> sampleNumbers,
+               mpi::ConfigurationPtr mpiConfig);
 
 
 
@@ -26,7 +27,7 @@ namespace alsuq { namespace run {
         std::vector<size_t> sampleNumbers;
         std::vector<std::shared_ptr<stats::Statistics> > statistics;
 
-        mpi::Config mpiConfig;
+        mpi::ConfigurationPtr mpiConfig;
     };
 } // namespace run
 } // namespace alsuq

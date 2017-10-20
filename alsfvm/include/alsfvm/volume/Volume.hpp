@@ -12,7 +12,7 @@ namespace alsfvm {
         /// with values for each cell (eg. pressure, density, etc)
         ///
         ///
-		class Volume
+        class Volume : public std::enable_shared_from_this<Volume>
 		{
 		public:
             ///
@@ -268,6 +268,9 @@ namespace alsfvm {
             //! but with the newly given sizes.
             std::shared_ptr<volume::Volume> makeInstance(size_t nx, size_t ny, size_t nz, const std::string& platform = "default") const;
 
+            //! If the volume is on the CPU, returns a pointer to the current volume,
+            //! otherwise, make a new cpu copy, copy data from gpu, and then return
+            std::shared_ptr<volume::Volume> getCopyOnCPU();
 
         private:
             const std::vector<std::string> variableNames;

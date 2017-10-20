@@ -41,7 +41,8 @@ public:
     ///
     virtual void computeFlux(const volume::Volume& conservedVariables,
                              rvec3& waveSpeed, bool computeWaveSpeed,
-                             volume::Volume& output
+                             volume::Volume& output, const ivec3& start = {0,0,0},
+                             const ivec3& end = {0,0,0}
                              );
 
 

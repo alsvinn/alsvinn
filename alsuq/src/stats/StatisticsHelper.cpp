@@ -6,7 +6,8 @@
 namespace alsuq { namespace stats { 
 StatisticsHelper::StatisticsHelper(const StatisticsParameters &parameters)
 
-    : samples(parameters.getNumberOfSamples())
+    : samples(parameters.getNumberOfSamples()),
+      mpiConfig(parameters.getMpiConfiguration())
 {
 
 }
@@ -46,9 +47,9 @@ void StatisticsHelper::combineStatistics()
                     //}
                     MPI_SAFE_CALL(MPI_Reduce(statisticsDataToReduce->data(), dataReduced->data(),
                                              statisticsDataToReduce->getSize(), MPI_DOUBLE, MPI_SUM, 0,
-                                             mpiConfig.getCommunicator()));
+                                             mpiConfig->getCommunicator()));
 
-                    if (mpiConfig.getRank() == 0) {
+                    if (mpiConfig->getRank() == 0) {
                         statisticsData->copyFrom(*dataReduced);
                     }
 

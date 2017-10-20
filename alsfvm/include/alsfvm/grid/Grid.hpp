@@ -180,7 +180,13 @@ namespace alsfvm {
             //!
             boundary::Type getBoundaryCondition(int side) const;
 
+            //! Gets the global position index of the grid,
+            //! that is, the grid is contained in a virtual larger grid.
+            //! This is used for MPI parallelization to know which part of the
+            //! grid we are working on
             ivec3 getGlobalPosition() const;
+
+            //! Get the total size (in number of cells) of the larger grid.
             ivec3 getGlobalSize() const;
 		private:
 			rvec3 origin;

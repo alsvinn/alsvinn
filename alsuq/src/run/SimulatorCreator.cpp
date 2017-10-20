@@ -1,32 +1,41 @@
 #include "alsuq/run/SimulatorCreator.hpp"
 #include "alsfvm/config/SimulatorSetup.hpp"
 #include "alsuq/io/MPIWriterFactory.hpp"
-#include "alsuq/mpi/Config.hpp"
+#include "alsuq/mpi/Configuration.hpp"
 #include "alsuq/mpi/utils.hpp"
 
 namespace alsuq { namespace run {
 
 SimulatorCreator::SimulatorCreator(const std::string &configurationFile,
-                                   const std::vector<size_t>& samples,
-                                   mpi::Config& mpiConfig)
-    : mpiConfig(mpiConfig), filename(configurationFile),
-      mpiCommunicator(mpiConfig.getCommunicator()),
-      mpiInfo(mpiConfig.getInfo())
+                                   mpi::ConfigurationPtr mpiConfigurationSpatial,
+                                   mpi::ConfigurationPtr mpiConfigurationStatistical,
+                                   alsutils::mpi::ConfigurationPtr mpiConfigurationWorld,
+                                   ivec3 multiSpatial)
+    : mpiConfigurationSpatial(mpiConfigurationSpatial),
+      mpiConfigurationStatistical(mpiConfigurationStatistical),
+      mpiConfigurationWorld(mpiConfigurationWorld),
+      filename(configurationFile),
+      multiSpatial(multiSpatial)
 {
 
 }
 
 alsfvm::shared_ptr<alsfvm::simulator::Simulator>
 SimulatorCreator::createSimulator(const alsfvm::init::Parameters &initialDataParameters,
-                                                                                   size_t sampleNumber)
+                                  size_t sampleNumber)
 {
 
     auto groupNames = makeGroupNames(sampleNumber);
     std::shared_ptr<alsfvm::io::WriterFactory> writerFactory(
-                new io::MPIWriterFactory(groupNames, mpiConfig.getRank(), firstCall, mpiCommunicator, mpiInfo));
+                new io::MPIWriterFactory(groupNames, mpiConfigurationStatistical->getRank(),
+                                         firstCall, mpiConfigurationWorld->getCommunicator(),
+                                         mpiConfigurationWorld->getInfo()));
 
     firstCall = false;
     alsfvm::config::SimulatorSetup simulatorSetup;
+
+    simulatorSetup.enableMPI(mpiConfigurationSpatial, multiSpatial.x, multiSpatial.y,
+                             multiSpatial.z);
     simulatorSetup.setWriterFactory(writerFactory);
     auto simulatorPair = simulatorSetup.readSetupFromFile(filename);
 
@@ -41,10 +50,10 @@ SimulatorCreator::createSimulator(const alsfvm::init::Parameters &initialDataPar
 
 std::vector<std::string> SimulatorCreator::makeGroupNames(size_t sampleNumber)
 {
-    std::vector<size_t> samples(mpiConfig.getNumberOfProcesses());
+    std::vector<size_t> samples(mpiConfigurationStatistical->getNumberOfProcesses());
 
     MPI_SAFE_CALL(MPI_Allgather((void*)&sampleNumber, 1, MPI_LONG_LONG_INT, (void*) samples.data(), 1,
-                                MPI_LONG_LONG_INT, mpiCommunicator));
+                                MPI_LONG_LONG_INT, mpiConfigurationStatistical->getCommunicator()));
 
     std::vector<std::string> groupNames;
     groupNames.reserve(samples.size());

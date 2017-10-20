@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include <fstream>
+#include "alsutils/log.hpp"
 
 namespace alsfvm { namespace reconstruction {
 
@@ -26,13 +27,13 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 	size_t direction,
 	size_t indicatorVariable,
 	volume::Volume &leftOut,
-	volume::Volume &rightOut)
+	volume::Volume &rightOut, const ivec3 &start, const ivec3 &end)
 {
 	// We often do compute order-1.
 	static_assert(order > 0, "Can not do ENO reconstruction of order 0.");
-    const size_t nx = inputVariables.getTotalNumberOfXCells();
-    const size_t ny = inputVariables.getTotalNumberOfYCells();
-    const size_t nz = inputVariables.getTotalNumberOfZCells();
+    const int nx = inputVariables.getTotalNumberOfXCells();
+    const int ny = inputVariables.getTotalNumberOfYCells();
+    const int nz = inputVariables.getTotalNumberOfZCells();
 
 	if (direction > 2) {
 		THROW("Direction can only be 0, 1 or 2, was given: " << direction);
@@ -48,11 +49,15 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 	computeDividedDifferences(*inputVariables.getScalarMemoryArea(indicatorVariable),
 		directionVector,
 		1,
-		*dividedDifferences[0]);
+        *dividedDifferences[0],
+            start,
+            end);
 
 	for (size_t i = 1; i < order - 1; i++) {
 		computeDividedDifferences(*dividedDifferences[i - 1],
-			directionVector, i + 1, *dividedDifferences[i]);
+            directionVector, i + 1, *dividedDifferences[i],
+                start,
+                end);
 	}
 
 	// done computing divided differences
@@ -66,29 +71,36 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &inputVariables,
 	assert((directionVector.y == 0u) || (int(ny) > 2 * directionVector.y * order));
 	assert((directionVector.z == 0u) || (int(nz) > 2 * directionVector.z * order));
 
-	const size_t startX = directionVector.x * (order - 1);
-	const size_t startY = directionVector.y * (order - 1);
-	const size_t startZ = directionVector.z * (order - 1);
+    const int startX =           (order - directionVector.x * 1) + start.x;
+    const int startY =  (ny>1) * (order - directionVector.y * 1) + start.y;
+    const int startZ =  (nz>1) * (order - directionVector.z * 1) + start.z;
 
-	const size_t endX = nx - directionVector.x * (order - 1);
-	const size_t endY = ny - directionVector.y * (order - 1);
-	const size_t endZ = nz - directionVector.z * (order - 1);
+    const int endX = nx -          (order - directionVector.x) + end.x;
+    const int endY = ny - (ny>1) * (order - directionVector.y) + end.y;
+    const int endZ = nz - (nz>1) * (order - directionVector.z) + end.z;
 
 	std::array<real*, order - 1> dividedDifferencesPointers;
 
 	for (size_t i = 0; i < order - 1; i++) {
 		dividedDifferencesPointers[i] = dividedDifferences[i]->getPointer();
 	}
-
+#if 0
+    static std::array<int,3> first;
+        if (first[direction]<8) {
+          ALSVINN_LOG(INFO, "new " << direction << " start = (" << startX << ", " << startY << ", " << startZ << ")");
+          ALSVINN_LOG(INFO, "new " << direction << "end   = (" << endX << ", " << endY << ", " << endZ << ")");
+        }
+        first[direction]++;
+#endif
 
 	for (size_t var = 0; var < inputVariables.getNumberOfVariables(); var++) {
 		const real* pointerIn = inputVariables.getScalarMemoryArea(var)->getPointer();
 		real* pointerOutLeft = leftOut.getScalarMemoryArea(var)->getPointer();
 		real* pointerOutRight = rightOut.getScalarMemoryArea(var)->getPointer();
 
-		for (size_t z = startZ; z < endZ; z++) {
+        for (int z = startZ; z < endZ; z++) {
 #pragma omp parallel for
-			for (size_t y = startY; y < endY; y++) {
+            for (int y = startY; y < endY; y++) {
 #pragma omp simd
                 for (int x = startX; x < int(endX); x++) {
 
@@ -169,13 +181,15 @@ template<int order>
 void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& input,
                                               const ivec3& direction,
                                               size_t level,
-                                              memory::Memory<real>& output)
+                                              memory::Memory<real>& output,
+                                              const ivec3& start,
+                                              const ivec3& end)
 {
 
 
-    const size_t nx = input.getSizeX();
-    const size_t ny = input.getSizeY();
-    const size_t nz = input.getSizeZ();
+    const int nx = input.getSizeX();
+    const int ny = input.getSizeY();
+    const int nz = input.getSizeZ();
 
 
     // Sanity check, we need at least ONE point in the interior.
@@ -183,21 +197,29 @@ void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& input,
     assert(ny > 2*direction.y * level);
     assert(nz > 2*direction.z * level);
 
-    const size_t startX = direction.x * level;
-    const size_t startY = direction.y * level;
-    const size_t startZ = direction.z * level;
+    const int startX =        (direction.x == 0) * order + direction.x * level + start.x;
+    const int startY = (ny>1)*(direction.y == 0) * order + direction.y * level + start.y;
+    const int startZ = (nz>1)*(direction.z == 0) * order + direction.z * level + start.z;
 
-    const size_t endX = nx - direction.x * level;
-    const size_t endY = ny - direction.y * level;
-    const size_t endZ = nz - direction.z * level;
+    const int endX = nx -        ((direction.x == 0) * (order - 1) + direction.x * (level-1)) + end.x;
+    const int endY = ny - ((ny>1)*(direction.y == 0) * (order - 1) + direction.y * (level-1)) + end.y;
+    const int endZ = nz - ((nz>1)*(direction.z == 0) * (order - 1) + direction.z * (level-1)) + end.z;
 
+#if 0
+    static std::array<int,order*3> first;
+       if (first[(direction[1])*order + level]<8) {
+           ALSVINN_LOG(INFO, "level = " << level << " direction = " << direction << " start = (" << startX << ", " << startY << ", " << startZ << ")");
+           ALSVINN_LOG(INFO, "level = " << level << " direction = " << direction << " end   = (" << endX << ", " << endY << ", " << endZ << ")");
+       }
+       first[(direction[1])*order + level]++;
+#endif
     const real* pointerIn = input.getPointer();
 
     real* pointerOut = output.getPointer();
-	
-    for (size_t z = startZ; z < endZ; z++) {
-        for(size_t y = startY; y < endY; y++) {
-            for(size_t x = startX; x < endX; x++) {
+
+    for (int z = startZ; z < endZ; z++) {
+        for(int y = startY; y < endY; y++) {
+            for(int x = startX; x < endX; x++) {
                 const size_t indexRight = z*nx*ny + y * nx + x;
                 const size_t indexLeft = (z - direction.z) * nx * ny
                         + (y - direction.y) * nx

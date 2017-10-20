@@ -37,8 +37,10 @@ TEST(WenoTest, ConstantZeroTestSecondOrder) {
     
 
     wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
-
-    for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
+    const int ngx =  wenoCPU->getNumberOfGhostCells();
+    const int ngy =  wenoCPU->getNumberOfGhostCells();
+    const int ngz = 0;
+    for_each_cell_index(*left,  [&](size_t middle ) {
         ASSERT_EQ(0, left->getScalarMemoryArea(0)->getPointer()[middle]);
         ASSERT_EQ(0, left->getScalarMemoryArea(1)->getPointer()[middle]);
         ASSERT_EQ(0, left->getScalarMemoryArea(2)->getPointer()[middle]);
@@ -50,7 +52,7 @@ TEST(WenoTest, ConstantZeroTestSecondOrder) {
         ASSERT_EQ(0, right->getScalarMemoryArea(2)->getPointer()[middle]);
         ASSERT_EQ(0, right->getScalarMemoryArea(3)->getPointer()[middle]);
         ASSERT_EQ(0, right->getScalarMemoryArea(4)->getPointer()[middle]);
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 TEST(WenoTest, ConstantZeroTestThirdOrder) {
@@ -75,8 +77,10 @@ TEST(WenoTest, ConstantZeroTestThirdOrder) {
 
 
     wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
-
-    for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
+    const int ngx =  wenoCPU->getNumberOfGhostCells();
+    const int ngy =  wenoCPU->getNumberOfGhostCells();
+    const int ngz = 0;
+    for_each_cell_index(*left,[&](size_t middle ) {
         ASSERT_EQ(0, left->getScalarMemoryArea(0)->getPointer()[middle]);
         ASSERT_EQ(0, left->getScalarMemoryArea(1)->getPointer()[middle]);
         ASSERT_EQ(0, left->getScalarMemoryArea(2)->getPointer()[middle]);
@@ -88,7 +92,7 @@ TEST(WenoTest, ConstantZeroTestThirdOrder) {
         ASSERT_EQ(0, right->getScalarMemoryArea(2)->getPointer()[middle]);
         ASSERT_EQ(0, right->getScalarMemoryArea(3)->getPointer()[middle]);
         ASSERT_EQ(0, right->getScalarMemoryArea(4)->getPointer()[middle]);
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 TEST(WenoTest, ConstantOneTestSecondOrder) {
@@ -120,8 +124,10 @@ TEST(WenoTest, ConstantOneTestSecondOrder) {
   
 
     wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
-
-    for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
+    const int ngx =  wenoCPU->getNumberOfGhostCells();
+    const int ngy =  wenoCPU->getNumberOfGhostCells();
+    const int ngz = 0;
+    for_each_cell_index(*left, [&](size_t middle ) {
         ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(1, left->getScalarMemoryArea(1)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(1, left->getScalarMemoryArea(2)->getPointer()[middle] , 1e-8);
@@ -133,7 +139,7 @@ TEST(WenoTest, ConstantOneTestSecondOrder) {
         ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(10, right->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 TEST(WenoTest, ConstantOneTestThirdOrder) {
@@ -165,8 +171,10 @@ TEST(WenoTest, ConstantOneTestThirdOrder) {
 
 
     wenoCPU->performReconstruction(*conserved, 0, 0, *left, *right);
-
-    for_each_internal_volume_index(*left, 0, [&](size_t , size_t middle, size_t ) {
+    const int ngx =  wenoCPU->getNumberOfGhostCells();
+    const int ngy =  wenoCPU->getNumberOfGhostCells();
+    const int ngz = 0;
+    for_each_cell_index(*left, [&](size_t middle ) {
         ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(1, left->getScalarMemoryArea(1)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(1, left->getScalarMemoryArea(2)->getPointer()[middle] , 1e-8);
@@ -178,7 +186,7 @@ TEST(WenoTest, ConstantOneTestThirdOrder) {
         ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(10, right->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
-    });
+    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
 }
 
 TEST(WenoTest, ReconstructionSimple) {
