@@ -53,12 +53,19 @@ You make a deterministic run by running the ```alsvinncli``` utility. From the b
 
 You make a UQ run by running the ```alsuqcli``` utility. From the build folder, run
 
-    ./alsvinncli/alsuqcli <path to xml file>
+    ./alsuqcli/alsuqcli <path to xml file>
  
  it has some options for mpi parallelization (for all options run ```alsuqcli/alsuqcli --help```). To run with MPI support, run eg
  
-     mpirun -np <number of processes> ./alsvinncli/alsvinncli --multi-sample <number of procs in sample direction> path-to-xml.xml
+     mpirun -np <number of processes> ./alsuqcli/alsuqcli --multi-sample <number of procs in sample direction> path-to-xml.xml
 
+## Output files
+
+Most output is saved as a NetCDF file. These can easily be read in programming languages such as python.
+
+## Python scripts
+
+There is a simple python API for running alsvinn under the ```python``` folder. Check out the readme file there for more information.
 
 ## Notes on Windows
 
