@@ -25,7 +25,7 @@ note that you should probably run it with ```-DCMAKE_BUILD_TYPE=Release```, ie
 
     mkdir build
     cd build
-    cmake .. -DCMAKE_BUILD_TYPE
+    cmake .. -DCMAKE_BUILD_TYPE=Release
     
     
 ## Running tests
