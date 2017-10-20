@@ -7,9 +7,65 @@ Alsvinn is a toolset consisting of a finite volume simulator (alsfvm) and module
 
   * C++11 compiler (tested with clang, gcc and MSVC-12.0)
   * gtest (optional)
-  * hdf5
+  * boost (including boost-numpy)
+  * python 
+  * hdf5, netcdf, parallel-netcdf
   * doxygen (optional)
   * cuda (optional)
+ 
+## Compiling
+
+Should be as easy as running (for advanced cmake-users: the location of the build folder can be arbitrary)
+
+    mkdir build
+    cd build
+    cmake ..
+
+note that you should probably run it with ```-DCMAKE_BUILD_TYPE=Release```, ie
+
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    
+    
+## Running tests
+
+Before you try to run the simulations, it's probably a good idea to validate that the build was successful by running the unittests. From the build folder, run
+
+    ./test/alstest
+    bash run_mpi_tests.sh
+
+## Running alsvinn
+
+The basic input of alsvinn are ```.xml```-files specifying the different options. You can view the different examples under ```alsvinncli/examples```. The initial data is usually specified in a ```.py```-file (named in the xml file).
+
+### Deterministic runs
+
+You make a deterministic run by running the ```alsvinncli``` utility. From the build folder, run
+
+    ./alsvinncli/alsvinncli <path to xml file>
+ 
+ it has some options for mpi parallelization (for all options run ```alsvinncli/alsvinncli --help```). To run with MPI support, run eg
+ 
+     mpirun -np <number of processes> ./alsvinncli/alsvinncli --multi-x <number of procs in x direction> path-to-xml.xml
+
+### UQ run
+
+You make a UQ run by running the ```alsuqcli``` utility. From the build folder, run
+
+    ./alsuqcli/alsuqcli <path to xml file>
+ 
+ it has some options for mpi parallelization (for all options run ```alsuqcli/alsuqcli --help```). To run with MPI support, run eg
+ 
+     mpirun -np <number of processes> ./alsuqcli/alsuqcli --multi-sample <number of procs in sample direction> path-to-xml.xml
+
+## Output files
+
+Most output is saved as a NetCDF file. These can easily be read in programming languages such as python.
+
+## Python scripts
+
+There is a simple python API for running alsvinn under the ```python``` folder. Check out the readme file there for more information.
 
 ## Notes on Windows
 
