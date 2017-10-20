@@ -1,6 +1,5 @@
-[Alsvinn](documentation/images/kh.png "Kelvin-Helmholtz simulation")
-Alsvinn - The fast Finite Volume Simulator with support for Uncertainty Quantifications
-------------------------
+![Alsvinn](https://github.com/kjetil-lye/alsvinn/raw/master/documentation/images/kh.png "Kelvin-Helmholtz simulation")
+# Alsvinn - The fast Finite Volume Simulator with support for Uncertainty Quantifications
 
 Alsvinn is a toolset consisting of a finite volume simulator (alsfvm) and modules in python for uncertainity quantification (UQ).
 
