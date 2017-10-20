@@ -1,3 +1,4 @@
+[Alsvinn](documentation/images/kh.png "Kelvin-Helmholtz simulation")
 Alsvinn - The fast Finite Volume Simulator with support for Uncertainty Quantifications
 ------------------------
 
