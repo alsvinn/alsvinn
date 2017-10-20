@@ -3,26 +3,37 @@
 
 namespace alsuq { namespace mpi {
 
-SimpleLoadBalancer::SimpleLoadBalancer(const std::vector<size_t> samples)
+SimpleLoadBalancer::SimpleLoadBalancer(const std::vector<size_t>& samples)
     : samples(samples)
 {
 
 }
 
-std::vector<size_t> SimpleLoadBalancer::getSamples(const Config &mpiConfig)
+std::tuple<std::vector<size_t>,
+    ConfigurationPtr, ConfigurationPtr> SimpleLoadBalancer::loadBalance(int multiSample, ivec3 multiSpatial, const Configuration &mpiConfig)
 {
-
+    // Before going through this method, read a basic tutorial on mpi communicators,
+    // eg http://mpitutorial.com/tutorials/introduction-to-groups-and-communicators/
     size_t totalNumberOfSamples = samples.size();
 
-    size_t numberOfProcesses = mpiConfig.getNumberOfProcesses();
+    size_t totalNumberOfProcesses = mpiConfig.getNumberOfProcesses();
 
-    if (totalNumberOfSamples % numberOfProcesses != 0) {
+    if (multiSample * multiSpatial.x * multiSpatial.y  * multiSpatial.z != totalNumberOfProcesses) {
+        THROW("The number of processors given (" << totalNumberOfProcesses
+              << ") does not match the distribution of the samples / spatial dimensions. We were given:\n"
+              << "\tmultiSample: " << multiSample << "\n"
+              << "\tmultiSpatial: " << multiSpatial<<"\n\n"
+              << "We require that\n"
+                 "\tmultiSample * multiSpatial.x * multiSpatial.y  * multiSpatial.z == totalNumberOfProcesses");
+    }
+
+    if (totalNumberOfSamples % multiSample != 0) {
         THROW("The number of processors must be a divisor of the numberOfSamples.\n"
               << "ie. totalNumberOfSamples = N * numberOfProcesses     for some integer N"
               << "\n\n"
               << "We were given:"
               << "\n\ttotalNumberOfSamples = " << totalNumberOfSamples
-              << "\n\tnumberOfProcesses = " << numberOfProcesses
+              << "\n\tmultiSample = " << multiSample
               <<"\n\nThis can be changed in the config file by editing"
               <<"\n\t<samples>NUMBER OF SAMPLES</samples>"
               <<"\n\n"
@@ -32,14 +43,23 @@ std::vector<size_t> SimpleLoadBalancer::getSamples(const Config &mpiConfig)
               << "\nreconfiguring the communicator when the last process runs out of samples.");
     }
 
-    size_t rank = mpiConfig.getRank();
 
+    int globalRank = mpiConfig.getRank();
+    size_t numberOfSamplesPerProcess = (totalNumberOfSamples) / multiSample;
 
-    size_t numberOfSamplesPerProcess = (totalNumberOfSamples) / numberOfProcesses;
+    int numberOfProcessorsPerSample = multiSpatial.x*multiSpatial.y*multiSpatial.z;
 
+    const int statisticalRank = globalRank / numberOfProcessorsPerSample;
+    const int spatialRank = globalRank % numberOfProcessorsPerSample;
 
+    auto statisticalConfiguration = mpiConfig.makeSubConfiguration(spatialRank, statisticalRank);
+    auto spatialConfiguration = mpiConfig.makeSubConfiguration(statisticalRank, spatialRank);
+
+    int rank = statisticalConfiguration->getRank();
     std::vector<size_t> samplesForProcess;
     samplesForProcess.reserve(numberOfSamplesPerProcess);
+
+
     for (size_t i = numberOfSamplesPerProcess*rank; i < numberOfSamplesPerProcess*(rank+1);
          ++i) {
 
@@ -47,7 +67,7 @@ std::vector<size_t> SimpleLoadBalancer::getSamples(const Config &mpiConfig)
             THROW("Something went wrong in load balancing."
                   << "\nThe parameters were\n"
                   << "\n\ttotalNumberOfSamples = " << totalNumberOfSamples
-                  << "\n\tnumberOfProcesses = " << numberOfProcesses
+                  << "\n\tnumberOfProcesses = " << totalNumberOfProcesses
                   << "\n\tnumberOfSamplesPerProcess = " << numberOfSamplesPerProcess
                   << "\n\trank = " << rank
                   << "\n\ti= " << i);
@@ -55,7 +75,7 @@ std::vector<size_t> SimpleLoadBalancer::getSamples(const Config &mpiConfig)
         samplesForProcess.push_back(samples[i]);
     }
 
-    return samplesForProcess;
+    return std::make_tuple(samplesForProcess, statisticalConfiguration, spatialConfiguration);
 }
 
 }

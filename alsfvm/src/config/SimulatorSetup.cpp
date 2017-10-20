@@ -170,8 +170,14 @@ void SimulatorSetup::setWriterFactory(std::shared_ptr<io::WriterFactory> writerF
 #ifdef ALSVINN_USE_MPI
 void SimulatorSetup::enableMPI(MPI_Comm communicator, int multiX, int multiY, int multiZ)
 {
+    this->enableMPI(alsfvm::make_shared<mpi::Configuration>(communicator),
+                    multiX, multiY, multiZ);
+}
+
+void SimulatorSetup::enableMPI(alsutils::mpi::ConfigurationPtr configuration, int multiX, int multiY, int multiZ)
+{
     useMPI = true;
-    mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(communicator);
+    this->mpiConfiguration = configuration;
     this->multiX = multiX;
     this->multiY = multiY;
     this->multiZ = multiZ;

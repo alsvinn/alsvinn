@@ -28,7 +28,9 @@ namespace alsuq { namespace config {
 // </stats>
 
 
-std::shared_ptr<run::Runner> Setup::makeRunner(const std::string &inputFilename, mpi::Config &mpiConfig)
+std::shared_ptr<run::Runner> Setup::makeRunner(const std::string &inputFilename,
+                                               alsutils::mpi::ConfigurationPtr mpiConfigurationWorld,
+                                               int multiSample, ivec3 multiSpatial)
 {
     std::ifstream stream(inputFilename);
     ptree configurationBase;
@@ -38,19 +40,32 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string &inputFilename,
     auto numberOfSamples = readNumberOfSamples(configuration);
 
     std::vector<size_t> samples;
+    samples.reserve(numberOfSamples);
     for (size_t i = 0; i < numberOfSamples; ++i) {
         samples.push_back(i);
     }
 
-    auto simulatorCreator = std::make_shared<run::SimulatorCreator>(inputFilename, samples,
-                                                                    mpiConfig);
 
     mpi::SimpleLoadBalancer loadBalancer(samples);
 
-    auto samplesForProc = loadBalancer.getSamples(mpiConfig);
+    auto loadBalanceConfiguration = loadBalancer.loadBalance(multiSample,
+                                                             multiSpatial,
+                                                             *mpiConfigurationWorld);
+    auto& samplesForProc = std::get<0>(loadBalanceConfiguration);
+    auto statisticalConfiguration = std::get<1>(loadBalanceConfiguration);
+    auto spatialConfiguration = std::get<2>(loadBalanceConfiguration);
 
-    auto runner = std::make_shared<run::Runner>(simulatorCreator, sampleGenerator, samplesForProc);
-    auto statistics  = createStatistics(configuration);
+
+    auto simulatorCreator = std::make_shared<run::SimulatorCreator>(inputFilename,
+                                                                    spatialConfiguration,
+                                                                    statisticalConfiguration,
+                                                                    mpiConfigurationWorld,
+                                                                    multiSpatial);
+
+
+    auto runner = std::make_shared<run::Runner>(simulatorCreator, sampleGenerator, samplesForProc,
+                                                statisticalConfiguration);
+    auto statistics  = createStatistics(configuration, statisticalConfiguration);
     runner->setStatistics(statistics);
     return runner;
 }
@@ -126,7 +141,8 @@ std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(Setup::ptre
 //   </writer>
 //   </stat>
 // </stats>
-std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::ptree &configuration)
+std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::ptree &configuration,
+                                                                         mpi::ConfigurationPtr statisticalConfiguration)
 {
     auto statisticsNodes = configuration.get_child("uq.stats");
     stats::StatisticsFactory statisticsFactory;
@@ -137,6 +153,7 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::
         auto name = statisticsNode.second.get<std::string>("name");
         boost::trim(name);
         stats::StatisticsParameters parameters;
+        parameters.setMpiConfiguration(statisticalConfiguration);
         parameters.setNumberOfSamples(readNumberOfSamples(configuration));
         parameters.setConfiguration(statisticsNode.second);
         auto statistics = statisticsFactory.makeStatistics(platform, name, parameters);

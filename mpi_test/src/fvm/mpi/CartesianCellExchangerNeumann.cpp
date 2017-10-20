@@ -12,9 +12,9 @@
 using namespace alsfvm;
 
 TEST(CartesianCellExchangerNeumann, Test1D) {
-    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
-    const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
-    const int rank = mpiConfiguration->getNodeNumber();
+    auto mpiConfiguration = alsfvm::make_shared<alsfvm::mpi::Configuration>(MPI_COMM_WORLD);
+    const int numberOfProcessors = mpiConfiguration->getNumberOfProcesses();
+    const int rank = mpiConfiguration->getRank();
 
 
     const int N = 16*numberOfProcessors;
@@ -38,7 +38,7 @@ TEST(CartesianCellExchangerNeumann, Test1D) {
                                               ghostCells);
 
 
-    mpi::domain::CartesianDecomposition decomposer(numberOfProcessors, 1, 1);
+    alsfvm::mpi::domain::CartesianDecomposition decomposer(numberOfProcessors, 1, 1);
 
     auto information = decomposer.decompose(mpiConfiguration, *grid);
 
@@ -98,7 +98,7 @@ TEST(CartesianCellExchangerNeumann, Test1D) {
         return;
     }
 
-    auto neighbours = alsfvm::dynamic_pointer_cast<mpi::CartesianCellExchanger>(information->getCellExchanger())->getNeighbours();
+    auto neighbours = alsfvm::dynamic_pointer_cast<alsfvm::mpi::CartesianCellExchanger>(information->getCellExchanger())->getNeighbours();
 
     for (int i = 0; i < 6; ++i) {
         if (rank == 0 && i == 0) {
@@ -195,9 +195,9 @@ TEST(CartesianCellExchangerNeumann, Test1D) {
 
 TEST(CartesianCellExchangerNeumann, Test2D) {
      MPI_Barrier(MPI_COMM_WORLD);
-    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD);
-    const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
-    const int rank = mpiConfiguration->getNodeNumber();
+    auto mpiConfiguration = alsfvm::make_shared<alsfvm::mpi::Configuration>(MPI_COMM_WORLD);
+    const int numberOfProcessors = mpiConfiguration->getNumberOfProcesses();
+    const int rank = mpiConfiguration->getRank();
 
 
     const int N = 8*numberOfProcessors;
@@ -234,7 +234,7 @@ TEST(CartesianCellExchangerNeumann, Test2D) {
                                               ghostCells);
 
 
-    mpi::domain::CartesianDecomposition decomposer(nx, ny, 1);
+    alsfvm::mpi::domain::CartesianDecomposition decomposer(nx, ny, 1);
 
     auto information = decomposer.decompose(mpiConfiguration, *grid);
 
@@ -307,7 +307,7 @@ TEST(CartesianCellExchangerNeumann, Test2D) {
     ASSERT_EQ(42*(numberOfProcessors-1), maxWaveSpeed);
 
 
-    auto neighbours = alsfvm::dynamic_pointer_cast<mpi::CartesianCellExchanger>(information->getCellExchanger())->getNeighbours();
+    auto neighbours = alsfvm::dynamic_pointer_cast<alsfvm::mpi::CartesianCellExchanger>(information->getCellExchanger())->getNeighbours();
 
     int xRank = xComponent(rank);
     int yRank = yComponent(rank);

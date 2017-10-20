@@ -192,12 +192,11 @@ add_subdirectory("alsutils")
 
 add_subdirectory("alsfvm")
 add_subdirectory("alsvinncli")
-add_subdirectory("alsmlmccli")
+
 IF(ALSVINN_USE_MPI)
     add_subdirectory("alsuq")
     add_subdirectory("alsuqcli")
 ENDIF()
-add_subdirectory("validation")
 if(ALSVINN_BUILD_TESTS)
   hunter_add_package(GTest)
   find_package(GTest REQUIRED)

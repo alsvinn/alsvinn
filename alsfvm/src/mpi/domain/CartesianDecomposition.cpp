@@ -40,7 +40,7 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
     }
 
 
-    int nodeNumber = configuration->getNodeNumber();
+    int nodeNumber = configuration->getRank();
     // Find the x,y, z position of the nodeNumber.
     ivec3 nodePosition = cartesian::getCoordinates(nodeNumber, numberOfProcessors);
 

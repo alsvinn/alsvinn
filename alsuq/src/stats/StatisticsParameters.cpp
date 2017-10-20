@@ -32,5 +32,15 @@ void StatisticsParameters::setConfiguration(const boost::property_tree::ptree &c
     this->configuration = configuration;
 }
 
+mpi::ConfigurationPtr StatisticsParameters::getMpiConfiguration() const
+{
+    return mpiConfiguration;
 }
+
+void StatisticsParameters::setMpiConfiguration(mpi::ConfigurationPtr value)
+{
+    mpiConfiguration = value;
 }
+
+}
+                }

@@ -22,9 +22,9 @@ public:
 };
 
 TEST_P(CartesianCellExchangerEulerTest, Test1D) {
-    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD, platform);
-    const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
-    const int rank = mpiConfiguration->getNodeNumber();
+    auto mpiConfiguration = alsfvm::make_shared<alsfvm::mpi::Configuration>(MPI_COMM_WORLD, platform);
+    const int numberOfProcessors = mpiConfiguration->getNumberOfProcesses();
+    const int rank = mpiConfiguration->getRank();
 
 
     const int N = 16*numberOfProcessors;
@@ -47,7 +47,7 @@ TEST_P(CartesianCellExchangerEulerTest, Test1D) {
                                               ghostCells);
 
 
-    mpi::domain::CartesianDecomposition decomposer(numberOfProcessors, 1, 1);
+    alsfvm::mpi::domain::CartesianDecomposition decomposer(numberOfProcessors, 1, 1);
 
     auto information = decomposer.decompose(mpiConfiguration, *grid);
 
@@ -189,9 +189,9 @@ TEST_P(CartesianCellExchangerEulerTest, Test1D) {
 
 TEST_P(CartesianCellExchangerEulerTest, Test2D) {
      MPI_Barrier(MPI_COMM_WORLD);
-    auto mpiConfiguration = alsfvm::make_shared<mpi::Configuration>(MPI_COMM_WORLD, platform);
-    const int numberOfProcessors = mpiConfiguration->getNumberOfNodes();
-    const int rank = mpiConfiguration->getNodeNumber();
+    auto mpiConfiguration = alsfvm::make_shared<alsfvm::mpi::Configuration>(MPI_COMM_WORLD, platform);
+    const int numberOfProcessors = mpiConfiguration->getNumberOfProcesses();
+    const int rank = mpiConfiguration->getRank();
 
 
     const int N = 8;
@@ -224,7 +224,7 @@ TEST_P(CartesianCellExchangerEulerTest, Test2D) {
                                               ghostCells);
 
     auto cpuVolume = volume->getCopyOnCPU();
-    mpi::domain::CartesianDecomposition decomposer(nx, ny, 1);
+    alsfvm::mpi::domain::CartesianDecomposition decomposer(nx, ny, 1);
 
     auto information = decomposer.decompose(mpiConfiguration, *grid);
 

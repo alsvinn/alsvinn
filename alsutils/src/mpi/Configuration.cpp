@@ -1,6 +1,7 @@
-#include "alsfvm/mpi/Configuration.hpp"
+#include "alsutils/mpi/Configuration.hpp"
+#include "alsutils/mpi/safe_call.hpp"
 
-namespace alsfvm { namespace mpi {
+namespace alsutils { namespace mpi {
 
 Configuration::Configuration(MPI_Comm communicator,
                              const std::string& platform)
@@ -16,12 +17,12 @@ MPI_Comm Configuration::getCommunicator()
     return communicator;
 }
 
-int Configuration::getNodeNumber() const
+int Configuration::getRank() const
 {
     return nodeNumber;
 }
 
-int Configuration::getNumberOfNodes() const
+int Configuration::getNumberOfProcesses() const
 {
     return numberOfNodes;
 }
@@ -34,6 +35,14 @@ MPI_Info Configuration::getInfo()
 std::string Configuration::getPlatform() const
 {
     return platform;
+}
+
+alsfvm::shared_ptr<Configuration> Configuration::makeSubConfiguration(int color, int newRank) const
+{
+    MPI_Comm newCommunicator;
+    MPI_SAFE_CALL(MPI_Comm_split(communicator, color, newRank, &newCommunicator));
+
+    return ConfigurationPtr(new Configuration(newCommunicator, platform));
 }
 
 }
