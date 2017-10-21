@@ -32,7 +32,10 @@ namespace alsuq { namespace config {
 
         std::shared_ptr<samples::SampleGenerator> makeSampleGenerator(ptree& configuration);
 
-        std::vector<std::shared_ptr<stats::Statistics> > createStatistics(ptree& configuration, alsutils::mpi::ConfigurationPtr statisticalConfiguration);
+        std::vector<std::shared_ptr<stats::Statistics> > createStatistics(ptree& configuration,
+                                                                          alsutils::mpi::ConfigurationPtr statisticalConfiguration,
+                                                                          mpi::ConfigurationPtr spatialConfiguration,
+                                                                          mpi::ConfigurationPtr worldConfiguration);
         size_t readNumberOfSamples(ptree& configuration);
     };
 } // namespace config

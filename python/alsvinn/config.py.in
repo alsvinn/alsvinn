@@ -1,6 +1,6 @@
 ALSVINN_PATH="${CMAKE_SOURCE_DIR}"
 ALSVINNCLI_PATH="${CMAKE_BINARY_DIR}/alsvinncli/alsvinncli"
-ALSVINNUQCLI_PATH="${CMAKE_BINARY_DIR}/alsuqcli/alsuqcli"
+ALSUQCLI_PATH="${CMAKE_BINARY_DIR}/alsuqcli/alsuqcli"
 if "${ALSVINN_USE_CUDA}".lower() == "on":
   ALSVINN_HAS_GPU=True
 else:
