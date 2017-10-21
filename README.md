@@ -1,7 +1,44 @@
-Alsvinn - The fast Finite Volume Simulator with support for Uncertainty Quantifications
-------------------------
+![Alsvinn](https://github.com/kjetil-lye/alsvinn/raw/master/documentation/images/kh.png "Kelvin-Helmholtz simulation")
+# Alsvinn - The fast Finite Volume Simulator with support for Uncertainty Quantifications
 
-Alsvinn is a toolset consisting of a finite volume simulator (alsfvm) and modules in python for uncertainity quantification (UQ).
+Alsvinn is a toolset consisting of a finite volume simulator (FVM) and modules for uncertaintity quantifications (UQ). 
+All the major operations can be computed on either a multi-core CPU or an NVIDIA GPU (through CUDA). 
+It also supports cluster configurations cocnsisting of either CPUs or GPUs. It exhibits excellent scaling.
+
+## Supported equations
+
+  * The Compressible Euler Equations
+  * The scalar Burgers' Equation
+  * A scalar cubic conservation law
+  * Buckley-Leverett
+  
+It is also possible to add new equations without issue (tutorial coming soon).
+
+## Initial data
+
+Initial data can easily be specified through a python script. For instance, the Sod Shock tube can be specified as
+```python
+if x < 0.0:
+    rho = 1.
+    ux = 0.
+    p = 1.0
+else:
+    rho = .125
+    ux = 0.
+    p = 0.1
+```
+
+## Notable implemented initial data
+While it's easy to implement new configurations, we already have a wide variety of configuraitons implemented, including:
+
+   * Kelvin-Helmholtz instability
+   * Richtmeyer-Meshkov instability
+   * Sod shock tube
+   * Cloudshock interaction
+   * Shockvortex
+   * Fractional Brownian motion
+   
+
 
 ## Requirements
 
