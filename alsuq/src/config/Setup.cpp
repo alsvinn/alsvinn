@@ -6,6 +6,8 @@
 #include <fstream>
 #include "alsuq/stats/StatisticsFactory.hpp"
 #include "alsfvm/io/WriterFactory.hpp"
+#include "alsfvm/io/MpiWriterFactory.hpp"
+
 #include "alsuq/stats/FixedIntervalStatistics.hpp"
 #include <boost/algorithm/string.hpp>
 #include "alsutils/log.hpp"
@@ -65,7 +67,8 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string &inputFilename,
 
     auto runner = std::make_shared<run::Runner>(simulatorCreator, sampleGenerator, samplesForProc,
                                                 statisticalConfiguration);
-    auto statistics  = createStatistics(configuration, statisticalConfiguration);
+    auto statistics  = createStatistics(configuration, statisticalConfiguration,
+                                        spatialConfiguration, mpiConfigurationWorld);
     runner->setStatistics(statistics);
     return runner;
 }
@@ -142,11 +145,20 @@ std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(Setup::ptre
 //   </stat>
 // </stats>
 std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::ptree &configuration,
-                                                                         mpi::ConfigurationPtr statisticalConfiguration)
+                                                                         mpi::ConfigurationPtr statisticalConfiguration,
+                                                                         mpi::ConfigurationPtr spatialConfiguration,
+                                                                         mpi::ConfigurationPtr worldConfiguration)
 {
     auto statisticsNodes = configuration.get_child("uq.stats");
     stats::StatisticsFactory statisticsFactory;
-    alsfvm::io::WriterFactory writerFactory;
+    std::shared_ptr<alsfvm::io::WriterFactory> writerFactory;
+
+    if (spatialConfiguration->getNumberOfProcesses() > 1) {
+        writerFactory.reset(new alsfvm::io::MpiWriterFactory(spatialConfiguration));
+    } else {
+        writerFactory.reset(new alsfvm::io::WriterFactory());
+    }
+
     auto platform = configuration.get<std::string>("fvm.platform");
     std::vector<std::shared_ptr<stats::Statistics> > statisticsVector;
     for (auto& statisticsNode : statisticsNodes) {
@@ -167,7 +179,7 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::
         for (auto statisticsName : statistics->getStatisticsNames()) {
 
             auto outputname = basename + "_" + statisticsName;
-            auto baseWriter = writerFactory.createWriter(type, outputname);
+            auto baseWriter = writerFactory->createWriter(type, outputname);
             statistics->addWriter(statisticsName, baseWriter);
         }
         real endTime = configuration.get<real>("fvm.endTime");
