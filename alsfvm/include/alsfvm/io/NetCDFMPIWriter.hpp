@@ -78,7 +78,7 @@ namespace alsfvm { namespace io {
         //!                we will try to open the dimensions from the file
         //!
         //! @return the dimensions created by netcdf
-        virtual dimension_vector createDimensions(netcdf_raw_ptr basegroup, const grid::Grid &griod,
+        virtual dimension_vector createDimensions(netcdf_raw_ptr basegroup, const grid::Grid &grid,
                                                   bool newFile);
 
 
