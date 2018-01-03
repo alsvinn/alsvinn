@@ -9,6 +9,7 @@
 #include "alsfvm/io/MpiWriterFactory.hpp"
 
 #include "alsuq/stats/FixedIntervalStatistics.hpp"
+#include "alsuq/stats/TimeIntegratedWriter.hpp"
 #include <boost/algorithm/string.hpp>
 #include "alsutils/log.hpp"
 
@@ -169,9 +170,9 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::
         parameters.setNumberOfSamples(readNumberOfSamples(configuration));
         parameters.setConfiguration(statisticsNode.second);
         auto statistics = statisticsFactory.makeStatistics(platform, name, parameters);
-        auto numberOfSaves = statisticsNode.second.get<size_t>("numberOfSaves");
 
-        ALSVINN_LOG(INFO, "statistics.numberOfSaves = " << numberOfSaves);
+
+
 
         // Make writer
         std::string type = statisticsNode.second.get<std::string>("writer.type");
@@ -182,13 +183,30 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::
             auto baseWriter = writerFactory->createWriter(type, outputname);
             statistics->addWriter(statisticsName, baseWriter);
         }
-        real endTime = configuration.get<real>("fvm.endTime");
-        real timeInterval = endTime / numberOfSaves;
-        auto statisticsInterval =
-                std::shared_ptr<stats::Statistics>(
-                    new stats::FixedIntervalStatistics(statistics, timeInterval,
-                                                       endTime));
-        statisticsVector.push_back(statisticsInterval);
+
+        if (statisticsNode.second.find("numberOfSaves") != statisticsNode.second.not_found()) {
+
+
+
+              auto numberOfSaves = statisticsNode.second.get<size_t>("numberOfSaves");
+               ALSVINN_LOG(INFO, "statistics.numberOfSaves = " << numberOfSaves);
+              real endTime = configuration.get<real>("fvm.endTime");
+              real timeInterval = endTime / numberOfSaves;
+              auto statisticsInterval =
+                      std::shared_ptr<stats::Statistics>(
+                          new stats::FixedIntervalStatistics(statistics, timeInterval,
+                                                             endTime));
+              statisticsVector.push_back(statisticsInterval);
+        } else if (statisticsNode.second.find("time") != statisticsNode.second.not_found()) {
+            const real time = statisticsNode.second.get<real>("time");
+            const real radius = statisticsNode.second.get<real>("timeRadius");
+
+            auto timeIntegrator = std::shared_ptr<stats::Statistics>(
+                        new stats::TimeIntegratedWriter(statistics, time,
+                                                          radius));
+            statisticsVector.push_back(timeIntegrator);
+        }
+
 
     }
 

@@ -3,6 +3,13 @@
 namespace alsfvm {
 namespace simulator {
 
+TimestepInformation::TimestepInformation(real currentTime,
+                                         size_t numberOfStepsPerformed)
+    : currentTime(currentTime), numberOfStepsPerformed(numberOfStepsPerformed)
+{
+
+}
+
 TimestepInformation::TimestepInformation()
     : currentTime(0), numberOfStepsPerformed(0)
 {

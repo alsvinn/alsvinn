@@ -7,6 +7,7 @@ namespace simulator {
 class TimestepInformation
 {
 public:
+    TimestepInformation(real currentTime, size_t numberOfStepsPerformed);
     TimestepInformation();
 
     ///
