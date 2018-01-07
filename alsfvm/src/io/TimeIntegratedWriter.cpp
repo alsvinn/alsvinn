@@ -15,30 +15,39 @@ void TimeIntegratedWriter::write(const volume::Volume &conservedVariables,
                                  const grid::Grid &grid,
                                  const simulator::TimestepInformation &timestepInformation)
 {
+
     const real currentTime = timestepInformation.getCurrentTime();
     if (std::abs(currentTime - time) < timeRadius) {
 
         if (!integratedConservedVariables) {
             integratedConservedVariables = conservedVariables.makeInstance();
+            integratedConservedVariables->makeZero();
+
             integratedExtraVariables = extraVariables.makeInstance();
+            integratedExtraVariables->makeZero();
         }
         const real dt = currentTime - lastTime;
-        integratedConservedVariables->addLinearCombination(1,
-                                                           dt, conservedVariables,
-                                                           0, conservedVariables,
-                                                           0, conservedVariables,
-                                                           0, conservedVariables);
 
-        integratedExtraVariables->addLinearCombination(1,
-                                                       dt, extraVariables,
-                                                       0, extraVariables,
-                                                       0, extraVariables,
-                                                       0, extraVariables);
+
+
+
+          integratedConservedVariables->addLinearCombination(1,
+                                                            dt, conservedVariables,
+                                                            0, conservedVariables,
+                                                            0, conservedVariables,
+                                                            0, conservedVariables);
+
+         integratedExtraVariables->addLinearCombination(1,
+                                                        dt, extraVariables,
+                                                        0, extraVariables,
+                                                        0, extraVariables,
+                                                        0, extraVariables);
 
 
     }
 
     if (!written && currentTime >= time + timeRadius) {
+
         simulator::TimestepInformation newTime(time, 0);
         *integratedConservedVariables *= 0.5/timeRadius;
         *integratedExtraVariables *= 0.5/timeRadius;
