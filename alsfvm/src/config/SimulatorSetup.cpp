@@ -8,6 +8,7 @@
 #include "alsutils/error/Exception.hpp"
 #include "alsfvm/io/HDF5Writer.hpp"
 #include "alsfvm/io/FixedIntervalWriter.hpp"
+#include "alsfvm/io/TimeIntegratedWriter.hpp"
 #include "alsfvm/io/CoarseGrainingIntervalWriter.hpp"
 #include <boost/property_tree/xml_parser.hpp>
 #include "alsfvm/init/PythonInitialData.hpp"
@@ -313,7 +314,15 @@ alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(const SimulatorSetup
             }
 
             return alsfvm::shared_ptr<io::Writer>(new io::FixedIntervalWriter(baseWriter, timeInterval, endTime));
-        }
+        } else if (writerNode.find("timeRadius") != writerNode.not_found()) {
+
+                const real time = writerNode.get<size_t>("time");
+                const real timeRadius = writerNode.get<size_t>("timeRadius");
+
+                return alsfvm::shared_ptr<io::Writer>(new io::TimeIntegratedWriter(baseWriter,
+                                                                                   time,
+                                                                                   timeRadius));
+           }
 
         return baseWriter;
     }

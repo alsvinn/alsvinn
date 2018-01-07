@@ -2,7 +2,7 @@
 #include <pnetcdf.h>
 #include "alsutils/log.hpp"
 #include "alsutils/mpi/to_mpi_offset.hpp"
-
+#include <boost/filesystem.hpp>
 #include <fstream>
 
 namespace alsfvm { namespace io {
@@ -29,7 +29,7 @@ void NetCDFMPIWriter::write(const volume::Volume &conservedVariables,
     netcdf_raw_ptr file;
     auto filename = getFilename();
     netcdf_raw_ptr timeVar;
-    if (newFile) {
+    if (newFile || !boost::filesystem::exists(filename)) {
 
       NETCDF_SAFE_CALl(ncmpi_create(mpiCommunicator, filename.c_str(),  NC_64BIT_DATA|NC_CLOBBER,
                                    mpiInfo, &file));
