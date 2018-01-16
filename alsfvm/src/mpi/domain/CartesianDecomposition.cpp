@@ -1,7 +1,9 @@
 #include "alsfvm/mpi/domain/CartesianDecomposition.hpp"
 #include "alsutils/error/Exception.hpp"
 #include "alsfvm/mpi/CartesianCellExchanger.hpp"
+#ifdef ALSVINN_HAVE_CUDA
 #include "alsfvm/mpi/CudaCartesianCellExchanger.hpp"
+#endif
 #include "alsutils/log.hpp"
 #include "alsfvm/mpi/cartesian/rank_index.hpp"
 #include "alsfvm/mpi/cartesian/rank_component.hpp"
@@ -117,9 +119,16 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
     alsfvm::shared_ptr<CellExchanger> cellExchanger;
     if (configuration->getPlatform() == "cpu") {
         cellExchanger.reset(new CartesianCellExchanger(configuration, neighbours));
-    } else {
+    } 
+    #ifdef ALSVINN_HAVE_CUDA
+    else {
         cellExchanger.reset(new CudaCartesianCellExchanger(configuration, neighbours));
     }
+    #else
+    else {
+      THROW("CUDA not supported on this build, Tried to make a cell exchanger with CUDA");
+    }
+#endif
 
     auto information = alsfvm::make_shared<DomainInformation>(newGrid, cellExchanger);
 

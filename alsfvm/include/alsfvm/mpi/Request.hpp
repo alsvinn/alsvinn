@@ -2,7 +2,9 @@
 #include <mpi.h>
 #include "alsfvm/mpi/Configuration.hpp"
 #include <memory>
+#ifdef ALSVINN_HAVE_CUDA
 #include <thrust/host_vector.h>
+#endif
 
 namespace alsfvm { namespace mpi { 
 
@@ -67,7 +69,7 @@ namespace alsfvm { namespace mpi {
     }
 
 
-
+#ifdef ALSVINN_HAVE_CUDA
     template<>
     inline  RequestPtr Request::isend(const thrust::host_vector<real>& data, int count, MPI_Datatype datatype,
                             int destination, int tag, Configuration& configuration)
@@ -93,5 +95,6 @@ namespace alsfvm { namespace mpi {
 
         return requestPointer;
     }
+#endif
 }
 } // namespace alsfvm

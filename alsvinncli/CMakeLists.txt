@@ -4,7 +4,7 @@ FILE(GLOB_RECURSE SRC src/*.cpp)
 
 FILE(GLOB_RECURSE EXAMPLES examples/*.py examples/*.xml)
 INCLUDE_DIRECTORIES("../alsfvm/include")
-CUDA_ADD_EXECUTABLE(alsvinncli ${SRC} ${EXAMPLES})
+ADD_EXECUTABLE(alsvinncli ${SRC} ${EXAMPLES})
 
 if(ALSVINN_MPI_GPU_DIRECT)
 	# mpich is really strict on this, gpu direct will be disabled
