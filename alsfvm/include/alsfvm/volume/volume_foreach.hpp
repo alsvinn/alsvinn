@@ -31,9 +31,9 @@ namespace alsfvm {
             const size_t nx = in.getTotalNumberOfXCells();
             const size_t ny = in.getTotalNumberOfYCells();
             const size_t nz = in.getTotalNumberOfZCells();
-            const size_t endx = in.getTotalNumberOfXCells() + offsetEnd[0];
-            const size_t endy = in.getTotalNumberOfYCells() + offsetEnd[1];
-            const size_t endz = in.getTotalNumberOfZCells() + offsetEnd[2];
+            const size_t endx = in.getTotalNumberOfXCells() - offsetEnd[0];
+            const size_t endy = in.getTotalNumberOfYCells() - offsetEnd[1];
+            const size_t endz = in.getTotalNumberOfZCells() - offsetEnd[2];
             for (size_t k = offsetStart[2]; k < endz; k++) {
                 for (size_t j = offsetStart[1]; j < endy; j++) {
                     for (size_t i = offsetStart[0]; i < endx; i++) {

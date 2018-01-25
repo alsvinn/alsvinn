@@ -7,12 +7,15 @@ namespace alsfvm { namespace functional {
     class FunctionalFactory {
     public:
         typedef Functional::Parameters Parameters;
+        typedef std::function<FunctionalPointer(const Parameters&)> FunctionalCreator;
 
-        std::map<std::string,
+        static void registerFunctional(const std::string& platform,
+                                       const std::string &name,
+                                       FunctionalFactory::FunctionalCreator maker);
 
-        //! Create functional
-        alsfvm::shared_ptr<Functional> createFunctional(const std::string& name,
-                                                        const Parameters& parameters);
+        FunctionalPointer makeFunctional(const std::string &platform,
+                                                            const std::string &name,
+                                                            const FunctionalFactory::Parameters &parameters);
     };
 } // namespace functional
 } // namespace alsfvm

@@ -8,6 +8,13 @@ Parameters::Parameters(const boost::property_tree::ptree &ptree)
 
 }
 
+Parameters::Parameters(const std::map<std::string, std::string> &values)
+{
+    for(const auto& p : values) {
+        ptree.add(p.first, p.second);
+    }
+}
+
 double Parameters::getDouble(const std::string &name) const
 {
     return ptree.get<double>(name);

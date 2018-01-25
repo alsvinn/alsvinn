@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.1.0)
 SET(ALSVINN_USE_HUNTER OFF CACHE BOOL "Use Hunter for automatic compiling of additional packages")
-
+set (CMAKE_CXX_STANDARD 11)
 SET(HUNTER_ROOT ${CMAKE_BINARY_DIR}/hunter_root)
 
 IF(${ALSVINN_USE_HUNTER})
@@ -58,7 +58,7 @@ set (CMAKE_CXX_STANDARD 11)
 ADD_DEFINITIONS(-DMPICH_RDMA_ENABLED_CUDA=1)
 FIND_PACKAGE(OpenMP)
 if (NOT WIN32)
-   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -std=c++11 -Wall -Wno-comment ${OpenMP_CXX_FLAGS} -fPIC")
+   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALSVINN_CXX_FLAGS} -Wall -Wno-comment ${OpenMP_CXX_FLAGS} -fPIC")
    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 
 else()

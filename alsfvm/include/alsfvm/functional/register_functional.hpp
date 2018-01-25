@@ -4,7 +4,7 @@
 #define REGISTER_FUNCTIONAL(platform, name, classname) namespace { \
     static struct BOOST_PP_CAT(RegisterStruct, BOOST_PP_CAT(platform, name)) { \
         BOOST_PP_CAT(RegisterStruct, BOOST_PP_CAT(platform, name))() { \
-            alsfvm::functional::FuncationalFactory::registerFunctional(#platform, #name, [](const alsfvm::functional::Functional::Parameters& params) { \
+            alsfvm::functional::FunctionalFactory::registerFunctional(#platform, #name, [](const alsfvm::functional::Functional::Parameters& params) { \
                 std::shared_ptr<alsfvm::functional::Functional> functional; \
                 functional.reset(new classname(params)); \
                 return functional; \

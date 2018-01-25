@@ -1,6 +1,9 @@
 #include "alsfvm/functional/Legendre.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
+#include "alsfvm/functional/register_functional.hpp"
 #include <boost/math/special_functions/legendre.hpp>
+
+
 namespace alsfvm { namespace functional {
 
 Legendre::Legendre(const Functional::Parameters &parameters)
@@ -17,38 +20,39 @@ void Legendre::operator()(volume::Volume &conservedVolumeOut,
                           const real weight,
                           const grid::Grid &grid)
 {
-    real lengths = grid.getCellLengths();
-    real dxdydz = lengths.x*lengths.y*lengths.z;
+    const auto lengths = grid.getCellLengths();
+    const real dxdydz = lengths.x*lengths.y*lengths.z;
 
-
-    for(int var = 0; var < conservedVolumeIn.getNumberOfVariables(); ++var) {
+    const auto ghostCells = conservedVolumeIn.getNumberOfGhostCells();
+    for(size_t var = 0; var < conservedVolumeIn.getNumberOfVariables(); ++var) {
         real integral = 0.0;
 
-        volume::for_each_internal_volume_index(conservedVolumeIn, 0, [&](size_t, size_t i, size_t) {
+        volume::for_each_cell_index(conservedVolumeIn, [&](size_t i) {
             const real value = (conservedVolumeIn.getScalarMemoryArea(var)->getPointer()[i]-minValue)/(maxValue-minValue);
             integral += boost::math::legendre_p(degree, value) * dxdydz;
-        });
+        }, ghostCells, ghostCells);
 
         conservedVolumeOut.getScalarMemoryArea(var)->getPointer()[0] += weight*integral;
     }
 
 
-    for(int var = 0; var < extraVolumeIn.getNumberOfVariables(); ++var) {
+    for(size_t var = 0; var < extraVolumeIn.getNumberOfVariables(); ++var) {
         real integral = 0.0;
 
-        volume::for_each_internal_volume_index(extraVolumeIn, 0, [&](size_t, size_t i, size_t) {
+        volume::for_each_cell_index(conservedVolumeIn,  [&](size_t i) {
             const real value = (extraVolumeIn.getScalarMemoryArea(var)->getPointer()[i]-minValue)/(maxValue-minValue);
             integral += boost::math::legendre_p(degree, value) * dxdydz;
-        });
+        }, ghostCells, ghostCells);
 
         extraVolumeOut.getScalarMemoryArea(var)->getPointer()[0] += weight*integral;
     }
 }
 
-ivec3 Legendre::getFunctionalSize()
+ivec3 Legendre::getFunctionalSize() const
 {
-    return ivec3{1,1,1}
+    return ivec3{1,1,1};
 }
 
+REGISTER_FUNCTIONAL(cpu, legendre, Legendre)
 }
 }

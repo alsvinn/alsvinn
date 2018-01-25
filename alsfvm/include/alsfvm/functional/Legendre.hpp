@@ -56,10 +56,10 @@ namespace alsfvm { namespace functional {
                         const volume::Volume& extraVolumeIn,
                         const real weight,
                         const grid::Grid& grid
-                        );
+                        ) override;
 
         //! Returns ivec3{1,1,1} -- we only need one element to represent this functional
-        virtual ivec3 getFunctionalSize();
+        virtual ivec3 getFunctionalSize() const override;
 
 
     private:
