@@ -1,5 +1,5 @@
 """
-Small program to insert a new class into alsvinn/alsfvm
+Small program to insert a new class into alsvinn/alsutils
 
 This script will create the necessary folders and create the boilerplate
 code (namespace, includes, etc.). It will also add the files to git.
@@ -13,7 +13,7 @@ import sys
 Adds the current file to version control (does not commit!)
 """
 def addToGit(filename):
-    print( "Adding %s to git repo" % filename)
+    print ("Adding %s to git repo" % filename)
     os.system("git add %s" %filename)
     
 def directoryExists(directoryName):
@@ -61,7 +61,7 @@ qualifedClassname is on the form foo::bar::Classname
 def getCppFilename(qualifiedClassname):
     splitName = qualifiedClassname.split("::")
     path = "src/"
-    # We don't include the alsfvm part in the start
+    # We don't include the alsutils part in the start
     for name in splitName[1:]:
         path += "%s/" % name
 
@@ -112,10 +112,10 @@ def createClassTextCpp(qualifiedClassname):
     
 if __name__ == "__main__":
     className = sys.argv[1]
-    if not className.startswith("alsfvm"):
-        className = "alsfvm::" + className
+    if not className.startswith("alsutils"):
+        className = "alsutils::" + className
         
-    print( "Creating class %s" % className)
+    print ("Creating class %s" % className)
     classTextHpp = createClassTextHpp(className)
     classTextCpp = createClassTextCpp(className)
 
