@@ -28,7 +28,14 @@ public:
 					   const grid::Grid& grid, 
                        const simulator::TimestepInformation& timestepInformation) = 0;
 
+
+    //! This method should be called at the end of the simulation
+    virtual void finalize(const grid::Grid &grid,
+                          const simulator::TimestepInformation &timestepInformation) {}
+
 };
+
+typedef alsfvm::shared_ptr<Writer> WriterPointer;
 
 } // namespace io
 } // namespace alsfvm

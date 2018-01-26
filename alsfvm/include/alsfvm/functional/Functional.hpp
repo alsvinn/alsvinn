@@ -15,6 +15,8 @@ namespace alsfvm { namespace functional {
         //! To be used to pass parameters to the constructors
         typedef alsutils::parameters::Parameters Parameters;
 
+        virtual ~Functional() {}
+
         //! Computes the operator value on the givne input data
         //!
         //! @note In order to support time integration, the result should be
@@ -49,7 +51,7 @@ namespace alsfvm { namespace functional {
         //! Eg. returning ivec3{1,1,1} would imply that operator() should be
         //!     called with conservedVolumeOut and extraVolumeOut being
         //!     of size {1,1,1}.
-        virtual ivec3 getFunctionalSize() const = 0;
+        virtual ivec3 getFunctionalSize(const grid::Grid& grid) const = 0;
     };
 
     typedef alsfvm::shared_ptr<Functional> FunctionalPointer;

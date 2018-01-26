@@ -59,7 +59,7 @@ namespace alsfvm { namespace functional {
                         ) override;
 
         //! Returns ivec3{1,1,1} -- we only need one element to represent this functional
-        virtual ivec3 getFunctionalSize() const override;
+        virtual ivec3 getFunctionalSize(const grid::Grid& grid) const override;
 
 
     private:

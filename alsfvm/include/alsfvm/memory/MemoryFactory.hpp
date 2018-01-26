@@ -36,5 +36,7 @@ namespace memory {
 
 		alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
     };
+
+    typedef alsfvm::shared_ptr<MemoryFactory> MemoryFactoryPointer;
 }
 }

@@ -11,7 +11,8 @@ TEST(LegendreTest, CreationTest) {
     alsfvm::functional::Functional::Parameters parameters({{"minValue", "-1"}, {"maxValue", "1"}, {"degree", "1"}});
     auto functional = factory.makeFunctional("cpu", "legendre", parameters);
 
-    ASSERT_EQ(ivec3(1,1,1), functional->getFunctionalSize());
+    grid::Grid grid({0,0,0}, {1,1,1}, {40,42,43});
+    ASSERT_EQ(ivec3(1,1,1), functional->getFunctionalSize(grid));
 }
 
 TEST(LegendreTest, ConstantTest) {

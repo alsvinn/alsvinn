@@ -287,6 +287,6 @@ namespace alsfvm {
 			size_t numberOfZGhostCells;
 		};
 
-        
+        typedef alsfvm::shared_ptr<Volume> VolumePointer;
 	}
 }

@@ -15,6 +15,8 @@
 #include <boost/filesystem.hpp>
 #include "alsfvm/equation/euler/EulerParameters.hpp"
 #include "alsfvm/diffusion/DiffusionFactory.hpp"
+#include "alsfvm/functional/FunctionalFactory.hpp"
+#include "alsfvm/functional/TimeIntegrationFunctional.hpp"
 #include <set>
 #include "alsutils/log.hpp"
 
@@ -153,6 +155,12 @@ SimulatorSetup::readSetupFromFile(const std::string &filename)
 
     if (writer) {
         simulator->addWriter(writer);
+    }
+
+    auto functionals = createFunctionals(configuration, *volumeFactory);
+
+    for (auto functional : functionals) {
+        simulator->addWriter(functional);
     }
 
     auto timestepAdjuster = alsfvm::dynamic_pointer_cast<integrator::TimestepAdjuster>(writer);
@@ -435,6 +443,53 @@ alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion
 
     return diffusionFactory.createDiffusionOperator(readEquation(configuration), name, reconstruction, grid, simulatorParameters,
                                                     deviceConfiguration, memoryFactory, volumeFactory);
+}
+
+std::vector<io::WriterPointer> SimulatorSetup::createFunctionals(const SimulatorSetup::ptree &configuration, volume::VolumeFactory &volumeFactory)
+{
+
+    // Input should look like
+    // <functionals>
+    //   <functional>
+    //      <name>functionalName<name>
+    //      <time>time</time>
+    //      <timeRadius>timeRadius</timeRadius>
+    //      other parameters here
+    //      <writer>
+    //         <type>type</type>
+    //         <basename>basename</basename>
+    //      </writer>
+    //   </functional>
+    //   ...
+    // </functionals>
+    functional::FunctionalFactory functionalFactory;
+    std::vector<io::WriterPointer> functionalPointers;
+    if (configuration.find("fvm.functionals") != configuration.not_found()) {
+        auto functionalList = configuration.get_child("functionals");
+        for (auto functional : functionalList) {
+            const std::string name = functional.second.get<std::string>("name");
+
+            const std::string writerType = functional.second.get<std::string>("writer.type");
+            const std::string writerBasename = functional.second.get<std::string>("writer.basename");
+
+            auto writer = writerFactory->createWriter(writerType, writerBasename);
+
+            auto time = functional.second.get<double>("time");
+            auto timeRadius = functional.second.get<double>("timeRadius");
+
+            functional::Functional::Parameters parameters(functional.second);
+
+            auto functionalPointer = functionalFactory.makeFunctional(this->readPlatform(configuration), name, parameters);
+
+            auto timeIntegrationFunctional = alsfvm::make_shared<functional::TimeIntegrationFunctional>(volumeFactory, writer, functionalPointer, time, timeRadius);
+
+            functionalPointers.push_back(alsfvm::dynamic_pointer_cast<io::Writer>(timeIntegrationFunctional));
+        }
+    }
+
+    return functionalPointers;
+
+
 }
 
 std::string SimulatorSetup::readFlux(const SimulatorSetup::ptree &configuration)

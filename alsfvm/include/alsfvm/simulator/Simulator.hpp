@@ -65,6 +65,8 @@ namespace alsfvm { namespace simulator {
                   alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator
             );
 
+        ~Simulator();
+
 
 
         ///
@@ -122,7 +124,6 @@ namespace alsfvm { namespace simulator {
 #ifdef ALSVINN_USE_MPI
         void setCellExchanger(mpi::CellExchangerPtr value);
 #endif
-
 
     private:
 

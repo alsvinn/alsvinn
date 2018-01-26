@@ -48,7 +48,7 @@ void Legendre::operator()(volume::Volume &conservedVolumeOut,
     }
 }
 
-ivec3 Legendre::getFunctionalSize() const
+ivec3 Legendre::getFunctionalSize(const grid::Grid& grid) const
 {
     return ivec3{1,1,1};
 }
