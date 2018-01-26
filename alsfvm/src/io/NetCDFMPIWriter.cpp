@@ -26,6 +26,8 @@ void NetCDFMPIWriter::write(const volume::Volume &conservedVariables,
                             const grid::Grid &grid,
                             const simulator::TimestepInformation &timestepInformation)
 {
+
+
     netcdf_raw_ptr file;
     auto filename = getFilename();
     netcdf_raw_ptr timeVar;

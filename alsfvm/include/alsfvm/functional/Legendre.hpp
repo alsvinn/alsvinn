@@ -27,6 +27,7 @@ namespace alsfvm { namespace functional {
         //!    minValue | minimum value that the solution can obtain
         //!    maxValue | maximum value that the solution can obtain
         //!    degree   | the degree of the polynomial
+        //!    variables| the variables to compute for (space separated)
         Legendre(const Parameters& parameters);
 
         //! Computes the operator value on the givne input data
@@ -66,6 +67,8 @@ namespace alsfvm { namespace functional {
         const real minValue = -1;
         const real maxValue = 1;
         const int degree = 1;
+
+        std::vector<std::string> variables;
     };
 } // namespace functional
 } // namespace alsfvm

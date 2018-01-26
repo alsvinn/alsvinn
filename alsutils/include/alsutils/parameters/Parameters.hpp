@@ -1,5 +1,6 @@
 #pragma once
 #include <boost/property_tree/ptree.hpp>
+#include <vector>
 #include <map>
 namespace alsutils { namespace parameters { 
 
@@ -17,7 +18,9 @@ namespace alsutils { namespace parameters {
         int getInteger(const std::string& name) const;
         std::string getString(const std::string& name) const;
 
+        bool contains(const std::string& name) const;
 
+        std::vector<std::string> getStringVectorFromString(const std::string& name) const;
     private:
         boost::property_tree::ptree ptree;
 

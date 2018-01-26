@@ -272,6 +272,9 @@ namespace alsfvm {
             //! otherwise, make a new cpu copy, copy data from gpu, and then return
             std::shared_ptr<volume::Volume> getCopyOnCPU();
 
+            //! Returns true if the volume has the given variable, false otherwise
+            bool hasVariable(const std::string& variableName) const;
+
         private:
             const std::vector<std::string> variableNames;
             alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;

@@ -84,7 +84,8 @@ SimulatorSetup::readSetupFromFile(const std::string &filename)
     std::set<std::string> supportedNodes =
     {
         "name", "platform", "boundary", "flux", "endTime", "equation", "equationParameters",
-        "reconstruction", "cfl", "integrator", "initialData", "writer", "grid", "diffusion"
+        "reconstruction", "cfl", "integrator", "initialData", "writer", "grid", "diffusion",
+        "functionals"
     };
 
     for (auto node : configuration.get_child("fvm")) {
@@ -464,8 +465,9 @@ std::vector<io::WriterPointer> SimulatorSetup::createFunctionals(const Simulator
     // </functionals>
     functional::FunctionalFactory functionalFactory;
     std::vector<io::WriterPointer> functionalPointers;
-    if (configuration.find("fvm.functionals") != configuration.not_found()) {
-        auto functionalList = configuration.get_child("functionals");
+    auto fvmNode = configuration.get_child("fvm");
+    if (fvmNode.find("functionals") != fvmNode.not_found()) {
+        auto functionalList = fvmNode.get_child("functionals");
         for (auto functional : functionalList) {
             const std::string name = functional.second.get<std::string>("name");
 

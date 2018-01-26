@@ -172,7 +172,7 @@ int main(int argc, char** argv) {
         if (mpiRank == 0) {
             std::cout << "Running simulator... " << std::endl;
             std::cout << std::endl;
-            std::cout << std::numeric_limits<long double>::digits10 + 1;
+            std::cout << std::setprecision(std::numeric_limits<long double>::digits10 + 1);
         }
 
 		simulator->callWriters();
@@ -195,6 +195,7 @@ int main(int argc, char** argv) {
 			}
 
 		}
+        simulator->finalize();
         if (mpiRank == 0) {
             std::cout << std::endl << std::endl;
         }
@@ -212,6 +213,11 @@ int main(int argc, char** argv) {
 	catch (std::runtime_error& e) {
         ALSVINN_LOG(ERROR, "Error!" << std::endl
                     << e.what() << std::endl);
+
+        std::cerr << "An error occured." << std::endl;
+        std::cerr << "The error message was:"<< std::endl;
+        std::cerr << e.what() << std::endl;
+
 
 		return EXIT_FAILURE;
 	}

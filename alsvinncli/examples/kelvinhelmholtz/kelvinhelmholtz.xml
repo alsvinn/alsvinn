@@ -19,7 +19,49 @@
   <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>
+  <functionals>
+    <functional>
+        <name>legendre</name>
+        <time>2</time>
+        <timeRadius>1</timeRadius>
+        <degree>1</degree>
+        <minValue>0</minValue>
+        <maxValue>4</maxValue>
+        <variables>rho</variables>
+        <writer>
+            <type>netcdf</type>
+            <basename>kh_legendre1</basename>
+        </writer>
+    </functional>
 
+    <functional>
+        <name>legendre</name>
+        <time>2</time>
+        <timeRadius>1</timeRadius>
+        <degree>2</degree>
+        <minValue>0</minValue>
+        <maxValue>4</maxValue>
+        <variables>rho</variables>
+        <writer>
+            <type>netcdf</type>
+            <basename>kh_legendre2</basename>
+        </writer>
+    </functional>
+
+    <functional>
+        <name>legendre</name>
+        <time>2</time>
+        <timeRadius>1</timeRadius>
+        <degree>3</degree>
+        <minValue>0</minValue>
+        <maxValue>4</maxValue>
+        <variables>rho</variables>
+        <writer>
+            <type>netcdf</type>
+            <basename>kh_legendre3</basename>
+        </writer>
+    </functional>
+  </functionals>
   <initialData>
     <python>kelvinhelmholtz.py</python>
     <parameters>

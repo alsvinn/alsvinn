@@ -53,6 +53,10 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
 
 Simulator::~Simulator()
 {
+
+}
+
+void Simulator::finalize() {
     // Need to let the writers finalize their output.
     for(auto writer : writers) {
         writer->finalize(*grid, timestepInformation);

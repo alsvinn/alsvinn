@@ -48,6 +48,8 @@ namespace alsfvm { namespace functional {
         const double timeRadius;
         double lastTime = 0;
 
+        ivec3 functionalSize;
+
     };
 } // namespace functional
 } // namespace alsfvm

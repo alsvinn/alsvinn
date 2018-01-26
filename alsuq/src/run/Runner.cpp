@@ -45,6 +45,7 @@ void Runner::run()
         while (!simulator->atEnd()) {
             simulator->performStep();
         }
+        simulator->finalize();
         grid = simulator->getGrid();
 
     }

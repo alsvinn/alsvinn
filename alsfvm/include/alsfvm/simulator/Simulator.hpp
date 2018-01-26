@@ -121,6 +121,8 @@ namespace alsfvm { namespace simulator {
         const std::shared_ptr<grid::Grid>& getGrid() const;
          std::shared_ptr<grid::Grid>& getGrid();
 
+         void finalize();
+
 #ifdef ALSVINN_USE_MPI
         void setCellExchanger(mpi::CellExchangerPtr value);
 #endif

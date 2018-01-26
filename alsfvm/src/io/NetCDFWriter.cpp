@@ -29,7 +29,6 @@ void NetCDFWriter::writeToFile(netcdf_raw_ptr file,
                                const grid::Grid &grid,
                                const simulator::TimestepInformation &timestepInformation)
 {
-
     auto dimensions = createDimensions(file, conservedVariables);
     writeVolume(file, conservedVariables, dimensions);
     writeVolume(file, extraVariables, dimensions);
@@ -67,6 +66,7 @@ void NetCDFWriter::writeMemory(netcdf_raw_ptr baseGroup, netcdf_raw_ptr dataset,
 
     std::vector<double> data(dataTmp.size());
     std::copy(dataTmp.begin(), dataTmp.end(), data.begin());
+
     NETCDF_SAFE_CALl(nc_put_var_double(baseGroup, dataset, data.data()));
 }
 

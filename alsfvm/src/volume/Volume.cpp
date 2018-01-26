@@ -415,6 +415,17 @@ namespace alsfvm {
                 return cpu;
             }
         }
+
+        bool Volume::hasVariable(const std::string &variableName) const
+        {
+            for(const auto name : variableNames) {
+                if (name == variableName) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 	}
 
 }
