@@ -5,15 +5,22 @@ namespace alsfvm { namespace functional {
     //! Computes the spatial integral of the n-th Legendre polynomial,
     //! ie it will compute
     //!
-    //! \f[\int_D L_n(u(x))\; dx\f]
+    //! \f[\int_D L_k(x)L_n(y)L_k(u(x, y))\; dx\; dy\f]
     //!
     //! where \f$L_n\f$ is the n-th Legendre polynomial.
     //!
     //! You have the option of scaling the input u to the interval [-1,1] by specifying the keywords
     //! *maxValue* and *minValue*, this will essentially compute
     //!
-    //! \f[\int_D L_n(\frac{u(x)-\mathrm{minValue}}{\mathrm{maxValue}-\mathrm{minValue}})\;dx\f]
+    //! \f[\int_D L_k(x)L_n(y)L_m(\frac{u(x, y)-\mathrm{minValue}}{\mathrm{maxValue}-\mathrm{minValue}})\;dx\f]
     //!
+    //! In terms of pairing between one point Young measures and test functions, this corresponds to
+    //!
+    //! \f[\langle \psi, \langle \nu, g\rangle \rangle\f]
+    //!
+    //! where \f$\psi(x,y)= L_k(x)L_n(y)\f$ and \f$g(\xi) = L_m(\xi)\f$.
+    //!
+    //! \note We always scale the polynomials in the spatial direction (ie. \f$L_k(x)L_n(y)\f$)
     //! \note The computation of the Legendre polynomials are done through the boost library,
     //!        see http://www.boost.org/doc/libs/1_46_1/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_poly/legendre.html
     //!        for any implementation details. In short, \f$L_n(x)=boost::math::legendre_p(n,x)\f$
@@ -22,12 +29,14 @@ namespace alsfvm { namespace functional {
     public:
         //! The following parameters are accepted through parameters
         //!
-        //!    Name     | Description
-        //!    ---------+-------------
-        //!    minValue | minimum value that the solution can obtain
-        //!    maxValue | maximum value that the solution can obtain
-        //!    degree   | the degree of the polynomial
-        //!    variables| the variables to compute for (space separated)
+        //!    Name      | Description
+        //!    ----------|-------------
+        //!    minValue  | minimum value that the solution can obtain
+        //!    maxValue  | maximum value that the solution can obtain
+        //!    degree_k  | the degree of the polynomial \f$L_k(x)\f$
+        //!    degree_n  | the degree of the polynomial \f$L_n(x)\f$
+        //!    degree_m  | the degree of the polynomial \f$L_m(u(x,y))\f$
+        //!    variables | the variables to compute for (space separated)
         Legendre(const Parameters& parameters);
 
         //! Computes the operator value on the givne input data
@@ -66,7 +75,9 @@ namespace alsfvm { namespace functional {
     private:
         const real minValue = -1;
         const real maxValue = 1;
-        const int degree = 1;
+        const int degree_k = 1;
+        const int degree_n = 1;
+        const int degree_m = 1;
 
         std::vector<std::string> variables;
     };

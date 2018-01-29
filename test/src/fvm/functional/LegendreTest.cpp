@@ -8,7 +8,12 @@ using namespace alsfvm;
 TEST(LegendreTest, CreationTest) {
 
     alsfvm::functional::FunctionalFactory factory;
-    alsfvm::functional::Functional::Parameters parameters({{"minValue", "-1"}, {"maxValue", "1"}, {"degree", "1"}});
+    alsfvm::functional::Functional::Parameters parameters({{"minValue", "-1"},
+                                                           {"maxValue", "1"},
+                                                           {"degree_k", "1"},
+                                                           {"degree_n", "1"},
+                                                           {"degree_m", "1"}});
+
     auto functional = factory.makeFunctional("cpu", "legendre", parameters);
 
     grid::Grid grid({0,0,0}, {1,1,1}, {40,42,43});
@@ -17,7 +22,12 @@ TEST(LegendreTest, CreationTest) {
 
 TEST(LegendreTest, ConstantTest) {
     alsfvm::functional::FunctionalFactory factory;
-    alsfvm::functional::Functional::Parameters parameters({{"minValue", "-1"}, {"maxValue", "1"}, {"degree", "0"}});
+    alsfvm::functional::Functional::Parameters parameters({{"minValue", "-1"},
+                                                           {"maxValue", "1"},
+                                                           {"degree_k", "0"},
+                                                           {"degree_n", "0"},
+                                                           {"degree_m", "0"},
+                                                          });
     auto functional = factory.makeFunctional("cpu", "legendre", parameters);
 
     ivec3 size = {3,2,1};

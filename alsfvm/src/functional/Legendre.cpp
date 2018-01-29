@@ -8,7 +8,9 @@ namespace alsfvm { namespace functional {
 
 Legendre::Legendre(const Functional::Parameters &parameters)
     : minValue(parameters.getDouble("minValue")), maxValue(parameters.getDouble("maxValue")),
-      degree(parameters.getInteger("degree"))
+      degree_k(parameters.getInteger("degree_k")),
+      degree_n(parameters.getInteger("degree_n")),
+      degree_m(parameters.getInteger("degree_m"))
 {
     if (parameters.contains("variables")) {
         for (auto variable : parameters.getStringVectorFromString("variables")) {
@@ -24,6 +26,8 @@ void Legendre::operator()(volume::Volume &conservedVolumeOut,
                           const real weight,
                           const grid::Grid &grid)
 {
+
+
     if (variables.size() == 0) {
         for(size_t var = 0; var < conservedVolumeIn.getNumberOfVariables(); ++var) {
             variables.push_back(conservedVolumeIn.getName(var));
@@ -35,32 +39,51 @@ void Legendre::operator()(volume::Volume &conservedVolumeOut,
 
     }
     const auto lengths = grid.getCellLengths();
+
+    if (lengths.z > 1 || lengths.y == 1) {
+        THROW("For now, Legendre polynomials only support 2d, givne dimensions " << lengths);
+    }
     const real dxdydz = lengths.x*lengths.y*lengths.z;
 
     const auto ghostCells = conservedVolumeIn.getNumberOfGhostCells();
-
+    const auto origin = grid.getOrigin();
+    const auto top = grid.getTop();
+    const auto sides = top - origin;
     for (const std::string& variableName : variables) {
         if (conservedVolumeIn.hasVariable(variableName)) {
+            std::cout << "conserved " << variableName << std::endl;
             real integral = 0.0;
 
-            volume::for_each_cell_index(conservedVolumeIn, [&](size_t i) {
+            volume::for_each_midpoint(conservedVolumeIn, grid, [&](real x, real y, real, size_t i) {
+
+                // Scale from -1 to 1
+                const auto xScaled =  2* (x - origin.x) / sides.x - 1;
+                const auto yScaled =  2* (y - origin.y) / sides.y - 1;
+
                 const real value = (conservedVolumeIn.getScalarMemoryArea(variableName)->getPointer()[i]-minValue)/(maxValue-minValue);
-                integral += boost::math::legendre_p(degree, value) * dxdydz;
-            }, ghostCells, ghostCells);
+                integral += boost::math::legendre_p(degree_k, xScaled) * boost::math::legendre_p(degree_n, yScaled)
+                            * boost::math::legendre_p(degree_m, value) * dxdydz;
+            });
 
             conservedVolumeOut.getScalarMemoryArea(variableName)->getPointer()[0] += weight*integral;
         }
         else if (extraVolumeIn.hasVariable(variableName)) {
-            for(size_t var = 0; var < conservedVolumeIn.getNumberOfVariables(); ++var) {
+            std::cout << "extra " << variableName << std::endl;
+
                 real integral = 0.0;
 
-                volume::for_each_cell_index(conservedVolumeIn,  [&](size_t i) {
-                    const real value = (extraVolumeIn.getScalarMemoryArea(var)->getPointer()[i]-minValue)/(maxValue-minValue);
-                    integral += boost::math::legendre_p(degree, value) * dxdydz;
-                }, ghostCells, ghostCells);
+                volume::for_each_midpoint(conservedVolumeIn, grid, [&](real x, real y, real, size_t i) {
 
-                extraVolumeOut.getScalarMemoryArea(var)->getPointer()[0] += weight*integral;
-            }
+                    // Scale from -1 to 1
+                    const auto xScaled =  2* (x - origin.x) / sides.x - 1;
+                    const auto yScaled =  2* (y - origin.y) / sides.y - 1;
+                    const real value = (extraVolumeIn.getScalarMemoryArea(variableName)->getPointer()[i]-minValue)/(maxValue-minValue);
+                    integral += boost::math::legendre_p(degree_k, xScaled) * boost::math::legendre_p(degree_n, yScaled)
+                                * boost::math::legendre_p(degree_m, value) * dxdydz;
+                });
+
+                extraVolumeOut.getScalarMemoryArea(variableName)->getPointer()[0] += weight*integral;
+
         } else {
             THROW("Unknown variable name given to Legendre functional: " << variableName);
         }
