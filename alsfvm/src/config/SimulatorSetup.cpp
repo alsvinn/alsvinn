@@ -10,6 +10,7 @@
 #include "alsfvm/io/FixedIntervalWriter.hpp"
 #include "alsfvm/io/TimeIntegratedWriter.hpp"
 #include "alsfvm/io/CoarseGrainingIntervalWriter.hpp"
+#include "alsfvm/functional/IntervalFunctionalWriter.hpp"
 #include <boost/property_tree/xml_parser.hpp>
 #include "alsfvm/init/PythonInitialData.hpp"
 #include <boost/filesystem.hpp>
@@ -162,6 +163,11 @@ SimulatorSetup::readSetupFromFile(const std::string &filename)
 
     for (auto functional : functionals) {
         simulator->addWriter(functional);
+
+        auto functionalTimestepAdjuster = alsfvm::dynamic_pointer_cast<integrator::TimestepAdjuster>(functional);
+        if (functionalTimestepAdjuster) {
+            simulator->addTimestepAdjuster(functionalTimestepAdjuster);
+        }
     }
 
     auto timestepAdjuster = alsfvm::dynamic_pointer_cast<integrator::TimestepAdjuster>(writer);
@@ -475,17 +481,34 @@ std::vector<io::WriterPointer> SimulatorSetup::createFunctionals(const Simulator
             const std::string writerBasename = functional.second.get<std::string>("writer.basename");
 
             auto writer = writerFactory->createWriter(writerType, writerBasename);
-
-            auto time = functional.second.get<double>("time");
-            auto timeRadius = functional.second.get<double>("timeRadius");
-
             functional::Functional::Parameters parameters(functional.second);
 
             auto functionalPointer = functionalFactory.makeFunctional(this->readPlatform(configuration), name, parameters);
+            if (functional.second.find("time") != functional.second.not_found()) {
+                auto time = functional.second.get<double>("time");
+                auto timeRadius = functional.second.get<double>("timeRadius");
 
-            auto timeIntegrationFunctional = alsfvm::make_shared<functional::TimeIntegrationFunctional>(volumeFactory, writer, functionalPointer, time, timeRadius);
 
-            functionalPointers.push_back(alsfvm::dynamic_pointer_cast<io::Writer>(timeIntegrationFunctional));
+
+                auto timeIntegrationFunctional = alsfvm::make_shared<functional::TimeIntegrationFunctional>(volumeFactory, writer, functionalPointer, time, timeRadius);
+
+                functionalPointers.push_back(alsfvm::dynamic_pointer_cast<io::Writer>(timeIntegrationFunctional));
+            } else if (functional.second.find("numberOfSaves") != functional.second.not_found()) {
+                size_t numberOfSaves = functional.second.get<size_t>("numberOfSaves");
+                real endTime = readEndTime(configuration);
+                real timeInterval = endTime / numberOfSaves;
+
+
+                auto timeIntervalFunctional = alsfvm::dynamic_pointer_cast<io::Writer>(
+                            alsfvm::make_shared<functional::IntervalFunctionalWriter>(volumeFactory, writer, functionalPointer)
+                            );
+
+                auto intervalWriter = alsfvm::make_shared<io::FixedIntervalWriter>(timeIntervalFunctional,
+                                                                                                 timeInterval, endTime);
+                functionalPointers.push_back(alsfvm::dynamic_pointer_cast<io::Writer>(intervalWriter));
+            } else {
+                THROW("Unknown arguments for functional");
+            }
         }
     }
 
