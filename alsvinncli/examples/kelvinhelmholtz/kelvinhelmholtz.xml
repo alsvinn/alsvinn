@@ -24,7 +24,9 @@
         <name>legendre</name>
         <time>2</time>
         <timeRadius>1</timeRadius>
-        <degree>1</degree>
+        <degree_k>1</degree_k>
+        <degree_n>1</degree_n>
+        <degree_m>1</degree_m>
         <minValue>0</minValue>
         <maxValue>4</maxValue>
         <variables>rho</variables>
@@ -38,7 +40,9 @@
         <name>legendre</name>
         <time>2</time>
         <timeRadius>1</timeRadius>
-        <degree>2</degree>
+        <degree_k>2</degree_k>
+        <degree_n>2</degree_n>
+        <degree_m>2</degree_m>
         <minValue>0</minValue>
         <maxValue>4</maxValue>
         <variables>rho</variables>
@@ -52,7 +56,9 @@
         <name>legendre</name>
         <time>2</time>
         <timeRadius>1</timeRadius>
-        <degree>3</degree>
+        <degree_k>3</degree_k>
+        <degree_n>3</degree_n>
+        <degree_m>3</degree_m>
         <minValue>0</minValue>
         <maxValue>4</maxValue>
         <variables>rho</variables>
