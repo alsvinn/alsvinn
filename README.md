@@ -104,6 +104,20 @@ Most output is saved as a NetCDF file. These can easily be read in programming l
 
 There is a simple python API for running alsvinn under the ```python``` folder. Check out the readme file there for more information.
 
+## Note about Boost and Python
+
+Be sure the python version you link with is the same as the the python version that was used with boost.
+Usually, this is taken care of by using the libraries corresponding to the ```python``` executable (this is
+especially true for CSCS Daint. On Euler you probably have to build boost with numpy support yourself).
+
+## Note about GCC versions and CUDA
+
+CUDA on Linux does at the moment not support GCC versions later than 6, therefore, to build with GPU support, you need to set the compiler to GCC-6.
+
+After you have installed GCC-6 on your distribution, you can set the C/C++ compiler as
+
+    cmake .. -DCMAKE_CXX_COMPILER=`which g++-6` -DCMAKE_C_COMPILER=`which gcc-6`
+
 ## Notes on Windows
 
 You will need to download ghostcript in order for doxygen to work. Download from 
