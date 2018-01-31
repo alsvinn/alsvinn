@@ -51,7 +51,7 @@ void Legendre::operator()(volume::Volume &conservedVolumeOut,
     const auto sides = top - origin;
     for (const std::string& variableName : variables) {
         if (conservedVolumeIn.hasVariable(variableName)) {
-            std::cout << "conserved " << variableName << std::endl;
+
             real integral = 0.0;
 
             volume::for_each_midpoint(conservedVolumeIn, grid, [&](real x, real y, real, size_t i) {
@@ -68,7 +68,6 @@ void Legendre::operator()(volume::Volume &conservedVolumeOut,
             conservedVolumeOut.getScalarMemoryArea(variableName)->getPointer()[0] += weight*integral;
         }
         else if (extraVolumeIn.hasVariable(variableName)) {
-            std::cout << "extra " << variableName << std::endl;
 
                 real integral = 0.0;
 
