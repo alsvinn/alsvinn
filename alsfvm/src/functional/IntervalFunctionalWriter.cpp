@@ -6,6 +6,7 @@ IntervalFunctionalWriter::IntervalFunctionalWriter(volume::VolumeFactory volumeF
                                                    io::WriterPointer writer,
                                                    FunctionalPointer functional)
     : volumeFactory(volumeFactory),
+      writer(writer),
       functional(functional)
 {
 

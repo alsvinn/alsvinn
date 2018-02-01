@@ -20,6 +20,35 @@
   <cfl>auto</cfl>
   <integrator>auto</integrator>
   <functionals>
+
+<functional>
+    <name>legendre_pointwise</name>
+    <time>2</time>
+    <timeRadius>1</timeRadius>
+
+    <degree>1</degree>
+    <minValue>0</minValue>
+    <maxValue>4</maxValue>
+    <variables>rho</variables>
+    <writer>
+        <type>netcdf</type>
+        <basename>kh_legendre_pointwise_time_1</basename>
+    </writer>
+</functional>
+
+<functional>
+    <name>legendre_pointwise</name>
+    <numberOfSaves>1</numberOfSaves>
+    <degree>1</degree>
+
+    <minValue>0.9</minValue>
+    <maxValue>2.5</maxValue>
+    <variables>rho</variables>
+    <writer>
+        <type>netcdf</type>
+        <basename>kh_legendre_pointwise_1</basename>
+    </writer>
+</functional>
     <functional>
         <name>legendre</name>
         <time>2</time>
