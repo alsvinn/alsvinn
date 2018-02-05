@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
 
 
 		alsfvm::config::SimulatorSetup setup;
-    ALSVINN_LOG(INFO, "Git commit " << alsutils::getVersionControlID());
+        alsutils::dumpInformationToLog();
 #ifdef ALSVINN_USE_MPI
 
         int multiX = vm["multi-x"].as<int>();

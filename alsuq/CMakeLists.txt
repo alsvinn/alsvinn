@@ -27,7 +27,7 @@ IF(ALSVINN_HAVE_CUDA)
 	FILE(GLOB_RECURSE CUDA_SRC src/*.cu)
 	set_source_groups( "CUDA Files" "${CMAKE_CURRENT_SOURCE_DIR}/src/" "${CUDA_SRC}")
   ADD_LIBRARY(alsuq_cuda SHARED ${CUDA_SRC})
-
+  target_link_libraries(alsuq_cuda PUBLIC alsutils alsfvm_include)
 ELSE()
 	ADD_LIBRARY(alsuq_cuda INTERFACE)
 ENDIF()
@@ -40,7 +40,8 @@ target_include_directories(alsuq PUBLIC
 
 TARGET_LINK_LIBRARIES(alsuq
   PUBLIC
-  alsfvm alsutils alsuq_cuda
+  alsfvm
+   alsutils alsuq_cuda
   MPI::MPI_C
   Boost::filesystem
   hdf5::HDF5_C

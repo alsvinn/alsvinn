@@ -24,7 +24,6 @@ namespace alsfvm {
 #include <cuda.h>
 #include <cmath>
 
-#include "alsfvm/gpu_array.hpp"
 #else 
 
 #define __device__ 

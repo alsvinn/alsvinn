@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
                                   + ".txt");
 
 
-        ALSVINN_LOG(INFO, "Git commit " << alsutils::getVersionControlID());
+        alsutils::dumpInformationToLog();
         std::string inputfile = vm["input"].as<std::string>();
 
 

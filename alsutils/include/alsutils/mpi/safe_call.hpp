@@ -1,5 +1,5 @@
 #pragma once
-
+#include "alsutils/error/Exception.hpp"
 #define MPI_SAFE_CALL(X) {  \
     int error = X; \
     if (error != MPI_SUCCESS) { \

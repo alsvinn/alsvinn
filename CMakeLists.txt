@@ -8,12 +8,12 @@ IF(${ALSVINN_USE_HUNTER})
 	include("cmake/HunterGate.cmake")
 
 	HunterGate(
-	    URL "https://github.com/ruslo/hunter/archive/v0.15.0.tar.gz"
-	        SHA1 "5ce8ae8627d94315c47a0acf246de1c0aae2b4b9"
-		)
+		URL "https://github.com/ruslo/hunter/archive/v0.15.0.tar.gz"
+		SHA1 "5ce8ae8627d94315c47a0acf246de1c0aae2b4b9"
+	)
 ELSE()
 	MACRO(hunter_add_package args)
-	     # do nothing
+		# do nothing
 	ENDMACRO()
 ENDIF()
 if(${ALSVINN_USE_CUDA})
@@ -27,7 +27,8 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/git_find")
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-
+git_local_changes(GIT_VERSION_STATUS)
+ADD_DEFINITIONS(-DCOMPILING_ALSVINN)
 
 MACRO(set_source_groups  folder_name directory source_files)
 	foreach(f ${source_files})
@@ -57,17 +58,18 @@ SET(ALSVINN_MPI_GPU_DIRECT OFF CACHE BOOL "Use NVidia's GPU direct to do MPI tra
 
 ADD_DEFINITIONS(-DMPICH_RDMA_ENABLED_CUDA=1)
 FIND_PACKAGE(OpenMP REQUIRED)
+
 add_compile_options($<$<COMPILE_LANGUAGE:CXX>:${OpenMP_CXX_FLAGS}>)
 if (NOT WIN32)
 	add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wall>)
-  add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-comment>)
+	add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-comment>)
 
 else()
 	# This is apparently needed for Visual Studio 2013, could be
-  # fixed on 2015, but cuda doesn't work there...
+	# fixed on 2015, but cuda doesn't work there...
 	ADD_DEFINITIONS(-DBOOST_NO_CXX11_ALLOCATOR)
 
-  ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
+	ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
 endif()
 
 # Python dependency could be made optional eventually, but for now it's
@@ -80,11 +82,11 @@ find_package(Boost REQUIRED filesystem thread system chrono date_time program_op
 
 
 if (NOT ALSVINN_USE_HUNTER)
-   add_definitions(-DBOOST_LOG_DYN_LINK)
+	add_definitions(-DBOOST_LOG_DYN_LINK)
 endif()
 
 IF(WIN32)
-  add_definitions(-DBOOST_ALL_NO_LIB=1)
+	add_definitions(-DBOOST_ALL_NO_LIB=1)
 endif()
 
 find_package (Threads)
@@ -93,9 +95,9 @@ include("cmake/netcdf.cmake")
 include("cmake/python.cmake")
 if(ALSVINN_USE_CUDA)
 	set(CMAKE_CUDA_FLAGS "--use_fast_math  -Xptxas -v -arch=compute_50 -code=sm_50" )
-  set(CMAKE_CUDA_FLAGS_DEBUG "-G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0")
-  set(ALSVINN_HAVE_CUDA On)
-  add_definitions(-DALSVINN_HAVE_CUDA)
+	set(CMAKE_CUDA_FLAGS_DEBUG "-G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0")
+	set(ALSVINN_HAVE_CUDA On)
+	add_definitions(-DALSVINN_HAVE_CUDA)
 endif()
 
 find_package(HDF5 REQUIRED)
@@ -115,26 +117,24 @@ if(ALSVINN_USE_MPI)
 	add_definitions(-DMPICH_SKIP_MPICXX)
 endif()
 
-include_directories(${CMAKE_SOURCE_DIR}/alsutils/include)
-include_directories(${CMAKE_SOURCE_DIR}/alsuq/include)
-include_directories(${CMAKE_SOURCE_DIR}/alsfvm/include)
+
 add_subdirectory("alsutils")
 
 add_subdirectory("alsfvm")
 add_subdirectory("alsvinncli")
 
 IF(ALSVINN_USE_MPI)
-    add_subdirectory("alsuq")
-    add_subdirectory("alsuqcli")
+	add_subdirectory("alsuq")
+	add_subdirectory("alsuqcli")
 ENDIF()
 if(ALSVINN_BUILD_TESTS)
-  hunter_add_package(GTest)
-  find_package(GTest REQUIRED)
-  add_subdirectory("test")
-  add_subdirectory("system_test")
-  if(ALSVINN_USE_MPI)
-    add_subdirectory("mpi_test")
-endif()
+	hunter_add_package(GTest)
+	find_package(GTest REQUIRED)
+	add_subdirectory("test")
+	add_subdirectory("system_test")
+	if(ALSVINN_USE_MPI)
+		add_subdirectory("mpi_test")
+	endif()
 
 endif()
 

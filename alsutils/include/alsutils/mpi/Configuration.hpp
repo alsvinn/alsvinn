@@ -1,5 +1,5 @@
 #pragma once
-#include "alsfvm/types.hpp"
+#include "alsutils/types.hpp"
 #include <mpi.h>
 namespace alsutils { namespace mpi {
 

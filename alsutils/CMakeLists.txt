@@ -16,7 +16,11 @@ target_include_directories(alsutils PUBLIC
       ${CUDA_INCLUDE_DIRS}
     $<INSTALL_INTERFACE:include>)
 
-file(READ ${CMAKE_BINARY_DIR}/CMakeCache.txt CMAKE_CACHE_CONTENTS HEX)
-
+# Dump all variables to the header file
+SET(ALL_CONFIGURATIONS "")
+get_cmake_property(_variableNames VARIABLES)
+foreach (_variableName ${_variableNames})
+    SET(ALL_CONFIGURATIONS "${ALL_CONFIGURATIONS}\n ${_variableName}=${${_variableName}}")
+endforeach()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/alsutils/config.hpp.in
-  ${CMAKE_CURRENT_BINARY_DIR}/include/alsutils/config.hpp)
+${CMAKE_CURRENT_BINARY_DIR}/include/alsutils/config.hpp ESCAPE_QUOTES)
