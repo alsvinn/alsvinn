@@ -1,0 +1,3 @@
+[submodule "cmake/git_find"]
+	path = cmake/git_find
+	url = https://github.com/rpavlik/cmake-modules.git

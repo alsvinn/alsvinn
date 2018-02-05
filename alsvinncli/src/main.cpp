@@ -10,6 +10,7 @@
 #include <boost/program_options.hpp>
 #include <omp.h>
 #include "alsutils/log.hpp"
+#include "alsutils/config.hpp"
 #ifdef _WIN32 
 #ifndef NDEBUG
 #include <float.h> // enable floating point exceptions on windows.
@@ -129,7 +130,7 @@ int main(int argc, char** argv) {
 
 
 		alsfvm::config::SimulatorSetup setup;
-
+    ALSVINN_LOG(INFO, "Git commit " << alsutils::getVersionControlID());
 #ifdef ALSVINN_USE_MPI
 
         int multiX = vm["multi-x"].as<int>();

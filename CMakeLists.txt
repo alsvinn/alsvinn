@@ -24,6 +24,10 @@ if(${ALSVINN_USE_CUDA})
 else()
 	project (alsvinn C CXX)
 endif()
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/git_find")
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+
 
 MACRO(set_source_groups  folder_name directory source_files)
 	foreach(f ${source_files})
