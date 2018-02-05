@@ -1,0 +1,62 @@
+#pragma once
+#include <vector>
+#include <iostream>
+#include <sstream>
+#include "alsutils/log.hpp"
+#include <fstream>
+
+#ifndef COMPILING_ALSVINN
+#cmakedefine ALSVINN_HAVE_CUDA 1
+#cmakedefine ALSVINN_USE_MPI 1
+#endif
+
+#define ALSVINN_HAS_CONFIG 1
+
+namespace alsutils {
+  std::string getVersionControlID() {
+    return "@GIT_SHA1@";
+  }
+
+  std::string getBuildType() {
+    return "@CMAKE_BUILD_TYPE@";
+  }
+
+  std::string getCUDAVersion() {
+    return "@CUDA_VERSION_STRING@";
+  }
+
+  std::string getCXXFlags() {
+    return "@CMAKE_CXX_FLAGS@";
+  }
+
+  std::string getCUDAFlags() {
+    return "@CMAKE_CUDA_FLAGS@";
+  }
+
+std::string getVersionControlStatus() {
+  return "@GIT_VERSION_STATUS@";
+}
+
+
+  void dumpInformationToLog() {
+
+    ALSVINN_LOG(INFO, "++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+                   << "Git version:       " << getVersionControlID() << "\n"
+                   << "Repository was:    " << getVersionControlStatus() << "\n"
+                   << "Build type :       " << getBuildType() << "\n"
+                   << "CUDA Version:      " << getCUDAVersion() << "\n"
+                   << "Extra CXX flags:   " << getCXXFlags() << "\n"
+                   << "CUDA flags:        " << getCUDAFlags() << "\n"
+                   << "++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+  }
+
+
+  std::string getAllCmakeVariables() {
+    return R"V0G0N(@ALL_CONFIGURATIONS@)V0G0N";
+  }
+
+  void writeCmakeConfiguration(const std::string& outputFile) {
+    std::ofstream output(outputFile);
+    output << getAllCmakeVariables() << std::endl;
+  }
+}
