@@ -45,7 +45,7 @@ TEST(BurgersWenoTest, ConstantZeroTestSecondOrder) {
 
 
         ASSERT_EQ(0, right->getScalarMemoryArea(0)->getPointer()[middle]);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(BurgersWenoTest, ConstantZeroTestThirdOrder) {
@@ -77,7 +77,7 @@ TEST(BurgersWenoTest, ConstantZeroTestThirdOrder) {
         ASSERT_EQ(0, left->getScalarMemoryArea(0)->getPointer()[middle]);
 
         ASSERT_EQ(0, right->getScalarMemoryArea(0)->getPointer()[middle]);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(BurgersWenoTest, ConstantOneTestSecondOrder) {
@@ -114,7 +114,7 @@ TEST(BurgersWenoTest, ConstantOneTestSecondOrder) {
        
         ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle] , 1e-8);
        
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(BurgersWenoTest, ConstantOneTestThirdOrder) {
@@ -150,7 +150,7 @@ TEST(BurgersWenoTest, ConstantOneTestThirdOrder) {
         
         ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle] , 1e-8);
         
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(BurgersWenoTest, ReconstructionSimple) {

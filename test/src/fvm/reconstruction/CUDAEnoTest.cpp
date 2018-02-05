@@ -110,7 +110,7 @@ TEST_F(CUDAEnoTest, ConstantZeroTestSecondOrder) {
         ASSERT_EQ(0, rightCPU->getScalarMemoryArea(2)->getPointer()[middle]);
         ASSERT_EQ(0, rightCPU->getScalarMemoryArea(3)->getPointer()[middle]);
         ASSERT_EQ(0, rightCPU->getScalarMemoryArea(4)->getPointer()[middle]);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 TEST_F(CUDAEnoTest, ConstantOneTestSecondOrder) {
     makeReconstruction("eno2");
@@ -143,7 +143,7 @@ TEST_F(CUDAEnoTest, ConstantOneTestSecondOrder) {
         ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
         ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
         ASSERT_NEAR(10, rightCPU->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 

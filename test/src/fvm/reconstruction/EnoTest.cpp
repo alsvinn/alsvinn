@@ -57,7 +57,7 @@ TEST(EnoTest, ConstantZeroTestSecondOrder) {
         ASSERT_EQ(0, right->getScalarMemoryArea(var)->getPointer()[middle])
                 << "Failed at index = " << middle << " var = " << var;
 }
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 
@@ -94,7 +94,7 @@ TEST(EnoTest, ConstantZeroTestThirdOrder) {
         ASSERT_EQ(0, right->getScalarMemoryArea(2)->getPointer()[middle]);
         ASSERT_EQ(0, right->getScalarMemoryArea(3)->getPointer()[middle]);
         ASSERT_EQ(0, right->getScalarMemoryArea(4)->getPointer()[middle]);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(EnoTest, ConstantOneTestSecondOrder) {
@@ -138,7 +138,7 @@ TEST(EnoTest, ConstantOneTestSecondOrder) {
         ASSERT_EQ(1, right->getScalarMemoryArea(2)->getPointer()[middle]);
         ASSERT_EQ(1, right->getScalarMemoryArea(3)->getPointer()[middle]);
         ASSERT_EQ(10, right->getScalarMemoryArea(4)->getPointer()[middle]);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(EnoTest, ConstantOneTestThirdOrder) {
@@ -184,7 +184,7 @@ TEST(EnoTest, ConstantOneTestThirdOrder) {
         ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(10, right->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(EnoTest, ReconstructionSimple) {
