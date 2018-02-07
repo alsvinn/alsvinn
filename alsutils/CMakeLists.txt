@@ -8,8 +8,22 @@ file(GLOB_RECURSE SRC src/*.cpp)
 
 set_source_groups( "Header Files" "${CMAKE_CURRENT_SOURCE_DIR}/include/alsutils" "${HEADERS}")
 
+
+# This is a dummy target in a way, but the problem is that the current cmake
+# version messes up the cuda flags if we link with alsfvm
+# basically, some library exports the -pthreads C flag onto nvcc, and it
+# doesn't
+# understand it.
+add_library(alsutils_include INTERFACE)
+target_include_directories(alsutils_include INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>	
+  $<INSTALL_INTERFACE:include>)
+
+
+
 add_library( alsutils SHARED ${SRC} ${HEADERS})
-target_link_libraries(alsutils PUBLIC Boost::log)
+target_link_libraries(alsutils PUBLIC Boost::log MPI::MPI_C)
 target_include_directories(alsutils PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>

@@ -8,7 +8,7 @@
 #include <fstream>
 #include "alsfvm/equation/equation_list.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
-#include "alsutils/log.hpp"
+
 
 namespace alsfvm { namespace reconstruction {
 
@@ -166,15 +166,7 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume &input
     const ivec3 start = (order*spaceFillingVector - directionVector)+ startIndex;
     const ivec3 end = ivec3(nx, ny, nz) - (order* spaceFillingVector-directionVector)+ endIndex;
 
-#if 0 // debug output
-    static std::array<int,3> first;
-        if (first[direction]<8) {
-          ALSVINN_LOG(INFO, "new direction = " << direction << " start = (" << start.x << ", " << start.y << ", " << start.z << ")");
-          ALSVINN_LOG(INFO, "new direction = " << direction << "end   = (" << end.x << ", " << end.y << ", " << end.z << ")");
-        }
-        first[direction]++;
 
-#endif
     const int blockSize = 512;
 
     auto launchParameters = cuda::makeKernelLaunchParameters(start, end, blockSize);
@@ -288,14 +280,7 @@ void ENOCUDA<Equation, order>::computeDividedDifferences(const memory::Memory<re
             size_t(numberOfCellsPerDimension.z);
 
     const size_t gridSize = (totalNumberOfCells + blockSize -1 )/ blockSize;
-#if 0
-    static std::array<int,order*3> first;
-        if (first[(direction[1])*order + level]<8) {
-            ALSVINN_LOG(INFO, "level = " << level << " direction = " << direction << " start = (" << start.x << ", " << start.y << ", " << start.z << ")");
-            ALSVINN_LOG(INFO, "level = " << level << " direction = " << direction << " end   = (" << end.x << ", " << end.y << ", " << end.z << ")");
-        }
-        first[(direction[1])*order + level] ++;
-#endif
+
     computeDividedDifferencesKernel<order><<<gridSize, blockSize>>>(pointerOut, pointerIn,
                                                              numberOfCellsPerDimension.x,
                                                              numberOfCellsPerDimension.y,

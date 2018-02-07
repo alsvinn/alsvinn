@@ -1,7 +1,12 @@
 cmake_minimum_required (VERSION 3.1.0)
 SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
 SET(ALSVINN_USE_HUNTER OFF CACHE BOOL "Use Hunter for automatic compiling of additional packages")
-set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CUDA_STANDARD 11)
+
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_CUDA_STANDARD_REQUIRED TRUE)
+
 SET(HUNTER_ROOT ${CMAKE_BINARY_DIR}/hunter_root)
 
 IF(${ALSVINN_USE_HUNTER})
@@ -107,14 +112,7 @@ FIND_PACKAGE(NetCDF REQUIRED)
 
 
 if(ALSVINN_USE_MPI)
-	SET(MPI_CXX_SKIP_MPICXX ON)
-	find_package(MPI REQUIRED)
-	add_definitions(-DALSVINN_USE_MPI)
-
-	# It seems MPI doesn't set this correctly anymore, so we have to specify This
-	# manually.
-	add_definitions(-DOMPI_SKIP_MPICXX)
-	add_definitions(-DMPICH_SKIP_MPICXX)
+    include("cmake/mpi.cmake")
 endif()
 
 
