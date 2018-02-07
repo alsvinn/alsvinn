@@ -1,6 +1,7 @@
 #pragma once
 #include <mpi.h>
 #include "alsfvm/mpi/Configuration.hpp"
+#include "alsfvm/types.hpp"
 #include <memory>
 #ifdef ALSVINN_HAVE_CUDA
 #include <thrust/host_vector.h>

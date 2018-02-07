@@ -1,0 +1,34 @@
+#pragma once
+#include <vector>
+#include <iostream>
+#include <sstream>
+#include "alsutils/log.hpp"
+#include <fstream>
+
+#ifndef COMPILING_ALSVINN
+#cmakedefine ALSVINN_HAVE_CUDA 1
+#cmakedefine ALSVINN_USE_MPI 1
+#endif
+
+#define ALSVINN_HAS_CONFIG 1
+
+namespace alsutils {
+  std::string getVersionControlID();
+
+  std::string getBuildType();
+
+  std::string getCUDAVersion();
+
+  std::string getCXXFlags();
+
+  std::string getCUDAFlags();
+
+std::string getVersionControlStatus();
+
+
+  void dumpInformationToLog();
+
+  std::string getAllCmakeVariables();
+
+  void writeCmakeConfiguration(const std::string& outputFile);
+}

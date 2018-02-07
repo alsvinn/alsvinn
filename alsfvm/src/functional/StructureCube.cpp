@@ -1,5 +1,5 @@
 #include "alsfvm/functional/StructureCube.hpp"
-#include "alsuq/stats/structure_common.hpp"
+#include "alsfvm/functional/structure_common.hpp"
 #include "alsfvm/functional/register_functional.hpp"
 
 namespace alsfvm { namespace functional {
@@ -67,7 +67,7 @@ void StructureCube::computeCube(alsfvm::memory::View<real> &output,
                                 int ngx, int ngy, int ngz,
                                 int dimensions)
 {
-     alsuq::stats::computeStructureCube(output, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions, p);
+     computeStructureCube(output, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions, p);
 }
 
 REGISTER_FUNCTIONAL(cpu, structure_cube, StructureCube)

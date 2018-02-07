@@ -39,7 +39,7 @@ TEST(BurgersEnoTest, ConstantZeroTestSecondOrder) {
     for_each_cell_index(*left, [&](size_t middle ) {
         ASSERT_EQ(0, left->getScalarMemoryArea(0)->getPointer()[middle])
                 << "Failed at index " << middle;
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 
@@ -69,7 +69,7 @@ TEST(BurgersEnoTest, ConstantZeroTestThirdOrder) {
         ASSERT_EQ(0, left->getScalarMemoryArea(0)->getPointer()[middle]);
 
         ASSERT_EQ(0, right->getScalarMemoryArea(0)->getPointer()[middle]);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(BurgersEnoTest, ConstantOneTestSecondOrder) {
@@ -100,7 +100,7 @@ TEST(BurgersEnoTest, ConstantOneTestSecondOrder) {
         ASSERT_EQ(1, left->getScalarMemoryArea(0)->getPointer()[middle]);
 
         ASSERT_EQ(1, right->getScalarMemoryArea(0)->getPointer()[middle]);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(BurgersEnoTest, ConstantOneTestThirdOrder) {
@@ -127,7 +127,7 @@ TEST(BurgersEnoTest, ConstantOneTestThirdOrder) {
 
     for_each_cell_index(*left, [&]( size_t middle ) {
         ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(BurgersEnoTest, ReconstructionSimple) {

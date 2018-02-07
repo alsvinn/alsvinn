@@ -5,6 +5,7 @@
 #include <omp.h>
 #include "alsutils/log.hpp"
 #include <boost/program_options.hpp>
+#include "alsutils/config.hpp"
 
 int main(int argc, char** argv) {
     int rank = 0;
@@ -86,7 +87,7 @@ int main(int argc, char** argv) {
                                   + ".txt");
 
 
-
+        alsutils::dumpInformationToLog();
         std::string inputfile = vm["input"].as<std::string>();
 
 

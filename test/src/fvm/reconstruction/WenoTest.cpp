@@ -52,7 +52,7 @@ TEST(WenoTest, ConstantZeroTestSecondOrder) {
         ASSERT_EQ(0, right->getScalarMemoryArea(2)->getPointer()[middle]);
         ASSERT_EQ(0, right->getScalarMemoryArea(3)->getPointer()[middle]);
         ASSERT_EQ(0, right->getScalarMemoryArea(4)->getPointer()[middle]);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(WenoTest, ConstantZeroTestThirdOrder) {
@@ -92,7 +92,7 @@ TEST(WenoTest, ConstantZeroTestThirdOrder) {
         ASSERT_EQ(0, right->getScalarMemoryArea(2)->getPointer()[middle]);
         ASSERT_EQ(0, right->getScalarMemoryArea(3)->getPointer()[middle]);
         ASSERT_EQ(0, right->getScalarMemoryArea(4)->getPointer()[middle]);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(WenoTest, ConstantOneTestSecondOrder) {
@@ -139,7 +139,7 @@ TEST(WenoTest, ConstantOneTestSecondOrder) {
         ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(10, right->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(WenoTest, ConstantOneTestThirdOrder) {
@@ -186,7 +186,7 @@ TEST(WenoTest, ConstantOneTestThirdOrder) {
         ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle] , 1e-8);
         ASSERT_NEAR(10, right->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
-    }, {ngx-1, ngy, ngz}, {-ngx+1, -ngy, -ngz});
+    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
 }
 
 TEST(WenoTest, ReconstructionSimple) {

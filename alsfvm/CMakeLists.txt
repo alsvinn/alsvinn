@@ -1,55 +1,72 @@
-cmake_minimum_required (VERSION 2.8.8)
-
-
+cmake_minimum_required (VERSION 3.1.0)
 
 FILE(GLOB_RECURSE SRC src/*.cpp)
 IF(NOT ALSVINN_HAVE_CUDA)
-    FILE(GLOB_RECURSE CUDA_SRC src/cuda/*.cpp)
-    LIST(REMOVE_ITEM SRC ${CUDA_SRC})
+  FILE(GLOB_RECURSE CUDA_SRC src/cuda/*.cpp)
+  LIST(REMOVE_ITEM SRC ${CUDA_SRC})
 ENDIF()
 
 IF (NOT ALSVINN_USE_MPI)
-    FILE(GLOB_RECURSE MPI_SRC src/*MPI*.cpp)
-     LIST(REMOVE_ITEM SRC ${MPI_SRC})
+  FILE(GLOB_RECURSE MPI_SRC src/*MPI*.cpp)
+  LIST(REMOVE_ITEM SRC ${MPI_SRC})
 ENDIF()
 
 FILE(GLOB_RECURSE HEADERS include/*.hpp)
 
 IF(NOT ALSVINN_HAVE_CUDA)
-    FILE(GLOB_RECURSE CUDA_HEADERS include/alsfvm/cuda/*.hpp)
-    LIST(REMOVE_ITEM HEADERS ${CUDA_HEADERS})
+  FILE(GLOB_RECURSE CUDA_HEADERS include/alsfvm/cuda/*.hpp)
+  LIST(REMOVE_ITEM HEADERS ${CUDA_HEADERS})
 ENDIF()
 
 IF (NOT ALSVINN_USE_MPI)
-    FILE(GLOB_RECURSE MPI_HEADERS include/*MPI*.hpp)
-     LIST(REMOVE_ITEM HEADERS ${MPI_HEADERS})
+  FILE(GLOB_RECURSE MPI_HEADERS include/*MPI*.hpp)
+  LIST(REMOVE_ITEM HEADERS ${MPI_HEADERS})
 ENDIF()
 
 set_source_groups( "Source Files" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SRC}")
 set_source_groups( "Header Files" "${CMAKE_CURRENT_SOURCE_DIR}/include/alsfvm" "${HEADERS}")
 
 
-INCLUDE_DIRECTORIES("include" ${CUDA_INCLUDE_DIRS}  ${PYTHON_INCLUDE_DIRS})
 
+IF(ALSVINN_HAVE_CUDA)
+  FILE(GLOB_RECURSE CUDA_SRC src/*.cu)
+  set_source_groups( "CUDA Files" "${CMAKE_CURRENT_SOURCE_DIR}/src/" "${CUDA_SRC}")
+  add_library(alsfvm_cuda SHARED ${CUDA_SRC})
+  target_link_libraries(alsfvm_cuda alsutils_include MPI::MPI_C_include)
+  target_include_directories(alsfvm_cuda PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+      $<INSTALL_INTERFACE:include>)
 
-IF(ALSVINN_HAVE_CUDA) 
-
-	CUDA_INCLUDE_DIRECTORIES("include")
-	FILE(GLOB_RECURSE CUDA_SRC src/*.cu)
-	set_source_groups( "CUDA Files" "${CMAKE_CURRENT_SOURCE_DIR}/src/" "${CUDA_SRC}")
-        CUDA_ADD_LIBRARY(alsfvm_cuda SHARED ${CUDA_SRC})
-	CUDA_COMPILE_PTX(ALSFVM_CUDA_PTX alsfvm_cuda_ptx ${CUDA_SRC} OPTIONS -src-in-ptx)
-
-	# This is so that we can build the ptx files for performance analysis
-	add_custom_target(alsfvm_ptx_build ALL
-		DEPENDS ${ALSFVM_CUDA_PTX} ${CUDA_SRC}
-		SOURCES ${CUDA_SRC})
-	set_target_properties(alsfvm_ptx_build PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
-	SET(ALSFVM_CUDA alsfvm_cuda)
 ELSE()
-	SET(ALSFVM_CUDA "")
+  add_library(alsfvm_cuda INTERFACE)
 ENDIF()
 
-ADD_LIBRARY( alsfvm SHARED ${SRC} ${HEADERS} )
-TARGET_LINK_LIBRARIES(alsfvm alsutils  ${ALSFVM_CUDA} ${Boost_LIBRARIES} ${CUDA_LIBRARIES} ${HDF5_LIBRARIES} ${PYTHON_LIBRARY} ${NETCDF_LIBRARIES})
+# This is a dummy target in a way, but the problem is that the current cmake
+# version messes up the cuda flags if we link with alsfvm
+# basically, some library exports the -pthreads C flag onto nvcc, and it doesn't
+# understand it.
+add_library(alsfvm_include INTERFACE)
+target_include_directories(alsfvm_include INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 
+add_library( alsfvm SHARED ${SRC} ${HEADERS} )
+
+target_include_directories(alsfvm PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
+target_link_libraries(alsfvm
+  PUBLIC
+  alsutils
+  alsfvm_cuda
+  Boost::filesystem
+  Boost::python
+  Boost::numpy
+  MPI::MPI_C
+  hdf5::HDF5_C
+  python::PythonLibs
+  ${CUDA_LIBRARIES}
+  ${OpenMP_CXX_LIB_NAMES}
+  netcdf::NetCDF4_c
+  netcdf::parallel_NetCDF4_c)

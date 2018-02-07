@@ -86,6 +86,9 @@ namespace alsfvm { namespace io {
         //! @note should only be called once per write!
         std::string getFilename();
 
+        //! Writes basic Alsvinn info to file.
+        void addFileInformation(netcdf_raw_ptr file);
+
         size_t snapshotNumber{0};
         const std::string basefileName;
     };
