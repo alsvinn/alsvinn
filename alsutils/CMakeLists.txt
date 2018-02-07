@@ -17,12 +17,13 @@ set_source_groups( "Header Files" "${CMAKE_CURRENT_SOURCE_DIR}/include/alsutils"
 add_library(alsutils_include INTERFACE)
 target_include_directories(alsutils_include INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>	
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/config.cpp.in
+  ${CMAKE_CURRENT_BINARY_DIR}/config.cpp ESCAPE_QUOTES)
 
-
-add_library( alsutils SHARED ${SRC} ${HEADERS})
+add_library( alsutils SHARED ${SRC} ${HEADERS}  ${CMAKE_CURRENT_BINARY_DIR}/config.cpp)
 target_link_libraries(alsutils PUBLIC Boost::log MPI::MPI_C)
 target_include_directories(alsutils PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
