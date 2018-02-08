@@ -94,7 +94,7 @@ std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(Setup::ptre
         auto length = parameterNode.second.get<size_t>("length");
         auto type = parameterNode.second.get<std::string>("type");
 
-        distribution::Parameters parametersToDistribution;
+        distribution::Parameters parametersToDistribution(parameterNode.second);
         parametersToDistribution.setParameter("lower", 0);
         parametersToDistribution.setParameter("upper", 1);
 

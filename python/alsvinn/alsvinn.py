@@ -240,7 +240,7 @@ class Alsvinn(object):
             filename = "{basename}_{statistics}_{timestep}.{type}".\
                 format(basename=basename, timestep=timestep, type=append, statistics=statistics)
 
-        print(filename)
+
 
         if type == "netcdf":
             with netCDF4.Dataset(filename) as f:

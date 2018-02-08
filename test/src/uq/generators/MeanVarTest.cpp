@@ -23,8 +23,8 @@ namespace {
 
         std::string generatorName;
         std::string distributionName;
-
-        alsuq::distribution::Parameters parameters;
+        boost::property_tree::ptree ptree;
+        alsuq::distribution::Parameters parameters{ptree};
         real mean;
         real variance;
         int D;
