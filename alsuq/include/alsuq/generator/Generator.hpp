@@ -12,8 +12,8 @@ namespace alsuq { namespace generator {
     public:
        virtual ~Generator() {};
 
-       //! Generates a uniformly distributed number between 0 and 1
-       virtual real generate(size_t component) = 0;
+        //! Generates a uniformly distributed number between 0 and 1
+        virtual real generate(size_t component) = 0;
     };
 } // namespace generator
 } // namespace alsuq

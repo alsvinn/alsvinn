@@ -3,6 +3,7 @@
 #include "alsuq/distribution/Uniform.hpp"
 #include "alsutils/error/Exception.hpp"
 #include "alsuq/distribution/Uniform1D.hpp"
+#include "alsuq/distribution/DLLDistribution.hpp"
 
 
 namespace alsuq { namespace distribution {
@@ -22,8 +23,10 @@ std::shared_ptr<Distribution> DistributionFactory::createDistribution(
 	distribution.reset(new Uniform1D(numberVariables,
 				     parameters.getParameter("a"),
 				     parameters.getParameter("b")));
-    }
-    else {
+    } else if(name == "dll") {
+        distribution.reset(new DLLDistribution(numberVariables, dimensions, parameters));
+
+    }else {
         THROW("Unknown distribution " << name);
     }
 
