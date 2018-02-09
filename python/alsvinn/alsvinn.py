@@ -22,12 +22,14 @@ class Alsvinn(object):
                  alsvinncli=alsvinn.config.ALSVINNCLI_PATH,
                  prepend_alsvinncli='',
                  alsuqcli=alsvinn.config.ALSUQCLI_PATH,
-                 omp_num_threads=None):
+                 omp_num_threads=None, data_path=''):
         self.settings = {"fvm" : {}, "uq" : {}}
         self.fvmSettings = self.settings["fvm"]
         self.uqSettings=self.settings["uq"]
+        self.data_path = data_path
         if xml_file != None:
             self.read_xml(xml_file)
+        
         elif configuration != None:
             self.fvmSettings = configuration
         self.alsvinncli = alsvinncli
@@ -225,9 +227,26 @@ class Alsvinn(object):
         return dimension
 
     def get_data(self, variable, timestep, sample=0, statistics=None):
-        basename = self.fvmSettings["writer"]["basename"]
-        type = self.fvmSettings["writer"]["type"]
+        if statistics is None:
+            basename = self.fvmSettings["writer"]["basename"]
+            type = self.fvmSettings["writer"]["type"]
+        else:
+            
+            # Loop through uq stats to find statistics:
+            for s in self.uqSettings['stats']:
+                if isinstance(s, str):
+                    s = self.uqSettings['stats'][s]
+                    
+                if statistics == 'mean' or statistics == 'variance':
+                    
+                    if s['name'] == 'meanvar':
 
+                        basename = s['writer']['basename']
+                        type = s['writer']['type']
+                elif s['name'] == statistics:
+                    basename = s['writer']['basename']
+                    type = s['writer']['type']
+            
         if type == "netcdf":
             append = "nc"
 
@@ -240,7 +259,7 @@ class Alsvinn(object):
             filename = "{basename}_{statistics}_{timestep}.{type}".\
                 format(basename=basename, timestep=timestep, type=append, statistics=statistics)
 
-
+        filename = os.path.join(self.data_path, filename)
 
         if type == "netcdf":
             with netCDF4.Dataset(filename) as f:
