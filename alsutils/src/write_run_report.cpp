@@ -6,6 +6,14 @@
 #include <sstream>
 #include <fstream>
 #include <boost/filesystem.hpp>
+#ifdef ALSVINN_USE_MPI
+#include <mpi.h>
+#endif
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 namespace alsutils {
 void writeRunReport(const std::string& executable,
                     const std::string& name,
@@ -44,6 +52,23 @@ void writeRunReport(const std::string& executable,
     propertyTree.put("report.cudaVersion", getCUDAVersion());
 
 
+#ifdef ALSVINN_USE_MPI
+    int mpiNumThreads = 1;
+    MPI_Comm_size(MPI_COMM_WORLD, &mpiNumThreads);
+    propertyTree.put("report.mpiEnabled", true);
+    propertyTree.put("report.mpiProcesses", mpiNumThreads);
+#else
+    propertyTree.put("report.mpiEnabled", false);
+    propertyTree.put("report.mpiProcesses", 1);
+#endif
+
+#ifdef _OPENMP
+    propertyTree.put("report.ompEnabled", true);
+    propertyTree.put("report.ompThreads", omp_get_num_threads());
+#else
+    propertyTree.put("report.ompEnabled", false);
+    propertyTree.put("report.ompThreads", 1);
+#endif
 
     boost::property_tree::write_json(executable + "_" + name + "_report.json", propertyTree);
     boost::property_tree::write_xml(executable + "_" + name + "_report.xml", propertyTree);
