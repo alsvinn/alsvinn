@@ -65,9 +65,9 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string &inputFilename,
                                                                     mpiConfigurationWorld,
                                                                     multiSpatial);
 
-
+    auto name = boost::algorithm::trim_copy(configuration.get<std::string>("fvm.name"));
     auto runner = std::make_shared<run::Runner>(simulatorCreator, sampleGenerator, samplesForProc,
-                                                statisticalConfiguration);
+                                                statisticalConfiguration, name);
     auto statistics  = createStatistics(configuration, statisticalConfiguration,
                                         spatialConfiguration, mpiConfigurationWorld);
     runner->setStatistics(statistics);

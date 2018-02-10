@@ -4,7 +4,7 @@
 #include <mpi.h>
 #include "alsutils/mpi/safe_call.hpp"
 #endif
-
+#include "alsutils/write_run_report.hpp"
 #include <boost/chrono.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/program_options.hpp>
@@ -210,6 +210,10 @@ int main(int argc, char** argv) {
         ALSVINN_LOG(INFO, "Duration (wall time): " << (wallEnd - wallStart));
 
 
+
+        alsutils::writeRunReport("alsvinncli", simulator->getName(),
+                                 boost::chrono::duration_cast<boost::chrono::milliseconds>(timeEnd - timeStart).count(),
+                                 (wallEnd - wallStart).total_milliseconds(), argc, argv);
 	}
 	catch (std::runtime_error& e) {
         ALSVINN_LOG(ERROR, "Error!" << std::endl

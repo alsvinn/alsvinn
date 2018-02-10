@@ -10,7 +10,8 @@ namespace alsuq { namespace run {
         Runner(std::shared_ptr<SimulatorCreator> simulatorCreator,
                std::shared_ptr<samples::SampleGenerator> sampleGenerator,
                std::vector<size_t> sampleNumbers,
-               mpi::ConfigurationPtr mpiConfig);
+               mpi::ConfigurationPtr mpiConfig,
+               const std::string& name);
 
 
 
@@ -20,6 +21,8 @@ namespace alsuq { namespace run {
 
         //! Sets the statistics to be used
         void setStatistics(const std::vector<std::shared_ptr<stats::Statistics> >& statistics);
+        std::string getName() const;
+
     private:
         std::shared_ptr<SimulatorCreator> simulatorCreator;
         std::shared_ptr<samples::SampleGenerator> sampleGenerator;
@@ -28,6 +31,7 @@ namespace alsuq { namespace run {
         std::vector<std::shared_ptr<stats::Statistics> > statistics;
 
         mpi::ConfigurationPtr mpiConfig;
+        const std::string name;
     };
 } // namespace run
 } // namespace alsuq

@@ -139,7 +139,7 @@ SimulatorSetup::readSetupFromFile(const std::string &filename)
     auto diffusionOperator = createDiffusion(configuration, *grid, *parameters, deviceConfiguration, memoryFactory, *volumeFactory);
 
 
-
+    auto name = readName(configuration);
     auto simulator = alsfvm::make_shared<simulator::Simulator>(*parameters,
                                                                grid,
                                                                *volumeFactory,
@@ -151,7 +151,8 @@ SimulatorSetup::readSetupFromFile(const std::string &filename)
                                                                endTime,
                                                                deviceConfiguration,
                                                                equation,
-                                                               diffusionOperator);
+                                                               diffusionOperator,
+                                                               name);
 
     simulator->setCellExchanger(cellExchangerPtr);
 
@@ -450,6 +451,11 @@ alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion
 
     return diffusionFactory.createDiffusionOperator(readEquation(configuration), name, reconstruction, grid, simulatorParameters,
                                                     deviceConfiguration, memoryFactory, volumeFactory);
+}
+
+std::string SimulatorSetup::readName(const SimulatorSetup::ptree &configuration)
+{
+    return boost::algorithm::trim_copy(configuration.get<std::string>("fvm.name"));
 }
 
 std::vector<io::WriterPointer> SimulatorSetup::createFunctionals(const SimulatorSetup::ptree &configuration, volume::VolumeFactory &volumeFactory)

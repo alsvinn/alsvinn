@@ -6,6 +6,7 @@
 #include "alsutils/log.hpp"
 #include <boost/program_options.hpp>
 #include "alsutils/config.hpp"
+#include "alsutils/write_run_report.hpp"
 
 int main(int argc, char** argv) {
     int rank = 0;
@@ -127,6 +128,9 @@ int main(int argc, char** argv) {
         ALSVINN_LOG(INFO, "Simulation finished!" << std::endl);
         ALSVINN_LOG(INFO, "Duration: " << boost::chrono::duration_cast<boost::chrono::milliseconds>(timeEnd - timeStart).count() << " ms" << std::endl);
         ALSVINN_LOG(INFO, "Duration (wall time): " << (wallEnd - wallStart) << std::endl);
+        alsutils::writeRunReport("alsuqcli", runner->getName(),
+                                 boost::chrono::duration_cast<boost::chrono::milliseconds>(timeEnd - timeStart).count(),
+                                 (wallEnd - wallStart).total_milliseconds(), argc, argv);
 
     }
     catch (std::runtime_error& e) {

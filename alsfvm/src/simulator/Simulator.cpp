@@ -18,7 +18,8 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
                      real endTime,
 					 alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
 					 std::string& equationName,
-                     alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator)
+                     alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator,
+                     const std::string& name)
     :      simulatorParameters(simulatorParameters),
       volumeFactory(volumeFactory),
       grid(grid),
@@ -32,7 +33,8 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
       endTime(endTime),
       equationName(equationName),
       platformName(deviceConfiguration->getPlatform()),
-      deviceConfiguration(deviceConfiguration)
+      deviceConfiguration(deviceConfiguration),
+      name(name)
 {
     const size_t nx = grid->getDimensions().x;
     const size_t ny = grid->getDimensions().y;
@@ -217,6 +219,11 @@ void Simulator::incrementSolution()
 
 void Simulator::doCellExchange(volume::Volume& volume)
 {
+}
+
+std::string Simulator::getName() const
+{
+    return name;
 }
 
 #ifdef ALSVINN_USE_MPI

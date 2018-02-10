@@ -7,12 +7,14 @@ namespace alsuq { namespace run {
 Runner::Runner(std::shared_ptr<SimulatorCreator> simulatorCreator,
                std::shared_ptr<samples::SampleGenerator> sampleGenerator,
                std::vector<size_t> sampleNumbers,
-               alsutils::mpi::ConfigurationPtr mpiConfig)
+               alsutils::mpi::ConfigurationPtr mpiConfig,
+               const std::string& name)
     : simulatorCreator(simulatorCreator),
       sampleGenerator(sampleGenerator),
       parameterNames(sampleGenerator->getParameterList()),
       sampleNumbers(sampleNumbers),
-      mpiConfig(mpiConfig)
+      mpiConfig(mpiConfig),
+      name(name)
 
 {
 
@@ -66,6 +68,11 @@ void Runner::run()
 void Runner::setStatistics(const std::vector<std::shared_ptr<stats::Statistics> >& statistics)
 {
     this->statistics = statistics;
+}
+
+std::string Runner::getName() const
+{
+    return name;
 }
 
 }

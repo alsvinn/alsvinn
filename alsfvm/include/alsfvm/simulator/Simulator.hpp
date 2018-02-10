@@ -50,6 +50,7 @@ namespace alsfvm { namespace simulator {
         /// \param deviceConfiguration
         /// \param equationName
         /// \param diffusionOperator the diffusion operator to use
+        /// \param name the name of the simulator
         ///
         Simulator(const SimulatorParameters& simulatorParameters,
                   alsfvm::shared_ptr<grid::Grid> & grid,
@@ -62,7 +63,8 @@ namespace alsfvm { namespace simulator {
 				  real endTime,
 				  alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
 				  std::string& equationName,
-                  alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator
+                  alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator,
+                  const std::string& name
             );
 
         ~Simulator();
@@ -127,10 +129,12 @@ namespace alsfvm { namespace simulator {
         void setCellExchanger(mpi::CellExchangerPtr value);
 #endif
 
+        std::string getName() const;
+
     private:
 
 
-         void checkConstraints();
+        void checkConstraints();
         void incrementSolution();
         void doCellExchange(volume::Volume& volume);
 
@@ -159,6 +163,8 @@ namespace alsfvm { namespace simulator {
 #ifdef ALSVINN_USE_MPI
         mpi::CellExchangerPtr cellExchanger;
 #endif
+
+        const std::string name;
     };
 } // namespace alsfvm
 } // namespace simulator

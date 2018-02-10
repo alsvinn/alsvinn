@@ -52,7 +52,7 @@ namespace alsfvm { namespace config {
             alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
             volume::VolumeFactory& volumeFactory);
 
-
+        std::string readName(const ptree& configuration);
         std::vector<io::WriterPointer> createFunctionals(const ptree& configuration, volume::VolumeFactory& volumeFactory);
         void readEquationParameters(const ptree& configuration, simulator::SimulatorParameters& parameters);
 
