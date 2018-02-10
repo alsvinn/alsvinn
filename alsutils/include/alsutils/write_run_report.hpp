@@ -17,6 +17,7 @@ void writeRunReport(const std::string& executable,
                     const std::string& name,
                     const int cpuDurationMs,
                     const int wall,
+                    const int timesteps,
                     const int argc,
                     char** argv);
 }

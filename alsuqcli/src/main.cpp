@@ -130,7 +130,8 @@ int main(int argc, char** argv) {
         ALSVINN_LOG(INFO, "Duration (wall time): " << (wallEnd - wallStart) << std::endl);
         alsutils::writeRunReport("alsuqcli", runner->getName(),
                                  boost::chrono::duration_cast<boost::chrono::milliseconds>(timeEnd - timeStart).count(),
-                                 (wallEnd - wallStart).total_milliseconds(), argc, argv);
+                                 (wallEnd - wallStart).total_milliseconds(),
+                                 runner->getTimestepsPerformedTotal(), argc, argv);
 
     }
     catch (std::runtime_error& e) {

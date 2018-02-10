@@ -46,6 +46,7 @@ void Runner::run()
         simulator->callWriters();
         while (!simulator->atEnd()) {
             simulator->performStep();
+            timestepsPerformedTotal++;
         }
         simulator->finalize();
         grid = simulator->getGrid();
@@ -73,6 +74,11 @@ void Runner::setStatistics(const std::vector<std::shared_ptr<stats::Statistics> 
 std::string Runner::getName() const
 {
     return name;
+}
+
+size_t Runner::getTimestepsPerformedTotal() const
+{
+    return timestepsPerformedTotal;
 }
 
 }

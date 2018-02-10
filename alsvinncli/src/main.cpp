@@ -213,7 +213,7 @@ int main(int argc, char** argv) {
 
         alsutils::writeRunReport("alsvinncli", simulator->getName(),
                                  boost::chrono::duration_cast<boost::chrono::milliseconds>(timeEnd - timeStart).count(),
-                                 (wallEnd - wallStart).total_milliseconds(), argc, argv);
+                                 (wallEnd - wallStart).total_milliseconds(), timestepsPerformed, argc, argv);
 	}
 	catch (std::runtime_error& e) {
         ALSVINN_LOG(ERROR, "Error!" << std::endl

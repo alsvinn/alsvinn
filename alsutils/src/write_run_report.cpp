@@ -5,17 +5,22 @@
 #include "alsutils/config.hpp"
 #include <sstream>
 #include <fstream>
-
+#include <boost/filesystem.hpp>
 namespace alsutils {
 void writeRunReport(const std::string& executable,
                     const std::string& name,
                     const int cpuDurationMs,
                     const int wall,
+                    const int timesteps,
                     const int argc,
                     char** argv) {
     boost::property_tree::ptree propertyTree;
+
     propertyTree.put("report.executable", executable);
     propertyTree.put("report.name", name);
+    boost::filesystem::path currentWorkingDirectory(boost::filesystem::current_path());
+    propertyTree.put("report.currentWorkingDirectory",
+                        currentWorkingDirectory.string());
     propertyTree.put("report.endTime", boost::posix_time::to_iso_string(boost::posix_time::second_clock::local_time()));
     propertyTree.put("report.cpuDuration", cpuDurationMs);
     propertyTree.put("report.cpuDurationHuman",
@@ -29,6 +34,7 @@ void writeRunReport(const std::string& executable,
         commandLine << argv[i] << " ";
     }
 
+    propertyTree.put("report.timesteps", timesteps);
     propertyTree.put("report.command", commandLine.str());
     propertyTree.put("report.revision", getVersionControlID());
     propertyTree.put("report.versionControlStatus", getVersionControlStatus());
