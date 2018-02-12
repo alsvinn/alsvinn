@@ -71,6 +71,6 @@ ivec3 Identity::getFunctionalSize(const grid::Grid &grid) const
 {
 
 }
-REGISTER_FUNCTIONAL(cpu, identiy, Identity)
+REGISTER_FUNCTIONAL(cpu, identity, Identity)
 }
 }
