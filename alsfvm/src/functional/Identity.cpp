@@ -47,7 +47,7 @@ void Identity::operator()(volume::Volume &conservedVolumeOut,
 
 
     }
-    for(size_t var = 0; var < conservedVolumeIn.getNumberOfVariables(); ++var) {
+    for(size_t var = 0; var < extraVolumeIn.getNumberOfVariables(); ++var) {
 
 
 
@@ -69,7 +69,7 @@ void Identity::operator()(volume::Volume &conservedVolumeOut,
 
 ivec3 Identity::getFunctionalSize(const grid::Grid &grid) const
 {
-
+    return grid.getDimensions();
 }
 REGISTER_FUNCTIONAL(cpu, identity, Identity)
 }
