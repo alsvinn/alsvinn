@@ -180,6 +180,19 @@ namespace alsfvm {
             //!
             boundary::Type getBoundaryCondition(int side) const;
 
+            //! Gets the boundary conditions for each side
+            //!
+            //! Index  |  Spatial side 1D | Spatial side 2D | Spatial side 3D
+            //! -------|------------------|-----------------|-----------------
+            //!    0   |       left       |     left        |    left
+            //!    1   |       right      |     right       |    right
+            //!    2   |     < not used > |     bottom      |    bottom
+            //!    3   |     < not used > |     top         |    top
+            //!    4   |     < not used > |   < not used >  |    front
+            //!    5   |     < not used > |   < not used >  |    back
+            //!
+             std::array<boundary::Type,6> getBoundaryConditions() const;
+
             //! Gets the global position index of the grid,
             //! that is, the grid is contained in a virtual larger grid.
             //! This is used for MPI parallelization to know which part of the

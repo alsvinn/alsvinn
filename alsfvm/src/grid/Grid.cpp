@@ -165,6 +165,11 @@ namespace alsfvm {
             return boundaryConditions[side];
         }
 
+        std::array<boundary::Type, 6> Grid::getBoundaryConditions() const
+        {
+            return boundaryConditions;
+        }
+
         ivec3 Grid::getGlobalPosition() const
         {
             return globalPosition;

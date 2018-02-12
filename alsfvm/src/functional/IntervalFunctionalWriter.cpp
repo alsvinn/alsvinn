@@ -26,7 +26,12 @@ void IntervalFunctionalWriter::write(const volume::Volume &conservedVariables,
 
     (*functional)(*conservedVolume, *extraVolume, conservedVariables, extraVariables, 1, grid);
 
-    grid::Grid modifiedGrid(grid.getOrigin(), grid.getTop(), functionalSize);
+    grid::Grid modifiedGrid(grid.getOrigin(),
+                            grid.getTop(),
+                            functionalSize,
+                            grid.getBoundaryConditions(),
+                            grid.getGlobalPosition(),
+                            grid.getGlobalSize());
     writer->write(*conservedVolume, *extraVolume, modifiedGrid, timestepInformation);
 }
 
