@@ -5,18 +5,10 @@ namespace alsutils {
 namespace mpi {
 template<class T>
 struct MpiTypes {
-};
-
-template<>
-struct MpiTypes<double> {
-    static const constexpr MPI_Datatype MPI_Real = MPI_DOUBLE;
+  static const MPI_Datatype MPI_Real;
 };
 
 
-template<>
-struct MpiTypes<float> {
-    static const constexpr MPI_Datatype MPI_Real = MPI_FLOAT;
-};
 
 }
 }

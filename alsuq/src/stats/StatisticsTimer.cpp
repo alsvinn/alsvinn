@@ -4,7 +4,7 @@
 
 namespace alsuq { namespace stats {
 
-StatisticsTimer::StatisticsTimer(const std::__cxx11::string &name, std::shared_ptr<Statistics> statistics)
+StatisticsTimer::StatisticsTimer(const std::string &name, std::shared_ptr<Statistics> statistics)
     : name(name), statistics(statistics)
 {
 
