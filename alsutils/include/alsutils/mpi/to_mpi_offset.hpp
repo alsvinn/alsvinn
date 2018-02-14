@@ -7,7 +7,7 @@ namespace alsutils {
 namespace mpi {
 
 //! Convenience function to do the type cast from int to whatever MPI_Offset is (usually long long int)
-std::array<MPI_Offset,3> to_mpi_offset(const ivec3& integerVector) {
+std::array<MPI_Offset, 3> to_mpi_offset(const ivec3& integerVector) {
     std::array<MPI_Offset, 3> converted;
 
     converted[0] = MPI_Offset(integerVector.x);

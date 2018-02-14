@@ -1,46 +1,41 @@
 #include "alsuq/stats/StatisticsParameters.hpp"
 
-namespace alsuq { namespace stats {
+namespace alsuq {
+namespace stats {
 
-void StatisticsParameters::setNumberOfSamples(size_t samples)
-{
+void StatisticsParameters::setNumberOfSamples(size_t samples) {
     this->samples = samples;
 }
 
-size_t StatisticsParameters::getNumberOfSamples() const
-{
+size_t StatisticsParameters::getNumberOfSamples() const {
     return samples;
 }
 
-const std::string StatisticsParameters::getParameterAsString(const std::string &name) const
-{
+const std::string StatisticsParameters::getParameterAsString(
+    const std::string& name) const {
     return configuration.get<std::string>(name);
 }
 
-real StatisticsParameters::getParameterAsDouble(const std::string &name) const
-{
+real StatisticsParameters::getParameterAsDouble(const std::string& name) const {
     return configuration.get<real>(name);
 }
 
-int StatisticsParameters::getParameterAsInteger(const std::string &name) const
-{
+int StatisticsParameters::getParameterAsInteger(const std::string& name) const {
     return configuration.get<int>(name);
 }
 
-void StatisticsParameters::setConfiguration(const boost::property_tree::ptree &configuration)
-{
+void StatisticsParameters::setConfiguration(const boost::property_tree::ptree&
+    configuration) {
     this->configuration = configuration;
 }
 
-mpi::ConfigurationPtr StatisticsParameters::getMpiConfiguration() const
-{
+mpi::ConfigurationPtr StatisticsParameters::getMpiConfiguration() const {
     return mpiConfiguration;
 }
 
-void StatisticsParameters::setMpiConfiguration(mpi::ConfigurationPtr value)
-{
+void StatisticsParameters::setMpiConfiguration(mpi::ConfigurationPtr value) {
     mpiConfiguration = value;
 }
 
 }
-                }
+}

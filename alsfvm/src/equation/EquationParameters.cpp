@@ -1,6 +1,7 @@
 #include "alsfvm/equation/EquationParameters.hpp"
 
-namespace alsfvm { namespace equation { 
+namespace alsfvm {
+namespace equation {
 
 }
 }

@@ -1,11 +1,10 @@
 #pragma once
 #include <string>
 namespace alsfvm {
-	class DeviceConfiguration
-	{
-	public:
-		DeviceConfiguration(const std::string& platform = "cpu");
-		virtual ~DeviceConfiguration();
+class DeviceConfiguration {
+    public:
+        DeviceConfiguration(const std::string& platform = "cpu");
+        virtual ~DeviceConfiguration();
 
         ///
         /// \brief getPlatform returns the platform the device configuration is
@@ -16,5 +15,5 @@ namespace alsfvm {
         const std::string& getPlatform() const;
     private:
         std::string platform;
-	};
+};
 }

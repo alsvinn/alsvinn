@@ -4,7 +4,8 @@
 //! Various utilities for mpi and cuda.
 
 
-namespace alsutils { namespace mpi {
+namespace alsutils {
+namespace mpi {
 
 
 //! Checks wether GPU direct is enabled or not
@@ -23,4 +24,5 @@ bool hasGPUDirectSupport() {
     return false;
 #endif
 }
-}}
+}
+}

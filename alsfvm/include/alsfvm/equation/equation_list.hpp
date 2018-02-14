@@ -12,19 +12,20 @@
 /// of them.
 ///
 
-namespace alsfvm { namespace equation {
+namespace alsfvm {
+namespace equation {
 
 
 
 ///
 /// \brief EquationList is a type list of all equations available.
 ///
-    typedef boost::fusion::vector<EquationInformation<euler::Euler<1>>,
+typedef boost::fusion::vector<EquationInformation<euler::Euler<1>>,
         EquationInformation<euler::Euler<2>>,
         EquationInformation<euler::Euler<3>>,
-                       EquationInformation<burgers::Burgers>,
-EquationInformation<buckleyleverett::BuckleyLeverett>,
-EquationInformation<cubic::Cubic> > EquationList;
+        EquationInformation<burgers::Burgers>,
+        EquationInformation<buckleyleverett::BuckleyLeverett>,
+        EquationInformation<cubic::Cubic> > EquationList;
 
 ///
 /// Loops through each Equation element. Example usage
@@ -40,15 +41,16 @@ EquationInformation<cubic::Cubic> > EquationList;
 /// for_each_equation(Functor());
 /// \endcode
 ///
-    template<class Function>
-    void for_each_equation(const Function& f) {
-        EquationList equationList;
-        boost::fusion::for_each(equationList, f);
-    }
+template<class Function>
+void for_each_equation(const Function& f) {
+    EquationList equationList;
+    boost::fusion::for_each(equationList, f);
+}
 
 
 
-}}
+}
+}
 
 ///
 /// Macro to instantiate a class for every equation available.

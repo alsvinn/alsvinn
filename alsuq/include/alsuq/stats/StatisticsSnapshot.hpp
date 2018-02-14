@@ -2,14 +2,15 @@
 #include "alsfvm/simulator/TimestepInformation.hpp"
 #include "alsfvm/volume/VolumePair.hpp"
 
-namespace alsuq { namespace stats { 
+namespace alsuq {
+namespace stats {
 
-    //! Holds a snapshot (in time) of the current statistics.
-    class StatisticsSnapshot {
+//! Holds a snapshot (in time) of the current statistics.
+class StatisticsSnapshot {
     public:
         StatisticsSnapshot() {}
         StatisticsSnapshot(alsfvm::simulator::TimestepInformation timestepInformation,
-                           alsfvm::volume::VolumePair volumes);
+            alsfvm::volume::VolumePair volumes);
 
         alsfvm::simulator::TimestepInformation& getTimestepInformation();
 
@@ -18,6 +19,6 @@ namespace alsuq { namespace stats {
     private:
         alsfvm::simulator::TimestepInformation timestepInformation;
         alsfvm::volume::VolumePair volumes;
-    };
+};
 } // namespace stats
 } // namespace alsuq

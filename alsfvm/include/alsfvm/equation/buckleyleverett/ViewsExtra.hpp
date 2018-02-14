@@ -1,6 +1,8 @@
 #pragma once
 
-namespace alsfvm { namespace equation { namespace buckleyleverett { 
+namespace alsfvm {
+namespace equation {
+namespace buckleyleverett {
 
 ///
 /// Holds all the relevant views for the equation (extra variables)
@@ -10,12 +12,11 @@ namespace alsfvm { namespace equation { namespace buckleyleverett {
 ///
 template<class VolumeType, class ViewType>
 class ViewsExtra {
-public:
+    public:
 
-    ViewsExtra(VolumeType& volume)
-    {
-        // Empty
-    }
+        ViewsExtra(VolumeType& volume) {
+            // Empty
+        }
 };
 
 } // namespace alsfvm

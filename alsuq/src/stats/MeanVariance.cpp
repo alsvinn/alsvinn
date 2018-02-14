@@ -1,33 +1,32 @@
 #include "alsuq/stats/MeanVariance.hpp"
 #include "alsuq/stats/stats_util.hpp"
-namespace alsuq { namespace stats {
+namespace alsuq {
+namespace stats {
 
-MeanVariance::MeanVariance(const StatisticsParameters &parameters)
-    : StatisticsHelper(parameters)
-{
+MeanVariance::MeanVariance(const StatisticsParameters& parameters)
+    : StatisticsHelper(parameters) {
 
 }
 
-std::vector<std::string> MeanVariance::getStatisticsNames() const
-{
+std::vector<std::string> MeanVariance::getStatisticsNames() const {
     return  {"mean", "variance"};
 }
 
-void MeanVariance::computeStatistics(const alsfvm::volume::Volume &conservedVariables,
-                                     const alsfvm::volume::Volume &extraVariables,
-                                     const alsfvm::grid::Grid &grid,
-                                     const alsfvm::simulator::TimestepInformation &timestepInformation)
-{
+void MeanVariance::computeStatistics(const alsfvm::volume::Volume&
+    conservedVariables,
+    const alsfvm::volume::Volume& extraVariables,
+    const alsfvm::grid::Grid& grid,
+    const alsfvm::simulator::TimestepInformation& timestepInformation) {
 
     auto& mean = findOrCreateSnapshot("mean",
-                                      timestepInformation,
-                                      conservedVariables,
-                                      extraVariables);
+            timestepInformation,
+            conservedVariables,
+            extraVariables);
 
     auto& variance = findOrCreateSnapshot("variance",
-                                          timestepInformation,
-                                          conservedVariables,
-                                          extraVariables);
+            timestepInformation,
+            conservedVariables,
+            extraVariables);
 
 
 
@@ -40,8 +39,7 @@ void MeanVariance::computeStatistics(const alsfvm::volume::Volume &conservedVari
 
 }
 
-void MeanVariance::finalize()
-{
+void MeanVariance::finalize() {
     for (auto& snapshot : this->snapshots) {
         auto& secondMoment = snapshot.second["variance"];
         auto& volumesMoment = secondMoment.getVolumes();
@@ -49,8 +47,10 @@ void MeanVariance::finalize()
         auto& mean = snapshot.second["mean"];
         auto& volumesMean = mean.getVolumes();
 
-        volumesMoment.getConservedVolume()->subtractPower(*volumesMean.getConservedVolume(), 2.);
-        volumesMoment.getExtraVolume()->subtractPower(*volumesMean.getExtraVolume(), 2.);
+        volumesMoment.getConservedVolume()->subtractPower(
+            *volumesMean.getConservedVolume(), 2.);
+        volumesMoment.getExtraVolume()->subtractPower(*volumesMean.getExtraVolume(),
+            2.);
     }
 }
 REGISTER_STATISTICS(cpu, meanvar, MeanVariance);

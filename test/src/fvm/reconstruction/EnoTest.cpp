@@ -14,17 +14,18 @@ using namespace alsfvm::grid;
 
 TEST(EnoTest, CoefficientsTest) {
     // Check that all coefficients sum up to 1
-    for(int r = 0; r < 3; r++) {
+    for (int r = 0; r < 3; r++) {
         ASSERT_EQ(1.0, ENOCoeffiecients<2>::coefficients[r][0]
-                + ENOCoeffiecients<2>::coefficients[r][1])
-                 << " ENO Coefficients did not sum to 1 for r = " << r << ", order = 2";
+            + ENOCoeffiecients<2>::coefficients[r][1])
+                << " ENO Coefficients did not sum to 1 for r = " << r << ", order = 2";
     }
 
-    for(int r = 0; r < 4; r++) {
+    for (int r = 0; r < 4; r++) {
 
         ASSERT_NEAR(1.0, ENOCoeffiecients<3>::coefficients[r][0]
-                + ENOCoeffiecients<3>::coefficients[r][1]
-                + ENOCoeffiecients<3>::coefficients[r][2], 1e-8) << " ENO Coefficients did not sum to 1 for r = " << r << ", order = 3";
+            + ENOCoeffiecients<3>::coefficients[r][1]
+            + ENOCoeffiecients<3>::coefficients[r][2],
+            1e-8) << " ENO Coefficients did not sum to 1 for r = " << r << ", order = 3";
     }
 }
 
@@ -35,15 +36,18 @@ TEST(EnoTest, ConstantZeroTestSecondOrder) {
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler3", memoryFactory);
-	ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
+    ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
 
-    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-	auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-	auto right = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
 
     conserved->makeZero();
 
-    
+
     const int ngx = enoCPU.getNumberOfGhostCells();
     const int ngy = enoCPU.getNumberOfGhostCells();
     const int ngz = 0;
@@ -51,13 +55,13 @@ TEST(EnoTest, ConstantZeroTestSecondOrder) {
 
     for_each_cell_index(*left, [&](size_t middle ) {
         for (int var = 0; var < 5; ++var) {
-        ASSERT_EQ(0, left->getScalarMemoryArea(var)->getPointer()[middle])
-                << "Failed at index = " << middle << " var = " << var;
+            ASSERT_EQ(0, left->getScalarMemoryArea(var)->getPointer()[middle])
+                    << "Failed at index = " << middle << " var = " << var;
 
-        ASSERT_EQ(0, right->getScalarMemoryArea(var)->getPointer()[middle])
-                << "Failed at index = " << middle << " var = " << var;
-}
-    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
+            ASSERT_EQ(0, right->getScalarMemoryArea(var)->getPointer()[middle])
+                    << "Failed at index = " << middle << " var = " << var;
+        }
+    }, {ngx - 1, ngy, ngz}, {ngx - 1, ngy, ngz});
 }
 
 
@@ -70,9 +74,12 @@ TEST(EnoTest, ConstantZeroTestThirdOrder) {
     VolumeFactory volumeFactory("euler3", memoryFactory);
     ENOCPU<3> enoCPU(memoryFactory, nx, ny, nz);
 
-    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-    auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
 
     conserved->makeZero();
 
@@ -94,7 +101,7 @@ TEST(EnoTest, ConstantZeroTestThirdOrder) {
         ASSERT_EQ(0, right->getScalarMemoryArea(2)->getPointer()[middle]);
         ASSERT_EQ(0, right->getScalarMemoryArea(3)->getPointer()[middle]);
         ASSERT_EQ(0, right->getScalarMemoryArea(4)->getPointer()[middle]);
-    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
+    }, {ngx - 1, ngy, ngz}, {ngx - 1, ngy, ngz});
 }
 
 TEST(EnoTest, ConstantOneTestSecondOrder) {
@@ -105,10 +112,13 @@ TEST(EnoTest, ConstantOneTestSecondOrder) {
     auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
 
     VolumeFactory volumeFactory("euler3", memoryFactory);
-	ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
-	auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-	auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-	auto right = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
 
     for_each_cell_index(*conserved, [&] (size_t index) {
         conserved->getScalarMemoryArea("rho")->getPointer()[index] = 1;
@@ -118,7 +128,7 @@ TEST(EnoTest, ConstantOneTestSecondOrder) {
         conserved->getScalarMemoryArea("E")->getPointer()[index] = 10;
 
     });
-  
+
 
     enoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
 
@@ -138,7 +148,7 @@ TEST(EnoTest, ConstantOneTestSecondOrder) {
         ASSERT_EQ(1, right->getScalarMemoryArea(2)->getPointer()[middle]);
         ASSERT_EQ(1, right->getScalarMemoryArea(3)->getPointer()[middle]);
         ASSERT_EQ(10, right->getScalarMemoryArea(4)->getPointer()[middle]);
-    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
+    }, {ngx - 1, ngy, ngz}, {ngx - 1, ngy, ngz});
 }
 
 TEST(EnoTest, ConstantOneTestThirdOrder) {
@@ -150,9 +160,12 @@ TEST(EnoTest, ConstantOneTestThirdOrder) {
 
     VolumeFactory volumeFactory("euler3", memoryFactory);
     ENOCPU<3> enoCPU(memoryFactory, nx, ny, nz);
-    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-    auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
 
     for_each_cell_index(*conserved, [&] (size_t index) {
         conserved->getScalarMemoryArea("rho")->getPointer()[index] = 1;
@@ -179,12 +192,12 @@ TEST(EnoTest, ConstantOneTestThirdOrder) {
         ASSERT_NEAR(1, left->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
         ASSERT_NEAR(10, left->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
 
-        ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle] , 1e-8);
-        ASSERT_NEAR(1, right->getScalarMemoryArea(1)->getPointer()[middle] , 1e-8);
-        ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle] , 1e-8);
-        ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle] , 1e-8);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
         ASSERT_NEAR(10, right->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
-    }, {ngx-1, ngy, ngz}, {ngx-1, ngy, ngz});
+    }, {ngx - 1, ngy, ngz}, {ngx - 1, ngy, ngz});
 }
 
 TEST(EnoTest, ReconstructionSimple) {
@@ -195,9 +208,12 @@ TEST(EnoTest, ReconstructionSimple) {
 
     VolumeFactory volumeFactory("euler3", memoryFactory);
     ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
-    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-    auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
     for_each_cell_index(*conserved, [&] (size_t index) {
         // fill some dummy data
         conserved->getScalarMemoryArea("rho")->getPointer()[index] = 1;
@@ -215,8 +231,8 @@ TEST(EnoTest, ReconstructionSimple) {
 
     enoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
 
-    ASSERT_EQ(1.0/2.0, right->getScalarMemoryArea("rho")->getPointer()[2]);
-    ASSERT_EQ(-1.0/2.0, left->getScalarMemoryArea("rho")->getPointer()[2]);
+    ASSERT_EQ(1.0 / 2.0, right->getScalarMemoryArea("rho")->getPointer()[2]);
+    ASSERT_EQ(-1.0 / 2.0, left->getScalarMemoryArea("rho")->getPointer()[2]);
 
 }
 
@@ -228,9 +244,12 @@ TEST(EnoTest, ReconstructionSimpleReverse) {
 
     VolumeFactory volumeFactory("euler3", memoryFactory);
     ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
-    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-    auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
     for_each_cell_index(*conserved, [&] (size_t index) {
         // fill some dummy data
         conserved->getScalarMemoryArea("rho")->getPointer()[index] = 1;
@@ -248,8 +267,8 @@ TEST(EnoTest, ReconstructionSimpleReverse) {
 
     enoCPU.performReconstruction(*conserved, 0, 0, *left, *right);
 
-    ASSERT_EQ(-1.0/2.0, right->getScalarMemoryArea("rho")->getPointer()[2]);
-    ASSERT_EQ(1.0/2.0, left->getScalarMemoryArea("rho")->getPointer()[2]);
+    ASSERT_EQ(-1.0 / 2.0, right->getScalarMemoryArea("rho")->getPointer()[2]);
+    ASSERT_EQ(1.0 / 2.0, left->getScalarMemoryArea("rho")->getPointer()[2]);
 
 }
 
@@ -261,9 +280,12 @@ TEST(EnoTest, ReconstructionSimpleReverseYDirection) {
 
     VolumeFactory volumeFactory("euler3", memoryFactory);
     ENOCPU<2> enoCPU(memoryFactory, nx, ny, nz);
-    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-    auto left = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
-    auto right = volumeFactory.createConservedVolume(nx, ny, nz, enoCPU.getNumberOfGhostCells());
+    auto conserved = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto left = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
+    auto right = volumeFactory.createConservedVolume(nx, ny, nz,
+            enoCPU.getNumberOfGhostCells());
     for_each_cell_index(*conserved, [&] (size_t index) {
         // fill some dummy data
         conserved->getScalarMemoryArea("rho")->getPointer()[index] = 1;
@@ -276,12 +298,14 @@ TEST(EnoTest, ReconstructionSimpleReverseYDirection) {
 
     const size_t totalNx = nx + 2 * enoCPU.getNumberOfGhostCells();
     // This is the main ingredient:
-    conserved->getScalarMemoryArea("rho")->getPointer()[3+1 * totalNx] = 1;
-    conserved->getScalarMemoryArea("rho")->getPointer()[3+2 * totalNx] = 0;
-    conserved->getScalarMemoryArea("rho")->getPointer()[3+3 * totalNx] = 2;
+    conserved->getScalarMemoryArea("rho")->getPointer()[3 + 1 * totalNx] = 1;
+    conserved->getScalarMemoryArea("rho")->getPointer()[3 + 2 * totalNx] = 0;
+    conserved->getScalarMemoryArea("rho")->getPointer()[3 + 3 * totalNx] = 2;
     enoCPU.performReconstruction(*conserved, 1, 0, *left, *right);
 
-    ASSERT_EQ(-1.0/2.0, right->getScalarMemoryArea("rho")->getPointer()[3+2 * totalNx]);
-    ASSERT_EQ(1.0/2.0, left->getScalarMemoryArea("rho")->getPointer()[3 + 2 * totalNx]);
+    ASSERT_EQ(-1.0 / 2.0, right->getScalarMemoryArea("rho")->getPointer()[3 + 2 *
+              totalNx]);
+    ASSERT_EQ(1.0 / 2.0, left->getScalarMemoryArea("rho")->getPointer()[3 + 2 *
+              totalNx]);
 
 }

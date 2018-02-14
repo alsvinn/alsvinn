@@ -21,6 +21,6 @@ namespace io {
 /// \return the filename with extra timestep information attached.
 ///
 std::string getOutputname(const std::string& filename,
-                          size_t snapshotNumber);
+    size_t snapshotNumber);
 }
 }

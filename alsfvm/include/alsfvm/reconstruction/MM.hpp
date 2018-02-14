@@ -1,10 +1,11 @@
 #pragma once
 
-namespace alsfvm { namespace reconstruction { 
+namespace alsfvm {
+namespace reconstruction {
 
-    class MM {
+class MM {
     public:
 
-    };
+};
 } // namespace reconstruction
 } // namespace alsfvm

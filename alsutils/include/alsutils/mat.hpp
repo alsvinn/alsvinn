@@ -2,8 +2,8 @@
 #include <cassert>
 namespace alsutils {
 
-    template<class T, size_t NumberOfRows, size_t NumberOfColumns>
-    class matrix {
+template<class T, size_t NumberOfRows, size_t NumberOfColumns>
+class matrix {
     public:
 
         typedef matrix<T, NumberOfRows, NumberOfColumns> self_type;
@@ -31,14 +31,14 @@ namespace alsutils {
             return data[column][row];
         }
 
-        
-        //! Matrix-vector multiplication. We only support this for 
+
+        //! Matrix-vector multiplication. We only support this for
         //! quadratic matrices as of now.
         template<class VectorType>
         __device__ __host__ VectorType operator*(const VectorType& vector) const {
             static_assert(NumberOfColumns == NumberOfRows,
                 "Matrix-Vector multiplication only supported for quadratic matrices.");
-            static_assert(VectorType::size() == NumberOfColumns, 
+            static_assert(VectorType::size() == NumberOfColumns,
                 "Matrix vector multiplication given wrong dimensions");
 
             VectorType product;
@@ -52,17 +52,17 @@ namespace alsutils {
             return product;
         }
 
-        
+
         __device__ __host__ self_type operator*(const self_type& matrix) const {
             static_assert(NumberOfColumns == NumberOfRows,
                 "Matrix-Matrix multiplication only supported for quadratic matrices.");
-            
+
             self_type product;
 
             for (size_t row = 0; row < NumberOfRows; ++row) {
                 for (size_t column = 0; column < NumberOfColumns; ++column) {
                     for (size_t i = 0; i < NumberOfRows; ++i) {
-                        product(row, column) += (*this)(row, i)*matrix(i, column);
+                        product(row, column) += (*this)(row, i) * matrix(i, column);
                     }
                 }
             }
@@ -70,8 +70,10 @@ namespace alsutils {
             return product;
         }
 
-        __device__ __host__ matrix<T, NumberOfColumns, NumberOfRows> transposed() const {
+        __device__ __host__ matrix<T, NumberOfColumns, NumberOfRows> transposed()
+        const {
             matrix<T, NumberOfColumns, NumberOfRows> transposedMatrix;
+
             for (size_t column = 0; column < NumberOfColumns; ++column) {
                 for (size_t row = 0; row < NumberOfRows; ++row) {
                     transposedMatrix(column, row) = (*this)(row, column);
@@ -81,16 +83,21 @@ namespace alsutils {
             return transposedMatrix;
         }
 
-        __device__ __host__ matrix<T, NumberOfColumns, NumberOfRows> normalized() const {
+        __device__ __host__ matrix<T, NumberOfColumns, NumberOfRows> normalized()
+        const {
             matrix<T, NumberOfColumns, NumberOfRows> newMatrix;
+
             for (size_t column = 0; column < NumberOfColumns; ++column) {
                 T norm = 0;
+
                 for (size_t row = 0; row < NumberOfRows; ++row) {
-                    norm += (*this)(row, column)*(*this)(row, column);
+                    norm += (*this)(row, column) * (*this)(row, column);
                 }
+
                 norm = sqrtf(norm);
+
                 for (size_t row = 0; row < NumberOfRows; ++row) {
-                    newMatrix(row, column) = (*this)(row, column) /norm;
+                    newMatrix(row, column) = (*this)(row, column) / norm;
                 }
             }
 
@@ -101,6 +108,7 @@ namespace alsutils {
             static_assert(NumberOfColumns == NumberOfRows,
                 "Matrix-Vector multiplication only supported for quadratic matrices.");
             matrix<T, NumberOfColumns, NumberOfRows> identityMatrix;
+
             for (size_t i = 0; i < NumberOfColumns; ++i) {
                 identityMatrix(i, i) = 1;
             }
@@ -108,26 +116,31 @@ namespace alsutils {
             return identityMatrix;
         }
 
-       
+
     private:
         T data[NumberOfColumns][NumberOfRows];
-    };
+};
 
 
 }
 
 template<class T, size_t NumberOfRows, size_t NumberOfColumns>
-inline std::ostream& operator<<(std::ostream& os, const alsutils::matrix<T, NumberOfRows, NumberOfColumns>& mat) {
+inline std::ostream& operator<<(std::ostream& os,
+    const alsutils::matrix<T, NumberOfRows, NumberOfColumns>& mat) {
     os << "[" << std::endl;
+
     for (size_t i = 0; i < NumberOfRows; ++i) {
         for (size_t j = 0; j < NumberOfColumns; ++j) {
             os << mat(i, j);
+
             if (j < NumberOfColumns - 1) {
                 os << ", ";
             }
         }
+
         os << std::endl;
     }
+
     os << "]";
     return os;
 }

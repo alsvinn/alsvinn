@@ -5,116 +5,108 @@
 #include <fstream>
 #include <boost/chrono.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-namespace alsfvm { namespace simulator {
+namespace alsfvm {
+namespace simulator {
 
 Simulator::Simulator(const SimulatorParameters& simulatorParameters,
-                     alsfvm::shared_ptr<grid::Grid> & grid,
-                     volume::VolumeFactory &volumeFactory,
-                     integrator::IntegratorFactory &integratorFactory,
-                     boundary::BoundaryFactory &boundaryFactory,
-                     numflux::NumericalFluxFactory &numericalFluxFactory,
-                     equation::CellComputerFactory &cellComputerFactory,
-                     alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-                     real endTime,
-					 alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
-					 std::string& equationName,
-                     alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator,
-                     const std::string& name)
+    alsfvm::shared_ptr<grid::Grid>& grid,
+    volume::VolumeFactory& volumeFactory,
+    integrator::IntegratorFactory& integratorFactory,
+    boundary::BoundaryFactory& boundaryFactory,
+    numflux::NumericalFluxFactory& numericalFluxFactory,
+    equation::CellComputerFactory& cellComputerFactory,
+    alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+    real endTime,
+    alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
+    std::string& equationName,
+    alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator,
+    const std::string& name)
     :      simulatorParameters(simulatorParameters),
-      volumeFactory(volumeFactory),
-      grid(grid),
-      numericalFlux(numericalFluxFactory.createNumericalFlux(*grid)),
-      system(new ConservedSystem(numericalFlux, diffusionOperator)),
-      integrator(integratorFactory.createIntegrator(system)),
-      boundary(boundaryFactory.createBoundary(system->getNumberOfGhostCells())),
-      cellComputer(cellComputerFactory.createComputer()),
-      diffusionOperator(diffusionOperator),
-      cflNumber(simulatorParameters.getCFLNumber()),
-      endTime(endTime),
-      equationName(equationName),
-      platformName(deviceConfiguration->getPlatform()),
-      deviceConfiguration(deviceConfiguration),
-      name(name)
-{
+           volumeFactory(volumeFactory),
+           grid(grid),
+           numericalFlux(numericalFluxFactory.createNumericalFlux(*grid)),
+           system(new ConservedSystem(numericalFlux, diffusionOperator)),
+           integrator(integratorFactory.createIntegrator(system)),
+           boundary(boundaryFactory.createBoundary(system->getNumberOfGhostCells())),
+           cellComputer(cellComputerFactory.createComputer()),
+           diffusionOperator(diffusionOperator),
+           cflNumber(simulatorParameters.getCFLNumber()),
+           endTime(endTime),
+           equationName(equationName),
+           platformName(deviceConfiguration->getPlatform()),
+           deviceConfiguration(deviceConfiguration),
+           name(name) {
     const size_t nx = grid->getDimensions().x;
     const size_t ny = grid->getDimensions().y;
     const size_t nz = grid->getDimensions().z;
     ALSVINN_LOG(INFO, "Dimensions are " << nx << ", " << ny << ", " << nz);
+
     for (size_t i = 0; i < integrator->getNumberOfSubsteps() + 1; ++i) {
         conservedVolumes.push_back(
-                volumeFactory.createConservedVolume(nx, ny, nz,
-                                                      system->getNumberOfGhostCells()));
+            volumeFactory.createConservedVolume(nx, ny, nz,
+                system->getNumberOfGhostCells()));
     }
 
     extraVolume = volumeFactory.createExtraVolume(nx, ny, nz,
-                                                  system->getNumberOfGhostCells());
+            system->getNumberOfGhostCells());
 
 
 
 }
 
-Simulator::~Simulator()
-{
+Simulator::~Simulator() {
 
 }
 
 void Simulator::finalize() {
     // Need to let the writers finalize their output.
-    for(auto writer : writers) {
+    for (auto writer : writers) {
         writer->finalize(*grid, timestepInformation);
     }
 }
 
-bool Simulator::atEnd()
-{
+bool Simulator::atEnd() {
     return timestepInformation.getCurrentTime() >= endTime;
 }
 
-void Simulator::performStep()
-{
+void Simulator::performStep() {
     incrementSolution();
     checkConstraints();
     callWriters();
 }
 
-void Simulator::addWriter(alsfvm::shared_ptr<io::Writer> writer)
-{
+void Simulator::addWriter(alsfvm::shared_ptr<io::Writer> writer) {
     writers.push_back(writer);
 }
 
-void Simulator::addTimestepAdjuster(alsfvm::shared_ptr<integrator::TimestepAdjuster> &adjuster)
-{
+void Simulator::addTimestepAdjuster(
+    alsfvm::shared_ptr<integrator::TimestepAdjuster>& adjuster) {
     integrator->addTimestepAdjuster(adjuster);
 }
 
-real Simulator::getCurrentTime() const
-{
+real Simulator::getCurrentTime() const {
     return timestepInformation.getCurrentTime();
 }
 
-real Simulator::getEndTime() const
-{
+real Simulator::getEndTime() const {
     return endTime;
 }
 
-void Simulator::setSimulationState(const volume::Volume &conservedVolume)
-{
+void Simulator::setSimulationState(const volume::Volume& conservedVolume) {
     conservedVolumes[0]->setVolume(conservedVolume);
     boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
 }
 
-std::string Simulator::getPlatformName() const
-{
+std::string Simulator::getPlatformName() const {
     return platformName;
 }
 
-std::string Simulator::getEquationName() const
-{
+std::string Simulator::getEquationName() const {
     return equationName;
 }
 
-void Simulator::setInitialValue(alsfvm::shared_ptr<init::InitialData> &initialData)
-{
+void Simulator::setInitialValue(alsfvm::shared_ptr<init::InitialData>&
+    initialData) {
 
 
     const size_t nx = grid->getDimensions().x;
@@ -127,29 +119,33 @@ void Simulator::setInitialValue(alsfvm::shared_ptr<init::InitialData> &initialDa
     // cpu, then copy it to the GPU
     if (deviceConfiguration->getPlatform() == "cuda") {
         auto deviceConfigurationCPU = alsfvm::make_shared<DeviceConfiguration>("cpu");
-        auto memoryFactoryCPU = alsfvm::make_shared<memory::MemoryFactory>(deviceConfigurationCPU);
+        auto memoryFactoryCPU = alsfvm::make_shared<memory::MemoryFactory>
+            (deviceConfigurationCPU);
         volume::VolumeFactory volumeFactoryCPU(equationName, memoryFactoryCPU);
         auto primitiveVolume = volumeFactoryCPU.createPrimitiveVolume(nx, ny, nz,
-            system->getNumberOfGhostCells());
+                system->getNumberOfGhostCells());
         auto conservedVolumeCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz,
-            system->getNumberOfGhostCells());
+                system->getNumberOfGhostCells());
         auto extraVolumeCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz,
-            system->getNumberOfGhostCells());
+                system->getNumberOfGhostCells());
 
-        auto simulatorParametersCPU = alsfvm::make_shared<SimulatorParameters>(simulatorParameters);
+        auto simulatorParametersCPU = alsfvm::make_shared<SimulatorParameters>
+            (simulatorParameters);
         simulatorParametersCPU->setPlatform("cpu");
-        equation::CellComputerFactory cellComputerFactoryCPU(simulatorParametersCPU, deviceConfigurationCPU);
+        equation::CellComputerFactory cellComputerFactoryCPU(simulatorParametersCPU,
+            deviceConfigurationCPU);
         auto cellComputerCPU = cellComputerFactoryCPU.createComputer();
-        initialData->setInitialData(*conservedVolumeCPU, *extraVolumeCPU, *primitiveVolume, *cellComputerCPU, *grid);
+        initialData->setInitialData(*conservedVolumeCPU, *extraVolumeCPU,
+            *primitiveVolume, *cellComputerCPU, *grid);
 
         conservedVolumeCPU->copyTo(*conservedVolumes[0]);
         extraVolumeCPU->copyTo(*extraVolume);
 
-    }
-    else {
+    } else {
         auto primitiveVolume = volumeFactory.createPrimitiveVolume(nx, ny, nz,
-            system->getNumberOfGhostCells());
-        initialData->setInitialData(*conservedVolumes[0], *extraVolume, *primitiveVolume, *cellComputer, *grid);
+                system->getNumberOfGhostCells());
+        initialData->setInitialData(*conservedVolumes[0], *extraVolume,
+            *primitiveVolume, *cellComputer, *grid);
     }
 
 
@@ -162,77 +158,75 @@ void Simulator::setInitialValue(alsfvm::shared_ptr<init::InitialData> &initialDa
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
 }
 
-const std::shared_ptr<grid::Grid> &Simulator::getGrid() const
-{
+const std::shared_ptr<grid::Grid>& Simulator::getGrid() const {
     return grid;
 }
 
-std::shared_ptr<grid::Grid> &Simulator::getGrid()
-{
+std::shared_ptr<grid::Grid>& Simulator::getGrid() {
     return grid;
 }
 
-void Simulator::callWriters()
-{
-    for(auto writer : writers) {
+void Simulator::callWriters() {
+    for (auto writer : writers) {
         writer->write(*conservedVolumes[0],
-                      *extraVolume,
-                      *grid,
-                      timestepInformation);
+            *extraVolume,
+            *grid,
+            timestepInformation);
     }
 }
 
-void Simulator::checkConstraints()
-{
+void Simulator::checkConstraints() {
     const bool obeys = cellComputer->obeysConstraints(*conservedVolumes[0],
             *extraVolume);
+
     if (!obeys) {
         THROW("Simulation state does not obey constraints! "
-              << " At time " << timestepInformation.getCurrentTime()
-              << ", number of timesteps performed " << timestepInformation.getNumberOfStepsPerformed());
+            << " At time " << timestepInformation.getCurrentTime()
+            << ", number of timesteps performed " <<
+            timestepInformation.getNumberOfStepsPerformed());
     }
 }
 
-void Simulator::incrementSolution()
-{
-	real dt = 0;
-    for (size_t substep = 0; substep < integrator->getNumberOfSubsteps(); ++substep) {
+void Simulator::incrementSolution() {
+    real dt = 0;
+
+    for (size_t substep = 0; substep < integrator->getNumberOfSubsteps();
+        ++substep) {
 
         auto& conservedNext = conservedVolumes[substep + 1];
         dt = integrator->performSubstep(conservedVolumes,
-                                        grid->getCellLengths(),
-                                        dt,
-                                        cflNumber,
-                                        *conservedNext,
-                                        substep,
-                                        timestepInformation);
+                grid->getCellLengths(),
+                dt,
+                cflNumber,
+                *conservedNext,
+                substep,
+                timestepInformation);
 
 
 
         boundary->applyBoundaryConditions(*conservedNext, *grid);
     }
+
     conservedVolumes[0].swap(conservedVolumes.back());
 
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
     timestepInformation.incrementTime(dt);
 }
 
-void Simulator::doCellExchange(volume::Volume& volume)
-{
+void Simulator::doCellExchange(volume::Volume& volume) {
 }
 
-std::string Simulator::getName() const
-{
+std::string Simulator::getName() const {
     return name;
 }
 
 #ifdef ALSVINN_USE_MPI
-void Simulator::setCellExchanger(mpi::CellExchangerPtr value)
-{
+void Simulator::setCellExchanger(mpi::CellExchangerPtr value) {
     cellExchanger = value;
     system->setCellExchanger(value);
-    integrator->addWaveSpeedAdjuster(alsfvm::dynamic_pointer_cast<integrator::WaveSpeedAdjuster>(cellExchanger));
+    integrator->addWaveSpeedAdjuster(
+        alsfvm::dynamic_pointer_cast<integrator::WaveSpeedAdjuster>(cellExchanger));
 }
 #endif
 }
-                 }
+}

@@ -7,38 +7,43 @@
 #include <fstream>
 #include <boost/filesystem.hpp>
 #ifdef ALSVINN_USE_MPI
-#include <mpi.h>
+    #include <mpi.h>
 #endif
 
 #ifdef _OPENMP
-#include <omp.h>
+    #include <omp.h>
 #endif
 
 namespace alsutils {
 void writeRunReport(const std::string& executable,
-                    const std::string& name,
-                    const int cpuDurationMs,
-                    const int wall,
-                    const int timesteps,
-                    const int argc,
-                    char** argv) {
+    const std::string& name,
+    const int cpuDurationMs,
+    const int wall,
+    const int timesteps,
+    const int argc,
+    char** argv) {
     boost::property_tree::ptree propertyTree;
 
     propertyTree.put("report.executable", executable);
     propertyTree.put("report.name", name);
-    boost::filesystem::path currentWorkingDirectory(boost::filesystem::current_path());
+    boost::filesystem::path currentWorkingDirectory(
+        boost::filesystem::current_path());
     propertyTree.put("report.currentWorkingDirectory",
-                        currentWorkingDirectory.string());
-    propertyTree.put("report.endTime", boost::posix_time::to_iso_string(boost::posix_time::second_clock::local_time()));
+        currentWorkingDirectory.string());
+    propertyTree.put("report.endTime",
+        boost::posix_time::to_iso_string(
+            boost::posix_time::second_clock::local_time()));
     propertyTree.put("report.cpuDuration", cpuDurationMs);
     propertyTree.put("report.cpuDurationHuman",
-                     boost::posix_time::to_simple_string(boost::posix_time::time_duration(0, 0, cpuDurationMs/1000,0)));
+        boost::posix_time::to_simple_string(boost::posix_time::time_duration(0, 0,
+                cpuDurationMs / 1000, 0)));
     propertyTree.put("report.wallTime", wall);
     propertyTree.put("report.wallTimeHuman",
-                     boost::posix_time::to_simple_string(boost::posix_time::time_duration(0, 0, wall/1000,0)));
+        boost::posix_time::to_simple_string(boost::posix_time::time_duration(0, 0,
+                wall / 1000, 0)));
     std::stringstream commandLine;
 
-    for(int i = 0; i < argc; ++i) {
+    for (int i = 0; i < argc; ++i) {
         commandLine << argv[i] << " ";
     }
 
@@ -70,7 +75,9 @@ void writeRunReport(const std::string& executable,
     propertyTree.put("report.ompThreads", 1);
 #endif
 
-    boost::property_tree::write_json(executable + "_" + name + "_report.json", propertyTree);
-    boost::property_tree::write_xml(executable + "_" + name + "_report.xml", propertyTree);
+    boost::property_tree::write_json(executable + "_" + name + "_report.json",
+        propertyTree);
+    boost::property_tree::write_xml(executable + "_" + name + "_report.xml",
+        propertyTree);
 }
 }

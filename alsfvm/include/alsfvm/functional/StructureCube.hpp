@@ -1,13 +1,14 @@
 #pragma once
 #include "alsfvm/functional/Functional.hpp"
 
-namespace alsfvm { namespace functional { 
+namespace alsfvm {
+namespace functional {
 
-    //! This is basically the functional version of
-    //! stats/StructureCube.
-    //!
-    //! @todo Refactor this to avoid code duplication.
-    class StructureCube : public Functional {
+//! This is basically the functional version of
+//! stats/StructureCube.
+//!
+//! @todo Refactor this to avoid code duplication.
+class StructureCube : public Functional {
     public:
         StructureCube(const Functional::Parameters& parameters);
 
@@ -33,12 +34,12 @@ namespace alsfvm { namespace functional {
         //!                   \endcode
         //!
         virtual void operator()(volume::Volume& conservedVolumeOut,
-                        volume::Volume& extraVolumeOut,
-                        const volume::Volume& conservedVolumeIn,
-                        const volume::Volume& extraVolumeIn,
-                        const real weight,
-                        const grid::Grid& grid
-                        ) override;
+            volume::Volume& extraVolumeOut,
+            const volume::Volume& conservedVolumeIn,
+            const volume::Volume& extraVolumeIn,
+            const real weight,
+            const grid::Grid& grid
+        ) override;
 
         //! Returns the number of elements needed to represent the functional
         //!
@@ -48,7 +49,7 @@ namespace alsfvm { namespace functional {
     private:
 
         void computeStructure(alsfvm::volume::Volume& outputVolume,
-                              const alsfvm::volume::Volume& input);
+            const alsfvm::volume::Volume& input);
 
 
         //! Helper function, computes the volume integral
@@ -56,12 +57,12 @@ namespace alsfvm { namespace functional {
         //! \note This must be called in order according to the ordering of h
         //! ie h=0 must be called first, then h=1, etc.
         void computeCube(alsfvm::memory::View<real>& output,
-                         const alsfvm::memory::View<const real>& input,
-                         int i, int j, int k, int h, int nx, int ny, int nz,
-                         int ngx, int ngy, int ngz, int dimensions);
+            const alsfvm::memory::View<const real>& input,
+            int i, int j, int k, int h, int nx, int ny, int nz,
+            int ngx, int ngy, int ngz, int dimensions);
 
         const real p;
         const int numberOfH;
-    };
+};
 } // namespace functional
 } // namespace alsfvm

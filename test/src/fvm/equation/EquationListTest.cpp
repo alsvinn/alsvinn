@@ -27,22 +27,22 @@ TEST(EquationListTest, CheckNames) {
     alsfvm::equation::for_each_equation(namesFoundFunctor);
 
     ASSERT_TRUE(std::find(namesFoundFunctor.namesFound.begin(),
-                          namesFoundFunctor.namesFound.end(), "euler1")
-                != namesFoundFunctor.namesFound.end());
+            namesFoundFunctor.namesFound.end(), "euler1")
+        != namesFoundFunctor.namesFound.end());
 
     ASSERT_TRUE(std::find(namesFoundFunctor.namesFound.begin(),
-        namesFoundFunctor.namesFound.end(), "euler2")
+            namesFoundFunctor.namesFound.end(), "euler2")
         != namesFoundFunctor.namesFound.end());
 
 
     ASSERT_TRUE(std::find(namesFoundFunctor.namesFound.begin(),
-        namesFoundFunctor.namesFound.end(), "euler3")
+            namesFoundFunctor.namesFound.end(), "euler3")
         != namesFoundFunctor.namesFound.end());
 
 
     ASSERT_TRUE(std::find(namesFoundFunctor.namesFound.begin(),
-                          namesFoundFunctor.namesFound.end(), "burgers")
-                != namesFoundFunctor.namesFound.end());
+            namesFoundFunctor.namesFound.end(), "burgers")
+        != namesFoundFunctor.namesFound.end());
 
 }
 

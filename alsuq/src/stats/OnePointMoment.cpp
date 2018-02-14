@@ -1,29 +1,28 @@
 #include "alsuq/stats/OnePointMoment.hpp"
 #include "alsuq/stats/stats_util.hpp"
-namespace alsuq { namespace stats {
+namespace alsuq {
+namespace stats {
 
-OnePointMoment::OnePointMoment(const StatisticsParameters &parameters)
+OnePointMoment::OnePointMoment(const StatisticsParameters& parameters)
     : StatisticsHelper(parameters), p(parameters.getParameterAsInteger("p")),
-      statisticsName("m" + std::to_string(p))
-{
+      statisticsName("m" + std::to_string(p)) {
 
 }
 
-std::vector<std::string> OnePointMoment::getStatisticsNames() const
-{
+std::vector<std::string> OnePointMoment::getStatisticsNames() const {
     return  {statisticsName};
 }
 
-void OnePointMoment::computeStatistics(const alsfvm::volume::Volume &conservedVariables,
-                                     const alsfvm::volume::Volume &extraVariables,
-                                     const alsfvm::grid::Grid &grid,
-                                     const alsfvm::simulator::TimestepInformation &timestepInformation)
-{
+void OnePointMoment::computeStatistics(const alsfvm::volume::Volume&
+    conservedVariables,
+    const alsfvm::volume::Volume& extraVariables,
+    const alsfvm::grid::Grid& grid,
+    const alsfvm::simulator::TimestepInformation& timestepInformation) {
 
     auto& m = findOrCreateSnapshot(statisticsName,
-                                      timestepInformation,
-                                      conservedVariables,
-                                      extraVariables);
+            timestepInformation,
+            conservedVariables,
+            extraVariables);
 
 
 
@@ -36,8 +35,7 @@ void OnePointMoment::computeStatistics(const alsfvm::volume::Volume &conservedVa
 
 }
 
-void OnePointMoment::finalize()
-{
+void OnePointMoment::finalize() {
 
 }
 

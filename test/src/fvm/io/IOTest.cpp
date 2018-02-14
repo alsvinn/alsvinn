@@ -10,7 +10,7 @@ TEST(IOTest, NamingTest) {
     auto generatedName = alsfvm::io::getOutputname(basename, snapshotNumber);
 
     // We only require that these two tings should be in the name
-    ASSERT_TRUE(generatedName.find(basename) !=std::string::npos);
+    ASSERT_TRUE(generatedName.find(basename) != std::string::npos);
 
-    ASSERT_TRUE(generatedName.find("10") !=std::string::npos);
+    ASSERT_TRUE(generatedName.find("10") != std::string::npos);
 }

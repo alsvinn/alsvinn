@@ -19,78 +19,78 @@
 ///
 namespace alsfvm {
 namespace numflux {
-    typedef boost::fusion::map <
-        // EULER1
-        boost::fusion::pair<equation::euler::Euler<1>,
-        boost::fusion::vector<
-        euler::HLL<1>,
-        euler::HLL3<1>,
-        Central<equation::euler::Euler<1>>,
-        euler::Tecno1<1>,
-        TecnoCombined4<equation::euler::Euler<1>, euler::Tecno1<1> >,
-        TecnoCombined6<equation::euler::Euler<1>, euler::Tecno1<1> >
-        > >,
+typedef boost::fusion::map <
+// EULER1
+boost::fusion::pair<equation::euler::Euler<1>,
+      boost::fusion::vector<
+      euler::HLL<1>,
+      euler::HLL3<1>,
+      Central<equation::euler::Euler<1>>,
+      euler::Tecno1<1>,
+      TecnoCombined4<equation::euler::Euler<1>, euler::Tecno1<1> >,
+      TecnoCombined6<equation::euler::Euler<1>, euler::Tecno1<1> >
+      > >,
 
-        // EULER2
-        boost::fusion::pair<equation::euler::Euler<2>,
-        boost::fusion::vector<
-        euler::HLL<2>,
-        euler::HLL3<2>,
-        Central<equation::euler::Euler<2>>,
-        euler::Tecno1<2>,
-        TecnoCombined4<equation::euler::Euler<2>, euler::Tecno1<2> >,
-        TecnoCombined6<equation::euler::Euler<2>, euler::Tecno1<2> >
-        > >,
+      // EULER2
+      boost::fusion::pair<equation::euler::Euler<2>,
+      boost::fusion::vector<
+      euler::HLL<2>,
+      euler::HLL3<2>,
+      Central<equation::euler::Euler<2>>,
+      euler::Tecno1<2>,
+      TecnoCombined4<equation::euler::Euler<2>, euler::Tecno1<2> >,
+      TecnoCombined6<equation::euler::Euler<2>, euler::Tecno1<2> >
+      > >,
 
-        // EULER3
-        boost::fusion::pair<equation::euler::Euler<3>,
-        boost::fusion::vector<
-        euler::HLL<3>,
-        euler::HLL3<3>,
-        Central<equation::euler::Euler<3>>,
-        euler::Tecno1<3>,
-        TecnoCombined4<equation::euler::Euler<3>, euler::Tecno1<3> >,
-        TecnoCombined6<equation::euler::Euler<3>, euler::Tecno1<3> >
-        > >,
+      // EULER3
+      boost::fusion::pair<equation::euler::Euler<3>,
+      boost::fusion::vector<
+      euler::HLL<3>,
+      euler::HLL3<3>,
+      Central<equation::euler::Euler<3>>,
+      euler::Tecno1<3>,
+      TecnoCombined4<equation::euler::Euler<3>, euler::Tecno1<3> >,
+      TecnoCombined6<equation::euler::Euler<3>, euler::Tecno1<3> >
+      > >,
 
-        // BURGERS
-        boost::fusion::pair < equation::burgers::Burgers,
-        boost::fusion::vector <
-        Central<equation::burgers::Burgers>,
-        Rusanov<equation::burgers::Burgers>,
-        burgers::Godunov,
-        ScalarEntropyConservativeFlux<equation::burgers::Burgers>,
-        TecnoCombined4<equation::burgers::Burgers, ScalarEntropyConservativeFlux<equation::burgers::Burgers> >,
-        TecnoCombined4<::alsfvm::equation::burgers::Burgers, burgers::Godunov>,
-        TecnoCombined6<equation::burgers::Burgers, ScalarEntropyConservativeFlux<equation::burgers::Burgers> >,
-        TecnoCombined6<::alsfvm::equation::burgers::Burgers, burgers::Godunov>
-        >>,
+      // BURGERS
+      boost::fusion::pair < equation::burgers::Burgers,
+      boost::fusion::vector <
+      Central<equation::burgers::Burgers>,
+      Rusanov<equation::burgers::Burgers>,
+      burgers::Godunov,
+      ScalarEntropyConservativeFlux<equation::burgers::Burgers>,
+      TecnoCombined4<equation::burgers::Burgers, ScalarEntropyConservativeFlux<equation::burgers::Burgers> >,
+      TecnoCombined4<::alsfvm::equation::burgers::Burgers, burgers::Godunov>,
+      TecnoCombined6<equation::burgers::Burgers, ScalarEntropyConservativeFlux<equation::burgers::Burgers> >,
+      TecnoCombined6<::alsfvm::equation::burgers::Burgers, burgers::Godunov>
+      >>,
 
-        // BUCKLEY-LEVERETT
-        boost::fusion::pair < equation::buckleyleverett::BuckleyLeverett,
-        boost::fusion::vector <
-        Central<equation::buckleyleverett::BuckleyLeverett>,
-        buckleyleverett::Godunov,
-        Rusanov<equation::buckleyleverett::BuckleyLeverett>
-        > >,
+      // BUCKLEY-LEVERETT
+      boost::fusion::pair < equation::buckleyleverett::BuckleyLeverett,
+      boost::fusion::vector <
+      Central<equation::buckleyleverett::BuckleyLeverett>,
+      buckleyleverett::Godunov,
+      Rusanov<equation::buckleyleverett::BuckleyLeverett>
+      > >,
 
-        // CUBIC
-        boost::fusion::pair < equation::cubic::Cubic,
-        boost::fusion::vector <
-        Central<equation::cubic::Cubic>,
-        Rusanov<equation::cubic::Cubic>
-        > >
-        > NumericalFluxList;
-
-
-    template<class Equation, class Function>
-    void for_each_flux(Function f) {
-
-        NumericalFluxList map;
+      // CUBIC
+      boost::fusion::pair < equation::cubic::Cubic,
+      boost::fusion::vector <
+      Central<equation::cubic::Cubic>,
+      Rusanov<equation::cubic::Cubic>
+      > >
+      > NumericalFluxList;
 
 
-        boost::fusion::for_each(boost::fusion::at_key<Equation>(map), f);
-    }
+template<class Equation, class Function>
+void for_each_flux(Function f) {
+
+    NumericalFluxList map;
+
+
+    boost::fusion::for_each(boost::fusion::at_key<Equation>(map), f);
+}
 
 
 

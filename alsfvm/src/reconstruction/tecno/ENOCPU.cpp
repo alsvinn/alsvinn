@@ -1,25 +1,26 @@
 #include "alsfvm/reconstruction/tecno/ENOCPU.hpp"
 #include "alsfvm/reconstruction/ENOCoefficients.hpp"
 
-namespace alsfvm { namespace reconstruction { namespace tecno { 
+namespace alsfvm {
+namespace reconstruction {
+namespace tecno {
 
-template<int order>
-ENOCPU<order>::ENOCPU(alsfvm::shared_ptr<memory::MemoryFactory> &memoryFactory,
-                      size_t nx, size_t ny, size_t nz)
-    : memoryFactory(memoryFactory)
-{
+template<int order> ENOCPU<order>::ENOCPU(
+    alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+    size_t nx, size_t ny, size_t nz)
+    : memoryFactory(memoryFactory) {
     size_t ghostX = getNumberOfGhostCells();
     size_t ghostY = ny > 1 ? getNumberOfGhostCells() : 0;
     size_t ghostZ = nz > 1 ? getNumberOfGhostCells() : 0;
-    makeDividedDifferenceArrays(nx + 2*ghostX, ny + 2*ghostY, nz + 2*ghostZ);
+    makeDividedDifferenceArrays(nx + 2 * ghostX, ny + 2 * ghostY, nz + 2 * ghostZ);
 }
 
 template<int order>
-void ENOCPU<order>::performReconstruction(const volume::Volume &leftInput,
-                                        const volume::Volume &rightInput,
-                                        size_t direction,
-                                        volume::Volume &leftOut,
-                                        volume::Volume &rightOut) {
+void ENOCPU<order>::performReconstruction(const volume::Volume& leftInput,
+    const volume::Volume& rightInput,
+    size_t direction,
+    volume::Volume& leftOut,
+    volume::Volume& rightOut) {
 
     // We often do compute order-1.
     static_assert(order > 0, "Can not do ENO reconstruction of order 0.");
@@ -31,7 +32,8 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &leftInput,
         THROW("Direction can only be 0, 1 or 2, was given: " << direction);
     }
 
-    if (leftInput.getScalarMemoryArea(0)->getSize() != dividedDifferences[0]->getSize()) {
+    if (leftInput.getScalarMemoryArea(0)->getSize() !=
+        dividedDifferences[0]->getSize()) {
         makeDividedDifferenceArrays(nx, ny, nz);
     }
 
@@ -44,15 +46,15 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &leftInput,
 
 
         computeDividedDifferences(*leftInput.getScalarMemoryArea(var),
-                                  *rightInput.getScalarMemoryArea(var),
-                                  directionVector,
-                                  1,
-                                  *dividedDifferences[0]);
+            *rightInput.getScalarMemoryArea(var),
+            directionVector,
+            1,
+            *dividedDifferences[0]);
 
         for (size_t i = 1; i < order - 1; i++) {
             computeDividedDifferences(*dividedDifferences[i - 1],
-                    *dividedDifferences[i - 1],
-                    directionVector, i + 1, *dividedDifferences[i]);
+                *dividedDifferences[i - 1],
+                directionVector, i + 1, *dividedDifferences[i]);
         }
 
         // done computing divided differences
@@ -74,7 +76,7 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &leftInput,
         const size_t endY = ny - directionVector.y * (order - 1);
         const size_t endZ = nz - directionVector.z * (order - 1);
 
-        std::array<real*, order - 1> dividedDifferencesPointers;
+        std::array < real*, order - 1 > dividedDifferencesPointers;
 
         for (size_t i = 0; i < order - 1; i++) {
             dividedDifferencesPointers[i] = dividedDifferences[i]->getPointer();
@@ -90,9 +92,11 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &leftInput,
         real* pointerOutRight = rightOut.getScalarMemoryArea(var)->getPointer();
 
         for (size_t z = startZ; z < endZ; z++) {
-#pragma omp parallel for
+            #pragma omp parallel for
+
             for (size_t y = startY; y < endY; y++) {
-#pragma omp simd
+                #pragma omp simd
+
                 for (int x = startX; x < int(endX); x++) {
 
 
@@ -125,22 +129,27 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &leftInput,
                     auto coefficientsRight = ENOCoeffiecients<order>::coefficients[shift + 1];
                     auto coefficientsLeft = ENOCoeffiecients<order>::coefficients[shift];
 
-                    std::array<real, 2*order-1> wCur;
-                    wCur[order-1] = leftView.at(indexRight);
-                    for (int l = 0; l < order-1; ++l) {
-                        wCur[order+l]   = wCur[order+l-1] +   dividedDifferencesPointers[0][indexRight+l];
-                        wCur[order-l-2] = wCur[order-l-1] - dividedDifferencesPointers[0][indexRight-l-1];
+                    std::array < real, 2 * order - 1 > wCur;
+                    wCur[order - 1] = leftView.at(indexRight);
+
+                    for (int l = 0; l < order - 1; ++l) {
+                        wCur[order + l]   = wCur[order + l - 1] +
+                            dividedDifferencesPointers[0][indexRight + l];
+                        wCur[order - l - 2] = wCur[order - l - 1] -
+                            dividedDifferencesPointers[0][indexRight - l - 1];
                     }
 
                     // Calculate wlR, wrR
                     real uli = 0, uri = 0;
+
                     for (int l = 0; l < order; ++l) {
-                        uli += coefficientsLeft[l]*wCur[order-1-shift+l];
-                        uri += coefficientsRight[l]*wCur[order-1-shift+l];
+                        uli += coefficientsLeft[l] * wCur[order - 1 - shift + l];
+                        uri += coefficientsRight[l] * wCur[order - 1 - shift + l];
                     }
 
                     pointerOutLeft[indexRight] = uli;
-                    pointerOutRight[indexRight] = uri + (rightView.at(indexRight)-leftView.at(indexRight));
+                    pointerOutRight[indexRight] = uri + (rightView.at(indexRight) - leftView.at(
+                                indexRight));
                     assert(!std::isnan(uli));
                     assert(!std::isnan(uri));
 
@@ -154,28 +163,27 @@ void ENOCPU<order>::performReconstruction(const volume::Volume &leftInput,
 
 
 template<int order>
-size_t ENOCPU<order>::getNumberOfGhostCells() const
-{
+size_t ENOCPU<order>::getNumberOfGhostCells() const {
     return order;
 }
 
 template<int order>
-void ENOCPU<order>::makeDividedDifferenceArrays(size_t nx, size_t ny, size_t nz)
-{
+void ENOCPU<order>::makeDividedDifferenceArrays(size_t nx, size_t ny,
+    size_t nz) {
 
-    for(size_t i = 0; i < dividedDifferences.size(); i++) {
+    for (size_t i = 0; i < dividedDifferences.size(); i++) {
         dividedDifferences[i] = memoryFactory->createScalarMemory(nx, ny, nz);
         dividedDifferences[i]->makeZero();
     }
 }
 
 template<int order>
-void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& leftInput,
-                                              const memory::Memory<real>& rightInput,
-                                              const ivec3& direction,
-                                              size_t level,
-                                              memory::Memory<real>& output)
-{
+void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>&
+    leftInput,
+    const memory::Memory<real>& rightInput,
+    const ivec3& direction,
+    size_t level,
+    memory::Memory<real>& output) {
 
 
     const size_t nx = leftInput.getSizeX();
@@ -184,9 +192,9 @@ void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& leftIn
 
 
     // Sanity check, we need at least ONE point in the interior.
-    assert(nx > 2*direction.x * level);
-    assert(ny > 2*direction.y * level);
-    assert(nz > 2*direction.z * level);
+    assert(nx > 2 * direction.x * level);
+    assert(ny > 2 * direction.y * level);
+    assert(nz > 2 * direction.z * level);
 
     const size_t startX = direction.x * level;
     const size_t startY = direction.y * level;
@@ -203,13 +211,14 @@ void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& leftIn
 
 
     for (size_t z = startZ; z < endZ; z++) {
-        for(size_t y = startY; y < endY; y++) {
-#pragma omp parallel for
-            for(size_t x = startX; x < endX; x++) {
-                const size_t indexRight = z*nx*ny + y * nx + x;
+        for (size_t y = startY; y < endY; y++) {
+            #pragma omp parallel for
+
+            for (size_t x = startX; x < endX; x++) {
+                const size_t indexRight = z * nx * ny + y * nx + x;
                 const size_t indexLeft = (z - direction.z) * nx * ny
-                        + (y - direction.y) * nx
-                        + (x - direction.x);
+                    + (y - direction.y) * nx
+                    + (x - direction.x);
 
                 pointerOut[indexLeft] = leftView.at(indexRight) - rightView.at(indexLeft);
 
@@ -225,5 +234,5 @@ template class ENOCPU<4>;
 
 
 }
-                                            }
-                 }
+}
+}

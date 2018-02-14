@@ -1,6 +1,7 @@
 #pragma once
 #include "alsfvm/reconstruction/Reconstruction.hpp"
-namespace alsfvm { namespace reconstruction { 
+namespace alsfvm {
+namespace reconstruction {
 
 ///
 /// \brief The NoReconstruction class is the default reconstruction option (eg. none)
@@ -8,7 +9,7 @@ namespace alsfvm { namespace reconstruction {
 /// Here we do not perform any reconstruction, we simply copy the data into the
 /// correct arrays, with correct indexing.
 ///
-    class NoReconstruction : public Reconstruction{
+class NoReconstruction : public Reconstruction {
     public:
 
         ///
@@ -31,11 +32,11 @@ namespace alsfvm { namespace reconstruction {
         /// \todo This can be done more efficiently, but we will wait with this.
         ///
         virtual void performReconstruction(const volume::Volume& inputVariables,
-                                   size_t direction,
-                                   size_t indicatorVariable,
-                                   volume::Volume& leftOut,
-                                           volume::Volume& rightOut, const ivec3& start={0,0,0},
-                                           const ivec3& end={0,0,0});
+            size_t direction,
+            size_t indicatorVariable,
+            volume::Volume& leftOut,
+            volume::Volume& rightOut, const ivec3& start = {0, 0, 0},
+            const ivec3& end = {0, 0, 0});
 
         ///
         /// \brief getNumberOfGhostCells returns the number of ghost cells we need
@@ -44,6 +45,6 @@ namespace alsfvm { namespace reconstruction {
         ///
         virtual size_t getNumberOfGhostCells();
 
-    };
+};
 } // namespace alsfvm
 } // namespace reconstruction

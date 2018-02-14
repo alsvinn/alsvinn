@@ -3,18 +3,19 @@
 #include "alsfvm/mpi/CellExchanger.hpp"
 
 
-namespace alsfvm { namespace integrator { 
+namespace alsfvm {
+namespace integrator {
 
-    ///
-    /// Abstract base class right hand side of ODEs.
-    ///
-    /// We model ODEs as
-    ///
-    /// \f[\vec{u}'(t)=F(\vec{u}(t)).\f]
-    ///
-    /// The system class is responsible for computing \f$F(\vec{u}(t))\f$.
-    ///
-    class System {
+///
+/// Abstract base class right hand side of ODEs.
+///
+/// We model ODEs as
+///
+/// \f[\vec{u}'(t)=F(\vec{u}(t)).\f]
+///
+/// The system class is responsible for computing \f$F(\vec{u}(t))\f$.
+///
+class System {
     public:
 
         ///
@@ -28,10 +29,10 @@ namespace alsfvm { namespace integrator {
         ///                    \f$F(\vec{u})\f$
         ///
         virtual void operator()( volume::Volume& conservedVariables,
-                                rvec3& waveSpeed, bool computeWaveSpeed,
-                                volume::Volume& output) = 0;
+            rvec3& waveSpeed, bool computeWaveSpeed,
+            volume::Volume& output) = 0;
 
-        /// 
+        ///
         /// Returns the number of ghost cells needed.
         /// This will take the maximum between the number of ghost cells the numerical
         /// flux needs, and the number of ghost cells the diffusion operator needs
@@ -43,6 +44,6 @@ namespace alsfvm { namespace integrator {
         virtual void setCellExchanger(mpi::CellExchangerPtr cellExchanger) {}
 
         virtual ~System() {/*empty*/}
-    };
+};
 } // namespace alsfvm
 } // namespace integrator

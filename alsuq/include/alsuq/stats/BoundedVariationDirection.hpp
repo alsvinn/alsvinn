@@ -1,9 +1,10 @@
 #pragma once
 #include "alsuq/stats/StatisticsHelper.hpp"
 
-namespace alsuq { namespace stats {
+namespace alsuq {
+namespace stats {
 
-    class BoundedVariationDirection : public StatisticsHelper {
+class BoundedVariationDirection : public StatisticsHelper {
     public:
 
         BoundedVariationDirection(const StatisticsParameters& parameters);
@@ -15,10 +16,10 @@ namespace alsuq { namespace stats {
 
 
 
-        virtual void computeStatistics(const alsfvm::volume::Volume &conservedVariables,
-                          const alsfvm::volume::Volume &extraVariables,
-                          const alsfvm::grid::Grid &grid,
-                          const alsfvm::simulator::TimestepInformation &timestepInformation) override;
+        virtual void computeStatistics(const alsfvm::volume::Volume& conservedVariables,
+            const alsfvm::volume::Volume& extraVariables,
+            const alsfvm::grid::Grid& grid,
+            const alsfvm::simulator::TimestepInformation& timestepInformation) override;
 
         virtual void finalize() override;
 
@@ -31,6 +32,6 @@ namespace alsuq { namespace stats {
 
 
 
-    };
+};
 } // namespace statistics
 } // namespace alsuq

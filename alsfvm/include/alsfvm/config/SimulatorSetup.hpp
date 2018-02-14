@@ -7,17 +7,18 @@
 #include "alsfvm/init/Parameters.hpp"
 #include "alsfvm/io/WriterFactory.hpp"
 #ifdef ALSVINN_USE_MPI
-#include <mpi.h>
-#include "alsfvm/mpi/domain/DomainInformation.hpp"
+    #include <mpi.h>
+    #include "alsfvm/mpi/domain/DomainInformation.hpp"
 #endif
 
-namespace alsfvm { namespace config { 
+namespace alsfvm {
+namespace config {
 
-    class SimulatorSetup {
+class SimulatorSetup {
     public:
         typedef boost::property_tree::ptree ptree;
         std::pair<alsfvm::shared_ptr<simulator::Simulator>,
-        alsfvm::shared_ptr<init::InitialData> >
+            alsfvm::shared_ptr<init::InitialData> >
             readSetupFromFile(const std::string& filename);
 
 
@@ -29,11 +30,13 @@ namespace alsfvm { namespace config {
         void enableMPI(MPI_Comm communicator, int multiX, int multiY, int multiZ);
 
         //! Call to enable mpi. Has to be called *before* readSetupFromFile.
-        void enableMPI(mpi::ConfigurationPtr configuration, int multiX, int multiY, int multiZ);
+        void enableMPI(mpi::ConfigurationPtr configuration, int multiX, int multiY,
+            int multiZ);
 #endif
     protected:
 
-        alsfvm::shared_ptr<init::InitialData> createInitialData(const ptree& configuration);
+        alsfvm::shared_ptr<init::InitialData> createInitialData(
+            const ptree& configuration);
         alsfvm::shared_ptr<grid::Grid> createGrid(const ptree& configuration);
         real readEndTime(const ptree& configuration);
         std::string readEquation(const ptree& configuration);
@@ -45,7 +48,8 @@ namespace alsfvm { namespace config {
         std::string readPlatform(const ptree& configuration);
         std::string readBoundary(const ptree& configuration);
         init::Parameters readParameters(const ptree& configuration);
-        alsfvm::shared_ptr<diffusion::DiffusionOperator> createDiffusion(const ptree& configuration,
+        alsfvm::shared_ptr<diffusion::DiffusionOperator> createDiffusion(
+            const ptree& configuration,
             const grid::Grid& grid,
             const simulator::SimulatorParameters& simulatorParameters,
             alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration,
@@ -53,8 +57,10 @@ namespace alsfvm { namespace config {
             volume::VolumeFactory& volumeFactory);
 
         std::string readName(const ptree& configuration);
-        std::vector<io::WriterPointer> createFunctionals(const ptree& configuration, volume::VolumeFactory& volumeFactory);
-        void readEquationParameters(const ptree& configuration, simulator::SimulatorParameters& parameters);
+        std::vector<io::WriterPointer> createFunctionals(const ptree& configuration,
+            volume::VolumeFactory& volumeFactory);
+        void readEquationParameters(const ptree& configuration,
+            simulator::SimulatorParameters& parameters);
 
         std::string readFlux(const ptree& configuration);
 
@@ -63,13 +69,14 @@ namespace alsfvm { namespace config {
 
 
 #ifdef ALSVINN_USE_MPI
-        mpi::domain::DomainInformationPtr decomposeGrid(const alsfvm::shared_ptr<grid::Grid>& grid);
+        mpi::domain::DomainInformationPtr decomposeGrid(const
+            alsfvm::shared_ptr<grid::Grid>& grid);
         bool useMPI{false};
         mpi::ConfigurationPtr mpiConfiguration;
         int multiX;
         int multiY;
         int multiZ;
 #endif
-    };
+};
 } // namespace alsfvm
 } // namespace config

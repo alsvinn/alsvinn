@@ -1,14 +1,16 @@
 #pragma once
 #include "alsfvm/types.hpp"
 #include "alsfvm/reconstruction/tecno/TecnoReconstruction.hpp"
-namespace alsfvm { namespace reconstruction { namespace tecno { 
+namespace alsfvm {
+namespace reconstruction {
+namespace tecno {
 
-    template<int order>
-    class ENOCUDA : public TecnoReconstruction {
+template<int order>
+class ENOCUDA : public TecnoReconstruction {
     public:
 
         ENOCUDA(alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-                       size_t nx, size_t ny, size_t nz);
+            size_t nx, size_t ny, size_t nz);
 
         //! Applies the reconstruction.
         //!
@@ -18,10 +20,10 @@ namespace alsfvm { namespace reconstruction { namespace tecno {
         //! @param[out] leftOutput at the end, should contain reconstructed values
         //! @param[out] rightOutput at the end, should contain the reconstructed values
         virtual void performReconstruction(const volume::Volume& leftInput,
-                                 const volume::Volume& rightInput,
-                                 size_t direction,
-                                 volume::Volume& leftOutput,
-                                 volume::Volume& rightOutput);
+            const volume::Volume& rightInput,
+            size_t direction,
+            volume::Volume& leftOutput,
+            volume::Volume& rightOutput);
 
 
         ///
@@ -44,18 +46,19 @@ namespace alsfvm { namespace reconstruction { namespace tecno {
         //! tecno scheme. See the tecno paper for more details
         //!
         void computeDividedDifferences(const memory::Memory<real>& leftInput,
-                                       const memory::Memory<real>& rightInput,
-                                       const ivec3& direction,
-                                       size_t level,
-                                       memory::Memory<real>& output);
+            const memory::Memory<real>& rightInput,
+            const ivec3& direction,
+            size_t level,
+            memory::Memory<real>& output);
 
 
         alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
         // For each level l, this will contain the divided differences for that
         // level.
-        std::array<alsfvm::shared_ptr<memory::Memory<real> >, order - 1> dividedDifferences;
+        std::array < alsfvm::shared_ptr<memory::Memory<real> >,
+            order - 1 > dividedDifferences;
 
-    };
+};
 } // namespace tecno
 } // namespace reconstruction
 } // namespace alsfvm

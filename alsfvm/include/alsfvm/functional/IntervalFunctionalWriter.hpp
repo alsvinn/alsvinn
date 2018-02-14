@@ -4,7 +4,8 @@
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/memory/MemoryFactory.hpp"
 
-namespace alsfvm { namespace functional {
+namespace alsfvm {
+namespace functional {
 
 
 ///
@@ -14,18 +15,18 @@ namespace alsfvm { namespace functional {
 /// This class is useful if you only want to save every x seconds of simulation. This class assume you
 /// already decorates it with the alsfvm::io::FixedIntervalWriter
 ///
-    class IntervalFunctionalWriter : public io::Writer {
+class IntervalFunctionalWriter : public io::Writer {
     public:
 
         IntervalFunctionalWriter(volume::VolumeFactory volumeFactory,
-                                  io::WriterPointer writer,
-                                  FunctionalPointer functional
-                                  );
+            io::WriterPointer writer,
+            FunctionalPointer functional
+        );
 
         virtual void write(const volume::Volume& conservedVariables,
-                           const volume::Volume& extraVariables,
-                           const grid::Grid& grid,
-                           const simulator::TimestepInformation& timestepInformation) override;
+            const volume::Volume& extraVariables,
+            const grid::Grid& grid,
+            const simulator::TimestepInformation& timestepInformation) override;
 
 
     private:
@@ -41,6 +42,6 @@ namespace alsfvm { namespace functional {
 
         ivec3 functionalSize;
 
-    };
+};
 } // namespace functional
 } // namespace alsfvm

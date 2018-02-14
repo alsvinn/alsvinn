@@ -3,9 +3,10 @@
 #include <vector>
 #include "alsuq/types.hpp"
 
-namespace alsuq { namespace mpi { 
+namespace alsuq {
+namespace mpi {
 
-    class SimpleLoadBalancer {
+class SimpleLoadBalancer {
     public:
         SimpleLoadBalancer(const std::vector<size_t>& samples);
 
@@ -21,11 +22,12 @@ namespace alsuq { namespace mpi {
         //! \return a tuple, where the first component is the list of samples to compute, the second is the configuration of the statistical domain,
         //! and the last is the configuration of the parallel domain.
         //!
-        std::tuple<std::vector<size_t>, ConfigurationPtr, ConfigurationPtr> loadBalance(int multiSample, ivec3 multiSpatial,
-                                       const Configuration& mpiConfig);
+        std::tuple<std::vector<size_t>, ConfigurationPtr, ConfigurationPtr> loadBalance(
+            int multiSample, ivec3 multiSpatial,
+            const Configuration& mpiConfig);
 
     private:
         std::vector<size_t> samples;
-    };
+};
 } // namespace mpi
 } // namespace alsuq

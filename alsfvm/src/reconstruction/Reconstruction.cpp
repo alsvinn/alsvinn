@@ -1,6 +1,7 @@
 #include "alsfvm/reconstruction/Reconstruction.hpp"
 
-namespace alsfvm { namespace reconstruction { 
+namespace alsfvm {
+namespace reconstruction {
 
 }
 }

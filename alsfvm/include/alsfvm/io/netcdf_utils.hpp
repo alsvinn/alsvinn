@@ -10,6 +10,6 @@
 }
 
 namespace alsfvm {
-    typedef int netcdf_raw_ptr;
+typedef int netcdf_raw_ptr;
 
 }

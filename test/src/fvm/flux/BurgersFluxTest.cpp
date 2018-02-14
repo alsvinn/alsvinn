@@ -8,34 +8,36 @@
 using namespace alsfvm;
 
 namespace {
-    struct FluxTestParameters {
-        const std::string name;
-        const std::string platform;
+struct FluxTestParameters {
+    const std::string name;
+    const std::string platform;
 
-        FluxTestParameters (
-            const std::string& name_,
-            const std::string& platform_
-            )
-            :
-            name(name_),
-    #ifdef ALSVINN_HAVE_CUDA
-            platform(platform_)
-    #else
-            platform("cpu")
-    #endif
-        {
+    FluxTestParameters (
+        const std::string& name_,
+        const std::string& platform_
+    )
+        :
+        name(name_),
+#ifdef ALSVINN_HAVE_CUDA
+        platform(platform_)
+#else
+        platform("cpu")
+#endif
+    {
 
-        }
-
-    };
-
-
-    std::ostream& operator<<(std::ostream& os, const FluxTestParameters& parameters) {
-        os << "\n{\n"
-            << "\n\tname = " << parameters.name
-            << "\n\tplatform = " << parameters.platform << std::endl << "\n}\n" << std::endl;
-        return os;
     }
+
+};
+
+
+std::ostream& operator<<(std::ostream& os,
+    const FluxTestParameters& parameters) {
+    os << "\n{\n"
+        << "\n\tname = " << parameters.name
+        << "\n\tplatform = " << parameters.platform << std::endl << "\n}\n" <<
+        std::endl;
+    return os;
+}
 }
 struct BurgersFluxTest : public ::testing::TestWithParam <FluxTestParameters>  {
     const std::string equation = "burgers";
@@ -76,8 +78,7 @@ struct BurgersFluxTest : public ::testing::TestWithParam <FluxTestParameters>  {
           memoryFactoryCPU(new memory::MemoryFactory(deviceConfigurationCPU)),
           volumeFactoryCPU(equation, memoryFactoryCPU),
           numericalFluxFactory(equation, parameters.name, "none",
-                               simulatorParameters, deviceConfiguration)
-    {
+              simulatorParameters, deviceConfiguration) {
 
     }
 
@@ -86,31 +87,36 @@ struct BurgersFluxTest : public ::testing::TestWithParam <FluxTestParameters>  {
         const size_t endK = 20;
 
         const real constant = 42;
+
         for (size_t k = startK; k < endK; ++k) {
             const size_t N = 1 << k;
-            grid.reset(new grid::Grid({0,0,0}, {1,0,0}, ivec3{int(N), 1, 1}));
+            grid.reset(new grid::Grid({0, 0, 0}, {1, 0, 0}, ivec3{int(N), 1, 1}));
             auto numericalFlux = numericalFluxFactory.createNumericalFlux(*grid);
             conservedVolumeIn = volumeFactory.createConservedVolume(N, 1, 1, 1);
             conservedVolumeOut = volumeFactory.createConservedVolume(N, 1, 1, 1);
 
             conservedVolumeInCPU = volumeFactoryCPU.createConservedVolume(N, 1, 1, 1);
             conservedVolumeOutCPU = volumeFactoryCPU.createConservedVolume(N, 1, 1, 1);
+
             // fill up array
-            for(size_t i = 0; i < N+2; ++i) {
+            for (size_t i = 0; i < N + 2; ++i) {
                 conservedVolumeInCPU->getScalarMemoryArea("u")->getPointer()[i]
-                        = constant;
+                    = constant;
             }
 
             conservedVolumeInCPU->copyTo(*conservedVolumeIn);
 
 
             rvec3 waveSpeed;
-            numericalFlux->computeFlux(*conservedVolumeIn, waveSpeed, false, *conservedVolumeOut);
+            numericalFlux->computeFlux(*conservedVolumeIn, waveSpeed, false,
+                *conservedVolumeOut);
 
 
             conservedVolumeOut->copyTo(*conservedVolumeOutCPU);
-            for (size_t i = 1; i < N+1; ++i) {
-                ASSERT_FLOAT_EQ(0, conservedVolumeOutCPU->getScalarMemoryArea("u")->getPointer()[i])
+
+            for (size_t i = 1; i < N + 1; ++i) {
+                ASSERT_FLOAT_EQ(0,
+                    conservedVolumeOutCPU->getScalarMemoryArea("u")->getPointer()[i])
                         << "Computing flux failed at index " << i;
             }
         }
@@ -124,20 +130,22 @@ struct BurgersFluxTest : public ::testing::TestWithParam <FluxTestParameters>  {
 
         std::vector<double> differences;
         std::vector<double> dx;
+
         for (size_t k = startK; k < endK; ++k) {
             const size_t N = 1 << k;
-            dx.push_back(std::log(1.0/N));
-            grid.reset(new grid::Grid({0,0,0}, {1,0,0}, ivec3{int(N), 1, 1}));
+            dx.push_back(std::log(1.0 / N));
+            grid.reset(new grid::Grid({0, 0, 0}, {1, 0, 0}, ivec3{int(N), 1, 1}));
             auto numericalFlux = numericalFluxFactory.createNumericalFlux(*grid);
             conservedVolumeIn = volumeFactory.createConservedVolume(N, 1, 1, 1);
             conservedVolumeOut = volumeFactory.createConservedVolume(N, 1, 1, 1);
 
             conservedVolumeInCPU = volumeFactoryCPU.createConservedVolume(N, 1, 1, 1);
             conservedVolumeOutCPU = volumeFactoryCPU.createConservedVolume(N, 1, 1, 1);
+
             // fill up array
-            for(size_t i = 0; i < N+2; ++i) {
+            for (size_t i = 0; i < N + 2; ++i) {
                 conservedVolumeInCPU->getScalarMemoryArea("u")->getPointer()[i]
-                        = real(i)/real(N);
+                    = real(i) / real(N);
             }
 
             conservedVolumeInCPU->copyTo(*conservedVolumeIn);
@@ -145,15 +153,20 @@ struct BurgersFluxTest : public ::testing::TestWithParam <FluxTestParameters>  {
 
 
             rvec3 waveSpeed;
-            numericalFlux->computeFlux(*conservedVolumeIn, waveSpeed, false, *conservedVolumeOut);
+            numericalFlux->computeFlux(*conservedVolumeIn, waveSpeed, false,
+                *conservedVolumeOut);
             conservedVolumeOut->copyTo(*conservedVolumeOutCPU);
             double l1ErrorSum = 0.0;
-            for (size_t i = 1; i < N+1; ++i) {
-               l1ErrorSum += std::abs((std::pow(real(i+1)/real(N),2) -std::pow( real(i-1)/real(N), 2))/4.0- conservedVolumeOutCPU->getScalarMemoryArea("u")->getPointer()[i]);
+
+            for (size_t i = 1; i < N + 1; ++i) {
+                l1ErrorSum += std::abs((std::pow(real(i + 1) / real(N),
+                                2) - std::pow( real(i - 1) / real(N),
+                                2)) / 4.0 - conservedVolumeOutCPU->getScalarMemoryArea("u")->getPointer()[i]);
             }
 
-            differences.push_back(l1ErrorSum >0 ? std::log(l1ErrorSum/N) : 1);
+            differences.push_back(l1ErrorSum > 0 ? std::log(l1ErrorSum / N) : 1);
         }
+
         auto fit = linearFit(dx, differences);
 
         if (fit[0] == 0) {
@@ -182,10 +195,10 @@ TEST_P(BurgersFluxTest, Tests) {
 INSTANTIATE_TEST_CASE_P(Tests,
     BurgersFluxTest,
     ::testing::Values(
-    FluxTestParameters("central", "cpu"),
-    FluxTestParameters("central", "cuda"),
-    FluxTestParameters("godunov", "cpu"),
-    FluxTestParameters("godunov", "cuda")
+        FluxTestParameters("central", "cpu"),
+        FluxTestParameters("central", "cuda"),
+        FluxTestParameters("godunov", "cpu"),
+        FluxTestParameters("godunov", "cuda")
 
 
     ));

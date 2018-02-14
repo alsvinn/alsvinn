@@ -8,21 +8,23 @@ using namespace alsfvm::numflux;
 
 namespace {
 
-    // Represents the system du/dt = u;
-    class ODESystem : public System {
+// Represents the system du/dt = u;
+class ODESystem : public System {
     public:
         real dt;
         ODESystem(real dt) : dt(dt) {}
-        size_t getNumberOfGhostCells() { return 0; }
+        size_t getNumberOfGhostCells() {
+            return 0;
+        }
 
         void operator()( volume::Volume& conservedVariables,
             rvec3& waveSpeeds, bool computeWaveSpeeds,
-            volume::Volume& output)
-        {
-            output.getScalarMemoryArea(0)->getPointer()[0] = dt * conservedVariables.getScalarMemoryArea(0)->getPointer()[0];
+            volume::Volume& output) {
+            output.getScalarMemoryArea(0)->getPointer()[0] = dt *
+                conservedVariables.getScalarMemoryArea(0)->getPointer()[0];
             waveSpeeds = rvec3(1, 0, 0);
         }
-    };
+};
 }
 struct IntegratorParameters {
     IntegratorParameters(const std::string& name,
@@ -35,24 +37,25 @@ struct IntegratorParameters {
     double expectedConvergenceRate;
 };
 
-std::ostream& operator<<(std::ostream& os, const IntegratorParameters& parameters) {
+std::ostream& operator<<(std::ostream& os,
+    const IntegratorParameters& parameters) {
     os << "\n{\n\texpectedConvergenceRate = " << parameters.expectedConvergenceRate
-       
+
         << "\n\tname = " << parameters.name
         << std::endl << "}" << std::endl;
     return os;
 }
-class IntegratorConvergenceTest : public ::testing::TestWithParam <IntegratorParameters> {
-public:
+class IntegratorConvergenceTest : public ::testing::TestWithParam
+    <IntegratorParameters> {
+    public:
 
-    IntegratorConvergenceTest() :
-        name(GetParam().name),
-        expectedConvergenceRate(GetParam().expectedConvergenceRate)
-    {
-    }
+        IntegratorConvergenceTest() :
+            name(GetParam().name),
+            expectedConvergenceRate(GetParam().expectedConvergenceRate) {
+        }
 
-    std::string name;
-    double expectedConvergenceRate;
+        std::string name;
+        double expectedConvergenceRate;
 };
 
 TEST_P(IntegratorConvergenceTest, ConvergenceTest) {
@@ -71,11 +74,13 @@ TEST_P(IntegratorConvergenceTest, ConvergenceTest) {
 
     auto configuration = alsfvm::make_shared<alsfvm::DeviceConfiguration>("cpu");
 
-    auto factory = alsfvm::make_shared<alsfvm::memory::MemoryFactory>(configuration);
+    auto factory = alsfvm::make_shared<alsfvm::memory::MemoryFactory>
+        (configuration);
 
 
     std::vector<real> errors;
     std::vector<real> resolutions;
+
     for (size_t k = 3; k < 9; ++k) {
         const size_t N = (2 << k);
         const real dt = real(1) / real(N);
@@ -84,7 +89,7 @@ TEST_P(IntegratorConvergenceTest, ConvergenceTest) {
         IntegratorFactory integratorFactory(name);
         auto integrator = integratorFactory.createIntegrator(flux);
         std::vector<alsfvm::shared_ptr<alsfvm::volume::Volume> >
-            volumes(integrator->getNumberOfSubsteps() + 1);
+        volumes(integrator->getNumberOfSubsteps() + 1);
 
         for (auto& volume : volumes) {
             volume.reset(new alsfvm::volume::Volume(variableNames, factory, nx, ny, nz));
@@ -94,12 +99,15 @@ TEST_P(IntegratorConvergenceTest, ConvergenceTest) {
         double t = 0;
         simulator::TimestepInformation timestepInformation;
         const double cfl = 1; // To keep timestep constant
+
         for (size_t i = 0; i < N; i++) {
-            for (size_t substep = 0; substep < integrator->getNumberOfSubsteps(); ++substep) {
+            for (size_t substep = 0; substep < integrator->getNumberOfSubsteps();
+                ++substep) {
                 auto& currentVolume = volumes[substep + 1];
 
                 // Note that we do not care about spatial resolution here
-                integrator->performSubstep(volumes, rvec3(1, 1, 1), 1, cfl, *currentVolume, substep, timestepInformation);
+                integrator->performSubstep(volumes, rvec3(1, 1, 1), 1, cfl, *currentVolume,
+                    substep, timestepInformation);
 
             }
 
@@ -107,8 +115,10 @@ TEST_P(IntegratorConvergenceTest, ConvergenceTest) {
             volumes.back().swap(volumes.front());
             t += dt;
         }
+
         ASSERT_EQ(t, 1);
-        const double error = std::abs(std::exp(1) - volumes.front()->getScalarMemoryArea(0)->getPointer()[0]);
+        const double error = std::abs(std::exp(1) -
+                volumes.front()->getScalarMemoryArea(0)->getPointer()[0]);
 
         std::cout << "[" << N << ", " << error << "]," << std::endl;
         errors.push_back(std::log(error));
@@ -130,5 +140,5 @@ INSTANTIATE_TEST_CASE_P(IntegratorConvergenceTests,
         IntegratorParameters("rungekutta2", 1.9),
         IntegratorParameters("rungekutta3", 2.9),
         IntegratorParameters("rungekutta4", 3.9)
-       
-        ));
+
+    ));

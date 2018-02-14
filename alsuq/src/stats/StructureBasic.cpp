@@ -1,9 +1,10 @@
 #include "alsuq/stats/StructureBasic.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsuq/stats/stats_util.hpp"
-namespace alsuq { namespace stats {
+namespace alsuq {
+namespace stats {
 
-StructureBasic::StructureBasic(const StatisticsParameters &parameters)
+StructureBasic::StructureBasic(const StatisticsParameters& parameters)
     : StatisticsHelper(parameters),
       direction(parameters.getParameterAsInteger("direction")),
       p(parameters.getParameterAsDouble("p")),
@@ -15,36 +16,34 @@ StructureBasic::StructureBasic(const StatisticsParameters &parameters)
 
 }
 
-std::vector<std::string> StructureBasic::getStatisticsNames() const
-{
+std::vector<std::string> StructureBasic::getStatisticsNames() const {
     return {statisticsName};
 }
 
-void StructureBasic::computeStatistics(const alsfvm::volume::Volume &conservedVariables,
-                                       const alsfvm::volume::Volume &extraVariables,
-                                       const alsfvm::grid::Grid &grid,
-                                       const alsfvm::simulator::TimestepInformation &timestepInformation)
-{
-    auto& structure = this->findOrCreateSnapshot(statisticsName, timestepInformation,
-                                                 conservedVariables, extraVariables,
-                                                 numberOfH, 1, 1);
+void StructureBasic::computeStatistics(const alsfvm::volume::Volume&
+    conservedVariables,
+    const alsfvm::volume::Volume& extraVariables,
+    const alsfvm::grid::Grid& grid,
+    const alsfvm::simulator::TimestepInformation& timestepInformation) {
+    auto& structure = this->findOrCreateSnapshot(statisticsName,
+            timestepInformation,
+            conservedVariables, extraVariables,
+            numberOfH, 1, 1);
 
 
     computeStructure(*structure.getVolumes().getConservedVolume(),
-                     conservedVariables);
+        conservedVariables);
     computeStructure(*structure.getVolumes().getExtraVolume(),
-                     extraVariables);
+        extraVariables);
 }
 
-void StructureBasic::finalize()
-{
+void StructureBasic::finalize() {
 
 }
 
-void StructureBasic::computeStructure(alsfvm::volume::Volume &output,
-                                      const alsfvm::volume::Volume &input)
-{
-    for(size_t var = 0; var < input.getNumberOfVariables(); ++var) {
+void StructureBasic::computeStructure(alsfvm::volume::Volume& output,
+    const alsfvm::volume::Volume& input) {
+    for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
         auto inputView = input[var]->getView();
         auto outputView = output[var]->getView();
 
@@ -55,26 +54,28 @@ void StructureBasic::computeStructure(alsfvm::volume::Volume &output,
         int nx = int(input.getNumberOfXCells()) - 2 * ngx;
         int ny = int(input.getNumberOfYCells()) - 2 * ngy;
         int nz = int(input.getNumberOfZCells()) - 2 * ngz;
-        for(int k = 0; k < nz; ++k) {
-            for(int j = 0; j < ny; ++j) {
-                for(int i = 0; i < nx; ++i) {
-                    for(int h = 0; h < int(numberOfH); ++h) {
+
+        for (int k = 0; k < nz; ++k) {
+            for (int j = 0; j < ny; ++j) {
+                for (int i = 0; i < nx; ++i) {
+                    for (int h = 0; h < int(numberOfH); ++h) {
 
 
-                        auto u_ijk = inputView.at(i+ngx,j+ngy,k+ngz);
+                        auto u_ijk = inputView.at(i + ngx, j + ngy, k + ngz);
 
 
 
 
 
                         // For now we assume periodic boundary conditions
-                        auto u_ijk_h = inputView.at((i + h*directionVector.x)%nx + ngx,
-                                                    (j + h*directionVector.y)%ny + ngy,
-                                                    (k + h*directionVector.z)%nz + ngz);
+                        auto u_ijk_h = inputView.at((i + h * directionVector.x) % nx + ngx,
+                                (j + h * directionVector.y) % ny + ngy,
+                                (k + h * directionVector.z) % nz + ngz);
 
 
 
-                        outputView.at(h,0,0) += std::pow(std::abs(u_ijk-u_ijk_h),p)/(nx*ny*nz);
+                        outputView.at(h, 0, 0) += std::pow(std::abs(u_ijk - u_ijk_h),
+                                p) / (nx * ny * nz);
                     }
                 }
             }

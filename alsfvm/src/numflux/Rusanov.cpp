@@ -1,6 +1,7 @@
 #include "alsfvm/numflux/Rusanov.hpp"
 #include "alsfvm/equation/equation_list.hpp"
-namespace alsfvm { namespace numflux { 
+namespace alsfvm {
+namespace numflux {
 template<class Equation>
 const std::string Rusanov<Equation>::name = "rusanov";
 

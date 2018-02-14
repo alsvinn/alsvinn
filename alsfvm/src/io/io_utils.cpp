@@ -1,7 +1,8 @@
 #include "alsfvm/io/io_utils.hpp"
 #include <sstream>
 
-namespace alsfvm { namespace io {
+namespace alsfvm {
+namespace io {
 
 
 ///
@@ -15,10 +16,11 @@ namespace alsfvm { namespace io {
 /// \return the filename with extra timestep information attached.
 ///
 std::string getOutputname(const std::string& filename,
-                          size_t snapshotNumber) {
+    size_t snapshotNumber) {
     std::stringstream ss;
     ss << filename << "_" << snapshotNumber;
 
     return ss.str();
 }
-}}
+}
+}

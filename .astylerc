@@ -1,0 +1,21 @@
+# To run, use """astyle  --recursive './*.cpp,*.hpp,*.h,*.cu' --options=.astylerc"""
+# ALL CHANGES TO THE PROJECT SHOULD FOLLOW THIS STYLE!
+
+--style=attach
+-s4
+-C
+--indent-after-parens
+--indent-preproc-block
+--indent-col1-comments
+--min-conditional-indent=0
+--break-blocks
+--pad-oper
+--pad-comma
+--pad-header
+--align-pointer=type
+--break-one-line-headers
+--add-braces
+--attach-return-type
+--convert-tabs
+--max-code-length=80
+--lineend=linux 

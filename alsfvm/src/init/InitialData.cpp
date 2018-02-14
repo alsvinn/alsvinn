@@ -1,6 +1,7 @@
 #include "alsfvm/init/InitialData.hpp"
 
-namespace alsfvm { namespace init { 
+namespace alsfvm {
+namespace init {
 
 }
 }

@@ -2,10 +2,11 @@
 #include <boost/property_tree/ptree.hpp>
 #include <vector>
 #include <map>
-namespace alsutils { namespace parameters { 
+namespace alsutils {
+namespace parameters {
 
-    //! Holds general parameters based on a boost::property tree
-    class Parameters {
+//! Holds general parameters based on a boost::property tree
+class Parameters {
     public:
         Parameters(const boost::property_tree::ptree& ptree);
 
@@ -20,10 +21,11 @@ namespace alsutils { namespace parameters {
 
         bool contains(const std::string& name) const;
 
-        std::vector<std::string> getStringVectorFromString(const std::string& name) const;
+        std::vector<std::string> getStringVectorFromString(const std::string& name)
+        const;
     private:
         boost::property_tree::ptree ptree;
 
-    };
+};
 } // namespace parameters
 } // namespace alsutils

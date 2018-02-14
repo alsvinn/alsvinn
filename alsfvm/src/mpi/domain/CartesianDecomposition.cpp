@@ -2,31 +2,32 @@
 #include "alsutils/error/Exception.hpp"
 #include "alsfvm/mpi/CartesianCellExchanger.hpp"
 #ifdef ALSVINN_HAVE_CUDA
-#include "alsfvm/mpi/CudaCartesianCellExchanger.hpp"
+    #include "alsfvm/mpi/CudaCartesianCellExchanger.hpp"
 #endif
 #include "alsutils/log.hpp"
 #include "alsfvm/mpi/cartesian/rank_index.hpp"
 #include "alsfvm/mpi/cartesian/rank_component.hpp"
 
-namespace alsfvm { namespace mpi { namespace domain {
+namespace alsfvm {
+namespace mpi {
+namespace domain {
 
-CartesianDecomposition::CartesianDecomposition(const DomainDecompositionParameters &parameters)
+CartesianDecomposition::CartesianDecomposition(const
+    DomainDecompositionParameters& parameters)
     : numberOfProcessors{parameters.getInteger("nx", 1),
-                         parameters.getInteger("ny", 1),
-                         parameters.getInteger("nz", 1)}
-{
+          parameters.getInteger("ny", 1),
+          parameters.getInteger("nz", 1)} {
 
 }
 
 CartesianDecomposition::CartesianDecomposition(int nx, int ny, int nz)
-    : numberOfProcessors(nx, ny, nz)
-{
+    : numberOfProcessors(nx, ny, nz) {
 
 }
 
-DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configuration,
-                                                    const grid::Grid &grid)
-{
+DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr
+    configuration,
+    const grid::Grid& grid) {
 
     auto dimensions = grid.getDimensions();
 
@@ -34,10 +35,10 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
     // the number of processors to use in the x direction divides the number
     // of cells in the x direction, and so on.
     for (int i = 0; i < dimensions.size(); ++i) {
-        if (dimensions[i]%numberOfProcessors[i] != 0) {
-            THROW("Error in domain decompositon. In direction " << i<<"\n"
-                  << "\tnumberOfProcessors assigned: " << numberOfProcessors[i]<<"\n"
-                  <<"\tnumberOfCells assigned      : " << dimensions[i] <<"\n");
+        if (dimensions[i] % numberOfProcessors[i] != 0) {
+            THROW("Error in domain decompositon. In direction " << i << "\n"
+                << "\tnumberOfProcessors assigned: " << numberOfProcessors[i] << "\n"
+                << "\tnumberOfCells assigned      : " << dimensions[i] << "\n");
         }
     }
 
@@ -53,7 +54,8 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
 
     // Geometrical position
     rvec3 startPosition = grid.getCellLengths() * startIndex + grid.getOrigin();
-    rvec3 endPosition = startPosition + grid.getCellLengths() * numberOfCellsPerProcessors;
+    rvec3 endPosition = startPosition + grid.getCellLengths() *
+        numberOfCellsPerProcessors;
 
     // make sure it is one dimensional:
     for (int dim = grid.getActiveDimension(); dim < 3; ++dim) {
@@ -63,20 +65,23 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
     // Find neighbours and new boundary conditions:
     ivec6 neighbours;
     std::array<boundary::Type, 6> boundaryConditions;
-    for(int side = 0; side < 6; ++side) {
+
+    for (int side = 0; side < 6; ++side) {
         // by default, all boundaries are now handled by MPI
         boundaryConditions[side] = boundary::Type::MPI_BC;
     }
 
 
-    for (int side = 0; side < grid.getActiveDimension()*2; ++side) {
+    for (int side = 0; side < grid.getActiveDimension() * 2; ++side) {
 
 
-        if ((side % 2 == 0 && nodePosition[side/2] == 0) || (side % 2 ==1 && nodePosition[side/2] == numberOfProcessors[side/2]-1)) {
+        if ((side % 2 == 0 && nodePosition[side / 2] == 0) || (side % 2 == 1
+                && nodePosition[side / 2] == numberOfProcessors[side / 2] - 1)) {
             // we are on the boundary
 
             // We should only exchange if it is periodic
-            if (grid.getBoundaryCondition(side) != boundary::Type::PERIODIC || numberOfProcessors[side/2] == 1) {
+            if (grid.getBoundaryCondition(side) != boundary::Type::PERIODIC
+                || numberOfProcessors[side / 2] == 1) {
                 neighbours[side] = -1;
                 boundaryConditions[side] = grid.getBoundaryCondition(side);
                 continue;
@@ -86,51 +91,60 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr configur
 
         ivec3 neighbourPosition = nodePosition;
         const int i = side % 2;
-        neighbourPosition[side/2] += -(i==0) + (i==1);
-        if (neighbourPosition[side/2] < 0) {
-            neighbourPosition[side/2] += numberOfProcessors[side/2];
+        neighbourPosition[side / 2] += -(i == 0) + (i == 1);
+
+        if (neighbourPosition[side / 2] < 0) {
+            neighbourPosition[side / 2] += numberOfProcessors[side / 2];
         }
-        neighbourPosition[side/2] %= numberOfProcessors[side/2];
+
+        neighbourPosition[side / 2] %= numberOfProcessors[side / 2];
 
 
 
 
-        int neighbourIndex = cartesian::getRankIndex(neighbourPosition, numberOfProcessors);
+        int neighbourIndex = cartesian::getRankIndex(neighbourPosition,
+                numberOfProcessors);
 
         if (neighbourIndex < 0) {
             THROW("NeighbourIndex got negative, this should not happen");
         }
+
         neighbours[side] = neighbourIndex;
     }
 
 
     // Create new local grid.
     auto newGrid = alsfvm::make_shared<grid::Grid>(startPosition,
-                                                   endPosition,
-                                                   numberOfCellsPerProcessors,
-                                                   boundaryConditions,
-                                                   startIndex,
-                                                   grid.getDimensions(),
-                                                   grid.getCellLengths(),
-                                                   grid.getCellMidpoints());
+            endPosition,
+            numberOfCellsPerProcessors,
+            boundaryConditions,
+            startIndex,
+            grid.getDimensions(),
+            grid.getCellLengths(),
+            grid.getCellMidpoints());
 
 
 
     alsfvm::shared_ptr<CellExchanger> cellExchanger;
+
     if (configuration->getPlatform() == "cpu") {
         cellExchanger.reset(new CartesianCellExchanger(configuration, neighbours));
-    } 
-    #ifdef ALSVINN_HAVE_CUDA
+    }
+
+#ifdef ALSVINN_HAVE_CUDA
     else {
         cellExchanger.reset(new CudaCartesianCellExchanger(configuration, neighbours));
     }
-    #else
+
+#else
     else {
-      THROW("CUDA not supported on this build, Tried to make a cell exchanger with CUDA");
+        THROW("CUDA not supported on this build, Tried to make a cell exchanger with CUDA");
     }
+
 #endif
 
-    auto information = alsfvm::make_shared<DomainInformation>(newGrid, cellExchanger);
+    auto information = alsfvm::make_shared<DomainInformation>(newGrid,
+            cellExchanger);
 
     return information;
 

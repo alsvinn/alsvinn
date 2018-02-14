@@ -3,14 +3,15 @@
 #include <netcdf.h>
 #include "alsfvm/io/netcdf_utils.hpp"
 
-namespace alsfvm { namespace io { 
+namespace alsfvm {
+namespace io {
 
-    //! The netcdf writer writes to the netcdf format.
-    //! This is the recommended writer to use
-    //!
-    //! @note can easily be read by the netcdf python package, see
-    //!       http://www.hydro.washington.edu/~jhamman/hydro-logic/blog/2013/10/12/plot-netcdf-data/
-    class NetCDFWriter : public Writer {
+//! The netcdf writer writes to the netcdf format.
+//! This is the recommended writer to use
+//!
+//! @note can easily be read by the netcdf python package, see
+//!       http://www.hydro.washington.edu/~jhamman/hydro-logic/blog/2013/10/12/plot-netcdf-data/
+class NetCDFWriter : public Writer {
     public:
         //! Creates a new instance of the NetCDFWriter
         //!
@@ -30,9 +31,9 @@ namespace alsfvm { namespace io {
         //! There will be no additioanl grid information written,
         //! this is implicit in the netcdf format
         virtual void write(const volume::Volume& conservedVariables,
-                           const volume::Volume& extraVariables,
-                           const grid::Grid& grid,
-                           const simulator::TimestepInformation& timestepInformation);
+            const volume::Volume& extraVariables,
+            const grid::Grid& grid,
+            const simulator::TimestepInformation& timestepInformation);
     protected:
         //! Writes to the opened file
         //! \@note Assumes the file is in define mode
@@ -42,10 +43,11 @@ namespace alsfvm { namespace io {
         //! @param extraVariables the extraVariables to write
         //! @param grid the underlying grid
         //! @param timestepInformation the current timestep information
-        virtual void writeToFile(netcdf_raw_ptr file, const volume::Volume& conservedVariables,
-                                 const volume::Volume& extraVariables,
-                                 const grid::Grid& grid,
-                                 const simulator::TimestepInformation& timestepInformation);
+        virtual void writeToFile(netcdf_raw_ptr file,
+            const volume::Volume& conservedVariables,
+            const volume::Volume& extraVariables,
+            const grid::Grid& grid,
+            const simulator::TimestepInformation& timestepInformation);
 
         //! Creates the dimensions
         //! \note Can only be called once per file!
@@ -53,7 +55,8 @@ namespace alsfvm { namespace io {
         //! @param basegroup the file pointer to write to
         //! @param volume will use this to get the dimensions
         //!
-        virtual std::array<netcdf_raw_ptr, 3> createDimensions(netcdf_raw_ptr basegroup, const volume::Volume &volume);
+        virtual std::array<netcdf_raw_ptr, 3> createDimensions(netcdf_raw_ptr basegroup,
+            const volume::Volume& volume);
 
         //! Writes the memory to the given memory dataset
         //!
@@ -61,7 +64,8 @@ namespace alsfvm { namespace io {
         //! @param dataset the dataset to write to
         //! @param volume the volume to extract the memory from (we need this to get the sizes)
         //! @param memoryIndex the memoryIndex of the volume
-        virtual void writeMemory(netcdf_raw_ptr baseGroup, netcdf_raw_ptr dataset,  const volume::Volume &volume, size_t memoryIndex);
+        virtual void writeMemory(netcdf_raw_ptr baseGroup, netcdf_raw_ptr dataset,
+            const volume::Volume& volume, size_t memoryIndex);
 
 
         //! Writes the volume to file
@@ -69,7 +73,8 @@ namespace alsfvm { namespace io {
         //! @param baseGroup the baseGroup to write to
         //! @param volume the given volume
         //! @param dimensions already created dimensions
-        virtual void writeVolume(netcdf_raw_ptr baseGroup, const volume::Volume& volume, std::array<netcdf_raw_ptr, 3> dimensions);
+        virtual void writeVolume(netcdf_raw_ptr baseGroup, const volume::Volume& volume,
+            std::array<netcdf_raw_ptr, 3> dimensions);
 
         //! Creates or opens a dataset for the given volume and memory index
         //!
@@ -78,8 +83,9 @@ namespace alsfvm { namespace io {
         //! @param memoryIndex the given memoryIndex  (used for the name)
         //! @param dimensions the already created dimensions
         //! \returns a  touple where the first member is the file/group id, and the second the dataset
-        virtual std::pair<netcdf_raw_ptr, netcdf_raw_ptr> makeDataset(netcdf_raw_ptr baseGroup, const volume::Volume& volume,
-                                           size_t memoryIndex, std::array<netcdf_raw_ptr, 3> dimensions);
+        virtual std::pair<netcdf_raw_ptr, netcdf_raw_ptr> makeDataset(
+            netcdf_raw_ptr baseGroup, const volume::Volume& volume,
+            size_t memoryIndex, std::array<netcdf_raw_ptr, 3> dimensions);
 
         //! Creates the next filename and increments snapshot number
         //!
@@ -91,6 +97,6 @@ namespace alsfvm { namespace io {
 
         size_t snapshotNumber{0};
         const std::string basefileName;
-    };
+};
 } // namespace io
 } // namespace alsfvm

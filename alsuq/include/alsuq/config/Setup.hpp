@@ -4,9 +4,10 @@
 #include "alsuq/mpi/Configuration.hpp"
 #include "alsuq/run/Runner.hpp"
 #include "alsuq/stats/Statistics.hpp"
-namespace alsuq { namespace config { 
+namespace alsuq {
+namespace config {
 
-    class Setup {
+class Setup {
     public:
         typedef boost::property_tree::ptree ptree;
 
@@ -25,18 +26,20 @@ namespace alsuq { namespace config {
         //!   multiSamples*multiSpatial.x*multiSpatial.y*multiSpatial.z == mpiConfigurationWorld.getNumberOfProcesses();
         //! \endcode
         std::shared_ptr<run::Runner> makeRunner(const std::string& inputFilename,
-                                                mpi::ConfigurationPtr mpiConfigurationWorld,
-                                                int multiSample, ivec3 multiSpatial);
+            mpi::ConfigurationPtr mpiConfigurationWorld,
+            int multiSample, ivec3 multiSpatial);
 
     private:
 
-        std::shared_ptr<samples::SampleGenerator> makeSampleGenerator(ptree& configuration);
+        std::shared_ptr<samples::SampleGenerator> makeSampleGenerator(
+            ptree& configuration);
 
-        std::vector<std::shared_ptr<stats::Statistics> > createStatistics(ptree& configuration,
-                                                                          alsutils::mpi::ConfigurationPtr statisticalConfiguration,
-                                                                          mpi::ConfigurationPtr spatialConfiguration,
-                                                                          mpi::ConfigurationPtr worldConfiguration);
+        std::vector<std::shared_ptr<stats::Statistics> > createStatistics(
+            ptree& configuration,
+            alsutils::mpi::ConfigurationPtr statisticalConfiguration,
+            mpi::ConfigurationPtr spatialConfiguration,
+            mpi::ConfigurationPtr worldConfiguration);
         size_t readNumberOfSamples(ptree& configuration);
-    };
+};
 } // namespace config
 } // namespace alsuq

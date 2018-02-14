@@ -1,11 +1,13 @@
 #pragma once
 
-namespace alsfvm { namespace equation { namespace burgers { 
+namespace alsfvm {
+namespace equation {
+namespace burgers {
 
-    class ExtraVariables {
+class ExtraVariables {
     public:
         // No extra variables for burgerss
-    };
+};
 } // namespace alsfvm
 } // namespace equation
 } // namespace burgers

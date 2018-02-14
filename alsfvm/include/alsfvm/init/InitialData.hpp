@@ -3,9 +3,10 @@
 #include "alsfvm/grid/Grid.hpp"
 #include "alsfvm/equation/CellComputer.hpp"
 #include "alsfvm/init/Parameters.hpp"
-namespace alsfvm { namespace init { 
+namespace alsfvm {
+namespace init {
 
-    class InitialData {
+class InitialData {
     public:
         virtual ~InitialData() {}
         ///
@@ -21,13 +22,13 @@ namespace alsfvm { namespace init {
         /// be used for initial data!
         ///
         virtual void setInitialData(volume::Volume& conservedVolume,
-                                    volume::Volume& extraVolume,
-                                    volume::Volume& primitiveVolume,
-                                    equation::CellComputer& cellComputer,
-                                    grid::Grid& grid) = 0;
+            volume::Volume& extraVolume,
+            volume::Volume& primitiveVolume,
+            equation::CellComputer& cellComputer,
+            grid::Grid& grid) = 0;
 
 
         virtual void setParameters(const Parameters& parameters) = 0;
-    };
+};
 } // namespace alsfvm
 } // namespace init

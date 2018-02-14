@@ -17,6 +17,6 @@ TEST(BurgerEquationTest, FluxTest) {
 
     burgersEquation.computePointFlux<0>(allVariables, F);
 
-    ASSERT_FLOAT_EQ(F.u, u*u/2);
+    ASSERT_FLOAT_EQ(F.u, u * u / 2);
 
 }

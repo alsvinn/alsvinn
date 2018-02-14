@@ -1,13 +1,14 @@
 #pragma once
 #include <string>
-namespace alsfvm { namespace equation { 
+namespace alsfvm {
+namespace equation {
 
-    ///
-    /// Simple holder class for equations, as an equation can not be held in a
-    /// tuple (there is not always a default constructor available)
-    ///
-    template<class T>
-    class EquationInformation {
+///
+/// Simple holder class for equations, as an equation can not be held in a
+/// tuple (there is not always a default constructor available)
+///
+template<class T>
+class EquationInformation {
     public:
         typedef T EquationType;
 
@@ -18,6 +19,6 @@ namespace alsfvm { namespace equation {
 
             return EquationType::name;
         }
-    };
+};
 } // namespace alsfvm
 } // namespace equation

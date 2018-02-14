@@ -1,9 +1,10 @@
 #pragma once
 #include "alsuq/generator/Generator.hpp"
 
-namespace alsuq { namespace generator { 
+namespace alsuq {
+namespace generator {
 
-    class GeneratorFactory {
+class GeneratorFactory {
     public:
 
         //!
@@ -14,11 +15,11 @@ namespace alsuq { namespace generator {
         //! \return the new generator
         //!
         std::shared_ptr<Generator> makeGenerator(const std::string& name,
-                                                 const size_t dimensions,
-                                                 const size_t numberVariables
-                                                 );
+            const size_t dimensions,
+            const size_t numberVariables
+        );
 
 
-    };
+};
 } // namespace generator
 } // namespace alsuq

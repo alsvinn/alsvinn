@@ -16,16 +16,13 @@
 namespace alsfvm {
 namespace memory {
 
-template<class T>
-HostMemory<T>::HostMemory(size_t nx, size_t ny, size_t nz)
-    : Memory<T>(nx, ny, nz), data(nx*ny*nz, 42)
-{
+template<class T> HostMemory<T>::HostMemory(size_t nx, size_t ny, size_t nz)
+    : Memory<T>(nx, ny, nz), data(nx * ny * nz, 42) {
 
 }
 
 template<class T>
-std::shared_ptr<Memory<T> > HostMemory<T>::makeInstance() const
-{
+std::shared_ptr<Memory<T> > HostMemory<T>::makeInstance() const {
     std::shared_ptr<Memory<T>> memoryArea;
 
     memoryArea.reset(new HostMemory(this->nx, this->ny, this->nz));
@@ -34,43 +31,37 @@ std::shared_ptr<Memory<T> > HostMemory<T>::makeInstance() const
 }
 
 template<class T>
-bool HostMemory<T>::isOnHost() const
-{
+bool HostMemory<T>::isOnHost() const {
     return true;
 }
 
 template<class T>
-void HostMemory<T>::copyFrom(const Memory<T> &other)
-{
+void HostMemory<T>::copyFrom(const Memory<T>& other) {
     CHECK_SIZE_AND_HOST(other);
 
     std::copy(other.data(), other.data() + this->getSize(), data.begin());
 }
 
 template<class T>
-T *HostMemory<T>::getPointer()
-{
+T* HostMemory<T>::getPointer() {
     return data.data();
 }
 
 template<class T>
-const T *HostMemory<T>::getPointer() const
-{
-	return data.data();
+const T* HostMemory<T>::getPointer() const {
+    return data.data();
 }
 
 template<class T>
-void HostMemory<T>::copyToHost(T *bufferPointer, size_t bufferLength) const
-{
+void HostMemory<T>::copyToHost(T* bufferPointer, size_t bufferLength) const {
     assert(bufferLength >= Memory<T>::getSize());
     std::copy(data.begin(), data.end(), bufferPointer);
 }
 
 template<class T>
-void HostMemory<T>::copyFromHost(const T* bufferPointer, size_t bufferLength)
-{
+void HostMemory<T>::copyFromHost(const T* bufferPointer, size_t bufferLength) {
     const size_t sizeToCopy = std::min(bufferLength, Memory<T>::getSize());
-    std::copy(bufferPointer, bufferPointer+sizeToCopy, data.begin());
+    std::copy(bufferPointer, bufferPointer + sizeToCopy, data.begin());
 }
 
 
@@ -81,15 +72,16 @@ void HostMemory<T>::copyFromHost(const T* bufferPointer, size_t bufferLength)
 ///
 template <class T>
 void HostMemory<T>::operator+=(const Memory<T>& other) {
-	if (!other.isOnHost()) {
-		THROW("Memory not on host");
-	}
+    if (!other.isOnHost()) {
+        THROW("Memory not on host");
+    }
 
-	auto pointer = other.getPointer();
+    auto pointer = other.getPointer();
     #pragma omp parallel for simd
+
     for (int i = 0; i < int(data.size()); ++i) {
-		data[i] += pointer[i];
-	}
+        data[i] += pointer[i];
+    }
 }
 
 ///
@@ -98,19 +90,20 @@ void HostMemory<T>::operator+=(const Memory<T>& other) {
 ///
 template <class T>
 void HostMemory<T>::operator*=(const Memory<T>& other) {
-	if (!other.isOnHost()) {
-		THROW("Memory not on host");
-	}
+    if (!other.isOnHost()) {
+        THROW("Memory not on host");
+    }
 
-	if (other.getSize() != this->getSize()) {
-		THROW("Memory size not the same");
-	}
+    if (other.getSize() != this->getSize()) {
+        THROW("Memory size not the same");
+    }
 
-	auto pointer = other.getPointer();
+    auto pointer = other.getPointer();
     #pragma omp parallel for simd
+
     for (int i = 0; i < int(data.size()); ++i) {
-		data[i] *= pointer[i];
-	}
+        data[i] *= pointer[i];
+    }
 }
 
 ///
@@ -119,18 +112,20 @@ void HostMemory<T>::operator*=(const Memory<T>& other) {
 ///
 template <class T>
 void HostMemory<T>::operator-=(const Memory<T>& other) {
-	if (!other.isOnHost()) {
-		THROW("Memory not on host");
-	}
-	if (other.getSize() != this->getSize()) {
-		THROW("Memory size not the same");
-	}
+    if (!other.isOnHost()) {
+        THROW("Memory not on host");
+    }
 
-	auto pointer = other.getPointer();
+    if (other.getSize() != this->getSize()) {
+        THROW("Memory size not the same");
+    }
+
+    auto pointer = other.getPointer();
     #pragma omp parallel for simd
+
     for (int i = 0; i < int(data.size()); ++i) {
-		data[i] -= pointer[i];
-	}
+        data[i] -= pointer[i];
+    }
 }
 
 ///
@@ -139,18 +134,20 @@ void HostMemory<T>::operator-=(const Memory<T>& other) {
 ///
 template <class T>
 void HostMemory<T>::operator/=(const Memory<T>& other) {
-	if (!other.isOnHost()) {
-		THROW("Memory not on host");
-	}
-	if (other.getSize() != this->getSize()) {
-		THROW("Memory size not the same");
-	}
+    if (!other.isOnHost()) {
+        THROW("Memory not on host");
+    }
 
-	auto pointer = other.getPointer();
+    if (other.getSize() != this->getSize()) {
+        THROW("Memory size not the same");
+    }
+
+    auto pointer = other.getPointer();
     #pragma omp parallel for simd
+
     for (int i = 0; i < int(data.size()); ++i) {
-		data[i] /= pointer[i];
-	}
+        data[i] /= pointer[i];
+    }
 }
 
 ///
@@ -160,10 +157,11 @@ void HostMemory<T>::operator/=(const Memory<T>& other) {
 template <class T>
 void HostMemory<T>::operator+=(real scalar) {
 
-#pragma omp parallel for simd
+    #pragma omp parallel for simd
+
     for (int i = 0; i < int(data.size()); ++i) {
-		data[i] += scalar;
-	}
+        data[i] += scalar;
+    }
 }
 
 ///
@@ -172,10 +170,11 @@ void HostMemory<T>::operator+=(real scalar) {
 ///
 template <class T>
 void HostMemory<T>::operator*=(real scalar) {
-#pragma omp parallel for simd
+    #pragma omp parallel for simd
+
     for (int i = 0; i < int(data.size()); ++i) {
-		data[i] *= scalar;
-	}
+        data[i] *= scalar;
+    }
 }
 
 ///
@@ -184,10 +183,11 @@ void HostMemory<T>::operator*=(real scalar) {
 ///
 template <class T>
 void HostMemory<T>::operator-=(real scalar) {
-#pragma omp parallel for simd
+    #pragma omp parallel for simd
+
     for (int i = 0; i < int(data.size()); ++i) {
-		data[i] -= scalar;
-	}
+        data[i] -= scalar;
+    }
 }
 
 ///
@@ -197,37 +197,39 @@ void HostMemory<T>::operator-=(real scalar) {
 template <class T>
 void HostMemory<T>::operator/=(real scalar) {
     #pragma omp parallel for simd
+
     for (int i = 0; i < int(data.size()); ++i) {
-		data[i] /= scalar;
+        data[i] /= scalar;
     }
 }
 
 template <class T>
-void HostMemory<T>::makeZero()
-{
+void HostMemory<T>::makeZero() {
     #pragma omp parallel for simd
+
     for (int i = 0; i < int(data.size()); ++i) {
         data[i] = 0;
     }
 }
 
 template <class T>
-void HostMemory<T>::copyInternalCells(size_t startX, size_t endX, size_t startY, size_t endY, size_t startZ, size_t endZ, T *output, size_t outputSize)
-{
+void HostMemory<T>::copyInternalCells(size_t startX, size_t endX, size_t startY,
+    size_t endY, size_t startZ, size_t endZ, T* output, size_t outputSize) {
 
 
     const size_t nx = this->nx;
     const size_t ny = this->ny;
-    const size_t numberOfY = endY-startY;
-    const size_t numberOfX = endX-startX;
-    for(size_t z = startZ; z < endZ; z++) {
-        for(size_t y = startY; y < endY; y++) {
-            for(size_t x = startX; x < endX; x++) {
+    const size_t numberOfY = endY - startY;
+    const size_t numberOfX = endX - startX;
+
+    for (size_t z = startZ; z < endZ; z++) {
+        for (size_t y = startY; y < endY; y++) {
+            for (size_t x = startX; x < endX; x++) {
                 size_t indexIn = z * nx * ny + y * nx + x;
-                size_t indexOut = (z-startZ) * numberOfX * numberOfY
-                      + (y - startY) * numberOfX + (x - startX);
+                size_t indexOut = (z - startZ) * numberOfX * numberOfY
+                    + (y - startY) * numberOfX + (x - startX);
                 output[indexOut] = data[indexIn];
-             }
+            }
         }
     }
 }
@@ -247,42 +249,41 @@ void HostMemory<T>::addLinearCombination(T a1,
     auto d3 = v3.getPointer();
     auto d4 = v4.getPointer();
     auto d5 = v5.getPointer();
-#pragma omp parallel for
+    #pragma omp parallel for
+
     for (size_t i = 0; i < data.size(); ++i) {
-        data[i] = a1*d1[i] + a2*d2[i] + a3*d3[i] + a4*d4[i] + a5*d5[i];
+        data[i] = a1 * d1[i] + a2 * d2[i] + a3 * d3[i] + a4 * d4[i] + a5 * d5[i];
     }
 }
 
 template<class T>
-void HostMemory<T>::addPower(const Memory<T> &other, double power)
-{
+void HostMemory<T>::addPower(const Memory<T>& other, double power) {
     CHECK_SIZE_AND_HOST(other);
     #pragma omp parallel for
+
     for (size_t i = 0; i < data.size(); ++i) {
         data[i] += std::pow(other[i], power);
     }
 }
 
 template<class T>
-void HostMemory<T>::subtractPower(const Memory<T> &other, double power)
-{
+void HostMemory<T>::subtractPower(const Memory<T>& other, double power) {
     CHECK_SIZE_AND_HOST(other);
     #pragma omp parallel for
+
     for (size_t i = 0; i < data.size(); ++i) {
         data[i] -= std::pow(other[i], power);
     }
 }
 
 template<class T>
-std::shared_ptr<Memory<T> > HostMemory<T>::getHostMemory()
-{
+std::shared_ptr<Memory<T> > HostMemory<T>::getHostMemory() {
     return this->shared_from_this();
 }
 
 template<class T>
 real HostMemory<T>::getTotalVariation(int p, const ivec3& start,
-                                      const ivec3& end) const
-{
+    const ivec3& end) const {
     // See http://www.ams.org/journals/tran/1933-035-04/S0002-9947-1933-1501718-2/S0002-9947-1933-1501718-2.pdf
     //
     const size_t nx = this->nx;
@@ -292,25 +293,27 @@ real HostMemory<T>::getTotalVariation(int p, const ivec3& start,
     if (nz > 1 ) {
         THROW("Not supported for 3d yet");
     }
+
     const size_t startX = start.x + 1;
     const size_t startY = start.y + (ny > 1 ? 1 : 0);
     T bv = 0;
-    for(size_t z = 0; z < end.z; z++) {
-        for(size_t y = startY; y < end.y; y++) {
-            for(size_t x = startX; x < end.x; x++) {
+
+    for (size_t z = 0; z < end.z; z++) {
+        for (size_t y = startY; y < end.y; y++) {
+            for (size_t x = startX; x < end.x; x++) {
                 size_t index = z * nx * ny + y * nx + x;
-                size_t indexXLeft = z * nx * ny + y * nx + (x-1);
+                size_t indexXLeft = z * nx * ny + y * nx + (x - 1);
 
                 size_t yBottom = ny > 0 ? y - 1 : 0;
 
 
                 size_t indexYLeft = z * nx * ny + yBottom * nx + x;
-                size_t indexLeft = z * nx * ny + yBottom * nx + (x-1);
+                size_t indexLeft = z * nx * ny + yBottom * nx + (x - 1);
 
                 bv += std::pow(std::sqrt(std::pow(data[index]
-                        - data[indexYLeft],2) + std::pow(data[index]
-                        - data[indexXLeft],2)), p);
-             }
+                                - data[indexYLeft], 2) + std::pow(data[index]
+                                - data[indexXLeft], 2)), p);
+            }
         }
     }
 
@@ -320,8 +323,7 @@ real HostMemory<T>::getTotalVariation(int p, const ivec3& start,
 
 template<class T>
 real HostMemory<T>::getTotalVariation(int direction, int p, const ivec3& start,
-                                      const ivec3& end) const
-{
+    const ivec3& end) const {
     // See http://www.ams.org/journals/tran/1933-035-04/S0002-9947-1933-1501718-2/S0002-9947-1933-1501718-2.pdf
     //
 
@@ -330,9 +332,10 @@ real HostMemory<T>::getTotalVariation(int direction, int p, const ivec3& start,
     const size_t ny = this->ny;
     const size_t nz = this->nz;
 
-    if (direction > (1+(ny>1)+(nz>1))) {
+    if (direction > (1 + (ny > 1) + (nz > 1))) {
         THROW("direction = " << direction << " is bigger than current dimension");
     }
+
     const size_t startX = start.x + directionVector.x;
     const size_t startY = start.y + directionVector.y;
     const size_t startZ = start.z + directionVector.z;
@@ -341,14 +344,15 @@ real HostMemory<T>::getTotalVariation(int direction, int p, const ivec3& start,
     const auto view = this->getView();
 
 
-    for(size_t z = startZ; z < end.z; z++) {
-        for(size_t y = startY; y < end.y; y++) {
-            for(size_t x = startX; x < end.x; x++) {
+    for (size_t z = startZ; z < end.z; z++) {
+        for (size_t y = startY; y < end.y; y++) {
+            for (size_t x = startX; x < end.x; x++) {
                 size_t index = z * nx * ny + y * nx + x;
-                auto positionLeft = ivec3(x,y,z)-directionVector;
+                auto positionLeft = ivec3(x, y, z) - directionVector;
 
-                bv += std::pow(std::abs(view.at(x,y,z)-view.at(positionLeft.x,positionLeft.y, positionLeft.z)), p);
-             }
+                bv += std::pow(std::abs(view.at(x, y, z) - view.at(positionLeft.x,
+                                positionLeft.y, positionLeft.z)), p);
+            }
         }
     }
 

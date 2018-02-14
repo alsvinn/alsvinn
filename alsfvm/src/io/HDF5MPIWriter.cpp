@@ -10,29 +10,28 @@
 
 // It seems like HDF5 doesn't like to be accessed from different threads...
 static std::mutex mutex;
-namespace alsfvm { namespace io {
+namespace alsfvm {
+namespace io {
 
-HDF5MPIWriter::HDF5MPIWriter(const std::string &basefileName,
-                             const std::vector<std::string> &groupNames,
-                             size_t groupIndex,
-                             bool newFile,
-                             MPI_Comm mpiCommunicator,
-                             MPI_Info mpiInfo)
+HDF5MPIWriter::HDF5MPIWriter(const std::string& basefileName,
+    const std::vector<std::string>& groupNames,
+    size_t groupIndex,
+    bool newFile,
+    MPI_Comm mpiCommunicator,
+    MPI_Info mpiInfo)
     : HDF5Writer(basefileName),
       groupNames(groupNames),
       groupIndex(groupIndex),
       newFile(newFile),
       mpiCommunicator(mpiCommunicator),
-      mpiInfo(mpiInfo)
-{
+      mpiInfo(mpiInfo) {
 
 }
 
-void HDF5MPIWriter::write(const volume::Volume &conservedVariables,
-                          const volume::Volume &extraVariables,
-                          const grid::Grid &grid,
-                          const simulator::TimestepInformation &timestepInformation)
-{
+void HDF5MPIWriter::write(const volume::Volume& conservedVariables,
+    const volume::Volume& extraVariables,
+    const grid::Grid& grid,
+    const simulator::TimestepInformation& timestepInformation) {
 
     // for hdf5, often the version we use is not thread safe.
     std::unique_lock<std::mutex> lock(mutex);
@@ -49,17 +48,17 @@ void HDF5MPIWriter::write(const volume::Volume &conservedVariables,
         ALSVINN_LOG(INFO, "Opening file " << h5name);
 
         HDF5_MAKE_RESOURCE(file, H5Fopen(h5name.c_str(),
-                                        // H5F_ACC_TRUNC,
-                                         H5F_ACC_RDWR,
-                                         plist.hid()), H5Fclose);
+                // H5F_ACC_TRUNC,
+                H5F_ACC_RDWR,
+                plist.hid()), H5Fclose);
 
 
     } else {
         ALSVINN_LOG(INFO, "Creating new file " << h5name)
         HDF5_MAKE_RESOURCE(file, H5Fcreate(h5name.c_str(),
-                            H5F_ACC_TRUNC,
-                            H5P_DEFAULT,
-                            plist.hid()), H5Fclose);
+                H5F_ACC_TRUNC,
+                H5P_DEFAULT,
+                plist.hid()), H5Fclose);
 
     }
 
@@ -77,8 +76,9 @@ void HDF5MPIWriter::write(const volume::Volume &conservedVariables,
 
 }
 
-std::unique_ptr<HDF5Resource> HDF5MPIWriter::createDatasetForMemory(const volume::Volume &volume, size_t index, const std::string &name, hid_t file)
-{
+std::unique_ptr<HDF5Resource> HDF5MPIWriter::createDatasetForMemory(
+    const volume::Volume& volume, size_t index, const std::string& name,
+    hid_t file) {
     std::unique_ptr<HDF5Resource> dataset = NULL;
 
     // We loop through each group name, and create
@@ -99,8 +99,9 @@ std::unique_ptr<HDF5Resource> HDF5MPIWriter::createDatasetForMemory(const volume
         //   }
         // }
         hsize_t dimensions[] = {volume.getNumberOfXCells(),
-                                volume.getNumberOfYCells(),
-                                volume.getNumberOfZCells()};
+                volume.getNumberOfYCells(),
+                volume.getNumberOfZCells()
+            };
         //auto groupExistsStatus = H5Gget_objinfo (file, groupName.c_str(), 0, NULL);
 
         // see https://support.hdfgroup.org/HDF5/doc/RM/RM_H5L.html#Link-Exists
@@ -109,7 +110,8 @@ std::unique_ptr<HDF5Resource> HDF5MPIWriter::createDatasetForMemory(const volume
 
         // Do clever pre checking:
         if (groupExistsStatus && groupName != groupNames[groupIndex]) {
-            auto datasetExistsStatusCheck = H5Lexists(file, (groupName+"/" + name).c_str(), H5P_DEFAULT);
+            auto datasetExistsStatusCheck = H5Lexists(file,
+                    (groupName + "/" + name).c_str(), H5P_DEFAULT);
 
             if (datasetExistsStatusCheck > 0) {
                 continue;
@@ -118,38 +120,45 @@ std::unique_ptr<HDF5Resource> HDF5MPIWriter::createDatasetForMemory(const volume
 
         // check if the group exists or not
         std::unique_ptr<HDF5Resource> group;
+
         if (groupExistsStatus > 0) {
             ALSVINN_LOG(INFO, "Opening hdf5 group " << groupName);
-            HDF5_MAKE_RESOURCE(group, H5Gopen(file, groupName.c_str(), H5P_DEFAULT), H5Gclose);
+            HDF5_MAKE_RESOURCE(group, H5Gopen(file, groupName.c_str(), H5P_DEFAULT),
+                H5Gclose);
         } else if (groupExistsStatus == 0) {
             ALSVINN_LOG(INFO, "Creating HDF5 group  " << groupName);
             HDF5_MAKE_RESOURCE(group, H5Gcreate(file, groupName.c_str(),
-                                                    H5P_DEFAULT,
-                                                    H5P_DEFAULT,
-                                                    H5P_DEFAULT), H5Gclose);
+                    H5P_DEFAULT,
+                    H5P_DEFAULT,
+                    H5P_DEFAULT), H5Gclose);
 
         } else {
             THROW("HDF5 failure in checking if group name " << groupName << " exists.");
         }
 
 
-        auto datasetExistsStatus = H5Lexists(file, (groupName+"/" + name).c_str(), H5P_DEFAULT);
+        auto datasetExistsStatus = H5Lexists(file, (groupName + "/" + name).c_str(),
+                H5P_DEFAULT);
         std::unique_ptr<HDF5Resource> dataset_tmp;
+
         if (datasetExistsStatus > 0) {
             ALSVINN_LOG(INFO, "Opening dataset " << groupName << "/" << name);
-            HDF5_MAKE_RESOURCE(dataset_tmp, H5Dopen(group->hid(), name.c_str(), H5P_DEFAULT), H5Dclose);
+            HDF5_MAKE_RESOURCE(dataset_tmp, H5Dopen(group->hid(), name.c_str(),
+                    H5P_DEFAULT), H5Dclose);
         } else if (datasetExistsStatus == 0) {
             ALSVINN_LOG(INFO, "Creating dataset " << groupName << "/" << name);
             std::unique_ptr<HDF5Resource> filespace;
             HDF5_MAKE_RESOURCE(filespace, H5Screate_simple(3, dimensions, NULL), H5Sclose);
 
-            HDF5_MAKE_RESOURCE(dataset_tmp, H5Dcreate(group->hid(), name.c_str(), H5T_IEEE_F64LE,
-                                           filespace->hid(),
-                            H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT), H5Dclose);
+            HDF5_MAKE_RESOURCE(dataset_tmp, H5Dcreate(group->hid(), name.c_str(),
+                    H5T_IEEE_F64LE,
+                    filespace->hid(),
+                    H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT), H5Dclose);
 
 
         } else {
-             THROW("HDF5 failure in checking if dataset name " << name << " exists. (group = " << groupName << ").");
+            THROW("HDF5 failure in checking if dataset name " << name <<
+                " exists. (group = " << groupName << ").");
         }
 
 
@@ -162,6 +171,7 @@ std::unique_ptr<HDF5Resource> HDF5MPIWriter::createDatasetForMemory(const volume
     if (!dataset) {
         THROW("Dataset not found or created " << groupNames[groupIndex] << "/" << name);
     }
+
     return dataset;
 }
 

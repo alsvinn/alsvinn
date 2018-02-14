@@ -1,11 +1,11 @@
 #include "alsfvm/integrator/RungeKutta3.hpp"
 
-namespace alsfvm { namespace integrator {
+namespace alsfvm {
+namespace integrator {
 
 
 RungeKutta3::RungeKutta3(alsfvm::shared_ptr<System> system)
-    : system(system)
-{
+    : system(system) {
 
 }
 
@@ -31,24 +31,25 @@ size_t RungeKutta3::getNumberOfSubsteps() const {
 /// \param output where to write the output
 /// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
 ///
-real RungeKutta3::performSubstep(std::vector<alsfvm::shared_ptr<volume::Volume> > &inputConserved,
-	rvec3 spatialCellSizes, real dt, real cfl,
+real RungeKutta3::performSubstep(
+    std::vector<alsfvm::shared_ptr<volume::Volume> >& inputConserved,
+    rvec3 spatialCellSizes, real dt, real cfl,
     volume::Volume& output, size_t substep,
     const simulator::TimestepInformation& timestepInformation) {
     // We compute U + dt * F(U)
 
 
     // Compute F(U)
-	rvec3 waveSpeeds(0, 0, 0);
+    rvec3 waveSpeeds(0, 0, 0);
     (*system)(*inputConserved[substep], waveSpeeds, true, output);
 
-	if (substep == 0) {
+    if (substep == 0) {
         dt = computeTimestep(waveSpeeds, spatialCellSizes, cfl, timestepInformation);
-	}
+    }
 
-	rvec3 cellScaling(dt / spatialCellSizes.x,
-		dt / spatialCellSizes.y,
-		dt / spatialCellSizes.z);
+    rvec3 cellScaling(dt / spatialCellSizes.x,
+        dt / spatialCellSizes.y,
+        dt / spatialCellSizes.z);
 
     output *= cellScaling.x;
 
@@ -57,16 +58,16 @@ real RungeKutta3::performSubstep(std::vector<alsfvm::shared_ptr<volume::Volume> 
 
 
     if (substep == 1) {
-        output *= 1./3.;
+        output *= 1. / 3.;
         output += *inputConserved[0];
-        output *= 3./4.;
+        output *= 3. / 4.;
     } else if (substep == 2) {
         output *= 2;
         output += *inputConserved[0];
-        output *= 1./3.;
+        output *= 1. / 3.;
     }
 
-	return dt;
+    return dt;
 }
 }
 }

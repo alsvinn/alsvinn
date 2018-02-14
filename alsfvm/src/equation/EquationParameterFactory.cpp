@@ -3,14 +3,14 @@
 #include "alsutils/error/Exception.hpp"
 #include "alsfvm/equation/equation_list.hpp"
 
-namespace alsfvm { namespace equation {
+namespace alsfvm {
+namespace equation {
 
 namespace {
 struct EquationParametersFunctor {
     EquationParametersFunctor(const std::string& name,
-                              alsfvm::shared_ptr<EquationParameters>& parameters)
-        : name(name), parameters(parameters)
-    {
+        alsfvm::shared_ptr<EquationParameters>& parameters)
+        : name(name), parameters(parameters) {
 
     }
 
@@ -26,8 +26,9 @@ struct EquationParametersFunctor {
 };
 }
 
-alsfvm::shared_ptr<EquationParameters> EquationParameterFactory::createDefaultEquationParameters(const std::string &name)
-{
+alsfvm::shared_ptr<EquationParameters>
+EquationParameterFactory::createDefaultEquationParameters(
+    const std::string& name) {
     alsfvm::shared_ptr<EquationParameters> parameters;
     EquationParametersFunctor equationParametersFunctor(name, parameters);
 

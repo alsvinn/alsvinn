@@ -3,14 +3,15 @@
 #include "alsutils/parameters/Parameters.hpp"
 #include "alsfvm/grid/Grid.hpp"
 
-namespace alsfvm { namespace functional { 
+namespace alsfvm {
+namespace functional {
 
 
-    //! @brief Abstract base class to represent a functional
-    //!
-    //! A functional is an abstract type to represent a map from the solution
-    //! to some other space.
-    class Functional {
+//! @brief Abstract base class to represent a functional
+//!
+//! A functional is an abstract type to represent a map from the solution
+//! to some other space.
+class Functional {
     public:
         //! To be used to pass parameters to the constructors
         typedef alsutils::parameters::Parameters Parameters;
@@ -39,12 +40,12 @@ namespace alsfvm { namespace functional {
         //!                   \endcode
         //!
         virtual void operator()(volume::Volume& conservedVolumeOut,
-                        volume::Volume& extraVolumeOut,
-                        const volume::Volume& conservedVolumeIn,
-                        const volume::Volume& extraVolumeIn,
-                        const real weight,
-                        const grid::Grid& grid
-                        ) = 0;
+            volume::Volume& extraVolumeOut,
+            const volume::Volume& conservedVolumeIn,
+            const volume::Volume& extraVolumeIn,
+            const real weight,
+            const grid::Grid& grid
+        ) = 0;
 
         //! Returns the number of elements needed to represent the functional
         //!
@@ -52,8 +53,8 @@ namespace alsfvm { namespace functional {
         //!     called with conservedVolumeOut and extraVolumeOut being
         //!     of size {1,1,1}.
         virtual ivec3 getFunctionalSize(const grid::Grid& grid) const = 0;
-    };
+};
 
-    typedef alsfvm::shared_ptr<Functional> FunctionalPointer;
+typedef alsfvm::shared_ptr<Functional> FunctionalPointer;
 } // namespace functional
 } // namespace alsfvm

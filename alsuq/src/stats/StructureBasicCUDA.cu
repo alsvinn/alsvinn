@@ -1,7 +1,8 @@
 #include "alsuq/stats/StructureBasicCUDA.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsuq/stats/stats_util.hpp"
-namespace alsuq { namespace stats {
+namespace alsuq {
+namespace stats {
 
 
 namespace {
@@ -9,6 +10,7 @@ int make_positive(int index, int N) {
     if (index < 0) {
         return index += N;
     }
+
     return index;
 }
 
@@ -17,15 +19,14 @@ int make_positive(int index, int N) {
 //! The goal is to compute the structure function, then reduce (sum) over space
 //! then go on to next h
 __global__ void computeStructureBasic(real* output,
-                                      alsfvm::memory::View<const real> input,
-                                      ivec3 directionVector,
-                                      int h,
-                                      int nx, int ny, int nz, int ngx, int ngy, int ngz,
-                                      real p)
-{
+    alsfvm::memory::View<const real> input,
+    ivec3 directionVector,
+    int h,
+    int nx, int ny, int nz, int ngx, int ngy, int ngz,
+    real p) {
     const int index = threadIdx.x + blockIdx.x * blockDim.x;
 
-    if (index >= nx*ny*nz) {
+    if (index >= nx * ny * nz) {
         return;
     }
 
@@ -39,14 +40,14 @@ __global__ void computeStructureBasic(real* output,
     const int yNext = y + h * directionVector.y;
     const int zNext = z + h * directionVector.z;
 
-    const real u = input.at(x+ngx, y+ngy, z+ngz);
-    const real u_h = input.at(xNext % nx + ngx, yNext % ny + ngy, zNext%nz + ngz);
+    const real u = input.at(x + ngx, y + ngy, z + ngz);
+    const real u_h = input.at(xNext % nx + ngx, yNext % ny + ngy, zNext % nz + ngz);
 
-    output[index] = pow(fabs(u-u_h),p);
+    output[index] = pow(fabs(u - u_h), p);
 }
 }
 
-StructureBasicCUDA::StructureBasicCUDA(const StatisticsParameters &parameters)
+StructureBasicCUDA::StructureBasicCUDA(const StatisticsParameters& parameters)
     : StatisticsHelper(parameters),
       direction(parameters.getParameterAsInteger("direction")),
       p(parameters.getParameterAsDouble("p")),
@@ -58,37 +59,35 @@ StructureBasicCUDA::StructureBasicCUDA(const StatisticsParameters &parameters)
 
 }
 
-std::vector<std::string> StructureBasicCUDA::getStatisticsNames() const
-{
+std::vector<std::string> StructureBasicCUDA::getStatisticsNames() const {
     return {statisticsName};
 }
 
-void StructureBasicCUDA::computeStatistics(const alsfvm::volume::Volume &conservedVariables,
-                                       const alsfvm::volume::Volume &extraVariables,
-                                       const alsfvm::grid::Grid &grid,
-                                       const alsfvm::simulator::TimestepInformation &timestepInformation)
-{
-    auto& structure = this->findOrCreateSnapshot(statisticsName, timestepInformation,
-                                                 conservedVariables, extraVariables,
-                                                 numberOfH, 1, 1,"cpu");
+void StructureBasicCUDA::computeStatistics(const alsfvm::volume::Volume&
+    conservedVariables,
+    const alsfvm::volume::Volume& extraVariables,
+    const alsfvm::grid::Grid& grid,
+    const alsfvm::simulator::TimestepInformation& timestepInformation) {
+    auto& structure = this->findOrCreateSnapshot(statisticsName,
+            timestepInformation,
+            conservedVariables, extraVariables,
+            numberOfH, 1, 1, "cpu");
 
 
     computeStructure(*structure.getVolumes().getConservedVolume(),
-                     conservedVariables);
+        conservedVariables);
     computeStructure(*structure.getVolumes().getExtraVolume(),
-                     extraVariables);
+        extraVariables);
 }
 
-void StructureBasicCUDA::finalize()
-{
+void StructureBasicCUDA::finalize() {
 
 }
 
-void StructureBasicCUDA::computeStructure(alsfvm::volume::Volume &output,
-                                      const alsfvm::volume::Volume &input)
-{
+void StructureBasicCUDA::computeStructure(alsfvm::volume::Volume& output,
+    const alsfvm::volume::Volume& input) {
 
-    for(size_t var = 0; var < input.getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
         auto inputView = input[var]->getView();
         auto outputView = output[var]->getView();
 
@@ -102,21 +101,22 @@ void StructureBasicCUDA::computeStructure(alsfvm::volume::Volume &output,
 
         const int dimensions = input.getDimensions();
 
-        structureOutput.resize(nx*ny*nz,0);
+        structureOutput.resize(nx * ny * nz, 0);
 
-        for(int h = 1; h < int(numberOfH); ++h) {
+        for (int h = 1; h < int(numberOfH); ++h) {
             const int threads = 1024;
-            const int size = nx*ny*nz;
-            const int blockNumber = (size+threads -1)/threads;
+            const int size = nx * ny * nz;
+            const int blockNumber = (size + threads - 1) / threads;
 
-            computeStructureBasic<<<blockNumber,threads>>>(thrust::raw_pointer_cast(structureOutput.data()), inputView, directionVector,
-                                  h, nx, ny, nz, ngx, ngy, ngz, p);
+            computeStructureBasic <<< blockNumber, threads>>>(thrust::raw_pointer_cast(
+                    structureOutput.data()), inputView, directionVector,
+                h, nx, ny, nz, ngx, ngy, ngz, p);
 
             real structureResult = thrust::reduce(structureOutput.begin(),
-                                                  structureOutput.end(),
-                                                  0.0, thrust::plus<real>());
+                    structureOutput.end(),
+                    0.0, thrust::plus<real>());
 
-            outputView.at(h) += structureResult/(nx*ny*nz);
+            outputView.at(h) += structureResult / (nx * ny * nz);
         }
 
 

@@ -1,12 +1,13 @@
 #pragma once
 #include "alsfvm/functional/Functional.hpp"
 
-namespace alsfvm { namespace functional {
+namespace alsfvm {
+namespace functional {
 
-    //!
-    //! This just dumps the solution at the current time
-    //!
-    class Identity : public Functional {
+//!
+//! This just dumps the solution at the current time
+//!
+class Identity : public Functional {
     public:
 
         //! Uses no parameter
@@ -34,12 +35,12 @@ namespace alsfvm { namespace functional {
         //!                   \endcode
         //!
         virtual void operator()(volume::Volume& conservedVolumeOut,
-                        volume::Volume& extraVolumeOut,
-                        const volume::Volume& conservedVolumeIn,
-                        const volume::Volume& extraVolumeIn,
-                        const real weight,
-                        const grid::Grid& grid
-                        ) override;
+            volume::Volume& extraVolumeOut,
+            const volume::Volume& conservedVolumeIn,
+            const volume::Volume& extraVolumeIn,
+            const real weight,
+            const grid::Grid& grid
+        ) override;
 
         //! Returns grid.getDimensions()
         virtual ivec3 getFunctionalSize(const grid::Grid& grid) const override;
@@ -47,6 +48,6 @@ namespace alsfvm { namespace functional {
 
     private:
 
-    };
+};
 } // namespace functional
 } // namespace alsfvm

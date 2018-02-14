@@ -6,39 +6,43 @@
 #ifdef ALSVINN_HAVE_CUDA
 #include "alsfvm/cuda/CudaMemory.hpp"
 TEST(CudaMemoryFactoryTest, CreateCudaMemoryArea) {
-	auto deviceConfiguration = alsfvm::make_shared<alsfvm::DeviceConfiguration>("cuda");
-	alsfvm::memory::MemoryFactory factory(deviceConfiguration);
+    auto deviceConfiguration =
+        alsfvm::make_shared<alsfvm::DeviceConfiguration>("cuda");
+    alsfvm::memory::MemoryFactory factory(deviceConfiguration);
 
 
     size_t nx = 10;
     size_t ny = 10;
     size_t nz = 10;
     auto memory = factory.createScalarMemory(nx, ny, nz);
-    ASSERT_EQ(nx*ny*nz, memory->getSize());
+    ASSERT_EQ(nx * ny * nz, memory->getSize());
 
-	auto cudaMemory = alsfvm::dynamic_pointer_cast<alsfvm::cuda::CudaMemory <alsfvm::real >> (memory);
-	ASSERT_TRUE(!!cudaMemory);
+    auto cudaMemory =
+        alsfvm::dynamic_pointer_cast<alsfvm::cuda::CudaMemory <alsfvm::real >> (memory);
+    ASSERT_TRUE(!!cudaMemory);
 }
 
 #endif
 
 #include "alsfvm/memory/HostMemory.hpp"
 TEST(HostMemoryFactoryTest, CreateHostMemoryArea) {
-	auto deviceConfiguration = alsfvm::make_shared<alsfvm::DeviceConfiguration>("cpu");
+    auto deviceConfiguration =
+        alsfvm::make_shared<alsfvm::DeviceConfiguration>("cpu");
 
-	alsfvm::memory::MemoryFactory factory(deviceConfiguration);
+    alsfvm::memory::MemoryFactory factory(deviceConfiguration);
 
 
     size_t nx = 10;
     size_t ny = 10;
     size_t nz = 10;
     auto memory = factory.createScalarMemory(nx, ny, nz);
-    ASSERT_EQ(nx*ny*nz, memory->getSize());
+    ASSERT_EQ(nx * ny * nz, memory->getSize());
 
     ASSERT_EQ(nx, memory->getSizeX());
     ASSERT_EQ(ny, memory->getSizeY());
     ASSERT_EQ(nz, memory->getSizeZ());
 
-	auto hostMemory = alsfvm::dynamic_pointer_cast<alsfvm::memory::HostMemory<alsfvm::real>>(memory);
-	ASSERT_TRUE(!!hostMemory);
+    auto hostMemory =
+        alsfvm::dynamic_pointer_cast<alsfvm::memory::HostMemory<alsfvm::real>>(memory);
+    ASSERT_TRUE(!!hostMemory);
 }

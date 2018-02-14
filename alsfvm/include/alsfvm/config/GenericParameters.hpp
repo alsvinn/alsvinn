@@ -1,10 +1,11 @@
 #pragma once
 #include <boost/property_tree/ptree.hpp>
-namespace alsfvm { namespace config { 
+namespace alsfvm {
+namespace config {
 
-    //! Base class to hold parameters through a boost property tree. To be
-    //! passed around to other classes.
-    class GenericParameters {
+//! Base class to hold parameters through a boost property tree. To be
+//! passed around to other classes.
+class GenericParameters {
     public:
         GenericParameters(const boost::property_tree::ptree& tree);
 
@@ -26,6 +27,6 @@ namespace alsfvm { namespace config {
         int getInteger(const std::string& key, int defaultValue) const;
     private:
         boost::property_tree::ptree tree;
-    };
+};
 } // namespace config
 } // namespace alsfvm

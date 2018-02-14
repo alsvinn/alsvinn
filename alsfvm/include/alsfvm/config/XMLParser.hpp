@@ -3,9 +3,10 @@
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
 
-namespace alsfvm { namespace config { 
+namespace alsfvm {
+namespace config {
 
-    class XMLParser {
+class XMLParser {
     public:
         typedef boost::property_tree::ptree ptree;
 
@@ -16,6 +17,6 @@ namespace alsfvm { namespace config {
         /// \param[out] configuration the configuration to write to.
         ///
         void parseFile(std::ifstream& stream, ptree& configuration);
-    };
+};
 } // namespace alsfvm
 } // namespace config

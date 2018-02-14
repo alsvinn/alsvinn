@@ -3,28 +3,29 @@
 #include "alsfvm/numflux/NumericalFlux.hpp"
 #include "alsfvm/integrator/System.hpp"
 
-namespace alsfvm { namespace integrator { 
+namespace alsfvm {
+namespace integrator {
 
-	///
-	/// Does 2nd order RungeKutta-integrator. In other words,
-	/// this solves the system
-	///   \f[U_t=F(U)\f]
-	///
-	/// by setting 
-	///   \f[U_0 = U(0)\f]
-	///
-	/// and then for each \f$n>0\f$, we set
-    ///
-    ///  \f[U^*_n:=U+\Delta t F(U^n)\f]
-    ///
-    /// \f[U^{**}_n:=U^*+\Delta t F(U_n^*)\f]
-    ///
-    /// and finally set
-    ///
-    /// \f[U^{n+1}:= \frac{1}{2}(U^*_n+U^{**}_n)\f]
-	///
-	/// 
-    class RungeKutta2 : public Integrator {
+///
+/// Does 2nd order RungeKutta-integrator. In other words,
+/// this solves the system
+///   \f[U_t=F(U)\f]
+///
+/// by setting
+///   \f[U_0 = U(0)\f]
+///
+/// and then for each \f$n>0\f$, we set
+///
+///  \f[U^*_n:=U+\Delta t F(U^n)\f]
+///
+/// \f[U^{**}_n:=U^*+\Delta t F(U_n^*)\f]
+///
+/// and finally set
+///
+/// \f[U^{n+1}:= \frac{1}{2}(U^*_n+U^{**}_n)\f]
+///
+///
+class RungeKutta2 : public Integrator {
     public:
         RungeKutta2(alsfvm::shared_ptr<System> system);
 
@@ -37,29 +38,30 @@ namespace alsfvm { namespace integrator {
         ///
         virtual size_t getNumberOfSubsteps() const;
 
-		///
-		/// Performs one substep and stores the result to output.
-		///
-		/// \param inputConserved should have the output from the previous invocations
-		///        in this substep, if this is the first invocation, then this will have one element,
-		///        second timestep 2 elements, etc.
-		/// \param spatialCellSizes should be the cell size in each direction
-		/// \param dt is the timestep
-		/// \param substep is the currently computed substep, starting at 0.
-		/// \param output where to write the output
-		/// \param cfl the cfl number to use.
+        ///
+        /// Performs one substep and stores the result to output.
+        ///
+        /// \param inputConserved should have the output from the previous invocations
+        ///        in this substep, if this is the first invocation, then this will have one element,
+        ///        second timestep 2 elements, etc.
+        /// \param spatialCellSizes should be the cell size in each direction
+        /// \param dt is the timestep
+        /// \param substep is the currently computed substep, starting at 0.
+        /// \param output where to write the output
+        /// \param cfl the cfl number to use.
         /// \param timestepInformation the current timestepInformation (needed for current time)
-		/// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
-		/// \returns the newly computed timestep (each integrator may choose to change the timestep)
-		///
-        virtual real performSubstep( std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
-			rvec3 spatialCellSizes, real dt, real cfl,
+        /// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
+        /// \returns the newly computed timestep (each integrator may choose to change the timestep)
+        ///
+        virtual real performSubstep( std::vector<alsfvm::shared_ptr< volume::Volume> >&
+            inputConserved,
+            rvec3 spatialCellSizes, real dt, real cfl,
             volume::Volume& output, size_t substep,
             const simulator::TimestepInformation& timestepInformation);
 
     private:
         alsfvm::shared_ptr<System> system;
 
-    };
+};
 } // namespace alsfvm
 } // namespace integrator

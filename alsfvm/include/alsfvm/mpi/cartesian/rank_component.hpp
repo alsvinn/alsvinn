@@ -1,7 +1,8 @@
 #pragma once
 #include "alsfvm/types.hpp"
 
-namespace alsfvm { namespace  mpi {
+namespace alsfvm {
+namespace  mpi {
 namespace cartesian {
 
 //! Computes the 3d coordinates of a linear rank (this is for domain decomposition
@@ -12,9 +13,9 @@ namespace cartesian {
 //!
 //! @see getRankIndex
 ivec3 getCoordinates(int rank, const ivec3& numberOfProcessors) {
-    return ivec3{rank%numberOfProcessors.x,
-    (rank/numberOfProcessors.x)%numberOfProcessors.y,
-    rank/(numberOfProcessors.x*numberOfProcessors.y)};
+    return ivec3{rank % numberOfProcessors.x,
+            (rank / numberOfProcessors.x) % numberOfProcessors.y,
+            rank / (numberOfProcessors.x * numberOfProcessors.y)};
 }
 }
 }

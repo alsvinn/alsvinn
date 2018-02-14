@@ -1,6 +1,7 @@
 #include "alsfvm/diffusion/DiffusionOperator.hpp"
 
-namespace alsfvm { namespace diffusion { 
+namespace alsfvm {
+namespace diffusion {
 
 }
 }

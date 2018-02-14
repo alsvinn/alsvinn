@@ -2,13 +2,14 @@
 #include "alsuq/stats/Statistics.hpp"
 #include "alsfvm/integrator/TimestepAdjuster.hpp"
 #include "alsuq/types.hpp"
-namespace alsuq { namespace stats {
+namespace alsuq {
+namespace stats {
 
-    //! Decorator to compute time averaged statistics. This will roughly work in the following way:
-    //!
-    //! It will call the underlying statistics class for each time tau where |tau-time|<timeRadius.
-    //!
-    class TimeIntegratedWriter : public Statistics {
+//! Decorator to compute time averaged statistics. This will roughly work in the following way:
+//!
+//! It will call the underlying statistics class for each time tau where |tau-time|<timeRadius.
+//!
+class TimeIntegratedWriter : public Statistics {
     public:
 
         ///
@@ -16,8 +17,9 @@ namespace alsuq { namespace stats {
         /// \param time the time for which to write the statistics
         /// \param timeRadius the radius of the time interval
         ///
-        TimeIntegratedWriter(alsfvm::shared_ptr<Statistics>& writer, real time, real timeRadius);
-\
+        TimeIntegratedWriter(alsfvm::shared_ptr<Statistics>& writer, real time,
+            real timeRadius);
+        \
 
         //! To be called when the statistics should be combined.
         virtual void combineStatistics();
@@ -27,7 +29,7 @@ namespace alsuq { namespace stats {
         //!             getStatiticsNames()
         //! @param writer the writer to use
         virtual void addWriter(const std::string& name,
-                               std::shared_ptr<alsfvm::io::Writer>& writer);
+            std::shared_ptr<alsfvm::io::Writer>& writer);
 
         //! Returns a list of the names of the statistics being computed,
         //! typically this could be ['mean', 'variance']
@@ -42,15 +44,15 @@ namespace alsuq { namespace stats {
 
     protected:
         virtual void computeStatistics(const alsfvm::volume::Volume& conservedVariables,
-                           const alsfvm::volume::Volume& extraVariables,
-                           const alsfvm::grid::Grid& grid,
-                           const alsfvm::simulator::TimestepInformation& timestepInformation);
+            const alsfvm::volume::Volume& extraVariables,
+            const alsfvm::grid::Grid& grid,
+            const alsfvm::simulator::TimestepInformation& timestepInformation);
 
     private:
         alsfvm::shared_ptr<Statistics> statistics;
         const real time;
         const real timeRadius;
 
-    };
+};
 } // namespace stats
 } // namespace alsuq

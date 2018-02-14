@@ -1,6 +1,7 @@
 #include "alsfvm/integrator/TimestepAdjuster.hpp"
 
-namespace alsfvm { namespace integrator { 
+namespace alsfvm {
+namespace integrator {
 
 }
 }

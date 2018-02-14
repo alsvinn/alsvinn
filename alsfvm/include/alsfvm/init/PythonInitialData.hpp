@@ -2,13 +2,14 @@
 #include "alsfvm/init/InitialData.hpp"
 #include "alsfvm/equation/CellComputer.hpp"
 #include "alsfvm/init/Parameters.hpp"
-namespace alsfvm { namespace init { 
+namespace alsfvm {
+namespace init {
 
 ///
 /// \brief The PythonInitialData class sets the initial data through
 /// a python string.
 ///
-    class PythonInitialData : public InitialData {
+class PythonInitialData : public InitialData {
     public:
         ///
         /// \brief PythonInitialData constructs the object
@@ -61,10 +62,10 @@ namespace alsfvm { namespace init {
         /// be used for initial data!
         ///
         virtual void setInitialData(volume::Volume& conservedVolume,
-                            volume::Volume& extraVolume,
-                            volume::Volume& primitiveVolume,
-                            equation::CellComputer& cellComputer,
-                            grid::Grid& grid);
+            volume::Volume& extraVolume,
+            volume::Volume& primitiveVolume,
+            equation::CellComputer& cellComputer,
+            grid::Grid& grid);
 
         virtual void setParameters(const Parameters& parameters);
 
@@ -72,6 +73,6 @@ namespace alsfvm { namespace init {
         Parameters parameters;
         std::string programString;
 
-    };
+};
 } // namespace alsfvm
 } // namespace init

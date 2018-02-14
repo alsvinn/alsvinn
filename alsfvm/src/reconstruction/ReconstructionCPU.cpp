@@ -6,29 +6,31 @@
 #include "alsfvm/reconstruction/MC.hpp"
 #include "alsutils/error/Exception.hpp"
 
-namespace alsfvm { namespace reconstruction {
+namespace alsfvm {
+namespace reconstruction {
 
-template<class ReconstructionType, class Equation>
-ReconstructionCPU<ReconstructionType, Equation>::ReconstructionCPU(const simulator::SimulatorParameters &simulatorParameters)
-    : parameters(static_cast<const typename Equation::Parameters&>(simulatorParameters.getEquationParameters()))
-{
+template<class ReconstructionType, class Equation> ReconstructionCPU<ReconstructionType, Equation>::ReconstructionCPU(
+    const simulator::SimulatorParameters& simulatorParameters)
+    : parameters(static_cast<const typename Equation::Parameters&>
+          (simulatorParameters.getEquationParameters())) {
 
 }
 
 template<class ReconstructionType, class Equation>
-void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(const volume::Volume &inputVariables,
-                                                                            size_t direction,
-                                                                            size_t indicatorVariable,
-                                                                            volume::Volume &leftOut,
-                                                                            volume::Volume &rightOut, const ivec3& start,
-                                                                            const ivec3& end)
-{
+void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(
+    const volume::Volume& inputVariables,
+    size_t direction,
+    size_t indicatorVariable,
+    volume::Volume& leftOut,
+    volume::Volume& rightOut, const ivec3& start,
+    const ivec3& end) {
 
 
 
     if (direction > 2) {
         THROW("Direction can only be 0, 1 or 2, was given: " << direction);
     }
+
     const ivec3 directionVector(direction == 0, direction == 1, direction == 2);
 
     // Now we go on to do the actual reconstruction, choosing the stencil for
@@ -62,39 +64,51 @@ void ReconstructionCPU<ReconstructionType, Equation>::performReconstruction(cons
     typename Equation::Views viewRight(rightOut);
 
     Equation eq(parameters);
+
     for (int z = startZ; z < endZ; z++) {
-#pragma omp parallel for
+        #pragma omp parallel for
+
         for (int y = startY; y < endY; y++) {
             for (int x = startX; x < int(endX); x++) {
                 ReconstructionType::reconstruct(eq, viewIn, x, y, z, viewLeft, viewRight,
-                                                directionVector.x, directionVector.y,
-                                                directionVector.z);
+                    directionVector.x, directionVector.y,
+                    directionVector.z);
             }
         }
     }
 }
 
 template<class ReconstructionType, class Equation>
-size_t ReconstructionCPU<ReconstructionType, Equation>::getNumberOfGhostCells()
-{
+size_t ReconstructionCPU<ReconstructionType, Equation>::getNumberOfGhostCells() {
     return ReconstructionType::getNumberOfGhostCells();
 }
 
-template class ReconstructionCPU<WENO2 <equation::euler::Euler<1>>, equation::euler::Euler<1>>;
-template class ReconstructionCPU<WENOF2<equation::euler::Euler<1>>, equation::euler::Euler<1>>;
-template class ReconstructionCPU<MC<equation::euler::Euler<1>>, equation::euler::Euler<1>>;
+template class
+ReconstructionCPU<WENO2 <equation::euler::Euler<1>>, equation::euler::Euler<1>>;
+template class
+ReconstructionCPU<WENOF2<equation::euler::Euler<1>>, equation::euler::Euler<1>>;
+template class
+ReconstructionCPU<MC<equation::euler::Euler<1>>, equation::euler::Euler<1>>;
 
-template class ReconstructionCPU<WENO2 <equation::euler::Euler<2>>, equation::euler::Euler<2>>;
-template class ReconstructionCPU<WENOF2<equation::euler::Euler<2>>, equation::euler::Euler<2>>;
-template class ReconstructionCPU<MC<equation::euler::Euler<2>>, equation::euler::Euler<2>>;
+template class
+ReconstructionCPU<WENO2 <equation::euler::Euler<2>>, equation::euler::Euler<2>>;
+template class
+ReconstructionCPU<WENOF2<equation::euler::Euler<2>>, equation::euler::Euler<2>>;
+template class
+ReconstructionCPU<MC<equation::euler::Euler<2>>, equation::euler::Euler<2>>;
 
-template class ReconstructionCPU<WENO2 <equation::euler::Euler<3>>, equation::euler::Euler<3>>;
-template class ReconstructionCPU<WENOF2<equation::euler::Euler<3>>, equation::euler::Euler<3>>;
-template class ReconstructionCPU<MC<equation::euler::Euler<3>>, equation::euler::Euler<3>>;
+template class
+ReconstructionCPU<WENO2 <equation::euler::Euler<3>>, equation::euler::Euler<3>>;
+template class
+ReconstructionCPU<WENOF2<equation::euler::Euler<3>>, equation::euler::Euler<3>>;
+template class
+ReconstructionCPU<MC<equation::euler::Euler<3>>, equation::euler::Euler<3>>;
 
 
-template class ReconstructionCPU<WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>;
-template class ReconstructionCPU<MC<equation::burgers::Burgers>, equation::burgers::Burgers>;
+template class
+ReconstructionCPU<WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>;
+template class
+ReconstructionCPU<MC<equation::burgers::Burgers>, equation::burgers::Burgers>;
 
 
 }

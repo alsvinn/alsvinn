@@ -5,36 +5,37 @@
 #include <boost/filesystem.hpp>
 #include <fstream>
 
-namespace alsfvm { namespace io {
+namespace alsfvm {
+namespace io {
 
-NetCDFMPIWriter::NetCDFMPIWriter(const std::string &basefileName,
-                                 const std::vector<std::string> &groupNames,
-                                 size_t groupIndex, bool newFile,
-                                 MPI_Comm mpiCommunicator, MPI_Info mpiInfo)
+NetCDFMPIWriter::NetCDFMPIWriter(const std::string& basefileName,
+    const std::vector<std::string>& groupNames,
+    size_t groupIndex, bool newFile,
+    MPI_Comm mpiCommunicator, MPI_Info mpiInfo)
     : NetCDFWriter(basefileName),
       groupNames(groupNames),
       groupIndex(groupIndex),
       newFile(newFile),
       mpiCommunicator(mpiCommunicator),
-      mpiInfo(mpiInfo)
-{
+      mpiInfo(mpiInfo) {
 
 }
 
-void NetCDFMPIWriter::write(const volume::Volume &conservedVariables,
-                            const volume::Volume &extraVariables,
-                            const grid::Grid &grid,
-                            const simulator::TimestepInformation &timestepInformation)
-{
+void NetCDFMPIWriter::write(const volume::Volume& conservedVariables,
+    const volume::Volume& extraVariables,
+    const grid::Grid& grid,
+    const simulator::TimestepInformation& timestepInformation) {
 
 
     netcdf_raw_ptr file;
     auto filename = getFilename();
     netcdf_raw_ptr timeVar;
+
     if (newFile) {
 
-      NETCDF_SAFE_CALl(ncmpi_create(mpiCommunicator, filename.c_str(),  NC_64BIT_DATA|NC_CLOBBER,
-                                   mpiInfo, &file));
+        NETCDF_SAFE_CALl(ncmpi_create(mpiCommunicator, filename.c_str(),
+                NC_64BIT_DATA | NC_CLOBBER,
+                mpiInfo, &file));
 
 
         // write current time
@@ -43,18 +44,19 @@ void NetCDFMPIWriter::write(const volume::Volume &conservedVariables,
 
 
         NETCDF_SAFE_CALl(ncmpi_def_var(file, "time", NC_DOUBLE, 1, &timeDim,
-                                       &timeVar));
+                &timeVar));
 
 
 
+    } else {
+        NETCDF_SAFE_CALl(ncmpi_open(mpiCommunicator, filename.c_str(),
+                NC_WRITE | NC_64BIT_DATA,
+                mpiInfo, &file));
+        NETCDF_SAFE_CALl(ncmpi_redef(file));
     }
-    else {
-      NETCDF_SAFE_CALl(ncmpi_open(mpiCommunicator, filename.c_str(), NC_WRITE| NC_64BIT_DATA,
-                            mpiInfo, &file));
-      NETCDF_SAFE_CALl(ncmpi_redef(file));
-    }
+
     writeToFile(file, conservedVariables, extraVariables,
-                grid, timestepInformation, newFile);
+        grid, timestepInformation, newFile);
 
     if (newFile) {
 
@@ -65,19 +67,19 @@ void NetCDFMPIWriter::write(const volume::Volume &conservedVariables,
     NETCDF_SAFE_CALl(ncmpi_close(file));
 }
 
-NetCDFMPIWriter::dimension_vector NetCDFMPIWriter::createDimensions(netcdf_raw_ptr baseGroup, const grid::Grid &grid, bool newFile)
-{
-    std::array<netcdf_raw_ptr,3> dimensions;
+NetCDFMPIWriter::dimension_vector NetCDFMPIWriter::createDimensions(
+    netcdf_raw_ptr baseGroup, const grid::Grid& grid, bool newFile) {
+    std::array<netcdf_raw_ptr, 3> dimensions;
     netcdf_raw_ptr xdim, ydim, zdim;
 
     if (newFile) {
         ALSVINN_LOG(INFO, "Making new file with sizes " << grid.getGlobalSize());
         NETCDF_SAFE_CALl(ncmpi_def_dim(baseGroup, "x", grid.getGlobalSize()[0],
-                                       &xdim));
+                &xdim));
         NETCDF_SAFE_CALl(ncmpi_def_dim(baseGroup, "y", grid.getGlobalSize()[1],
-                                       &ydim));
+                &ydim));
         NETCDF_SAFE_CALl(ncmpi_def_dim(baseGroup, "z", grid.getGlobalSize()[2],
-                                       &zdim));
+                &zdim));
     } else {
         NETCDF_SAFE_CALl(ncmpi_inq_dimid(baseGroup, "x", &xdim));
         NETCDF_SAFE_CALl(ncmpi_inq_dimid(baseGroup, "y", &ydim));
@@ -91,18 +93,17 @@ NetCDFMPIWriter::dimension_vector NetCDFMPIWriter::createDimensions(netcdf_raw_p
     return dimensions;
 }
 
-std::vector<netcdf_raw_ptr>
-NetCDFMPIWriter::makeDataset(netcdf_raw_ptr baseGroup,
-                             const volume::Volume &volume,
-                             std::array<netcdf_raw_ptr, 3> dimensions)
-{
+std::vector<netcdf_raw_ptr> NetCDFMPIWriter::makeDataset(
+    netcdf_raw_ptr baseGroup,
+    const volume::Volume& volume,
+    std::array<netcdf_raw_ptr, 3> dimensions) {
     std::vector<netcdf_raw_ptr> datasets;
 
 
     for (const auto& groupName : groupNames) {
 
         for (size_t memoryIndex = 0; memoryIndex < volume.getNumberOfVariables();
-             ++memoryIndex) {
+            ++memoryIndex) {
             netcdf_raw_ptr dataset;
 
             std::string groupnamePrefix = "";
@@ -110,11 +111,12 @@ NetCDFMPIWriter::makeDataset(netcdf_raw_ptr baseGroup,
             if (groupName.size() > 0) {
                 groupnamePrefix = groupName + "_";
             }
+
             auto memoryName = groupnamePrefix + volume.getName(memoryIndex) ;
 
 
             NETCDF_SAFE_CALl(ncmpi_def_var(baseGroup, memoryName.c_str(), NC_DOUBLE, 3,
-                                           dimensions.data(), &dataset));
+                    dimensions.data(), &dataset));
 
             if (groupName == groupNames[groupIndex]) {
                 datasets.push_back(dataset);
@@ -127,12 +129,11 @@ NetCDFMPIWriter::makeDataset(netcdf_raw_ptr baseGroup,
 }
 
 void NetCDFMPIWriter::writeToFile(netcdf_raw_ptr file,
-                                  const volume::Volume &conservedVariables,
-                                  const volume::Volume &extraVariables,
-                                  const grid::Grid &grid,
-                                  const simulator::TimestepInformation &timestepInformation,
-                                  bool newFile)
-{
+    const volume::Volume& conservedVariables,
+    const volume::Volume& extraVariables,
+    const grid::Grid& grid,
+    const simulator::TimestepInformation& timestepInformation,
+    bool newFile) {
 
 
     auto dimensions = createDimensions(file, grid, newFile);
@@ -148,12 +149,12 @@ void NetCDFMPIWriter::writeToFile(netcdf_raw_ptr file,
 }
 
 void NetCDFMPIWriter::writeMemory(netcdf_raw_ptr baseGroup,
-                                  netcdf_raw_ptr dataset,
-                                  const volume::Volume &volume,
-                                  size_t memoryIndex,
-                                  const grid::Grid& grid)
-{
-    std::vector<real> dataTmp(volume.getNumberOfXCells() * volume.getNumberOfYCells() * volume.getNumberOfZCells());
+    netcdf_raw_ptr dataset,
+    const volume::Volume& volume,
+    size_t memoryIndex,
+    const grid::Grid& grid) {
+    std::vector<real> dataTmp(volume.getNumberOfXCells() *
+        volume.getNumberOfYCells() * volume.getNumberOfZCells());
 
     //auto volumeCPU = const_cast<volume::Volume&>(volume).getCopyOnCPU();
     volume.copyInternalCells(memoryIndex, dataTmp.data(), dataTmp.size());
@@ -172,7 +173,7 @@ void NetCDFMPIWriter::writeMemory(netcdf_raw_ptr baseGroup,
     }
 
     // we need to exhcange the order since netcdf uses z major.
-    if(grid.getActiveDimension() == 3) {
+    if (grid.getActiveDimension() == 3) {
         std::swap(globalPosition[2], globalPosition[1]);
         std::swap(localSize[2], localSize[1]);
 
@@ -180,17 +181,18 @@ void NetCDFMPIWriter::writeMemory(netcdf_raw_ptr baseGroup,
         std::swap(localSize[0], localSize[1]);
     }
 
-    NETCDF_SAFE_CALl(ncmpi_put_vara_double_all(baseGroup, dataset, globalPosition.data(),
-                                               localSize.data(),
-                                               data.data()));
+    NETCDF_SAFE_CALl(ncmpi_put_vara_double_all(baseGroup, dataset,
+            globalPosition.data(),
+            localSize.data(),
+            data.data()));
 }
 
-void NetCDFMPIWriter::writeVolume(netcdf_raw_ptr baseGroup, const volume::Volume &volume, std::array<netcdf_raw_ptr, 3> dimensions,
-                                  const std::vector<netcdf_raw_ptr>& datasets,
-                                  const grid::Grid& grid)
-{
+void NetCDFMPIWriter::writeVolume(netcdf_raw_ptr baseGroup,
+    const volume::Volume& volume, std::array<netcdf_raw_ptr, 3> dimensions,
+    const std::vector<netcdf_raw_ptr>& datasets,
+    const grid::Grid& grid) {
     for (size_t memoryIndex = 0; memoryIndex < volume.getNumberOfVariables();
-                 ++memoryIndex) {
+        ++memoryIndex) {
         auto dataset = datasets[memoryIndex];
 
         writeMemory(baseGroup, dataset, volume, memoryIndex, grid);

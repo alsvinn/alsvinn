@@ -15,10 +15,11 @@
 #include <memory>
 
 #ifdef ALSVINN_USE_MPI
-#include "alsfvm/mpi/CellExchanger.hpp"
+    #include "alsfvm/mpi/CellExchanger.hpp"
 #endif
 
-namespace alsfvm { namespace simulator {
+namespace alsfvm {
+namespace simulator {
 
 ///
 /// \brief The Simulator class contains all the neccesary tools for running the
@@ -34,7 +35,7 @@ namespace alsfvm { namespace simulator {
 /// \endcode
 
 ///
-    class Simulator {
+class Simulator {
     public:
         ///
         /// \brief Simulator
@@ -53,19 +54,19 @@ namespace alsfvm { namespace simulator {
         /// \param name the name of the simulator
         ///
         Simulator(const SimulatorParameters& simulatorParameters,
-                  alsfvm::shared_ptr<grid::Grid> & grid,
-                  volume::VolumeFactory& volumeFactory,
-                  integrator::IntegratorFactory& integratorFactory,
-                  boundary::BoundaryFactory& boundaryFactory,
-                  numflux::NumericalFluxFactory& numericalFluxFactory,
-                  equation::CellComputerFactory& cellComputerFactory,
-                  alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-				  real endTime,
-				  alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
-				  std::string& equationName,
-                  alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator,
-                  const std::string& name
-            );
+            alsfvm::shared_ptr<grid::Grid>& grid,
+            volume::VolumeFactory& volumeFactory,
+            integrator::IntegratorFactory& integratorFactory,
+            boundary::BoundaryFactory& boundaryFactory,
+            numflux::NumericalFluxFactory& numericalFluxFactory,
+            equation::CellComputerFactory& cellComputerFactory,
+            alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+            real endTime,
+            alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
+            std::string& equationName,
+            alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator,
+            const std::string& name
+        );
 
         ~Simulator();
 
@@ -92,7 +93,8 @@ namespace alsfvm { namespace simulator {
         ///
         void addWriter(alsfvm::shared_ptr<io::Writer> writer);
 
-        void addTimestepAdjuster(alsfvm::shared_ptr<integrator::TimestepAdjuster>& adjuster);
+        void addTimestepAdjuster(alsfvm::shared_ptr<integrator::TimestepAdjuster>&
+            adjuster);
 
         ///
         /// \return the current simulation time.
@@ -121,9 +123,9 @@ namespace alsfvm { namespace simulator {
         void setInitialValue(alsfvm::shared_ptr<init::InitialData>& initialData);
 
         const std::shared_ptr<grid::Grid>& getGrid() const;
-         std::shared_ptr<grid::Grid>& getGrid();
+        std::shared_ptr<grid::Grid>& getGrid();
 
-         void finalize();
+        void finalize();
 
 #ifdef ALSVINN_USE_MPI
         void setCellExchanger(mpi::CellExchangerPtr value);
@@ -165,6 +167,6 @@ namespace alsfvm { namespace simulator {
 #endif
 
         const std::string name;
-    };
+};
 } // namespace alsfvm
 } // namespace simulator

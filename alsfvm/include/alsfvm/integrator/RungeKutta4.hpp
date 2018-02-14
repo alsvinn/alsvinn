@@ -1,9 +1,10 @@
 #pragma once
 #include "alsfvm/integrator/Integrator.hpp"
 #include "alsfvm/integrator/System.hpp"
-namespace alsfvm { namespace integrator { 
+namespace alsfvm {
+namespace integrator {
 
-    class RungeKutta4 : public Integrator {
+class RungeKutta4 : public Integrator {
     public:
         RungeKutta4(alsfvm::shared_ptr<System> system);
 
@@ -31,7 +32,8 @@ namespace alsfvm { namespace integrator {
         /// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
         /// \returns the newly computed timestep (each integrator may choose to change the timestep)
         ///
-        virtual real performSubstep( std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
+        virtual real performSubstep( std::vector<alsfvm::shared_ptr< volume::Volume> >&
+            inputConserved,
             rvec3 spatialCellSizes, real dt, real cfl,
             volume::Volume& output, size_t substep,
             const simulator::TimestepInformation& timestepInformation);
@@ -39,7 +41,7 @@ namespace alsfvm { namespace integrator {
     private:
         alsfvm::shared_ptr<System> system;
 
-    };
+};
 
 } // namespace integrator
 } // namespace alsfvm

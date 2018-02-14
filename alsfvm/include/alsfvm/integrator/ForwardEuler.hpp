@@ -3,30 +3,31 @@
 #include "alsfvm/numflux/NumericalFlux.hpp"
 #include "alsfvm/integrator/System.hpp"
 
-namespace alsfvm { namespace integrator { 
+namespace alsfvm {
+namespace integrator {
 
-	/// 
-	/// This is the classical ForwardEuler integrator
-	///  
-	/// For each call to performSubstep it computes
-	///
-	/// \f[u^{n+1} = u^n +\Delta t Q(u^n)\f]
-	///
-	/// where \f$Q(u^n)\f$ is computed by the numerical flux. 
-	///
-    class ForwardEuler : public Integrator {
+///
+/// This is the classical ForwardEuler integrator
+///
+/// For each call to performSubstep it computes
+///
+/// \f[u^{n+1} = u^n +\Delta t Q(u^n)\f]
+///
+/// where \f$Q(u^n)\f$ is computed by the numerical flux.
+///
+class ForwardEuler : public Integrator {
     public:
-		///
-		/// Constructs a new instance.
-		///
+        ///
+        /// Constructs a new instance.
+        ///
         /// \param system the ODE system to use
-		///
+        ///
         ForwardEuler(alsfvm::shared_ptr<System> system);
 
-		///
-		/// \returns 1
-		///
-		virtual size_t getNumberOfSubsteps() const;
+        ///
+        /// \returns 1
+        ///
+        virtual size_t getNumberOfSubsteps() const;
 
 
         ///
@@ -44,14 +45,15 @@ namespace alsfvm { namespace integrator {
         /// \note the next invocation to performSubstep will get as input the previuosly calculated outputs
         /// \returns the newly computed timestep (each integrator may choose to change the timestep)
         ///
-        virtual real performSubstep( std::vector<alsfvm::shared_ptr< volume::Volume> >& inputConserved,
-			rvec3 spatialCellSizes, real dt, real cfl,
+        virtual real performSubstep( std::vector<alsfvm::shared_ptr< volume::Volume> >&
+            inputConserved,
+            rvec3 spatialCellSizes, real dt, real cfl,
             volume::Volume& output, size_t substep,
             const simulator::TimestepInformation& timestepInformation);
 
-	private:
+    private:
         alsfvm::shared_ptr<System> system;
-    };
+};
 } // namespace alsfvm
 } // namespace integrator
 

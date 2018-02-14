@@ -1,22 +1,24 @@
 #pragma once
 #include "alsfvm/types.hpp"
 #include "alsfvm/equation/EquationParameters.hpp"
-namespace alsfvm { namespace simulator { 
+namespace alsfvm {
+namespace simulator {
 
-    class SimulatorParameters {
+class SimulatorParameters {
     public:
         SimulatorParameters()
             : equationParameters(new equation::EquationParameters)
         {}
         SimulatorParameters(const std::string& equationName,
-                            const std::string& platform);
+            const std::string& platform);
 
         void setCFLNumber(real cfl);
         real getCFLNumber() const;
 
         const equation::EquationParameters& getEquationParameters() const;
         equation::EquationParameters& getEquationParameters();
-        void setEquationParameters(alsfvm::shared_ptr<equation::EquationParameters> parameters);
+        void setEquationParameters(alsfvm::shared_ptr<equation::EquationParameters>
+            parameters);
 
         void setEquationName(const std::string& name);
 
@@ -33,6 +35,6 @@ namespace alsfvm { namespace simulator {
         std::string platform;
         alsfvm::shared_ptr<equation::EquationParameters> equationParameters;
 
-    };
+};
 } // namespace alsfvm
 } // namespace simulator

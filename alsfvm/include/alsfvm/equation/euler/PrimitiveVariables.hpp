@@ -1,7 +1,9 @@
 #pragma once
 #include "alsfvm/types.hpp"
 
-namespace alsfvm { namespace equation { namespace euler {
+namespace alsfvm {
+namespace equation {
+namespace euler {
 ///
 /// The holder struct for all relevant variables for the euler flux
 /// These are supposed to be the primitive variables, ie. the variables
@@ -9,50 +11,46 @@ namespace alsfvm { namespace equation { namespace euler {
 ///
 template<int nsd>
 class PrimitiveVariables {
-public:
-    typedef typename Types<nsd>::rvec rvec;
+    public:
+        typedef typename Types<nsd>::rvec rvec;
 
 
-	__device__ __host__ PrimitiveVariables()
-        :rho(0), u(0), p(0)
-    {
-         // empty
-    }
+        __device__ __host__ PrimitiveVariables()
+            : rho(0), u(0), p(0) {
+            // empty
+        }
 
-	__device__ __host__ PrimitiveVariables(real rho, rvec u, real p)
-        : rho(rho), u(u), p(p)
-    {
-        // empty
-    }
+        __device__ __host__ PrimitiveVariables(real rho, rvec u, real p)
+            : rho(rho), u(u), p(p) {
+            // empty
+        }
 
-    template<class T>
-    __device__ __host__ PrimitiveVariables(T rho, T ux, T uy, T uz, T p)
-        : rho(rho), u(rvec3{ux, uy, uz}), p(p)
-    {
-        static_assert(nsd==3 ||sizeof(T)==0, "Only for 3 dimensions!");
-    }
+        template<class T>
+        __device__ __host__ PrimitiveVariables(T rho, T ux, T uy, T uz, T p)
+            : rho(rho), u(rvec3{ux, uy, uz}), p(p) {
+            static_assert(nsd == 3 || sizeof(T) == 0, "Only for 3 dimensions!");
+        }
 
-    template<class T>
-    __device__ __host__ PrimitiveVariables(T rho, T ux, T uy, T p)
-        : rho(rho), u(rvec2{ux, uy}), p(p)
-    {
-        static_assert(nsd==2 ||sizeof(T)==0, "Only for 3 dimensions!");
-    }
+        template<class T>
+        __device__ __host__ PrimitiveVariables(T rho, T ux, T uy, T p)
+            : rho(rho), u(rvec2{ux, uy}), p(p) {
+            static_assert(nsd == 2 || sizeof(T) == 0, "Only for 3 dimensions!");
+        }
 
-    ///
-    /// \brief rho is the density
-    ///
-    real rho;
+        ///
+        /// \brief rho is the density
+        ///
+        real rho;
 
-    ///
-    /// \brief u is the velocity
-    ///
-    rvec u;
+        ///
+        /// \brief u is the velocity
+        ///
+        rvec u;
 
-    ///
-    /// \brief p is the pressure
-    ///
-    real p;
+        ///
+        /// \brief p is the pressure
+        ///
+        real p;
 
 };
 ///
@@ -60,7 +58,8 @@ public:
 /// \note Makes a new instance
 ///
 template<int nsd>
-__device__ __host__ inline PrimitiveVariables<nsd> operator-(const PrimitiveVariables<nsd>& a, const PrimitiveVariables<nsd>& b) {
+__device__ __host__ inline PrimitiveVariables<nsd> operator-
+(const PrimitiveVariables<nsd>& a, const PrimitiveVariables<nsd>& b) {
     return PrimitiveVariables<nsd>(a.rho - b.rho, a.u - b.u, a.p - b.p);
 }
 
@@ -69,7 +68,8 @@ __device__ __host__ inline PrimitiveVariables<nsd> operator-(const PrimitiveVari
 /// \note Makes a new instance
 ///
 template<int nsd>
-__device__ __host__ inline PrimitiveVariables<nsd> operator+(const PrimitiveVariables<nsd>& a, const PrimitiveVariables<nsd>& b) {
+__device__ __host__ inline PrimitiveVariables<nsd> operator+
+(const PrimitiveVariables<nsd>& a, const PrimitiveVariables<nsd>& b) {
     return PrimitiveVariables<nsd>(a.rho + b.rho, a.u + b.u, a.p + b.p);
 }
 
@@ -78,8 +78,9 @@ __device__ __host__ inline PrimitiveVariables<nsd> operator+(const PrimitiveVari
 /// \note Makes a new instance
 ///
 template<int nsd>
-__device__ __host__ inline PrimitiveVariables<nsd> operator*(real a, const PrimitiveVariables<nsd>& b) {
-    return PrimitiveVariables<nsd>(a*b.rho, a*b.u, a*b.p);
+__device__ __host__ inline PrimitiveVariables<nsd> operator*(real a,
+    const PrimitiveVariables<nsd>& b) {
+    return PrimitiveVariables<nsd>(a * b.rho, a * b.u, a * b.p);
 }
 
 ///
@@ -87,7 +88,10 @@ __device__ __host__ inline PrimitiveVariables<nsd> operator*(real a, const Primi
 /// \note Makes a new instance
 ///
 template<int nsd>
-__device__ __host__ inline PrimitiveVariables<nsd> operator/(const PrimitiveVariables<nsd>& a, real b) {
+__device__ __host__ inline PrimitiveVariables<nsd> operator/
+(const PrimitiveVariables<nsd>& a, real b) {
     return PrimitiveVariables<nsd>(a.rho / b, a.u / b, a.p / b);
 }
-}}}
+}
+}
+}

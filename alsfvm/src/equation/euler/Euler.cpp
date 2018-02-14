@@ -1,76 +1,83 @@
 #include "alsfvm/equation/euler/Euler.hpp"
 
 namespace alsfvm {
-	namespace equation {
-		namespace euler {
-            template<>
-			const std::string Euler<1>::name = "euler1";
+namespace equation {
+namespace euler {
+template<>
+const std::string Euler<1>::name = "euler1";
 
-            template<>
-            const std::string Euler<2>::name = "euler2";
+template<>
+const std::string Euler<2>::name = "euler2";
 
-            template<>
-            const std::string Euler<3>::name = "euler3";
-
-
-            template<>
-            const std::vector<std::string> Euler<3>::conservedVariables = { "rho",
-                                                                 "mx",
-                                                                 "my",
-                                                                 "mz",
-                                                                 "E"};
+template<>
+const std::string Euler<3>::name = "euler3";
 
 
-            template<>
-            const std::vector<std::string> Euler<3>::primitiveVariables = { "rho",
-                                                                         "ux",
-                                                                         "uy",
-                                                                         "uz",
-                                                                         "p"};
-            template<>
-            const std::vector<std::string> Euler<3>::extraVariables = { "p",
-                                                                     "ux",
-                                                                     "uy",
-                                                                     "uz" };
-
-            template<>
-            const std::vector<std::string> Euler<2>::conservedVariables = { "rho",
-                "mx",
-                "my",
-                "E" };
+template<>
+const std::vector<std::string> Euler<3>::conservedVariables = { "rho",
+                                             "mx",
+                                             "my",
+                                             "mz",
+                                             "E"
+                                         };
 
 
-            template<>
-            const std::vector<std::string> Euler<2>::primitiveVariables = { "rho",
-                "ux",
-                "uy",
-                "p" };
+template<>
+const std::vector<std::string> Euler<3>::primitiveVariables = { "rho",
+                                             "ux",
+                                             "uy",
+                                             "uz",
+                                             "p"
+                                         };
+template<>
+const std::vector<std::string> Euler<3>::extraVariables = { "p",
+                                             "ux",
+                                             "uy",
+                                             "uz"
+                                         };
 
-            template<>
-            const std::vector<std::string> Euler<2>::extraVariables = { "p",
-                "ux",
-                "uy"
-                 };
-
-            template<>
-            const std::vector<std::string> Euler<1>::conservedVariables = { "rho",
-                "mx",
-                "E" };
-
-
-            template<>
-            const std::vector<std::string> Euler<1>::primitiveVariables = { "rho",
-                "ux",
-                "p" };
+template<>
+const std::vector<std::string> Euler<2>::conservedVariables = { "rho",
+                                             "mx",
+                                             "my",
+                                             "E"
+                                         };
 
 
-            template<>
-            const std::vector<std::string> Euler<1>::extraVariables = { "p",
-                "ux"
-            };
+template<>
+const std::vector<std::string> Euler<2>::primitiveVariables = { "rho",
+                                             "ux",
+                                             "uy",
+                                             "p"
+                                         };
+
+template<>
+const std::vector<std::string> Euler<2>::extraVariables = { "p",
+                                             "ux",
+                                             "uy"
+                                         };
+
+template<>
+const std::vector<std::string> Euler<1>::conservedVariables = { "rho",
+                                             "mx",
+                                             "E"
+                                         };
+
+
+template<>
+const std::vector<std::string> Euler<1>::primitiveVariables = { "rho",
+                                             "ux",
+                                             "p"
+                                         };
+
+
+template<>
+const std::vector<std::string> Euler<1>::extraVariables = { "p",
+                                             "ux"
+                                         };
 
 
 
-		}
+}
 }
 }

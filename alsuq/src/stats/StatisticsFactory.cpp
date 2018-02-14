@@ -2,10 +2,11 @@
 #include "alsutils/error/Exception.hpp"
 #include "alsuq/stats/StatisticsTimer.hpp"
 
-namespace alsuq { namespace stats {
+namespace alsuq {
+namespace stats {
 
 namespace {
-    class StatististicsList {
+class StatististicsList {
 
 
     public:
@@ -14,18 +15,19 @@ namespace {
 
             return list;
         }
-        std::map<std::string, std::map<std::string, StatisticsFactory::StatisticsCreator> > creators;
+        std::map<std::string, std::map<std::string, StatisticsFactory::StatisticsCreator> >
+        creators;
     private:
         StatististicsList() {}
 
-    };
+};
 }
 
 void StatisticsFactory::registerStatistics(const std::string& platform,
-                                           const std::string &name,
-                                           StatisticsFactory::StatisticsCreator maker)
-{
+    const std::string& name,
+    StatisticsFactory::StatisticsCreator maker) {
     auto& list = StatististicsList::instance().creators;
+
     if (list[platform].find(name) != list[platform].end()) {
         THROW("'" << name << "' already registered as a Statistic");
     }
@@ -33,15 +35,16 @@ void StatisticsFactory::registerStatistics(const std::string& platform,
     list[platform][name] = maker;
 }
 
-StatisticsFactory::StatisticsPointer StatisticsFactory::makeStatistics(const std::string& platform,
-                                                                       const std::string &name,
-                                                                       const StatisticsParameters& params)
-{
+StatisticsFactory::StatisticsPointer StatisticsFactory::makeStatistics(
+    const std::string& platform,
+    const std::string& name,
+    const StatisticsParameters& params) {
     auto& list = StatististicsList::instance().creators;
 
     if (list[platform].find(name) == list[platform].end()) {
         THROW("Unknown statistics: " << name);
     }
+
     StatisticsPointer pointer;
     pointer.reset(new StatisticsTimer(name, list[platform][name](params)));
 

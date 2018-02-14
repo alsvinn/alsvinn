@@ -3,15 +3,16 @@
 #include "alsuq/run/SimulatorCreator.hpp"
 #include "alsuq/stats/Statistics.hpp"
 
-namespace alsuq { namespace run { 
+namespace alsuq {
+namespace run {
 
-    class Runner {
+class Runner {
     public:
         Runner(std::shared_ptr<SimulatorCreator> simulatorCreator,
-               std::shared_ptr<samples::SampleGenerator> sampleGenerator,
-               std::vector<size_t> sampleNumbers,
-               mpi::ConfigurationPtr mpiConfig,
-               const std::string& name);
+            std::shared_ptr<samples::SampleGenerator> sampleGenerator,
+            std::vector<size_t> sampleNumbers,
+            mpi::ConfigurationPtr mpiConfig,
+            const std::string& name);
 
 
 
@@ -20,7 +21,8 @@ namespace alsuq { namespace run {
 
 
         //! Sets the statistics to be used
-        void setStatistics(const std::vector<std::shared_ptr<stats::Statistics> >& statistics);
+        void setStatistics(const std::vector<std::shared_ptr<stats::Statistics> >&
+            statistics);
         std::string getName() const;
 
         size_t getTimestepsPerformedTotal() const;
@@ -35,6 +37,6 @@ namespace alsuq { namespace run {
         mpi::ConfigurationPtr mpiConfig;
         const std::string name;
         size_t timestepsPerformedTotal = 0;
-    };
+};
 } // namespace run
 } // namespace alsuq

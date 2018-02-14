@@ -21,7 +21,8 @@ namespace cartesian {
 //! @param numberOfCellsPerDirection for each direction, list the total number of cells in that direction
 //!                                  (this includes ghost cells)
 //!
-inline int computeNumberOfSegments(int side, int dimensions, ivec3 numberOfCellsPerDirection) {
+inline int computeNumberOfSegments(int side, int dimensions,
+    ivec3 numberOfCellsPerDirection) {
     int numberOfSegments = 1;
 
 
@@ -31,7 +32,7 @@ inline int computeNumberOfSegments(int side, int dimensions, ivec3 numberOfCells
         } else if (dimensions == 2) {
             numberOfSegments = numberOfCellsPerDirection.y;
         } else {
-            numberOfSegments = numberOfCellsPerDirection.y*numberOfCellsPerDirection.z;
+            numberOfSegments = numberOfCellsPerDirection.y * numberOfCellsPerDirection.z;
         }
     } else if (side < 4) { // y side
         if (dimensions == 2) {

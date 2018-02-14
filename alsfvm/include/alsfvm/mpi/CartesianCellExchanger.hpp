@@ -6,10 +6,11 @@
 #include "alsfvm/mpi/Request.hpp"
 #include "alsfvm/mpi/RequestContainer.hpp"
 
-namespace alsfvm { namespace mpi { 
+namespace alsfvm {
+namespace mpi {
 
-    //! Does the cell exchange for a cartesian grid.
-    class CartesianCellExchanger : public CellExchanger {
+//! Does the cell exchange for a cartesian grid.
+class CartesianCellExchanger : public CellExchanger {
     public:
 
         //! Constructs a new instance
@@ -27,11 +28,11 @@ namespace alsfvm { namespace mpi {
         //!    4   |     < not used > |   < not used >  |    front
         //!    5   |     < not used > |   < not used >  |    back
         CartesianCellExchanger(ConfigurationPtr& configuration,
-                               const ivec6& neighbours);
+            const ivec6& neighbours);
 
         //! Does the exchange of data
         virtual RequestContainer exchangeCells(alsfvm::volume::Volume& outputVolume,
-                           const alsfvm::volume::Volume& inputVolume) override;
+            const alsfvm::volume::Volume& inputVolume) override;
 
         bool hasSide(int side) const;
 
@@ -48,8 +49,8 @@ namespace alsfvm { namespace mpi {
         std::vector<MpiIndexTypePtr> datatypesSend;
 
         void createDataTypes(const volume::Volume& volume);
-        void createDataTypeSend(int side, const volume::Volume &volume);
-        void createDataTypeReceive(int side, const volume::Volume &volume);
-    };
+        void createDataTypeSend(int side, const volume::Volume& volume);
+        void createDataTypeReceive(int side, const volume::Volume& volume);
+};
 } // namespace mpi
 } // namespace alsfvm

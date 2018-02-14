@@ -1,11 +1,13 @@
 #pragma once
 #include "alsfvm/equation/EquationParameters.hpp"
 #include "alsfvm/types.hpp"
-namespace alsfvm { namespace equation { 
+namespace alsfvm {
+namespace equation {
 
-    class EquationParameterFactory {
+class EquationParameterFactory {
     public:
-        alsfvm::shared_ptr<EquationParameters> createDefaultEquationParameters(const std::string& name);
-    };
+        alsfvm::shared_ptr<EquationParameters> createDefaultEquationParameters(
+            const std::string& name);
+};
 } // namespace alsfvm
 } // namespace equation

@@ -5,18 +5,19 @@
 #include "alsfvm/reconstruction/Reconstruction.hpp"
 #include "alsfvm/memory/MemoryFactory.hpp"
 
-namespace alsfvm { namespace reconstruction { 
+namespace alsfvm {
+namespace reconstruction {
 
-    ///
-    /// Performs ENO reconstruction of order order on the CPU.
-    ///
-    /// See http://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19980007543.pdf
-    ///
-    template<class Equation, int order>
-    class ENOCUDA : public Reconstruction {
+///
+/// Performs ENO reconstruction of order order on the CPU.
+///
+/// See http://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19980007543.pdf
+///
+template<class Equation, int order>
+class ENOCUDA : public Reconstruction {
     public:
         ENOCUDA(alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-               size_t nx, size_t ny, size_t nz);
+            size_t nx, size_t ny, size_t nz);
         ///
         /// Performs reconstruction.
         /// \param[in] inputVariables the variables to reconstruct.
@@ -38,11 +39,11 @@ namespace alsfvm { namespace reconstruction {
         ///                     for all grid cells in the interior.
         ///
         virtual void performReconstruction(const volume::Volume& inputVariables,
-                                   size_t direction,
-                                   size_t indicatorVariable,
-                                   volume::Volume& leftOut,
-                                   volume::Volume& rightOut, const ivec3& start = {0,0,0},
-                                           const ivec3& end = {0,0,0});
+            size_t direction,
+            size_t indicatorVariable,
+            volume::Volume& leftOut,
+            volume::Volume& rightOut, const ivec3& start = {0, 0, 0},
+            const ivec3& end = {0, 0, 0});
 
         ///
         /// \brief getNumberOfGhostCells returns the number of ghost cells we need
@@ -53,16 +54,17 @@ namespace alsfvm { namespace reconstruction {
 
     private:
         void computeDividedDifferences(const memory::Memory<real>& input,
-                                       const ivec3& direction,
-                                       size_t level,
-                                       memory::Memory<real>& output,
-                                       const ivec3& startIndex,
-                                       const ivec3& endIndex);
+            const ivec3& direction,
+            size_t level,
+            memory::Memory<real>& output,
+            const ivec3& startIndex,
+            const ivec3& endIndex);
 
         // For each level l, this will contain the divided differences for that
         // level.
-        std::array<alsfvm::shared_ptr<memory::Memory<real> >, order - 1> dividedDifferences;
-    };
+        std::array < alsfvm::shared_ptr<memory::Memory<real> >,
+            order - 1 > dividedDifferences;
+};
 
 
 } // namespace alsfvm

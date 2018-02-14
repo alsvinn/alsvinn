@@ -5,22 +5,23 @@
 #include <mpi.h>
 #include "alsuq/types.hpp"
 
-namespace alsuq { namespace run { 
+namespace alsuq {
+namespace run {
 //!
 //! \brief The SimulatorCreator class creates a new instance of the FVM simulator
 //!
-    class SimulatorCreator {
+class SimulatorCreator {
     public:
         SimulatorCreator(const std::string& configurationFile,
-                         mpi::ConfigurationPtr mpiConfigurationSpatial,
-                         mpi::ConfigurationPtr mpiConfigurationStatistical,
-                         mpi::ConfigurationPtr mpiConfigurationWorld,
-                         ivec3 multiSpatial
-                         );
+            mpi::ConfigurationPtr mpiConfigurationSpatial,
+            mpi::ConfigurationPtr mpiConfigurationStatistical,
+            mpi::ConfigurationPtr mpiConfigurationWorld,
+            ivec3 multiSpatial
+        );
 
         alsfvm::shared_ptr<alsfvm::simulator::Simulator>
         createSimulator(const alsfvm::init::Parameters& initialDataParameters,
-                        size_t sampleNumber);
+            size_t sampleNumber);
 
     private:
         mpi::ConfigurationPtr mpiConfigurationSpatial;
@@ -38,6 +39,6 @@ namespace alsuq { namespace run {
 
 
 
-    };
+};
 } // namespace run
 } // namespace alsuq

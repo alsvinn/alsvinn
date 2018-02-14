@@ -7,7 +7,8 @@
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include <functional>
 
-namespace alsfvm { namespace io { 
+namespace alsfvm {
+namespace io {
 
 ///
 /// \brief The QueueWriter class writes the data to a blocking queue.
@@ -15,7 +16,7 @@ namespace alsfvm { namespace io {
 /// This is ideal if you have two simulations that need to communicate with
 /// eachother.
 ///
-    class QueueWriter : public Writer {
+class QueueWriter : public Writer {
     public:
 
         ///
@@ -24,7 +25,8 @@ namespace alsfvm { namespace io {
         ///
         /// \note queueLength must be larger than 0
         ///
-        QueueWriter(size_t queueLength, alsfvm::shared_ptr<volume::VolumeFactory>& volumeFactory);
+        QueueWriter(size_t queueLength,
+            alsfvm::shared_ptr<volume::VolumeFactory>& volumeFactory);
 
         ///
         /// \brief write writes the data to the queue
@@ -34,9 +36,9 @@ namespace alsfvm { namespace io {
         /// \param timestepInformation
         ///
         virtual void write(const volume::Volume& conservedVariables,
-                           const volume::Volume& extraVariables,
-                           const grid::Grid& grid,
-                           const simulator::TimestepInformation& timestepInformation);
+            const volume::Volume& extraVariables,
+            const grid::Grid& grid,
+            const simulator::TimestepInformation& timestepInformation);
 
         void pop(std::function<void(const volume::Volume&)> handler);
     private:
@@ -53,6 +55,6 @@ namespace alsfvm { namespace io {
         std::mutex mutex;
 
         std::condition_variable conditionVariable;
-    };
+};
 } // namespace alsfvm
 } // namespace io

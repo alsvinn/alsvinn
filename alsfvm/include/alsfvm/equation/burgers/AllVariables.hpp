@@ -2,24 +2,25 @@
 #include "alsfvm/types.hpp"
 #include "alsfvm/equation/burgers/ConservedVariables.hpp"
 #include "alsfvm/equation/burgers/ExtraVariables.hpp"
-namespace alsfvm { namespace equation { namespace burgers { 
+namespace alsfvm {
+namespace equation {
+namespace burgers {
 
 class AllVariables : public ConservedVariables, public ExtraVariables {
-public:
-    __device__ __host__ AllVariables(real u)
-      :  ConservedVariables(u)
-    {
-        // empty
-    }
+    public:
+        __device__ __host__ AllVariables(real u)
+            :  ConservedVariables(u) {
+            // empty
+        }
 
-    __device__ __host__ const ConservedVariables& conserved() const {
-        return *this;
-    }
+        __device__ __host__ const ConservedVariables& conserved() const {
+            return *this;
+        }
 
-    __device__ __host__ AllVariables(const ConservedVariables& conserved, const ExtraVariables& extra)
-        : ConservedVariables(conserved), ExtraVariables(extra)
-    {
-    }
+        __device__ __host__ AllVariables(const ConservedVariables& conserved,
+            const ExtraVariables& extra)
+            : ConservedVariables(conserved), ExtraVariables(extra) {
+        }
 };
 
 } // namespace alsfvm

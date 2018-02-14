@@ -1,7 +1,8 @@
 #pragma once
 #include "alsfvm/simulator/TimestepInformation.hpp"
 
-namespace alsfvm { namespace integrator { 
+namespace alsfvm {
+namespace integrator {
 
 ///
 /// \brief The TimestepAdjuster class is an abstract interface for adjusting timesteps.
@@ -12,7 +13,7 @@ namespace alsfvm { namespace integrator {
 /// \note The adjuster can only make the timestep SMALLER or equal to the previous given timestep.
 ///
 ///
-    class TimestepAdjuster {
+class TimestepAdjuster {
     public:
 
         ///
@@ -21,7 +22,8 @@ namespace alsfvm { namespace integrator {
         /// \param timestepInformation timesteps information
         /// \return the new timestep
         ///
-        virtual real adjustTimestep(real dt, const simulator::TimestepInformation& timestepInformation) const = 0;
-    };
+        virtual real adjustTimestep(real dt,
+            const simulator::TimestepInformation& timestepInformation) const = 0;
+};
 } // namespace alsfvm
 } // namespace integrator

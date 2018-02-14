@@ -2,9 +2,9 @@
 
 
 namespace alsfvm {
-	namespace numflux {
+namespace numflux {
 
 
 
-	} // namespace numflux
+} // namespace numflux
 }

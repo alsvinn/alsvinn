@@ -1,16 +1,17 @@
 #pragma once
 #include <mpi.h>
 #include "alsfvm/io/NetCDFWriter.hpp"
-namespace alsfvm { namespace io { 
+namespace alsfvm {
+namespace io {
 
-    //! Writes to the mpi version of netcdf.
-    //! @note Due to the new mpi of pNetCDF, this can not be combined
-    //! in any meaningful way with the old NetCDFWriter class, the code is pretty
-    //! much disjoint.
-    //!
-    //! @note can easily be read by the netcdf python package, see
-    //!       http://www.hydro.washington.edu/~jhamman/hydro-logic/blog/2013/10/12/plot-netcdf-data/
-    class NetCDFMPIWriter : public NetCDFWriter {
+//! Writes to the mpi version of netcdf.
+//! @note Due to the new mpi of pNetCDF, this can not be combined
+//! in any meaningful way with the old NetCDFWriter class, the code is pretty
+//! much disjoint.
+//!
+//! @note can easily be read by the netcdf python package, see
+//!       http://www.hydro.washington.edu/~jhamman/hydro-logic/blog/2013/10/12/plot-netcdf-data/
+class NetCDFMPIWriter : public NetCDFWriter {
     public:
         ///
         /// \brief NetCDFMPIWriter constructs a new NetCDFMPIWriter
@@ -33,11 +34,11 @@ namespace alsfvm { namespace io {
         ///       proper extension (.h5).
         ///
         NetCDFMPIWriter(const std::string& basefileName,
-                      const std::vector<std::string>& groupNames,
-                      size_t groupIndex,
-                      bool newFile,
-                      MPI_Comm mpiCommunicator,
-                      MPI_Info mpiInfo);
+            const std::vector<std::string>& groupNames,
+            size_t groupIndex,
+            bool newFile,
+            MPI_Comm mpiCommunicator,
+            MPI_Info mpiInfo);
 
         //! We could inherit from this, hence virtual destructor.
         virtual ~NetCDFMPIWriter() {}
@@ -61,9 +62,9 @@ namespace alsfvm { namespace io {
         /// \param timestepInformation
         ///
         virtual void write(const volume::Volume& conservedVariables,
-                           const volume::Volume& extraVariables,
-                           const grid::Grid& grid,
-                           const simulator::TimestepInformation& timestepInformation);
+            const volume::Volume& extraVariables,
+            const grid::Grid& grid,
+            const simulator::TimestepInformation& timestepInformation);
 
     protected:
         typedef std::array<netcdf_raw_ptr, 3> dimension_vector;
@@ -78,8 +79,9 @@ namespace alsfvm { namespace io {
         //!                we will try to open the dimensions from the file
         //!
         //! @return the dimensions created by netcdf
-        virtual dimension_vector createDimensions(netcdf_raw_ptr basegroup, const grid::Grid &griod,
-                                                  bool newFile);
+        virtual dimension_vector createDimensions(netcdf_raw_ptr basegroup,
+            const grid::Grid& griod,
+            bool newFile);
 
 
         //! Creates or opens a dataset for the given volume
@@ -98,7 +100,7 @@ namespace alsfvm { namespace io {
         //!          and the second the dataset. It is ordered according to the volume
         virtual std::vector<netcdf_raw_ptr>
         makeDataset(netcdf_raw_ptr baseGroup, const volume::Volume& volume,
-                    std::array<netcdf_raw_ptr, 3> dimensions);
+            std::array<netcdf_raw_ptr, 3> dimensions);
 
         //! Writes to the opened file
         //! \@note Assumes the file is in define mode
@@ -109,11 +111,12 @@ namespace alsfvm { namespace io {
         //! @param grid the underlying grid
         //! @param timestepInformation the current timestep information
         //! @param newFile is true if the file is created for this iteration, otherwise false
-        virtual void writeToFile(netcdf_raw_ptr file, const volume::Volume& conservedVariables,
-                                 const volume::Volume& extraVariables,
-                                 const grid::Grid& grid,
-                                 const simulator::TimestepInformation& timestepInformation,
-                                 bool newFile);
+        virtual void writeToFile(netcdf_raw_ptr file,
+            const volume::Volume& conservedVariables,
+            const volume::Volume& extraVariables,
+            const grid::Grid& grid,
+            const simulator::TimestepInformation& timestepInformation,
+            bool newFile);
 
 
         //! Writes the given memory to the dataset/variable
@@ -124,10 +127,10 @@ namespace alsfvm { namespace io {
         //! @param memoryIndex the scalar memory index of the volume
         //!
         virtual void writeMemory(netcdf_raw_ptr baseGroup,
-                                 netcdf_raw_ptr dataset,
-                                 const volume::Volume &volume,
-                                 size_t memoryIndex,
-                                 const grid::Grid& grid);
+            netcdf_raw_ptr dataset,
+            const volume::Volume& volume,
+            size_t memoryIndex,
+            const grid::Grid& grid);
 
 
         //! Writes the volume (ie looops over all memory areas and writes each memory area)
@@ -140,10 +143,10 @@ namespace alsfvm { namespace io {
         //!
         //!
         virtual void writeVolume(netcdf_raw_ptr baseGroup,
-                                 const volume::Volume& volume,
-                                 std::array<netcdf_raw_ptr, 3> dimensions,
-                                 const std::vector<netcdf_raw_ptr>& datasets,
-                                 const grid::Grid& grid);
+            const volume::Volume& volume,
+            std::array<netcdf_raw_ptr, 3> dimensions,
+            const std::vector<netcdf_raw_ptr>& datasets,
+            const grid::Grid& grid);
 
 
     private:
@@ -153,6 +156,6 @@ namespace alsfvm { namespace io {
         MPI_Comm mpiCommunicator;
         MPI_Info mpiInfo;
 
-    };
+};
 } // namespace io
 } // namespace alsfvm

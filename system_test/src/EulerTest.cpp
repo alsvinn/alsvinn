@@ -30,12 +30,16 @@ using namespace alsfvm::numflux;
 using namespace alsfvm::equation::euler;
 using namespace alsfvm::equation;
 using namespace alsfvm::boundary;
-void runTest(std::function<void(real x, real y, real z, ConservedVariables<2>& u, ExtraVariables<2>& v)> initialData, size_t N,
-             const std::string& reconstruction, const real T, const std::string& name) {
-    const real cfl = reconstruction.find("eno") != reconstruction.npos? 0.475 : 0.9;
+void runTest(
+    std::function<void(real x, real y, real z, ConservedVariables<2>& u, ExtraVariables<2>& v)>
+    initialData, size_t N,
+    const std::string& reconstruction, const real T, const std::string& name) {
+    const real cfl = reconstruction.find("eno") != reconstruction.npos ? 0.475 :
+        0.9;
     std::cout << "using cfl = " << cfl << std::endl;
 
-    const std::string integratorName = (reconstruction.find("eno") != reconstruction.npos ? "rungekutta2" : "forwardeuler");
+    const std::string integratorName = (reconstruction.find("eno") !=
+            reconstruction.npos ? "rungekutta2" : "forwardeuler");
 
 
     std::cout << "Using integrator " << integratorName << std::endl;
@@ -50,31 +54,41 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables<2>& u
 
     VolumeFactory volumeFactory("euler2", memoryFactory);
 
-    auto simulatorParameters = alsfvm::make_shared<simulator::SimulatorParameters>("euler2", "cpu");
-    NumericalFluxFactory fluxFactory("euler2", "HLL", reconstruction, simulatorParameters, deviceConfiguration);
-    CellComputerFactory cellComputerFactory(simulatorParameters, deviceConfiguration);
+    auto simulatorParameters =
+        alsfvm::make_shared<simulator::SimulatorParameters>("euler2", "cpu");
+    NumericalFluxFactory fluxFactory("euler2", "HLL", reconstruction,
+        simulatorParameters, deviceConfiguration);
+    CellComputerFactory cellComputerFactory(simulatorParameters,
+        deviceConfiguration);
     BoundaryFactory boundaryFactory("neumann", deviceConfiguration);
 
 
 
 
     auto numericalFlux = fluxFactory.createNumericalFlux(grid);
-    alsfvm::shared_ptr<integrator::System> system(new simulator::ConservedSystem(numericalFlux,
-                                                                                 alsfvm::dynamic_pointer_cast<diffusion::DiffusionOperator>(alsfvm::make_shared<diffusion::NoDiffusion>())));
+    alsfvm::shared_ptr<integrator::System> system(new simulator::ConservedSystem(
+            numericalFlux,
+            alsfvm::dynamic_pointer_cast<diffusion::DiffusionOperator>
+            (alsfvm::make_shared<diffusion::NoDiffusion>())));
     integrator::IntegratorFactory integratorFactory(integratorName);
     auto integrator = integratorFactory.createIntegrator(system);
 
-    std::vector<alsfvm::shared_ptr<volume::Volume> > conservedVolumes(integrator->getNumberOfSubsteps() + 1);
+    std::vector<alsfvm::shared_ptr<volume::Volume> > conservedVolumes(
+        integrator->getNumberOfSubsteps() + 1);
 
-    for(size_t i = 0; i < conservedVolumes.size(); i++) {
-        conservedVolumes[i] = volumeFactory.createConservedVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
+    for (size_t i = 0; i < conservedVolumes.size(); i++) {
+        conservedVolumes[i] = volumeFactory.createConservedVolume(N, N, 1,
+                numericalFlux->getNumberOfGhostCells());
     }
 
-    auto extra1 = volumeFactory.createExtraVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
-    auto extra2 = volumeFactory.createExtraVolume(N, N, 1, numericalFlux->getNumberOfGhostCells());
+    auto extra1 = volumeFactory.createExtraVolume(N, N, 1,
+            numericalFlux->getNumberOfGhostCells());
+    auto extra2 = volumeFactory.createExtraVolume(N, N, 1,
+            numericalFlux->getNumberOfGhostCells());
 
 
-    fill_volume<ConservedVariables<2>, ExtraVariables<2>>(*conservedVolumes[0], *extra1, grid,
+    fill_volume<ConservedVariables<2>, ExtraVariables<2>>(*conservedVolumes[0],
+            *extra1, grid,
             initialData);
 
 
@@ -83,27 +97,34 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables<2>& u
     real t = 0;
 
     io::HDF5Writer writer(name);
-    writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
+    writer.write(*conservedVolumes[0], *extra1, grid,
+        simulator::TimestepInformation());
 
 
     int i = 0;
     size_t numberOfTimesteps = 0;
-    auto boundary = boundaryFactory.createBoundary(numericalFlux->getNumberOfGhostCells());
+    auto boundary = boundaryFactory.createBoundary(
+            numericalFlux->getNumberOfGhostCells());
     size_t nsaves = 1;
 
     boundary->applyBoundaryConditions(*conservedVolumes[0], grid);
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extra1);
     ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolumes[0], *extra1));
 
-    writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
+    writer.write(*conservedVolumes[0], *extra1, grid,
+        simulator::TimestepInformation());
     simulator::TimestepInformation timestepInformation;
+
     while (timestepInformation.getCurrentTime() < T) {
-		real dt = 0;
+        real dt = 0;
         numberOfTimesteps++;
-        for(size_t substep = 0; substep < integrator->getNumberOfSubsteps(); substep++) {
+
+        for (size_t substep = 0; substep < integrator->getNumberOfSubsteps();
+            substep++) {
             auto conservedNext = conservedVolumes[substep + 1];
 
-            dt = integrator->performSubstep(conservedVolumes, grid.getCellLengths(), dt, cfl, *conservedNext, substep, timestepInformation);
+            dt = integrator->performSubstep(conservedVolumes, grid.getCellLengths(), dt,
+                    cfl, *conservedNext, substep, timestepInformation);
 
             std::array<real*, 5> conservedPointers = {
                 conservedNext->getScalarMemoryArea(0)->getPointer(),
@@ -137,12 +158,14 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables<2>& u
                         std::cout << "(conserved) nan at i = " << i;
                         std::cout << " variable " << conservedVolumes[0]->getName(j) << std::endl;
                     }
+
                     ASSERT_FALSE(std::isnan(conservedPointers[j][i]));
 
                     if (std::isinf(conservedPointers[j][i])) {
                         std::cout << "(conserved) inf at i = " << i;
                         std::cout << " variable " << conservedVolumes[0]->getName(j) << std::endl;
                     }
+
                     ASSERT_FALSE(std::isinf(conservedPointers[j][i]));
                 }
 
@@ -151,12 +174,14 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables<2>& u
                         std::cout << "(extra ) nan at i = " << i;
                         std::cout << " variable " << extra1->getName(j) << std::endl;
                     }
+
                     ASSERT_FALSE(std::isnan(extraPointers[j][i]));
 
                     if (std::isinf(extraPointers[j][i])) {
                         std::cout << "*( extra ) inf at i = " << i;
                         std::cout << " variable " << extra1->getName(j) << std::endl;
                     }
+
                     ASSERT_FALSE(std::isinf(extraPointers[j][i]));
                 }
             }
@@ -178,8 +203,10 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables<2>& u
         if (t >= nsaves * saveInterval) {
             nsaves++;
 
-            std::cout << "saving at t " << t << " (nsaves * saveInterval = " << nsaves  * saveInterval << ")" << std::endl;
-            writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
+            std::cout << "saving at t " << t << " (nsaves * saveInterval = " << nsaves*
+                saveInterval << ")" << std::endl;
+            writer.write(*conservedVolumes[0], *extra1, grid,
+                simulator::TimestepInformation());
         }
 
         timestepInformation.incrementTime(dt);
@@ -188,65 +215,70 @@ void runTest(std::function<void(real x, real y, real z, ConservedVariables<2>& u
     }
 
     std::cout << "Number of timesteps used: " << numberOfTimesteps << std::endl;
-    writer.write(*conservedVolumes[0], *extra1, grid, simulator::TimestepInformation());
+    writer.write(*conservedVolumes[0], *extra1, grid,
+        simulator::TimestepInformation());
 }
 TEST(EulerTest, ShockTubeTest) {
     equation::euler::EulerParameters parameters;
-    runTest([&](real x, real y, real z, ConservedVariables<2>& u, ExtraVariables<2>& v) {
+    runTest([&](real x, real y, real z, ConservedVariables<2>& u,
+    ExtraVariables<2>& v) {
 
-		if (x < 0.04) {
-			u.rho = 3.86859;
-			v.u.x = 11.2536;
-			v.p = 167.345;
-		}
-		else {
-			real r = pow(x - 0.25, 2) + pow(y - 0.5, 2);
-			real r_max = pow(0.15, 2);
+        if (x < 0.04) {
+            u.rho = 3.86859;
+            v.u.x = 11.2536;
+            v.p = 167.345;
+        } else {
+            real r = pow(x - 0.25, 2) + pow(y - 0.5, 2);
+            real r_max = pow(0.15, 2);
 
-			if (r <= r_max) {
-				u.rho = 10.0;
-			}
-			else {
-				u.rho = 1.0;
-			}
-			v.p = 1.0;
-		}
-		u.m = u.rho * v.u;
-        u.E = v.p / (parameters.getGamma() - 1) + 0.5*u.rho*v.u.dot(v.u);
+            if (r <= r_max) {
+                u.rho = 10.0;
+            } else {
+                u.rho = 1.0;
+            }
+
+            v.p = 1.0;
+        }
+
+        u.m = u.rho * v.u;
+        u.E = v.p / (parameters.getGamma() - 1) + 0.5 * u.rho * v.u.dot(v.u);
     }, 128, "none", 0.06, "euler_shocktube");
 }
 
 TEST(EulerTest, ShockVortex) {
     equation::euler::EulerParameters parameters;
-    runTest([&](real x, real y, real z, ConservedVariables<2>& u, ExtraVariables<2>& v) {
+    runTest([&](real x, real y, real z, ConservedVariables<2>& u,
+    ExtraVariables<2>& v) {
         real epsilon = 0.3, r_c = 0.05, alpha = 0.204, x_c = 0.25, y_c = 0.5;
 
-		// shock part
-		if (x < 0.5) {
-			u.rho = 1.0;
+        // shock part
+        if (x < 0.5) {
+            u.rho = 1.0;
             v.u.x = sqrt(parameters.getGamma());
-			v.u.y = 0.0;
-			v.p = 1.0;
-		}
-		else {
-			u.rho = 1.0 / 1.1;
+            v.u.y = 0.0;
+            v.p = 1.0;
+        } else {
+            u.rho = 1.0 / 1.1;
             v.u.x = 1.1 * sqrt(parameters.getGamma());
-			v.u.y = 0.0;
+            v.u.y = 0.0;
             v.p = 1 - 0.1 * parameters.getGamma();
-		}
+        }
 
-		// vortex part
-		if (x < 0.5) {
-			real tau = sqrt(pow(x - x_c, 2) + pow(y - y_c, 2)) / r_c;
-			real sin_theta = (y - y_c) / (tau * r_c);
-			real cos_theta = (x - x_c) / (tau * r_c);
+        // vortex part
+        if (x < 0.5) {
+            real tau = sqrt(pow(x - x_c, 2) + pow(y - y_c, 2)) / r_c;
+            real sin_theta = (y - y_c) / (tau * r_c);
+            real cos_theta = (x - x_c) / (tau * r_c);
 
-			v.u.x += epsilon * tau * exp(alpha*(1 - pow(tau, 2))) * sin_theta;
-			v.u.y += -epsilon * tau * exp(alpha*(1 - pow(tau, 2))) * cos_theta;
-            v.p += -(parameters.getGamma() - 1) * pow(epsilon, 2) * exp(2 * alpha*(1 - pow(tau, 2))) / (4 * alpha * parameters.getGamma()) * u.rho;
-		}
-		u.m = u.rho * v.u;
-        u.E = v.p / (parameters.getGamma() - 1) + 0.5*u.rho*v.u.dot(v.u);
+            v.u.x += epsilon * tau * exp(alpha * (1 - pow(tau, 2))) * sin_theta;
+            v.u.y += -epsilon * tau * exp(alpha * (1 - pow(tau, 2))) * cos_theta;
+            v.p += -(parameters.getGamma() - 1) * pow(epsilon,
+                    2) * exp(2 * alpha * (1 - pow(tau,
+                            2))) / (4 * alpha * parameters.getGamma()) * u.rho;
+        }
+
+        u.m = u.rho * v.u;
+        u.E = v.p / (parameters.getGamma() - 1) + 0.5 * u.rho * v.u.dot(v.u);
 
     }, 256, "eno2", 0.35, "euler_vortex");
 }

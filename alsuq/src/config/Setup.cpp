@@ -13,7 +13,8 @@
 #include <boost/algorithm/string.hpp>
 #include "alsutils/log.hpp"
 
-namespace alsuq { namespace config {
+namespace alsuq {
+namespace config {
 // example:
 // <samples>1024</samples>
 // <generator>auto</generator>
@@ -31,10 +32,9 @@ namespace alsuq { namespace config {
 // </stats>
 
 
-std::shared_ptr<run::Runner> Setup::makeRunner(const std::string &inputFilename,
-                                               alsutils::mpi::ConfigurationPtr mpiConfigurationWorld,
-                                               int multiSample, ivec3 multiSpatial)
-{
+std::shared_ptr<run::Runner> Setup::makeRunner(const std::string& inputFilename,
+    alsutils::mpi::ConfigurationPtr mpiConfigurationWorld,
+    int multiSample, ivec3 multiSpatial) {
     std::ifstream stream(inputFilename);
     ptree configurationBase;
     boost::property_tree::read_xml(stream, configurationBase);
@@ -44,6 +44,7 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string &inputFilename,
 
     std::vector<size_t> samples;
     samples.reserve(numberOfSamples);
+
     for (size_t i = 0; i < numberOfSamples; ++i) {
         samples.push_back(i);
     }
@@ -52,43 +53,46 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string &inputFilename,
     mpi::SimpleLoadBalancer loadBalancer(samples);
 
     auto loadBalanceConfiguration = loadBalancer.loadBalance(multiSample,
-                                                             multiSpatial,
-                                                             *mpiConfigurationWorld);
+            multiSpatial,
+            *mpiConfigurationWorld);
     auto& samplesForProc = std::get<0>(loadBalanceConfiguration);
     auto statisticalConfiguration = std::get<1>(loadBalanceConfiguration);
     auto spatialConfiguration = std::get<2>(loadBalanceConfiguration);
 
 
     auto simulatorCreator = std::make_shared<run::SimulatorCreator>(inputFilename,
-                                                                    spatialConfiguration,
-                                                                    statisticalConfiguration,
-                                                                    mpiConfigurationWorld,
-                                                                    multiSpatial);
+            spatialConfiguration,
+            statisticalConfiguration,
+            mpiConfigurationWorld,
+            multiSpatial);
 
-    auto name = boost::algorithm::trim_copy(configuration.get<std::string>("fvm.name"));
-    auto runner = std::make_shared<run::Runner>(simulatorCreator, sampleGenerator, samplesForProc,
-                                                statisticalConfiguration, name);
+    auto name = boost::algorithm::trim_copy(
+            configuration.get<std::string>("fvm.name"));
+    auto runner = std::make_shared<run::Runner>(simulatorCreator, sampleGenerator,
+            samplesForProc,
+            statisticalConfiguration, name);
     auto statistics  = createStatistics(configuration, statisticalConfiguration,
-                                        spatialConfiguration, mpiConfigurationWorld);
+            spatialConfiguration, mpiConfigurationWorld);
     runner->setStatistics(statistics);
     return runner;
 }
 
-std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(Setup::ptree& configuration)
-{
+std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(
+    Setup::ptree& configuration) {
     auto numberOfSamples = readNumberOfSamples(configuration);
 
     samples::SampleGenerator::GeneratorDistributionMap generators;
 
     auto generatorName = configuration.get<std::string>("uq.generator");
 
-    if (generatorName=="auto") {
+    if (generatorName == "auto") {
         generatorName = "well512a";
     }
 
     auto parametersNode = configuration.get_child("uq.parameters");
     generator::GeneratorFactory generatorFactory;
     distribution::DistributionFactory distributionFactory;
+
     for (auto parameterNode : parametersNode) {
         auto name = parameterNode.second.get<std::string>("name");
         auto length = parameterNode.second.get<size_t>("length");
@@ -101,18 +105,20 @@ std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(Setup::ptre
         parametersToDistribution.setParameter("a", 0);
         parametersToDistribution.setParameter("b", 1);
 
-	
+
         parametersToDistribution.setParameter("mean", 0);
         parametersToDistribution.setParameter("sd", 1);
 
         auto distribution = distributionFactory.createDistribution(type,
-                                                                   length,
-                                                                   numberOfSamples,
-                                                                   parametersToDistribution);
+                length,
+                numberOfSamples,
+                parametersToDistribution);
 
 
-        auto generator = generatorFactory.makeGenerator(generatorName, length, numberOfSamples);
-        generators[name] = std::make_pair(length, std::make_pair(generator, distribution));
+        auto generator = generatorFactory.makeGenerator(generatorName, length,
+                numberOfSamples);
+        generators[name] = std::make_pair(length, std::make_pair(generator,
+                    distribution));
     }
 
     return std::make_shared<samples::SampleGenerator> (generators);
@@ -145,11 +151,11 @@ std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(Setup::ptre
 //   </writer>
 //   </stat>
 // </stats>
-std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::ptree &configuration,
-                                                                         mpi::ConfigurationPtr statisticalConfiguration,
-                                                                         mpi::ConfigurationPtr spatialConfiguration,
-                                                                         mpi::ConfigurationPtr worldConfiguration)
-{
+std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(
+    Setup::ptree& configuration,
+    mpi::ConfigurationPtr statisticalConfiguration,
+    mpi::ConfigurationPtr spatialConfiguration,
+    mpi::ConfigurationPtr worldConfiguration) {
     auto statisticsNodes = configuration.get_child("uq.stats");
     stats::StatisticsFactory statisticsFactory;
     std::shared_ptr<alsfvm::io::WriterFactory> writerFactory;
@@ -162,6 +168,7 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::
 
     auto platform = configuration.get<std::string>("fvm.platform");
     std::vector<std::shared_ptr<stats::Statistics> > statisticsVector;
+
     for (auto& statisticsNode : statisticsNodes) {
         auto name = statisticsNode.second.get<std::string>("name");
         boost::trim(name);
@@ -176,7 +183,9 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::
 
         // Make writer
         std::string type = statisticsNode.second.get<std::string>("writer.type");
-        std::string basename = statisticsNode.second.get<std::string>("writer.basename");
+        std::string basename =
+            statisticsNode.second.get<std::string>("writer.basename");
+
         for (auto statisticsName : statistics->getStatisticsNames()) {
 
             auto outputname = basename + "_" + statisticsName;
@@ -184,26 +193,28 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::
             statistics->addWriter(statisticsName, baseWriter);
         }
 
-        if (statisticsNode.second.find("numberOfSaves") != statisticsNode.second.not_found()) {
+        if (statisticsNode.second.find("numberOfSaves") !=
+            statisticsNode.second.not_found()) {
 
 
 
-              auto numberOfSaves = statisticsNode.second.get<size_t>("numberOfSaves");
-               ALSVINN_LOG(INFO, "statistics.numberOfSaves = " << numberOfSaves);
-              real endTime = configuration.get<real>("fvm.endTime");
-              real timeInterval = endTime / numberOfSaves;
-              auto statisticsInterval =
-                      std::shared_ptr<stats::Statistics>(
-                          new stats::FixedIntervalStatistics(statistics, timeInterval,
-                                                             endTime));
-              statisticsVector.push_back(statisticsInterval);
-        } else if (statisticsNode.second.find("time") != statisticsNode.second.not_found()) {
+            auto numberOfSaves = statisticsNode.second.get<size_t>("numberOfSaves");
+            ALSVINN_LOG(INFO, "statistics.numberOfSaves = " << numberOfSaves);
+            real endTime = configuration.get<real>("fvm.endTime");
+            real timeInterval = endTime / numberOfSaves;
+            auto statisticsInterval =
+                std::shared_ptr<stats::Statistics>(
+                    new stats::FixedIntervalStatistics(statistics, timeInterval,
+                        endTime));
+            statisticsVector.push_back(statisticsInterval);
+        } else if (statisticsNode.second.find("time") !=
+            statisticsNode.second.not_found()) {
             const real time = statisticsNode.second.get<real>("time");
             const real radius = statisticsNode.second.get<real>("timeRadius");
 
             auto timeIntegrator = std::shared_ptr<stats::Statistics>(
-                        new stats::TimeIntegratedWriter(statistics, time,
-                                                          radius));
+                    new stats::TimeIntegratedWriter(statistics, time,
+                        radius));
             statisticsVector.push_back(timeIntegrator);
         }
 
@@ -213,8 +224,7 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(Setup::
     return statisticsVector;
 }
 
-size_t Setup::readNumberOfSamples(Setup::ptree &configuration)
-{
+size_t Setup::readNumberOfSamples(Setup::ptree& configuration) {
     return configuration.get<real>("uq.samples");
 }
 }

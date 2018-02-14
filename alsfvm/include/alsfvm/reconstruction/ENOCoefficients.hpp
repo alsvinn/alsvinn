@@ -1,9 +1,10 @@
 #pragma once
 #include "alsfvm/types.hpp"
-namespace alsfvm { namespace reconstruction {
+namespace alsfvm {
+namespace reconstruction {
 
-    template<int k>
-    class ENOCoeffiecients {
+template<int k>
+class ENOCoeffiecients {
     public:
         ///
         /// \brief coefficients are the ENO coefficients.
@@ -14,5 +15,6 @@ namespace alsfvm { namespace reconstruction {
         /// for description.
         ///
         static real coefficients[][k];
-    };
-}}
+};
+}
+}

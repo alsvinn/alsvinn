@@ -1,9 +1,10 @@
 #pragma once
 #include "alsuq/distribution/Distribution.hpp"
 #include "alsuq/distribution/Parameters.hpp"
-namespace alsuq { namespace distribution { 
+namespace alsuq {
+namespace distribution {
 
-    class Normal : public Distribution{
+class Normal : public Distribution {
     public:
         Normal(const Parameters& parameters);
 
@@ -17,6 +18,6 @@ namespace alsuq { namespace distribution {
         real buffer{42};
         bool hasBuffer{false};
 
-    };
+};
 } // namespace distribution
 } // namespace alsuq

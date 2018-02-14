@@ -1,12 +1,13 @@
 #pragma once
 #include "alsutils/types.hpp"
 #include <mpi.h>
-namespace alsutils { namespace mpi {
+namespace alsutils {
+namespace mpi {
 
-    class Configuration {
+class Configuration {
     public:
         Configuration(MPI_Comm communicator,
-                      const std::string& platform = "cpu");
+            const std::string& platform = "cpu");
 
         MPI_Comm getCommunicator();
 
@@ -20,7 +21,7 @@ namespace alsutils { namespace mpi {
         //! Essentially maps to MPI_Comm_split. See tutorial here:
         //! http://mpitutorial.com/tutorials/introduction-to-groups-and-communicators/
         alsfvm::shared_ptr<Configuration> makeSubConfiguration(int color,
-                                                               int newRank) const;
+            int newRank) const;
 
     private:
         MPI_Comm communicator;
@@ -28,9 +29,9 @@ namespace alsutils { namespace mpi {
         int nodeNumber;
         int numberOfNodes;
         MPI_Info info;
-        const std::string platform ="cpu";
-    };
+        const std::string platform = "cpu";
+};
 
-    typedef alsfvm::shared_ptr<Configuration> ConfigurationPtr;
+typedef alsfvm::shared_ptr<Configuration> ConfigurationPtr;
 } // namespace mpi
 } // namespace alsutils

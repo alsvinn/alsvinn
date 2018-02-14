@@ -3,14 +3,15 @@
 #include "alsfvm/numflux/NumericalFlux.hpp"
 #include "alsfvm/diffusion/NoDiffusion.hpp"
 #include "alsfvm/mpi/CellExchanger.hpp"
-namespace alsfvm { namespace simulator { 
+namespace alsfvm {
+namespace simulator {
 
-    /// 
-    class ConservedSystem : public integrator::System {
+///
+class ConservedSystem : public integrator::System {
     public:
         ConservedSystem(alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux,
-                        alsfvm::shared_ptr<diffusion::DiffusionOperator> diffusionOperator);
-        
+            alsfvm::shared_ptr<diffusion::DiffusionOperator> diffusionOperator);
+
         ///
         /// \brief operator () computes the right hand side of the ODE. (see
         ///                    class definition)
@@ -22,10 +23,10 @@ namespace alsfvm { namespace simulator {
         ///                    \f$F(\vec{u})\f$
         ///
         virtual void operator()( volume::Volume& conservedVariables,
-                                rvec3& waveSpeed, bool computeWaveSpeed,
-                                volume::Volume& output);
+            rvec3& waveSpeed, bool computeWaveSpeed,
+            volume::Volume& output);
 
-        /// 
+        ///
         /// Returns the number of ghost cells needed.
         /// This will take the maximum between the number of ghost cells the numerical
         /// flux needs, and the number of ghost cells the diffusion operator needs
@@ -38,6 +39,6 @@ namespace alsfvm { namespace simulator {
         alsfvm::shared_ptr<diffusion::DiffusionOperator> diffusionOperator;
 
         mpi::CellExchangerPtr cellExchanger{nullptr};
-    };
+};
 } // namespace alsfvm
 } // namespace simulator

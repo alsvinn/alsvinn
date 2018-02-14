@@ -1,10 +1,11 @@
 #pragma once
 #include "alsfvm/equation/CellComputer.hpp"
 #include "alsfvm/simulator/SimulatorParameters.hpp"
-namespace alsfvm { namespace equation { 
+namespace alsfvm {
+namespace equation {
 
-    template<class Equation>
-    class CPUCellComputer : public CellComputer {
+template<class Equation>
+class CPUCellComputer : public CellComputer {
     public:
         CPUCellComputer(simulator::SimulatorParameters& parameters);
         ///
@@ -13,7 +14,7 @@ namespace alsfvm { namespace equation {
         /// \param[out] extraVariables the extra variables to write to
         ///
         virtual void computeExtraVariables(const volume::Volume& conservedVariables,
-                                           volume::Volume& extraVariables);
+            volume::Volume& extraVariables);
 
         ///
         /// Computes the maximum wavespeed
@@ -30,14 +31,14 @@ namespace alsfvm { namespace equation {
         virtual real computeMaxWaveSpeed(const volume::Volume& conservedVariables,
             const volume::Volume& extraVariables, size_t direction);
 
-		/// 
-		/// Checks if all the constraints for the equation are met
-		///	\param conservedVariables the conserved variables (density, momentum, Energy for Euler)
-		/// \param extraVariables the extra variables (pressure and velocity for Euler)
-		/// \return true if it obeys the constraints, false otherwise
-		///
-		virtual bool obeysConstraints(const volume::Volume& conservedVariables,
-			const volume::Volume& extraVariables);
+        ///
+        /// Checks if all the constraints for the equation are met
+        /// \param conservedVariables the conserved variables (density, momentum, Energy for Euler)
+        /// \param extraVariables the extra variables (pressure and velocity for Euler)
+        /// \return true if it obeys the constraints, false otherwise
+        ///
+        virtual bool obeysConstraints(const volume::Volume& conservedVariables,
+            const volume::Volume& extraVariables);
 
         ///
         /// \brief computeFromPrimitive computes the conserved and extra variables based
@@ -47,11 +48,11 @@ namespace alsfvm { namespace equation {
         /// \param[out] extraVariables the extra variables.
         ///
         virtual void computeFromPrimitive(const volume::Volume& primtiveVariables,
-                                         volume::Volume& conservedVariables,
-                                         volume::Volume& extraVariables);
+            volume::Volume& conservedVariables,
+            volume::Volume& extraVariables);
 
     private:
         typename Equation::Parameters parameters;
-    };
+};
 } // namespace alsfvm
 } // namespace equation

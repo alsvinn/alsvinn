@@ -3,12 +3,13 @@
 #include "alsfvm/simulator/SimulatorParameters.hpp"
 #include "alsfvm/grid/Grid.hpp"
 
-namespace alsfvm { namespace numflux { 
+namespace alsfvm {
+namespace numflux {
 
-    ///
-    /// Use this to instantiate new numerical fluxes.
-    ///
-    class NumericalFluxFactory {
+///
+/// Use this to instantiate new numerical fluxes.
+///
+class NumericalFluxFactory {
     public:
         ///
         /// The numerical flux pointer
@@ -25,10 +26,10 @@ namespace alsfvm { namespace numflux {
         /// \note The platform name is deduced by deviceConfiguration
         ///
         NumericalFluxFactory(const std::string& equation,
-                      const std::string& fluxname,
-                      const std::string& reconstruction,
-                      const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters,
-                      alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration);
+            const std::string& fluxname,
+            const std::string& reconstruction,
+            const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters,
+            alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration);
 
         ///
         /// Creates the numerical flux
@@ -41,6 +42,6 @@ namespace alsfvm { namespace numflux {
         std::string reconstruction;
         alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
         const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters;
-    };
+};
 } // namespace alsfvm
 } // namespace numflux

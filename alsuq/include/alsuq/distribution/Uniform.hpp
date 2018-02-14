@@ -2,9 +2,10 @@
 #include "alsuq/distribution/Distribution.hpp"
 #include "alsuq/distribution/Parameters.hpp"
 
-namespace alsuq { namespace distribution { 
+namespace alsuq {
+namespace distribution {
 
-    class Uniform : public Distribution {
+class Uniform : public Distribution {
     public:
         Uniform(const Parameters& parameters);
 
@@ -15,6 +16,6 @@ namespace alsuq { namespace distribution {
         const real a;
         const real b;
 
-    };
+};
 } // namespace distribution
 } // namespace alsuq

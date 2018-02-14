@@ -1,6 +1,7 @@
 #include "alsfvm/boundary/Boundary.hpp"
 
-namespace alsfvm { namespace boundary { 
+namespace alsfvm {
+namespace boundary {
 
 }
 }

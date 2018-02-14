@@ -2,19 +2,16 @@
 
 namespace alsfvm {
 
-	DeviceConfiguration::DeviceConfiguration(const std::string& platform)
-        : platform(platform)
-	{
-	}
+DeviceConfiguration::DeviceConfiguration(const std::string& platform)
+    : platform(platform) {
+}
 
 
-	DeviceConfiguration::~DeviceConfiguration()
-    {
-    }
+DeviceConfiguration::~DeviceConfiguration() {
+}
 
-    const std::string &DeviceConfiguration::getPlatform() const
-    {
-        return platform;
-    }
+const std::string& DeviceConfiguration::getPlatform() const {
+    return platform;
+}
 
 }

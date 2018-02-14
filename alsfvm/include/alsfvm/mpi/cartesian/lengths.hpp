@@ -25,24 +25,26 @@ namespace cartesian {
 //!                                  (this includes ghost cells)
 //!
 //! @param ghostCells number of ghost cells in the given direction
-inline std::vector<int> computeLengths(int side, int dimensions, ivec3 numberOfCellsPerDirection,
-                                      int ghostCells) {
+inline std::vector<int> computeLengths(int side, int dimensions,
+    ivec3 numberOfCellsPerDirection,
+    int ghostCells) {
 
     const int numberOfSegments = computeNumberOfSegments(side, dimensions,
-                                                         numberOfCellsPerDirection);
+            numberOfCellsPerDirection);
     std::vector<int> lengths(numberOfSegments, 0);
+
     for (int i = 0; i < numberOfSegments; ++i) {
         if (dimensions == 1) {
             lengths[i] = ghostCells;
 
-        } else if(dimensions == 2) {
+        } else if (dimensions == 2) {
             if ( side < 2) {
 
 
                 lengths[i] = ghostCells;
             } else {
 
-                lengths[i] = ghostCells*numberOfCellsPerDirection.x;
+                lengths[i] = ghostCells * numberOfCellsPerDirection.x;
             }
         } else {
             if ( side < 2) {
@@ -50,14 +52,16 @@ inline std::vector<int> computeLengths(int side, int dimensions, ivec3 numberOfC
                 lengths[i] = ghostCells;
             } else if (side < 4) {
 
-                lengths[i] = ghostCells*numberOfCellsPerDirection.x;
+                lengths[i] = ghostCells * numberOfCellsPerDirection.x;
             } else {
 
 
-                lengths[i] = ghostCells*numberOfCellsPerDirection.x*numberOfCellsPerDirection.y;
+                lengths[i] = ghostCells * numberOfCellsPerDirection.x *
+                    numberOfCellsPerDirection.y;
             }
         }
     }
+
     return lengths;
 }
 }

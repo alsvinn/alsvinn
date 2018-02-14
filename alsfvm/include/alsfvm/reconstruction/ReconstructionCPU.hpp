@@ -2,14 +2,15 @@
 #include "alsfvm/reconstruction/Reconstruction.hpp"
 #include "alsfvm/simulator/SimulatorParameters.hpp"
 
-namespace alsfvm { namespace reconstruction { 
+namespace alsfvm {
+namespace reconstruction {
 
 ///
 /// This is meant to do arbitrary reconstruction on the CPU, given a suitable
 /// template argument
 ///
-    template<class ReconstructionType, class Equation>
-    class ReconstructionCPU : public Reconstruction {
+template<class ReconstructionType, class Equation>
+class ReconstructionCPU : public Reconstruction {
     public:
         ReconstructionCPU(const simulator::SimulatorParameters& simulatorParameters);
         ///
@@ -33,11 +34,11 @@ namespace alsfvm { namespace reconstruction {
         ///                     for all grid cells in the interior.
         ///
         virtual void performReconstruction(const volume::Volume& inputVariables,
-                                   size_t direction,
-                                   size_t indicatorVariable,
-                                   volume::Volume& leftOut,
-                                   volume::Volume& rightOut, const ivec3& start = {0,0,0},
-                                           const ivec3& end = {0,0,0});
+            size_t direction,
+            size_t indicatorVariable,
+            volume::Volume& leftOut,
+            volume::Volume& rightOut, const ivec3& start = {0, 0, 0},
+            const ivec3& end = {0, 0, 0});
 
         ///
         /// \brief getNumberOfGhostCells returns the number of ghost cells we need
@@ -47,6 +48,6 @@ namespace alsfvm { namespace reconstruction {
         virtual size_t getNumberOfGhostCells();
     private:
         typename Equation::Parameters parameters;
-    };
+};
 } // namespace alsfvm
 } // namespace reconstruction

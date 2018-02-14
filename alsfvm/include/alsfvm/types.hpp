@@ -3,5 +3,5 @@
 #include "alsutils/error/Exception.hpp"
 #include "alsfvm/gpu_array.hpp"
 namespace alsfvm {
-    using namespace alsutils;
+using namespace alsutils;
 }

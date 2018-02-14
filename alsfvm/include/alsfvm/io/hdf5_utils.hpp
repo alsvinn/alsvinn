@@ -33,7 +33,7 @@ namespace io {
 ///
 /// \brief The HDF5Resource class is a unique_ptr for hdf5 resources
 ///
-    class HDF5Resource {
+class HDF5Resource {
     public:
         typedef herr_t (*delete_function)(hid_t);
 
@@ -52,13 +52,12 @@ namespace io {
         ///
         ///
         inline HDF5Resource(hid_t hdf5Resource, delete_function deleter)
-            : hdf5Resource(hdf5Resource), deleter(deleter)
-        {
+            : hdf5Resource(hdf5Resource), deleter(deleter) {
             // empty
         }
 
         inline ~HDF5Resource() noexcept(false) {
-             HDF5_SAFE_CALL(deleter(hdf5Resource));
+            HDF5_SAFE_CALL(deleter(hdf5Resource));
         }
 
         inline hid_t hid() {
@@ -69,11 +68,11 @@ namespace io {
 
     private:
         // We do not want to be able to copy this
-        HDF5Resource(const HDF5Resource& other) : hdf5Resource(0), deleter(NULL){}
-        void operator=(const HDF5Resource& other){}
+        HDF5Resource(const HDF5Resource& other) : hdf5Resource(0), deleter(NULL) {}
+        void operator=(const HDF5Resource& other) {}
         const hid_t hdf5Resource;
         const delete_function deleter;
 
-    };
+};
 }
 }

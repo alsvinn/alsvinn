@@ -15,10 +15,9 @@
 /// \return the pointer to the data element
 ///
 inline const char* dataAtRawConst(const char* pointer,
-                      size_t ix, size_t iy, size_t iz, size_t nx, size_t ny)
-{
+    size_t ix, size_t iy, size_t iz, size_t nx, size_t ny) {
 
-    return pointer + iz*nx*ny + iy*nx + ix;
+    return pointer + iz * nx * ny + iy * nx + ix;
 }
 
 ///
@@ -32,10 +31,9 @@ inline const char* dataAtRawConst(const char* pointer,
 /// \return the pointer to the data element
 ///
 inline char* dataAtRaw(char* pointer,
-                      size_t ix, size_t iy, size_t iz, size_t nx, size_t ny)
-{
+    size_t ix, size_t iy, size_t iz, size_t nx, size_t ny) {
 
-    return pointer + iz*nx*ny + iy*nx + ix;
+    return pointer + iz * nx * ny + iy * nx + ix;
 }
 
 ///
@@ -49,11 +47,12 @@ inline char* dataAtRaw(char* pointer,
 /// \return the data element
 ///
 template<class T>
-inline const T& dataAt(const T* pointer, size_t ix, size_t iy, size_t iz, size_t nx,
-                size_t ny)
-{
-    return *dataAtRawConst((const char*)pointer, ix*sizeof(T), iy*sizeof(T), iz*sizeof(T),
-                      nx, ny);
+inline const T& dataAt(const T* pointer, size_t ix, size_t iy, size_t iz,
+    size_t nx,
+    size_t ny) {
+    return *dataAtRawConst((const char*)pointer, ix * sizeof(T), iy * sizeof(T),
+            iz * sizeof(T),
+            nx, ny);
 }
 
 ///
@@ -68,10 +67,10 @@ inline const T& dataAt(const T* pointer, size_t ix, size_t iy, size_t iz, size_t
 ///
 template<class T>
 inline  T& dataAt(T* pointer, size_t ix, size_t iy, size_t iz, size_t nx,
-                size_t ny)
-{
-    return *dataAtRaw((char*)pointer, ix*sizeof(T), iy*sizeof(T), iz*sizeof(T),
-                      nx, ny);
+    size_t ny) {
+    return *dataAtRaw((char*)pointer, ix * sizeof(T), iy * sizeof(T),
+            iz * sizeof(T),
+            nx, ny);
 }
 
 ///
@@ -83,8 +82,9 @@ inline  T& dataAt(T* pointer, size_t ix, size_t iy, size_t iz, size_t nx,
 /// \param ny the number of cells in y direction
 /// \return the linear index
 ///
-inline size_t calculateIndex(size_t x, size_t y, size_t z, size_t nx, size_t ny) {
-    return z*nx*ny + y*nx + x;
+inline size_t calculateIndex(size_t x, size_t y, size_t z, size_t nx,
+    size_t ny) {
+    return z * nx * ny + y * nx + x;
 }
 
 

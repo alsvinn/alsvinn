@@ -4,11 +4,12 @@
 #include "alsfvm/memory/HostMemory.hpp"
 #include <thrust/host_vector.h>
 
-namespace alsfvm { namespace mpi { 
+namespace alsfvm {
+namespace mpi {
 
-    //! Does the cell exchange for cuda. This class is supposed to be a placeholder
-    //! for when gpu direct is not available.
-    class CudaCartesianCellExchanger : public CellExchanger {
+//! Does the cell exchange for cuda. This class is supposed to be a placeholder
+//! for when gpu direct is not available.
+class CudaCartesianCellExchanger : public CellExchanger {
     public:
         //! Constructs a new instance
         //!
@@ -25,10 +26,10 @@ namespace alsfvm { namespace mpi {
         //!    4   |     < not used > |   < not used >  |    front
         //!    5   |     < not used > |   < not used >  |    back
         CudaCartesianCellExchanger(ConfigurationPtr& configuration,
-                               const ivec6& neighbours);
+            const ivec6& neighbours);
 
-        RequestContainer exchangeCells(volume::Volume &outputVolume,
-                                       const volume::Volume &inputVolume) override;
+        RequestContainer exchangeCells(volume::Volume& outputVolume,
+            const volume::Volume& inputVolume) override;
 
         real max(real number) override;
 
@@ -46,18 +47,18 @@ namespace alsfvm { namespace mpi {
 
         std::vector<std::vector<thrust::host_vector<real> > > cpuBuffersSend;
         std::vector<std::vector<thrust::host_vector<real> > > cpuBuffersReceive;
-        void makeBuffers(const volume::Volume &inputVolume);
-        void makeStreams(const volume::Volume &inputVolume);
+        void makeBuffers(const volume::Volume& inputVolume);
+        void makeStreams(const volume::Volume& inputVolume);
 
-        void extractSides(const volume::Volume &inputVolume);
+        void extractSides(const volume::Volume& inputVolume);
         void extractSide(const ivec3& start, const ivec3& end,
-                         int side,
-                         const volume::Volume& inputvolume);
+            int side,
+            const volume::Volume& inputvolume);
 
-        void insertSides(volume::Volume &outputVolume);
+        void insertSides(volume::Volume& outputVolume);
         void insertSide(const ivec3& start, const ivec3& end,
-                         int side,
-                          volume::Volume& outputVolume);
+            int side,
+            volume::Volume& outputVolume);
 
 
         std::vector<std::vector<cudaStream_t> > memoryStreams;
@@ -66,6 +67,6 @@ namespace alsfvm { namespace mpi {
         std::vector<std::vector<RequestPtr> > sendRequests;
 
 
-    };
+};
 } // namespace mpi
 } // namespace alsfvm

@@ -1,10 +1,11 @@
 #pragma once
 
-namespace alsfvm { namespace equation { 
+namespace alsfvm {
+namespace equation {
 
-    class EquationParameters {
+class EquationParameters {
     public:
         // Nothing.
-    };
+};
 } // namespace alsfvm
 } // namespace equation

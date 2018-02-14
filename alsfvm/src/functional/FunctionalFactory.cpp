@@ -1,8 +1,9 @@
 #include "alsfvm/functional/FunctionalFactory.hpp"
 
-namespace alsfvm { namespace functional {
+namespace alsfvm {
+namespace functional {
 namespace {
-    class FunctionalList {
+class FunctionalList {
 
 
     public:
@@ -11,18 +12,19 @@ namespace {
 
             return list;
         }
-        std::map<std::string, std::map<std::string, FunctionalFactory::FunctionalCreator> > creators;
+        std::map<std::string, std::map<std::string, FunctionalFactory::FunctionalCreator> >
+        creators;
     private:
         FunctionalList() {}
 
-    };
+};
 }
 
 void FunctionalFactory::registerFunctional(const std::string& platform,
-                                           const std::string &name,
-                                           FunctionalFactory::FunctionalCreator maker)
-{
+    const std::string& name,
+    FunctionalFactory::FunctionalCreator maker) {
     auto& list = FunctionalList::instance().creators;
+
     if (list[platform].find(name) != list[platform].end()) {
         THROW("'" << name << "' already registered as a functional");
     }
@@ -30,15 +32,15 @@ void FunctionalFactory::registerFunctional(const std::string& platform,
     list[platform][name] = maker;
 }
 
-FunctionalPointer FunctionalFactory::makeFunctional(const std::string &platform,
-                                                    const std::string &name,
-                                                    const FunctionalFactory::Parameters &parameters)
-{
+FunctionalPointer FunctionalFactory::makeFunctional(const std::string& platform,
+    const std::string& name,
+    const FunctionalFactory::Parameters& parameters) {
     auto& list = FunctionalList::instance().creators;
 
     if (list[platform].find(name) == list[platform].end()) {
         THROW("Unknown functional: " << name);
     }
+
     return list[platform][name](parameters);
 }
 

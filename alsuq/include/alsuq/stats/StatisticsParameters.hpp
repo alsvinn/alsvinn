@@ -2,9 +2,10 @@
 #include "alsuq/types.hpp"
 #include <boost/property_tree/ptree.hpp>
 #include "alsuq/mpi/Configuration.hpp"
-namespace alsuq { namespace stats {
+namespace alsuq {
+namespace stats {
 
-    class StatisticsParameters {
+class StatisticsParameters {
     public:
 
 
@@ -26,6 +27,6 @@ namespace alsuq { namespace stats {
         size_t samples;
         boost::property_tree::ptree configuration;
         mpi::ConfigurationPtr mpiConfiguration;
-    };
+};
 } // namespace stats
 } // namespace alsuq

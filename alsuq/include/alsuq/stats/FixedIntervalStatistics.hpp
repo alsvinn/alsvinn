@@ -2,12 +2,14 @@
 #include "alsuq/stats/Statistics.hpp"
 #include "alsfvm/integrator/TimestepAdjuster.hpp"
 #include "alsuq/types.hpp"
-namespace alsuq { namespace stats { 
+namespace alsuq {
+namespace stats {
 
-    //! Decorator for the statistics class to only write a given interval, this
-    //! mimics the use of ::alsfvm::io::FixedIntervalWriter
-    //!
-    class FixedIntervalStatistics : public Statistics, public alsfvm::integrator::TimestepAdjuster {
+//! Decorator for the statistics class to only write a given interval, this
+//! mimics the use of ::alsfvm::io::FixedIntervalWriter
+//!
+class FixedIntervalStatistics : public Statistics,
+    public alsfvm::integrator::TimestepAdjuster {
     public:
 
         ///
@@ -15,10 +17,12 @@ namespace alsuq { namespace stats {
         /// \param timeInterval the time interval (will save for every time n*timeInterval)
         /// \param endTime the final time for the simulation.
         ///
-        FixedIntervalStatistics(alsfvm::shared_ptr<Statistics>& writer, real timeInterval, real endTime);
+        FixedIntervalStatistics(alsfvm::shared_ptr<Statistics>& writer,
+            real timeInterval, real endTime);
 
 
-        virtual real adjustTimestep(real dt, const alsfvm::simulator::TimestepInformation &timestepInformation) const;
+        virtual real adjustTimestep(real dt,
+            const alsfvm::simulator::TimestepInformation& timestepInformation) const;
 
         //! To be called when the statistics should be combined.
         virtual void combineStatistics();
@@ -28,7 +32,7 @@ namespace alsuq { namespace stats {
         //!             getStatiticsNames()
         //! @param writer the writer to use
         virtual void addWriter(const std::string& name,
-                               std::shared_ptr<alsfvm::io::Writer>& writer);
+            std::shared_ptr<alsfvm::io::Writer>& writer);
 
         //! Returns a list of the names of the statistics being computed,
         //! typically this could be ['mean', 'variance']
@@ -43,9 +47,9 @@ namespace alsuq { namespace stats {
 
     protected:
         virtual void computeStatistics(const alsfvm::volume::Volume& conservedVariables,
-                           const alsfvm::volume::Volume& extraVariables,
-                           const alsfvm::grid::Grid& grid,
-                           const alsfvm::simulator::TimestepInformation& timestepInformation);
+            const alsfvm::volume::Volume& extraVariables,
+            const alsfvm::grid::Grid& grid,
+            const alsfvm::simulator::TimestepInformation& timestepInformation);
 
     private:
         alsfvm::shared_ptr<Statistics> statistics;
@@ -53,6 +57,6 @@ namespace alsuq { namespace stats {
         const real endTime;
         size_t numberSaved = 0;
 
-    };
+};
 } // namespace stats
 } // namespace alsuq

@@ -5,10 +5,11 @@
 #include "alsfvm/memory/MemoryFactory.hpp"
 #include "alsfvm/grid/Grid.hpp"
 
-namespace alsfvm { namespace reconstruction { 
+namespace alsfvm {
+namespace reconstruction {
 
-    //! Responsible for creating the different reconstructions
-    class ReconstructionFactory {
+//! Responsible for creating the different reconstructions
+class ReconstructionFactory {
     public:
         typedef alsfvm::shared_ptr<Reconstruction> ReconstructionPtr;
 
@@ -36,12 +37,12 @@ namespace alsfvm { namespace reconstruction {
         //!
         //! @param deviceConfiguration the deviceConfiguration to use.
         ReconstructionPtr createReconstruction(const std::string& name,
-                                               const std::string& equation,
-                                               const simulator::SimulatorParameters& simulatorParameters,
-                                               alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-                                               const grid::Grid& grid,
-                                               alsfvm::shared_ptr<DeviceConfiguration> & deviceConfiguration);
+            const std::string& equation,
+            const simulator::SimulatorParameters& simulatorParameters,
+            alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+            const grid::Grid& grid,
+            alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration);
 
-    };
+};
 }
 }
