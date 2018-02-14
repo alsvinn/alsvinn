@@ -9,25 +9,25 @@ namespace alsuq {
 namespace samples {
 
 class SampleGenerator {
-    public:
-        typedef  std::map<std::string, std::pair<size_t,
-                 std::pair<
-                 std::shared_ptr<generator::Generator>,
-                 std::shared_ptr<distribution::Distribution> > > >
-                 GeneratorDistributionMap;
+public:
+    typedef  std::map<std::string, std::pair<size_t,
+             std::pair<
+             std::shared_ptr<generator::Generator>,
+             std::shared_ptr<distribution::Distribution> > > >
+             GeneratorDistributionMap;
 
 
-        SampleGenerator(const GeneratorDistributionMap& generators);
+    SampleGenerator(const GeneratorDistributionMap& generators);
 
 
-        std::vector<real> generate(const std::string& parameter,
-            const size_t sampleIndex);
+    std::vector<real> generate(const std::string& parameter,
+        const size_t sampleIndex);
 
-        std::vector<std::string> getParameterList() const;
-    private:
-        size_t currentSample{0};
+    std::vector<std::string> getParameterList() const;
+private:
+    size_t currentSample{0};
 
-        GeneratorDistributionMap generators;
+    GeneratorDistributionMap generators;
 };
 } // namespace samples
 } // namespace alsuq

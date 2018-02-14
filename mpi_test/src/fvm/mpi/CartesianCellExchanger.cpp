@@ -9,13 +9,13 @@
 using namespace alsfvm;
 class CartesianCellExchangerTest :
     public ::testing::TestWithParam<std::string> {
-    public:
-        CartesianCellExchangerTest()
-            :
-            platform(this->GetParam()) {
-        }
+public:
+    CartesianCellExchangerTest()
+        :
+        platform(this->GetParam()) {
+    }
 
-        const std::string platform = "cpu";
+    const std::string platform = "cpu";
 };
 
 TEST_P(CartesianCellExchangerTest, Test1D) {

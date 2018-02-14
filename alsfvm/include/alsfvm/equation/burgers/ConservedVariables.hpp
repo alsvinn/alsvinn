@@ -9,34 +9,34 @@ namespace burgers {
 /// These are supposed to be the conserved variables
 ///
 class ConservedVariables {
-    public:
-        __device__ __host__ ConservedVariables()
-            : u(0) {
-            // empty
-        }
-        __device__ __host__ ConservedVariables(real u_)
-            : u(u_) {
-            // empty
-        }
+public:
+    __device__ __host__ ConservedVariables()
+        : u(0) {
+        // empty
+    }
+    __device__ __host__ ConservedVariables(real u_)
+        : u(u_) {
+        // empty
+    }
 
-        __device__ __host__ ConservedVariables(const rvec1& u_)
-            : u(u_.x) {
-            // empty
-        }
+    __device__ __host__ ConservedVariables(const rvec1& u_)
+        : u(u_.x) {
+        // empty
+    }
 
-        __device__ __host__ static constexpr size_t size() {
-            return 1;
-        }
+    __device__ __host__ static constexpr size_t size() {
+        return 1;
+    }
 
-        __device__ __host__ real& operator[](size_t index) {
-            return u;
-        }
+    __device__ __host__ real& operator[](size_t index) {
+        return u;
+    }
 
-        __device__ __host__ real operator[](size_t index) const {
-            return u;
-        }
+    __device__ __host__ real operator[](size_t index) const {
+        return u;
+    }
 
-        real u;
+    real u;
 };
 
 ///

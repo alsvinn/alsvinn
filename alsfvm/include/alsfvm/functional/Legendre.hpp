@@ -27,60 +27,60 @@ namespace functional {
 //!        for any implementation details. In short, \f$L_n(x)=boost::math::legendre_p(n,x)\f$
 //!
 class Legendre : public Functional {
-    public:
-        //! The following parameters are accepted through parameters
-        //!
-        //!    Name      | Description
-        //!    ----------|-------------
-        //!    minValue  | minimum value that the solution can obtain
-        //!    maxValue  | maximum value that the solution can obtain
-        //!    degree_k  | the degree of the polynomial \f$L_k(x)\f$
-        //!    degree_n  | the degree of the polynomial \f$L_n(x)\f$
-        //!    degree_m  | the degree of the polynomial \f$L_m(u(x,y))\f$
-        //!    variables | the variables to compute for (space separated)
-        Legendre(const Parameters& parameters);
+public:
+    //! The following parameters are accepted through parameters
+    //!
+    //!    Name      | Description
+    //!    ----------|-------------
+    //!    minValue  | minimum value that the solution can obtain
+    //!    maxValue  | maximum value that the solution can obtain
+    //!    degree_k  | the degree of the polynomial \f$L_k(x)\f$
+    //!    degree_n  | the degree of the polynomial \f$L_n(x)\f$
+    //!    degree_m  | the degree of the polynomial \f$L_m(u(x,y))\f$
+    //!    variables | the variables to compute for (space separated)
+    Legendre(const Parameters& parameters);
 
-        //! Computes the operator value on the givne input data
-        //!
-        //! @note In order to support time integration, the result should be
-        //!       added to conservedVolumeOut and extraVolumeOut, not overriding
-        //!       it.
-        //!
-        //! @param[out] conservedVolumeOut at the end, should have the contribution
-        //!             of the functional for the conservedVariables
-        //!
-        //! @param[out] extraVolumeOut at the end, should have the contribution
-        //!             of the functional for the extraVariables
-        //!
-        //! @param[in] conservedVolumeIn the state of the conserved variables
-        //!
-        //! @param[in] extraVolume the state of the extra volume
-        //!
-        //! @param[in] weight the current weight to be applied to the functional. Ie, the functional should compute
-        //!                   \code{.cpp}
-        //!                   conservedVolumeOut += weight + f(conservedVolumeIn)
-        //!                   \endcode
-        //!
-        virtual void operator()(volume::Volume& conservedVolumeOut,
-            volume::Volume& extraVolumeOut,
-            const volume::Volume& conservedVolumeIn,
-            const volume::Volume& extraVolumeIn,
-            const real weight,
-            const grid::Grid& grid
-        ) override;
+    //! Computes the operator value on the givne input data
+    //!
+    //! @note In order to support time integration, the result should be
+    //!       added to conservedVolumeOut and extraVolumeOut, not overriding
+    //!       it.
+    //!
+    //! @param[out] conservedVolumeOut at the end, should have the contribution
+    //!             of the functional for the conservedVariables
+    //!
+    //! @param[out] extraVolumeOut at the end, should have the contribution
+    //!             of the functional for the extraVariables
+    //!
+    //! @param[in] conservedVolumeIn the state of the conserved variables
+    //!
+    //! @param[in] extraVolume the state of the extra volume
+    //!
+    //! @param[in] weight the current weight to be applied to the functional. Ie, the functional should compute
+    //!                   \code{.cpp}
+    //!                   conservedVolumeOut += weight + f(conservedVolumeIn)
+    //!                   \endcode
+    //!
+    virtual void operator()(volume::Volume& conservedVolumeOut,
+        volume::Volume& extraVolumeOut,
+        const volume::Volume& conservedVolumeIn,
+        const volume::Volume& extraVolumeIn,
+        const real weight,
+        const grid::Grid& grid
+    ) override;
 
-        //! Returns ivec3{1,1,1} -- we only need one element to represent this functional
-        virtual ivec3 getFunctionalSize(const grid::Grid& grid) const override;
+    //! Returns ivec3{1,1,1} -- we only need one element to represent this functional
+    virtual ivec3 getFunctionalSize(const grid::Grid& grid) const override;
 
 
-    private:
-        const real minValue = -1;
-        const real maxValue = 1;
-        const int degree_k = 1;
-        const int degree_n = 1;
-        const int degree_m = 1;
+private:
+    const real minValue = -1;
+    const real maxValue = 1;
+    const int degree_k = 1;
+    const int degree_n = 1;
+    const int degree_m = 1;
 
-        std::vector<std::string> variables;
+    std::vector<std::string> variables;
 };
 } // namespace functional
 } // namespace alsfvm

@@ -22,8 +22,7 @@ using namespace alsfvm::memory;
 namespace alsfvm {
 namespace cuda {
 
-template<class T>
-CudaMemory<T>::CudaMemory(size_t nx, size_t ny, size_t nz)
+template<class T> CudaMemory<T>::CudaMemory(size_t nx, size_t ny, size_t nz)
     : memory::Memory<T>(nx, ny, nz) {
     CUDA_SAFE_CALL(cudaMalloc(&memoryPointer, nx * ny * nz * sizeof(T)));
     CUDA_SAFE_CALL(cudaMemset(memoryPointer, 0, nx * ny * nz * sizeof(T)));
@@ -39,8 +38,7 @@ std::shared_ptr<memory::Memory<T> > CudaMemory<T>::makeInstance() const {
 
 // Note: Virtual distructor since we will inherit
 // from this.
-template<class T>
-CudaMemory<T>::~CudaMemory() {
+template<class T> CudaMemory<T>::~CudaMemory() {
     CUDA_SAFE_CALL(cudaFree(memoryPointer));
 }
 

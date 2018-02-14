@@ -6,17 +6,17 @@ namespace functional {
 
 //! Factory class for creating a functional
 class FunctionalFactory {
-    public:
-        typedef Functional::Parameters Parameters;
-        typedef std::function<FunctionalPointer(const Parameters&)> FunctionalCreator;
+public:
+    typedef Functional::Parameters Parameters;
+    typedef std::function<FunctionalPointer(const Parameters&)> FunctionalCreator;
 
-        static void registerFunctional(const std::string& platform,
-            const std::string& name,
-            FunctionalFactory::FunctionalCreator maker);
+    static void registerFunctional(const std::string& platform,
+        const std::string& name,
+        FunctionalFactory::FunctionalCreator maker);
 
-        FunctionalPointer makeFunctional(const std::string& platform,
-            const std::string& name,
-            const FunctionalFactory::Parameters& parameters);
+    FunctionalPointer makeFunctional(const std::string& platform,
+        const std::string& name,
+        const FunctionalFactory::Parameters& parameters);
 };
 } // namespace functional
 } // namespace alsfvm

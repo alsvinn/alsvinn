@@ -8,16 +8,16 @@ namespace reconstruction {
 namespace tecno {
 
 class ReconstructionFactory {
-    public:
+public:
 
-        alsfvm::shared_ptr<TecnoReconstruction> createReconstruction(
-            const std::string& name,
-            const std::string& equation,
-            const simulator::SimulatorParameters& simulatorParameters,
-            alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-            const grid::Grid& grid,
-            alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration
-        );
+    alsfvm::shared_ptr<TecnoReconstruction> createReconstruction(
+        const std::string& name,
+        const std::string& equation,
+        const simulator::SimulatorParameters& simulatorParameters,
+        alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+        const grid::Grid& grid,
+        alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration
+    );
 
 };
 } // namespace tecno

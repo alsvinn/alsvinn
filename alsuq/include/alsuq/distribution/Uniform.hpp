@@ -6,15 +6,15 @@ namespace alsuq {
 namespace distribution {
 
 class Uniform : public Distribution {
-    public:
-        Uniform(const Parameters& parameters);
+public:
+    Uniform(const Parameters& parameters);
 
-        real generate(generator::Generator& generator, size_t component);
+    real generate(generator::Generator& generator, size_t component);
 
-    private:
-        real scale(real x);
-        const real a;
-        const real b;
+private:
+    real scale(real x);
+    const real a;
+    const real b;
 
 };
 } // namespace distribution

@@ -20,36 +20,36 @@ namespace functional {
 //!       for writing. The reason for this is that we only selectively want to call
 //!       the functional, to minimize computational work.
 class TimeIntegrationFunctional : public io::Writer {
-    public:
+public:
 
-        TimeIntegrationFunctional(volume::VolumeFactory volumeFactory,
-            io::WriterPointer writer,
-            FunctionalPointer functional,
-            double time,
-            double timeRadius);
+    TimeIntegrationFunctional(volume::VolumeFactory volumeFactory,
+        io::WriterPointer writer,
+        FunctionalPointer functional,
+        double time,
+        double timeRadius);
 
-        virtual void write(const volume::Volume& conservedVariables,
-            const volume::Volume& extraVariables,
-            const grid::Grid& grid,
-            const simulator::TimestepInformation& timestepInformation) override;
+    virtual void write(const volume::Volume& conservedVariables,
+        const volume::Volume& extraVariables,
+        const grid::Grid& grid,
+        const simulator::TimestepInformation& timestepInformation) override;
 
-        virtual void finalize(const grid::Grid& grid,
-            const simulator::TimestepInformation& timestepInformation) override;
+    virtual void finalize(const grid::Grid& grid,
+        const simulator::TimestepInformation& timestepInformation) override;
 
-    private:
-        void makeVolumes(const grid::Grid& grid);
-        volume::VolumeFactory volumeFactory;
-        io::WriterPointer writer;
-        FunctionalPointer functional;
+private:
+    void makeVolumes(const grid::Grid& grid);
+    volume::VolumeFactory volumeFactory;
+    io::WriterPointer writer;
+    FunctionalPointer functional;
 
-        volume::VolumePointer conservedVolume;
-        volume::VolumePointer extraVolume;
+    volume::VolumePointer conservedVolume;
+    volume::VolumePointer extraVolume;
 
-        const double time;
-        const double timeRadius;
-        double lastTime = 0;
+    const double time;
+    const double timeRadius;
+    double lastTime = 0;
 
-        ivec3 functionalSize;
+    ivec3 functionalSize;
 
 };
 } // namespace functional

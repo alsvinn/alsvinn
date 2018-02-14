@@ -5,29 +5,29 @@ namespace alsuq {
 namespace stats {
 
 class BoundedVariation : public StatisticsHelper {
-    public:
+public:
 
-        BoundedVariation(const StatisticsParameters& parameters);
-
-
-        //! Returns a list of ['bv']
-        virtual std::vector<std::string> getStatisticsNames() const;
+    BoundedVariation(const StatisticsParameters& parameters);
 
 
+    //! Returns a list of ['bv']
+    virtual std::vector<std::string> getStatisticsNames() const;
 
 
-        virtual void computeStatistics(const alsfvm::volume::Volume& conservedVariables,
-            const alsfvm::volume::Volume& extraVariables,
-            const alsfvm::grid::Grid& grid,
-            const alsfvm::simulator::TimestepInformation& timestepInformation) override;
-
-        virtual void finalize() override;
 
 
-    private:
-        const int p;
+    virtual void computeStatistics(const alsfvm::volume::Volume& conservedVariables,
+        const alsfvm::volume::Volume& extraVariables,
+        const alsfvm::grid::Grid& grid,
+        const alsfvm::simulator::TimestepInformation& timestepInformation) override;
 
-        const std::string statisticsName;
+    virtual void finalize() override;
+
+
+private:
+    const int p;
+
+    const std::string statisticsName;
 
 
 

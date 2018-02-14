@@ -22,7 +22,8 @@
 namespace alsfvm {
 namespace reconstruction {
 
-ReconstructionFactory::ReconstructionPtr ReconstructionFactory::createReconstruction(
+ReconstructionFactory::ReconstructionPtr
+ReconstructionFactory::createReconstruction(
     const std::string& name,
     const std::string& equation,
     const simulator::SimulatorParameters& simulatorParameters,

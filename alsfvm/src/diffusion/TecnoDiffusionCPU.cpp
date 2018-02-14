@@ -83,7 +83,8 @@ void applyDiffusionCPU(Equation equation, volume::Volume& outputVolume,
 
 }
 }
-template<class Equation, template<class, int> class DiffusionMatrix> TecnoDiffusionCPU<Equation, DiffusionMatrix>::TecnoDiffusionCPU(
+template<class Equation, template<class, int> class DiffusionMatrix>
+TecnoDiffusionCPU<Equation, DiffusionMatrix>::TecnoDiffusionCPU(
     volume::VolumeFactory& volumeFactory,
     alsfvm::shared_ptr<reconstruction::tecno::TecnoReconstruction> reconstruction,
     const simulator::SimulatorParameters& simulatorParameters)

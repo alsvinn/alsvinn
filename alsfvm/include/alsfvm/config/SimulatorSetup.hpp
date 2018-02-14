@@ -15,67 +15,67 @@ namespace alsfvm {
 namespace config {
 
 class SimulatorSetup {
-    public:
-        typedef boost::property_tree::ptree ptree;
-        std::pair<alsfvm::shared_ptr<simulator::Simulator>,
-            alsfvm::shared_ptr<init::InitialData> >
-            readSetupFromFile(const std::string& filename);
+public:
+    typedef boost::property_tree::ptree ptree;
+    std::pair<alsfvm::shared_ptr<simulator::Simulator>,
+        alsfvm::shared_ptr<init::InitialData> >
+        readSetupFromFile(const std::string& filename);
 
 
-        void setWriterFactory(std::shared_ptr<io::WriterFactory> writerFactory);
+    void setWriterFactory(std::shared_ptr<io::WriterFactory> writerFactory);
 
 #ifdef ALSVINN_USE_MPI
 
-        //! Call to enable mpi. Has to be called *before* readSetupFromFile.
-        void enableMPI(MPI_Comm communicator, int multiX, int multiY, int multiZ);
+    //! Call to enable mpi. Has to be called *before* readSetupFromFile.
+    void enableMPI(MPI_Comm communicator, int multiX, int multiY, int multiZ);
 
-        //! Call to enable mpi. Has to be called *before* readSetupFromFile.
-        void enableMPI(mpi::ConfigurationPtr configuration, int multiX, int multiY,
-            int multiZ);
+    //! Call to enable mpi. Has to be called *before* readSetupFromFile.
+    void enableMPI(mpi::ConfigurationPtr configuration, int multiX, int multiY,
+        int multiZ);
 #endif
-    protected:
+protected:
 
-        alsfvm::shared_ptr<init::InitialData> createInitialData(
-            const ptree& configuration);
-        alsfvm::shared_ptr<grid::Grid> createGrid(const ptree& configuration);
-        real readEndTime(const ptree& configuration);
-        std::string readEquation(const ptree& configuration);
-        std::string readReconstruciton(const ptree& configuration);
-        real readCFLNumber(const ptree& configuration);
-        std::string readIntegrator(const ptree& configuration);
+    alsfvm::shared_ptr<init::InitialData> createInitialData(
+        const ptree& configuration);
+    alsfvm::shared_ptr<grid::Grid> createGrid(const ptree& configuration);
+    real readEndTime(const ptree& configuration);
+    std::string readEquation(const ptree& configuration);
+    std::string readReconstruciton(const ptree& configuration);
+    real readCFLNumber(const ptree& configuration);
+    std::string readIntegrator(const ptree& configuration);
 
-        alsfvm::shared_ptr<io::Writer> createWriter(const ptree& configuration);
-        std::string readPlatform(const ptree& configuration);
-        std::string readBoundary(const ptree& configuration);
-        init::Parameters readParameters(const ptree& configuration);
-        alsfvm::shared_ptr<diffusion::DiffusionOperator> createDiffusion(
-            const ptree& configuration,
-            const grid::Grid& grid,
-            const simulator::SimulatorParameters& simulatorParameters,
-            alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration,
-            alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-            volume::VolumeFactory& volumeFactory);
+    alsfvm::shared_ptr<io::Writer> createWriter(const ptree& configuration);
+    std::string readPlatform(const ptree& configuration);
+    std::string readBoundary(const ptree& configuration);
+    init::Parameters readParameters(const ptree& configuration);
+    alsfvm::shared_ptr<diffusion::DiffusionOperator> createDiffusion(
+        const ptree& configuration,
+        const grid::Grid& grid,
+        const simulator::SimulatorParameters& simulatorParameters,
+        alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration,
+        alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+        volume::VolumeFactory& volumeFactory);
 
-        std::string readName(const ptree& configuration);
-        std::vector<io::WriterPointer> createFunctionals(const ptree& configuration,
-            volume::VolumeFactory& volumeFactory);
-        void readEquationParameters(const ptree& configuration,
-            simulator::SimulatorParameters& parameters);
+    std::string readName(const ptree& configuration);
+    std::vector<io::WriterPointer> createFunctionals(const ptree& configuration,
+        volume::VolumeFactory& volumeFactory);
+    void readEquationParameters(const ptree& configuration,
+        simulator::SimulatorParameters& parameters);
 
-        std::string readFlux(const ptree& configuration);
+    std::string readFlux(const ptree& configuration);
 
-        std::shared_ptr<io::WriterFactory> writerFactory{new io::WriterFactory};
-        std::string basePath;
+    std::shared_ptr<io::WriterFactory> writerFactory{new io::WriterFactory};
+    std::string basePath;
 
 
 #ifdef ALSVINN_USE_MPI
-        mpi::domain::DomainInformationPtr decomposeGrid(const
-            alsfvm::shared_ptr<grid::Grid>& grid);
-        bool useMPI{false};
-        mpi::ConfigurationPtr mpiConfiguration;
-        int multiX;
-        int multiY;
-        int multiZ;
+    mpi::domain::DomainInformationPtr decomposeGrid(const
+        alsfvm::shared_ptr<grid::Grid>& grid);
+    bool useMPI{false};
+    mpi::ConfigurationPtr mpiConfiguration;
+    int multiX;
+    int multiY;
+    int multiZ;
 #endif
 };
 } // namespace alsfvm

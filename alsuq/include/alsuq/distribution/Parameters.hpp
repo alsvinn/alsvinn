@@ -7,15 +7,15 @@ namespace alsuq {
 namespace distribution {
 
 class Parameters : public alsutils::parameters::Parameters {
-    public:
-        Parameters(const boost::property_tree::ptree& ptree);
-        double getParameter(const std::string& name) const;
+public:
+    Parameters(const boost::property_tree::ptree& ptree);
+    double getParameter(const std::string& name) const;
 
-        void setParameter(const std::string& name, real value);
+    void setParameter(const std::string& name, real value);
 
 
-    private:
-        std::map<std::string, real> parameters;
+private:
+    std::map<std::string, real> parameters;
 };
 } // namespace distribution
 } // namespace alsuq

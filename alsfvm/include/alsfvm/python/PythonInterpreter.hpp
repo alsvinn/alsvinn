@@ -14,25 +14,25 @@ namespace python {
 
 
 class PythonInterpreter {
-    public:
-        static PythonInterpreter& getInstance() {
-            static PythonInterpreter pythonInterpreter;
-            return pythonInterpreter;
-        }
+public:
+    static PythonInterpreter& getInstance() {
+        static PythonInterpreter pythonInterpreter;
+        return pythonInterpreter;
+    }
 
-        ~PythonInterpreter() {
+    ~PythonInterpreter() {
 
-            Py_Finalize();
-        }
+        Py_Finalize();
+    }
 
-    private:
+private:
 
-        PythonInterpreter() {
+    PythonInterpreter() {
 
-            Py_Initialize();
-            boost::python::numpy::initialize();
+        Py_Initialize();
+        boost::python::numpy::initialize();
 
-        }
+    }
 
 
 };

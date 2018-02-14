@@ -9,7 +9,8 @@
 namespace alsfvm {
 namespace reconstruction {
 
-template<class ReconstructionType, class Equation> ReconstructionCPU<ReconstructionType, Equation>::ReconstructionCPU(
+template<class ReconstructionType, class Equation>
+ReconstructionCPU<ReconstructionType, Equation>::ReconstructionCPU(
     const simulator::SimulatorParameters& simulatorParameters)
     : parameters(static_cast<const typename Equation::Parameters&>
           (simulatorParameters.getEquationParameters())) {

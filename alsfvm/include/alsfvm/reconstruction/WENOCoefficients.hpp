@@ -9,12 +9,12 @@ namespace reconstruction {
 
 template<int k>
 class WENOCoefficients {
-    public:
-        static const real epsilon;
-        static real coefficients[];
+public:
+    static const real epsilon;
+    static real coefficients[];
 
-        template<size_t index, class T>
-        __device__ __host__ static real computeBeta(const T& stencil);
+    template<size_t index, class T>
+    __device__ __host__ static real computeBeta(const T& stencil);
 
 
 };

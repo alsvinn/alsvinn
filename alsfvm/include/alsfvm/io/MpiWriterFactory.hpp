@@ -9,14 +9,14 @@ namespace io {
 //! The reason for doing this is that we sometimes want to use
 //! mpi writers, and sometimes not.
 class MpiWriterFactory : public WriterFactory {
-    public:
-        MpiWriterFactory(mpi::ConfigurationPtr configuration);
+public:
+    MpiWriterFactory(mpi::ConfigurationPtr configuration);
 
-        virtual alsfvm::shared_ptr<Writer> createWriter(const std::string& name,
-            const std::string& baseFilename);
+    virtual alsfvm::shared_ptr<Writer> createWriter(const std::string& name,
+        const std::string& baseFilename);
 
-    private:
-        mpi::ConfigurationPtr configuration;
+private:
+    mpi::ConfigurationPtr configuration;
 };
 } // namespace io
 } // namespace alsfvm

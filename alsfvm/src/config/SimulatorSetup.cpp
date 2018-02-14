@@ -457,8 +457,8 @@ void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree&
     }
 }
 
-alsfvm::shared_ptr<diffusion::DiffusionOperator>
-SimulatorSetup::createDiffusion(const SimulatorSetup::ptree& configuration,
+alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion(
+    const SimulatorSetup::ptree& configuration,
     const grid::Grid& grid,
     const simulator::SimulatorParameters& simulatorParameters,
     alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration,

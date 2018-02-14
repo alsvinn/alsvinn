@@ -6,16 +6,16 @@ namespace {
 class FunctionalList {
 
 
-    public:
-        static FunctionalList& instance() {
-            static FunctionalList list;
+public:
+    static FunctionalList& instance() {
+        static FunctionalList list;
 
-            return list;
-        }
-        std::map<std::string, std::map<std::string, FunctionalFactory::FunctionalCreator> >
-        creators;
-    private:
-        FunctionalList() {}
+        return list;
+    }
+    std::map<std::string, std::map<std::string, FunctionalFactory::FunctionalCreator> >
+    creators;
+private:
+    FunctionalList() {}
 
 };
 }

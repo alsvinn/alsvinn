@@ -155,7 +155,8 @@ NumericalFluxFactory::NumericalFluxFactory(const std::string& equation,
 ///
 /// Creates the numerical flux
 ///
-NumericalFluxFactory::NumericalFluxPtr NumericalFluxFactory::createNumericalFlux(
+NumericalFluxFactory::NumericalFluxPtr
+NumericalFluxFactory::createNumericalFlux(
     const grid::Grid& grid) {
 
     auto memoryFactory = alsfvm::make_shared<memory::MemoryFactory>

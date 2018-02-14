@@ -21,23 +21,23 @@ namespace tecno {
 //!
 //! See http://www.cscamm.umd.edu/people/faculty/tadmor/pub/TV+entropy/Fjordholm_Mishra_Tadmor_SINUM2012.pdf
 class TecnoReconstruction {
-    public:
-        virtual ~TecnoReconstruction() {}
+public:
+    virtual ~TecnoReconstruction() {}
 
-        //! Applies the reconstruction.
-        //!
-        //! @param[in] leftInput the left values to use for reconstruction
-        //! @param[in] rightInput the right values to use for reconstruction
-        //! @param[in] direction the direction (0=x, 1=y, 2=y)
-        //! @param[out] leftOutput at the end, should contain reconstructed values
-        //! @param[out] rightOutput at the end, should contain the reconstructed values
-        virtual void performReconstruction(const volume::Volume& leftInput,
-            const volume::Volume& rightInput,
-            size_t direction,
-            volume::Volume& leftOutput,
-            volume::Volume& rightOutput) = 0;
+    //! Applies the reconstruction.
+    //!
+    //! @param[in] leftInput the left values to use for reconstruction
+    //! @param[in] rightInput the right values to use for reconstruction
+    //! @param[in] direction the direction (0=x, 1=y, 2=y)
+    //! @param[out] leftOutput at the end, should contain reconstructed values
+    //! @param[out] rightOutput at the end, should contain the reconstructed values
+    virtual void performReconstruction(const volume::Volume& leftInput,
+        const volume::Volume& rightInput,
+        size_t direction,
+        volume::Volume& leftOutput,
+        volume::Volume& rightOutput) = 0;
 
-        virtual size_t getNumberOfGhostCells() const = 0;
+    virtual size_t getNumberOfGhostCells() const = 0;
 };
 } // namespace tecno
 } // namespace reconstruction

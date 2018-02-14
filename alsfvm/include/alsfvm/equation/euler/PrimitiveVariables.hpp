@@ -11,46 +11,46 @@ namespace euler {
 ///
 template<int nsd>
 class PrimitiveVariables {
-    public:
-        typedef typename Types<nsd>::rvec rvec;
+public:
+    typedef typename Types<nsd>::rvec rvec;
 
 
-        __device__ __host__ PrimitiveVariables()
-            : rho(0), u(0), p(0) {
-            // empty
-        }
+    __device__ __host__ PrimitiveVariables()
+        : rho(0), u(0), p(0) {
+        // empty
+    }
 
-        __device__ __host__ PrimitiveVariables(real rho, rvec u, real p)
-            : rho(rho), u(u), p(p) {
-            // empty
-        }
+    __device__ __host__ PrimitiveVariables(real rho, rvec u, real p)
+        : rho(rho), u(u), p(p) {
+        // empty
+    }
 
-        template<class T>
-        __device__ __host__ PrimitiveVariables(T rho, T ux, T uy, T uz, T p)
-            : rho(rho), u(rvec3{ux, uy, uz}), p(p) {
-            static_assert(nsd == 3 || sizeof(T) == 0, "Only for 3 dimensions!");
-        }
+    template<class T>
+    __device__ __host__ PrimitiveVariables(T rho, T ux, T uy, T uz, T p)
+        : rho(rho), u(rvec3{ux, uy, uz}), p(p) {
+        static_assert(nsd == 3 || sizeof(T) == 0, "Only for 3 dimensions!");
+    }
 
-        template<class T>
-        __device__ __host__ PrimitiveVariables(T rho, T ux, T uy, T p)
-            : rho(rho), u(rvec2{ux, uy}), p(p) {
-            static_assert(nsd == 2 || sizeof(T) == 0, "Only for 3 dimensions!");
-        }
+    template<class T>
+    __device__ __host__ PrimitiveVariables(T rho, T ux, T uy, T p)
+        : rho(rho), u(rvec2{ux, uy}), p(p) {
+        static_assert(nsd == 2 || sizeof(T) == 0, "Only for 3 dimensions!");
+    }
 
-        ///
-        /// \brief rho is the density
-        ///
-        real rho;
+    ///
+    /// \brief rho is the density
+    ///
+    real rho;
 
-        ///
-        /// \brief u is the velocity
-        ///
-        rvec u;
+    ///
+    /// \brief u is the velocity
+    ///
+    rvec u;
 
-        ///
-        /// \brief p is the pressure
-        ///
-        real p;
+    ///
+    /// \brief p is the pressure
+    ///
+    real p;
 
 };
 ///

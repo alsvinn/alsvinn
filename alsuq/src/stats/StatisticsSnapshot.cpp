@@ -11,8 +11,7 @@ StatisticsSnapshot::StatisticsSnapshot(
 
 }
 
-alsfvm::simulator::TimestepInformation&
-StatisticsSnapshot::getTimestepInformation() {
+alsfvm::simulator::TimestepInformation& StatisticsSnapshot::getTimestepInformation() {
     return timestepInformation;
 }
 

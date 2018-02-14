@@ -16,31 +16,31 @@ namespace functional {
 /// already decorates it with the alsfvm::io::FixedIntervalWriter
 ///
 class IntervalFunctionalWriter : public io::Writer {
-    public:
+public:
 
-        IntervalFunctionalWriter(volume::VolumeFactory volumeFactory,
-            io::WriterPointer writer,
-            FunctionalPointer functional
-        );
+    IntervalFunctionalWriter(volume::VolumeFactory volumeFactory,
+        io::WriterPointer writer,
+        FunctionalPointer functional
+    );
 
-        virtual void write(const volume::Volume& conservedVariables,
-            const volume::Volume& extraVariables,
-            const grid::Grid& grid,
-            const simulator::TimestepInformation& timestepInformation) override;
-
-
-    private:
-        void makeVolumes(const grid::Grid& grid);
-        volume::VolumeFactory volumeFactory;
-        io::WriterPointer writer;
-        FunctionalPointer functional;
-
-        volume::VolumePointer conservedVolume;
-        volume::VolumePointer extraVolume;
+    virtual void write(const volume::Volume& conservedVariables,
+        const volume::Volume& extraVariables,
+        const grid::Grid& grid,
+        const simulator::TimestepInformation& timestepInformation) override;
 
 
+private:
+    void makeVolumes(const grid::Grid& grid);
+    volume::VolumeFactory volumeFactory;
+    io::WriterPointer writer;
+    FunctionalPointer functional;
 
-        ivec3 functionalSize;
+    volume::VolumePointer conservedVolume;
+    volume::VolumePointer extraVolume;
+
+
+
+    ivec3 functionalSize;
 
 };
 } // namespace functional

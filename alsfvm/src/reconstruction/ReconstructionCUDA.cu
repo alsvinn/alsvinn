@@ -215,7 +215,8 @@ size_t ReconstructionCUDA<ReconstructionType, Equation>::getNumberOfGhostCells()
     return ReconstructionType::getNumberOfGhostCells();
 }
 
-template<class ReconstructionType, class Equation> ReconstructionCUDA<ReconstructionType, Equation>::ReconstructionCUDA(
+template<class ReconstructionType, class Equation>
+ReconstructionCUDA<ReconstructionType, Equation>::ReconstructionCUDA(
     const simulator::SimulatorParameters& parameters)
     : equation(static_cast<const typename Equation::Parameters&>
           (parameters.getEquationParameters())) {

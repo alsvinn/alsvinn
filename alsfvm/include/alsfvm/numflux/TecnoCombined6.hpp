@@ -16,48 +16,48 @@ namespace numflux {
 //!
 template<class Equation, class BaseFlux>
 class TecnoCombined6 {
-    public:
-        ///
-        /// \brief name is "tecno6"
-        ///
-        static const std::string name;
+public:
+    ///
+    /// \brief name is "tecno6"
+    ///
+    static const std::string name;
 
-        template<int direction>
-        __device__ __host__ inline static real computeFlux(const Equation& eq,
-            const typename Equation::AllVariables& uiMinus2,
-            const typename Equation::AllVariables& uiMinus1,
-            const typename Equation::AllVariables& ui,
-            const typename Equation::AllVariables& uiPlus1,
-            const typename Equation::AllVariables& uiPlus2,
-            const typename Equation::AllVariables& uiPlus3,
-            typename Equation::ConservedVariables& F) {
+    template<int direction>
+    __device__ __host__ inline static real computeFlux(const Equation& eq,
+        const typename Equation::AllVariables& uiMinus2,
+        const typename Equation::AllVariables& uiMinus1,
+        const typename Equation::AllVariables& ui,
+        const typename Equation::AllVariables& uiPlus1,
+        const typename Equation::AllVariables& uiPlus2,
+        const typename Equation::AllVariables& uiPlus3,
+        typename Equation::ConservedVariables& F) {
 
-            real maxWaveSpeed = 0;
-            // helper function to compute the numerical flux
-            auto flux = [&](const typename Equation::AllVariables & left,
-                    const typename Equation::AllVariables & right
-            ) {
+        real maxWaveSpeed = 0;
+        // helper function to compute the numerical flux
+        auto flux = [&](const typename Equation::AllVariables & left,
+                const typename Equation::AllVariables & right
+        ) {
 
-                typename Equation::ConservedVariables returnValue;
-                real waveSpeed = BaseFlux::template computeFlux<direction>(eq, left, right,
-                    returnValue);
-                maxWaveSpeed = fmax(maxWaveSpeed, waveSpeed);
+            typename Equation::ConservedVariables returnValue;
+            real waveSpeed = BaseFlux::template computeFlux<direction>(eq, left, right,
+                returnValue);
+            maxWaveSpeed = fmax(maxWaveSpeed, waveSpeed);
 
-                return returnValue;
+            return returnValue;
 
-            };
-            F = (3.0 / 2.0 * flux(ui, uiPlus1) - 3.0 / 10.0 * (flux(uiMinus1,
-                            uiPlus1) + flux(ui, uiPlus2))
-                    + 1.0 / 30.0 * (flux(uiMinus2, uiPlus1) + flux(uiMinus1, uiPlus2) + flux(ui,
-                            uiPlus3)));
-            return maxWaveSpeed;
-        }
+        };
+        F = (3.0 / 2.0 * flux(ui, uiPlus1) - 3.0 / 10.0 * (flux(uiMinus1,
+                        uiPlus1) + flux(ui, uiPlus2))
+                + 1.0 / 30.0 * (flux(uiMinus2, uiPlus1) + flux(uiMinus1, uiPlus2) + flux(ui,
+                        uiPlus3)));
+        return maxWaveSpeed;
+    }
 
-        static constexpr bool hasStencil = true;
+    static constexpr bool hasStencil = true;
 
-        static __host__ __device__ ivec6 stencil() {
-            return{ -2, -1, 0, 1, 2, 3 };
-        }
+    static __host__ __device__ ivec6 stencil() {
+        return{ -2, -1, 0, 1, 2, 3 };
+    }
 };
 } // namespace numflux
 } // namespace alsfvm

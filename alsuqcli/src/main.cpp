@@ -107,9 +107,9 @@ int main(int argc, char** argv) {
         const int multiZ = vm["multi-z"].as<int>();
         const int multiSample = vm["multi-sample"].as<int>();
 
-        if (mpiConfig->getNumberOfProcesses() != multiSample * multiX * multiY *
+        if (mpiConfig->getNumberOfProcesses() != multiSample * multiX * multiY*
             multiZ) {
-            THROW("The total number of processors required is: " << multiSample * multiX *
+            THROW("The total number of processors required is: " << multiSample * multiX*
                 multiY * multiZ
                 << "\n" << "The total number given was: " <<
                 mpiConfig->getNumberOfProcesses() );

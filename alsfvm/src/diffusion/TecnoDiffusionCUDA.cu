@@ -216,7 +216,8 @@ void applyDiffusionCUDA(Equation equation, volume::Volume& outputVolume,
 }
 
 
-template<class Equation, template<typename, int> class DiffusionMatrix> TecnoDiffusionCUDA<Equation, DiffusionMatrix>::TecnoDiffusionCUDA(
+template<class Equation, template<typename, int> class DiffusionMatrix>
+TecnoDiffusionCUDA<Equation, DiffusionMatrix>::TecnoDiffusionCUDA(
     volume::VolumeFactory& volumeFactory,
     alsfvm::shared_ptr<reconstruction::tecno::TecnoReconstruction> reconstruction,
     const simulator::SimulatorParameters& simulatorParameters)

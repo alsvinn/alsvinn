@@ -12,32 +12,32 @@ namespace cubic {
 ///
 template<class VolumeType, class ViewType>
 class Views {
-    public:
+public:
 
-        Views(VolumeType& volume)
-            : u(volume.getScalarMemoryArea("u")->getView()) {
-            // Empty
-        }
-
-
-        template<size_t variableIndex>
-        __device__ __host__ ViewType& get() {
-            static_assert(variableIndex < 1,
-                "We only have 1 conserved variables for Cubic!");
-            return u;
-        }
+    Views(VolumeType& volume)
+        : u(volume.getScalarMemoryArea("u")->getView()) {
+        // Empty
+    }
 
 
-        __device__ __host__ ViewType& get(size_t variableIndex) {
-            assert(variableIndex == 0);
-            return u;
-        }
-        __device__ __host__ size_t index(size_t x, size_t y, size_t z) const {
-            return u.index(x, y, z);
-        }
+    template<size_t variableIndex>
+    __device__ __host__ ViewType& get() {
+        static_assert(variableIndex < 1,
+            "We only have 1 conserved variables for Cubic!");
+        return u;
+    }
 
 
-        ViewType u;
+    __device__ __host__ ViewType& get(size_t variableIndex) {
+        assert(variableIndex == 0);
+        return u;
+    }
+    __device__ __host__ size_t index(size_t x, size_t y, size_t z) const {
+        return u.index(x, y, z);
+    }
+
+
+    ViewType u;
 };
 
 } // namespace alsfvm

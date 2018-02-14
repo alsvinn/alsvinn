@@ -12,11 +12,11 @@ namespace buckleyleverett {
 ///
 template<class VolumeType, class ViewType>
 class ViewsExtra {
-    public:
+public:
 
-        ViewsExtra(VolumeType& volume) {
-            // Empty
-        }
+    ViewsExtra(VolumeType& volume) {
+        // Empty
+    }
 };
 
 } // namespace alsfvm

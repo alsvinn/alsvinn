@@ -5,18 +5,18 @@ namespace alsuq {
 namespace distribution {
 
 class Normal : public Distribution {
-    public:
-        Normal(const Parameters& parameters);
+public:
+    Normal(const Parameters& parameters);
 
-        real generate(generator::Generator& generator, size_t component);
+    real generate(generator::Generator& generator, size_t component);
 
-    private:
-        real scale(real x);
-        const real mean;
-        const real standardDeviation;
+private:
+    real scale(real x);
+    const real mean;
+    const real standardDeviation;
 
-        real buffer{42};
-        bool hasBuffer{false};
+    real buffer{42};
+    bool hasBuffer{false};
 
 };
 } // namespace distribution

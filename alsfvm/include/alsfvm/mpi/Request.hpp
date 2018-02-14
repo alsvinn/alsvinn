@@ -14,33 +14,33 @@ namespace mpi {
 //!
 //! \note Should be held in a unique_ptr
 class Request {
-    public:
-        //! Singleton
-        Request();
-    public:
-        typedef alsfvm::shared_ptr<Request> RequestPtr;
+public:
+    //! Singleton
+    Request();
+public:
+    typedef alsfvm::shared_ptr<Request> RequestPtr;
 
-        //! Maps to MPI_Isend. See http://www.mpich.org/static/docs/v3.1/www3/MPI_Isend.html
-        template<class Data>
-        static RequestPtr isend(const Data& data, int count, MPI_Datatype datatype,
-            int destination, int tag, Configuration& configuration);
+    //! Maps to MPI_Isend. See http://www.mpich.org/static/docs/v3.1/www3/MPI_Isend.html
+    template<class Data>
+    static RequestPtr isend(const Data& data, int count, MPI_Datatype datatype,
+        int destination, int tag, Configuration& configuration);
 
-        //! Maps to MPI_Irecv. See http://www.mpich.org/static/docs/v3.1/www3/MPI_Irecv.html
-        template<class Data>
-        static RequestPtr ireceive(Data& receiveBuffer, int count,
-            MPI_Datatype datatype,
-            int source, int tag, Configuration configuration);
+    //! Maps to MPI_Irecv. See http://www.mpich.org/static/docs/v3.1/www3/MPI_Irecv.html
+    template<class Data>
+    static RequestPtr ireceive(Data& receiveBuffer, int count,
+        MPI_Datatype datatype,
+        int source, int tag, Configuration configuration);
 
 
-        //! Wait for the request to finish, maps to MPI_Wait.
-        void wait();
+    //! Wait for the request to finish, maps to MPI_Wait.
+    void wait();
 
-        friend class std::unique_ptr<Request>;
+    friend class std::unique_ptr<Request>;
 
-        ~Request();
-    private:
+    ~Request();
+private:
 
-        MPI_Request request{NULL};
+    MPI_Request request{NULL};
 };
 
 typedef Request::RequestPtr RequestPtr;

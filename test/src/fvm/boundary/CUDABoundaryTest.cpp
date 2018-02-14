@@ -7,29 +7,29 @@ using namespace alsfvm;
 using namespace alsfvm::volume;
 
 class CUDABoundaryTest : public ::testing::Test {
-    public:
-        const size_t nx;
-        const size_t ny;
-        const size_t nz;
+public:
+    const size_t nx;
+    const size_t ny;
+    const size_t nz;
 
-        std::string equation;
-        alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
-        grid::Grid grid;
-        alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
-        volume::VolumeFactory volumeFactory;
-        boundary::BoundaryFactory boundaryFactory;
+    std::string equation;
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+    grid::Grid grid;
+    alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
+    volume::VolumeFactory volumeFactory;
+    boundary::BoundaryFactory boundaryFactory;
 
-        CUDABoundaryTest()
-            :
-            nx(10), ny(10), nz(1),
-            equation("euler3"),
-            deviceConfiguration(new DeviceConfiguration("cuda")),
-            grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(nx, ny, nz)),
-            memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
-            volumeFactory(equation, memoryFactory), boundaryFactory("neumann",
-                deviceConfiguration) {
+    CUDABoundaryTest()
+        :
+        nx(10), ny(10), nz(1),
+        equation("euler3"),
+        deviceConfiguration(new DeviceConfiguration("cuda")),
+        grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(nx, ny, nz)),
+        memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
+        volumeFactory(equation, memoryFactory), boundaryFactory("neumann",
+            deviceConfiguration) {
 
-        }
+    }
 };
 
 

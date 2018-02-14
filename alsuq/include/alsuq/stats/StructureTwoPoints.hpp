@@ -13,35 +13,35 @@ namespace stats {
 //!
 //! \f[\sum_{i,j,k} (u_{(i,j,k) + e_1}-u_{(i,j,k)})(u_{(i,j,k) + e_2}-u_{(i,j,k))^2\f]
 class StructureTwoPoints : public StatisticsHelper {
-    public:
-        StructureTwoPoints(const StatisticsParameters& parameters);
+public:
+    StructureTwoPoints(const StatisticsParameters& parameters);
 
 
-        //! Returns a list of ['structure_2pt']
-        virtual std::vector<std::string> getStatisticsNames() const;
-
-
-
-
-        virtual void computeStatistics(const alsfvm::volume::Volume& conservedVariables,
-            const alsfvm::volume::Volume& extraVariables,
-            const alsfvm::grid::Grid& grid,
-            const alsfvm::simulator::TimestepInformation& timestepInformation) override;
-
-        virtual void finalize() override;
+    //! Returns a list of ['structure_2pt']
+    virtual std::vector<std::string> getStatisticsNames() const;
 
 
 
-    private:
-        void computeStructure(alsfvm::volume::Volume& outputVolume,
-            const alsfvm::volume::Volume& input);
 
-        const size_t direction1;
-        const size_t direction2;
-        const ivec3 directionVector1;
-        const ivec3 directionVector2;
-        const size_t numberOfH;
-        const std::string statisticsName;
+    virtual void computeStatistics(const alsfvm::volume::Volume& conservedVariables,
+        const alsfvm::volume::Volume& extraVariables,
+        const alsfvm::grid::Grid& grid,
+        const alsfvm::simulator::TimestepInformation& timestepInformation) override;
+
+    virtual void finalize() override;
+
+
+
+private:
+    void computeStructure(alsfvm::volume::Volume& outputVolume,
+        const alsfvm::volume::Volume& input);
+
+    const size_t direction1;
+    const size_t direction2;
+    const ivec3 directionVector1;
+    const ivec3 directionVector2;
+    const size_t numberOfH;
+    const std::string statisticsName;
 
 };
 } // namespace stats

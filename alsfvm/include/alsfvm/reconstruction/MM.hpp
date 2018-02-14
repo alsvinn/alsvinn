@@ -4,7 +4,7 @@ namespace alsfvm {
 namespace reconstruction {
 
 class MM {
-    public:
+public:
 
 };
 } // namespace reconstruction

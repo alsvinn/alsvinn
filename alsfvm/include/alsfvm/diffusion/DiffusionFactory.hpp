@@ -9,17 +9,17 @@ namespace alsfvm {
 namespace diffusion {
 
 class DiffusionFactory {
-    public:
-        alsfvm::shared_ptr<DiffusionOperator> createDiffusionOperator(
-            const std::string& equation,
-            const std::string& diffusionType,
-            const std::string& reconstructionType,
-            const grid::Grid& grid,
-            const simulator::SimulatorParameters& simulatorParameters,
-            alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration,
-            alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-            volume::VolumeFactory& volumeFactory
-        );
+public:
+    alsfvm::shared_ptr<DiffusionOperator> createDiffusionOperator(
+        const std::string& equation,
+        const std::string& diffusionType,
+        const std::string& reconstructionType,
+        const grid::Grid& grid,
+        const simulator::SimulatorParameters& simulatorParameters,
+        alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration,
+        alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+        volume::VolumeFactory& volumeFactory
+    );
 };
 } // namespace diffusion
 } // namespace alsfvm

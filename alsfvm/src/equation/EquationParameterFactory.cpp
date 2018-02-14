@@ -26,8 +26,7 @@ struct EquationParametersFunctor {
 };
 }
 
-alsfvm::shared_ptr<EquationParameters>
-EquationParameterFactory::createDefaultEquationParameters(
+alsfvm::shared_ptr<EquationParameters> EquationParameterFactory::createDefaultEquationParameters(
     const std::string& name) {
     alsfvm::shared_ptr<EquationParameters> parameters;
     EquationParametersFunctor equationParametersFunctor(name, parameters);

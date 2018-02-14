@@ -14,34 +14,34 @@ namespace numflux {
 //!
 template<class Equation>
 class ScalarEntropyConservativeFlux {
-    public:
-        ///
-        /// \brief name is "tecno1"
-        ///
-        static const std::string name;
+public:
+    ///
+    /// \brief name is "tecno1"
+    ///
+    static const std::string name;
 
-        template<int direction>
-        __device__ __host__ inline static real computeFlux(const Equation& eq,
-            const typename Equation::AllVariables& left,
-            const typename Equation::AllVariables& right,
-            typename Equation::ConservedVariables& F) {
-            auto leftEntropyVariable = eq.computeEntropyVariables(left);
-            auto rightEntropyVariable = eq.computeEntropyVariables(right);
+    template<int direction>
+    __device__ __host__ inline static real computeFlux(const Equation& eq,
+        const typename Equation::AllVariables& left,
+        const typename Equation::AllVariables& right,
+        typename Equation::ConservedVariables& F) {
+        auto leftEntropyVariable = eq.computeEntropyVariables(left);
+        auto rightEntropyVariable = eq.computeEntropyVariables(right);
 
-            if (left.u ==
-                right.u) {// || (leftEntropyVariable - rightEntropyVariable).norm() < 1e-6) {
-                eq.template computePointFlux<direction>(left, F);
-            } else {
-                auto leftEntropyPotential = eq.computeEntropyPotential(left);
-                auto rightEntropyPotential = eq.computeEntropyPotential(right);
+        if (left.u ==
+            right.u) {// || (leftEntropyVariable - rightEntropyVariable).norm() < 1e-6) {
+            eq.template computePointFlux<direction>(left, F);
+        } else {
+            auto leftEntropyPotential = eq.computeEntropyPotential(left);
+            auto rightEntropyPotential = eq.computeEntropyPotential(right);
 
-                F.u = ((rightEntropyPotential - leftEntropyPotential) /
-                        (rightEntropyVariable - leftEntropyVariable));
-            }
-
-            return fmax(eq.template computeWaveSpeed<direction>(left, left),
-                    eq.template computeWaveSpeed<direction>(right, right));
+            F.u = ((rightEntropyPotential - leftEntropyPotential) /
+                    (rightEntropyVariable - leftEntropyVariable));
         }
+
+        return fmax(eq.template computeWaveSpeed<direction>(left, left),
+                eq.template computeWaveSpeed<direction>(right, right));
+    }
 };
 } // namespace numflux
 } // namespace alsfvm

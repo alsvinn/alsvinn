@@ -271,7 +271,8 @@ void callComputeFlux(const Equation& equation,
 
 }
 
-template<class Flux, class Equation, size_t dimension> NumericalFluxCUDA<Flux, Equation, dimension>::NumericalFluxCUDA(
+template<class Flux, class Equation, size_t dimension>
+NumericalFluxCUDA<Flux, Equation, dimension>::NumericalFluxCUDA(
     const grid::Grid& grid,
     alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
     const simulator::SimulatorParameters& parameters,

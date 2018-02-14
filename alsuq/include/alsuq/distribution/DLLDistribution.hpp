@@ -39,25 +39,25 @@ namespace distribution {
 //!                          | \endcode
 //!
 class DLLDistribution : public Distribution {
-    public:
-        typedef void* DLLData;
-        DLLDistribution(size_t numberOfSamples, size_t dimension,
-            const Parameters& parameters);
-        virtual ~DLLDistribution();
+public:
+    typedef void* DLLData;
+    DLLDistribution(size_t numberOfSamples, size_t dimension,
+        const Parameters& parameters);
+    virtual ~DLLDistribution();
 
-        //! Generates the next number from the DLL
-        virtual real generate(generator::Generator& generator, size_t component);
-
-
-    private:
-        DLLData dllData = nullptr;
-        std::function<real(DLLData, int, int, int, int)> generatorFunction;
-        std::function<void(DLLData)> deleteFunction;
-        const int size = 0;
-        const int dimension = 0;
+    //! Generates the next number from the DLL
+    virtual real generate(generator::Generator& generator, size_t component);
 
 
-        std::vector<int> samples;
+private:
+    DLLData dllData = nullptr;
+    std::function<real(DLLData, int, int, int, int)> generatorFunction;
+    std::function<void(DLLData)> deleteFunction;
+    const int size = 0;
+    const int dimension = 0;
+
+
+    std::vector<int> samples;
 };
 } // namespace generator
 } // namespace alsuq

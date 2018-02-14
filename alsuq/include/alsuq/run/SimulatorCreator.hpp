@@ -11,31 +11,31 @@ namespace run {
 //! \brief The SimulatorCreator class creates a new instance of the FVM simulator
 //!
 class SimulatorCreator {
-    public:
-        SimulatorCreator(const std::string& configurationFile,
-            mpi::ConfigurationPtr mpiConfigurationSpatial,
-            mpi::ConfigurationPtr mpiConfigurationStatistical,
-            mpi::ConfigurationPtr mpiConfigurationWorld,
-            ivec3 multiSpatial
-        );
+public:
+    SimulatorCreator(const std::string& configurationFile,
+        mpi::ConfigurationPtr mpiConfigurationSpatial,
+        mpi::ConfigurationPtr mpiConfigurationStatistical,
+        mpi::ConfigurationPtr mpiConfigurationWorld,
+        ivec3 multiSpatial
+    );
 
-        alsfvm::shared_ptr<alsfvm::simulator::Simulator>
-        createSimulator(const alsfvm::init::Parameters& initialDataParameters,
-            size_t sampleNumber);
+    alsfvm::shared_ptr<alsfvm::simulator::Simulator>
+    createSimulator(const alsfvm::init::Parameters& initialDataParameters,
+        size_t sampleNumber);
 
-    private:
-        mpi::ConfigurationPtr mpiConfigurationSpatial;
-        mpi::ConfigurationPtr mpiConfigurationStatistical;
-        mpi::ConfigurationPtr mpiConfigurationWorld;
+private:
+    mpi::ConfigurationPtr mpiConfigurationSpatial;
+    mpi::ConfigurationPtr mpiConfigurationStatistical;
+    mpi::ConfigurationPtr mpiConfigurationWorld;
 
-        ivec3 multiSpatial;
+    ivec3 multiSpatial;
 
-        //! Gathers all the current samples from all current mpi procs
-        //! and creates a list of names of the samples now being computed
-        std::vector<std::string> makeGroupNames(size_t sampleNumber);
+    //! Gathers all the current samples from all current mpi procs
+    //! and creates a list of names of the samples now being computed
+    std::vector<std::string> makeGroupNames(size_t sampleNumber);
 
-        bool firstCall{true};
-        const std::string filename;
+    bool firstCall{true};
+    const std::string filename;
 
 
 

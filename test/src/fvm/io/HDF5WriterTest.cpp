@@ -12,32 +12,32 @@ using namespace alsfvm::volume;
 using namespace alsfvm;
 
 class HDF5WriterTest : public ::testing::Test {
-    public:
-        size_t nx, ny, nz;
-        std::string basename;
+public:
+    size_t nx, ny, nz;
+    std::string basename;
 
-        alsfvm::simulator::TimestepInformation info;
+    alsfvm::simulator::TimestepInformation info;
 
-        alsfvm::shared_ptr<alsfvm::DeviceConfiguration> deviceConfiguration;
-        alsfvm::shared_ptr<MemoryFactory> memoryFactory;
-        std::vector<std::string> namesConserved;
-        std::vector<std::string> namesExtra;
-        Volume conservedVariables;
-        Volume extraVariables;
-        HDF5Writer writer;
-        alsfvm::grid::Grid grid;
-        HDF5WriterTest()
-            : nx(10), ny(10), nz(10), basename("base"),
-              deviceConfiguration(new alsfvm::DeviceConfiguration("cpu")),
-              memoryFactory(new MemoryFactory(deviceConfiguration)),
-              namesConserved({"alpha", "beta", "gamma"}),
-        namesExtra({"rho", "phi"}),
-        conservedVariables(namesConserved, memoryFactory, nx, ny, nz),
-        extraVariables(namesExtra, memoryFactory, nx, ny, nz),
-        writer(basename), grid(rvec3(0, 0, 0), rvec3(12.5, 13.5, 10.25), ivec3(nx, nx,
-                nx)) {
+    alsfvm::shared_ptr<alsfvm::DeviceConfiguration> deviceConfiguration;
+    alsfvm::shared_ptr<MemoryFactory> memoryFactory;
+    std::vector<std::string> namesConserved;
+    std::vector<std::string> namesExtra;
+    Volume conservedVariables;
+    Volume extraVariables;
+    HDF5Writer writer;
+    alsfvm::grid::Grid grid;
+    HDF5WriterTest()
+        : nx(10), ny(10), nz(10), basename("base"),
+          deviceConfiguration(new alsfvm::DeviceConfiguration("cpu")),
+          memoryFactory(new MemoryFactory(deviceConfiguration)),
+          namesConserved({"alpha", "beta", "gamma"}),
+    namesExtra({"rho", "phi"}),
+    conservedVariables(namesConserved, memoryFactory, nx, ny, nz),
+    extraVariables(namesExtra, memoryFactory, nx, ny, nz),
+    writer(basename), grid(rvec3(0, 0, 0), rvec3(12.5, 13.5, 10.25), ivec3(nx, nx,
+            nx)) {
 
-        }
+    }
 };
 
 TEST_F(HDF5WriterTest, ConstructTest) {

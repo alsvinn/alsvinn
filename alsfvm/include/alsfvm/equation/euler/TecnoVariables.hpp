@@ -17,14 +17,14 @@ namespace euler {
 //!
 template<int nsd>
 class TecnoVariables {
-    public:
-        typedef typename Types < nsd + 2 >::rvec state_vector;
-        typedef typename Types<nsd>::rvec rvec;
+public:
+    typedef typename Types < nsd + 2 >::rvec state_vector;
+    typedef typename Types<nsd>::rvec rvec;
 
 
-        __device__ __host__ TecnoVariables(real z1, rvec zu, real z5);
+    __device__ __host__ TecnoVariables(real z1, rvec zu, real z5);
 
-        state_vector z;
+    state_vector z;
 };
 
 template<>

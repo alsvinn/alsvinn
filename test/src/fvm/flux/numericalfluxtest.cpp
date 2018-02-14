@@ -15,32 +15,32 @@ using namespace alsfvm;
 using namespace alsfvm::volume;
 
 class NumericalFluxTest : public ::testing::Test {
-    public:
-        std::string equation;
-        std::string flux;
-        std::string reconstruction;
-        alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
-        alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParameters;
-        NumericalFluxFactory fluxFactory;
-        grid::Grid grid;
-        alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
-        volume::VolumeFactory volumeFactory;
+public:
+    std::string equation;
+    std::string flux;
+    std::string reconstruction;
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+    alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParameters;
+    NumericalFluxFactory fluxFactory;
+    grid::Grid grid;
+    alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
+    volume::VolumeFactory volumeFactory;
 
-        const size_t nx;
-        const size_t ny;
-        const size_t nz;
+    const size_t nx;
+    const size_t ny;
+    const size_t nz;
 
-        NumericalFluxTest()
-            : equation("euler3"), flux("HLL"), reconstruction("none"),
-              deviceConfiguration(new DeviceConfiguration("cpu")),
-              simulatorParameters(new simulator::SimulatorParameters(equation, "cpu")),
-              fluxFactory(equation, flux, reconstruction, simulatorParameters,
-                  deviceConfiguration),
-              grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(20, 20, 20)),
-              memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
-              volumeFactory(equation, memoryFactory), nx(10), ny(10), nz(10) {
+    NumericalFluxTest()
+        : equation("euler3"), flux("HLL"), reconstruction("none"),
+          deviceConfiguration(new DeviceConfiguration("cpu")),
+          simulatorParameters(new simulator::SimulatorParameters(equation, "cpu")),
+          fluxFactory(equation, flux, reconstruction, simulatorParameters,
+              deviceConfiguration),
+          grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(20, 20, 20)),
+          memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
+          volumeFactory(equation, memoryFactory), nx(10), ny(10), nz(10) {
 
-        }
+    }
 };
 
 TEST_F(NumericalFluxTest, ConstructionTest) {

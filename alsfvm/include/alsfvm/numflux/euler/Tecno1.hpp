@@ -14,22 +14,22 @@ namespace euler {
 //! )
 template<int nsd>
 class Tecno1 {
-    public:
-        ///
-        /// \brief name is "tecno1"
-        ///
-        static const std::string name;
+public:
+    ///
+    /// \brief name is "tecno1"
+    ///
+    static const std::string name;
 
-        typedef typename Types<nsd>::rvec rvec;
-        typedef typename Types < nsd + 2 >::rvec state_vector;
+    typedef typename Types<nsd>::rvec rvec;
+    typedef typename Types < nsd + 2 >::rvec state_vector;
 
-        //! Computes the entropy conservative flux.
-        //!
-        template<int direction>
-        __device__ __host__ inline static real computeFlux(const
-            equation::euler::Euler<nsd>& eq, const equation::euler::AllVariables<nsd>& left,
-            const equation::euler::AllVariables<nsd>& right,
-            equation::euler::ConservedVariables<nsd>& F);
+    //! Computes the entropy conservative flux.
+    //!
+    template<int direction>
+    __device__ __host__ inline static real computeFlux(const
+        equation::euler::Euler<nsd>& eq, const equation::euler::AllVariables<nsd>& left,
+        const equation::euler::AllVariables<nsd>& right,
+        equation::euler::ConservedVariables<nsd>& F);
 };
 
 //! Computes the entropy conservative flux.

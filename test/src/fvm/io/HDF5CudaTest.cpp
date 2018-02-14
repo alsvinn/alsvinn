@@ -13,31 +13,31 @@ using namespace alsfvm::volume;
 using namespace alsfvm;
 
 class HDF5CudaTest : public ::testing::Test {
-    public:
-        size_t nx, ny, nz;
-        std::string basename;
+public:
+    size_t nx, ny, nz;
+    std::string basename;
 
-        alsfvm::simulator::TimestepInformation info;
+    alsfvm::simulator::TimestepInformation info;
 
-        alsfvm::shared_ptr<alsfvm::DeviceConfiguration> deviceConfiguration;
-        alsfvm::shared_ptr<MemoryFactory> memoryFactory;
-        std::vector<std::string> namesConserved;
-        std::vector<std::string> namesExtra;
-        Volume conservedVariables;
-        Volume extraVariables;
-        HDF5Writer writer;
-        alsfvm::grid::Grid grid;
-        HDF5CudaTest()
-            : nx(10), ny(10), nz(10), basename("base_cuda"),
-              deviceConfiguration(new alsfvm::DeviceConfiguration("cuda")),
-              memoryFactory(new MemoryFactory(deviceConfiguration)),
-              namesConserved({ "alpha", "beta", "gamma" }),
-        namesExtra({ "rho", "phi" }),
-        conservedVariables(namesConserved, memoryFactory, nx, ny, nz),
-        extraVariables(namesExtra, memoryFactory, nx, ny, nz),
-        writer(basename), grid(rvec3(0, 0, 0), rvec3(10, 10, 10), ivec3(nx, nx, nx)) {
+    alsfvm::shared_ptr<alsfvm::DeviceConfiguration> deviceConfiguration;
+    alsfvm::shared_ptr<MemoryFactory> memoryFactory;
+    std::vector<std::string> namesConserved;
+    std::vector<std::string> namesExtra;
+    Volume conservedVariables;
+    Volume extraVariables;
+    HDF5Writer writer;
+    alsfvm::grid::Grid grid;
+    HDF5CudaTest()
+        : nx(10), ny(10), nz(10), basename("base_cuda"),
+          deviceConfiguration(new alsfvm::DeviceConfiguration("cuda")),
+          memoryFactory(new MemoryFactory(deviceConfiguration)),
+          namesConserved({ "alpha", "beta", "gamma" }),
+    namesExtra({ "rho", "phi" }),
+    conservedVariables(namesConserved, memoryFactory, nx, ny, nz),
+    extraVariables(namesExtra, memoryFactory, nx, ny, nz),
+    writer(basename), grid(rvec3(0, 0, 0), rvec3(10, 10, 10), ivec3(nx, nx, nx)) {
 
-        }
+    }
 };
 
 TEST_F(HDF5CudaTest, ConstructTest) {

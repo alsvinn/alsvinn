@@ -10,20 +10,20 @@ namespace {
 
 // Represents the system du/dt = u;
 class ODESystem : public System {
-    public:
-        real dt;
-        ODESystem(real dt) : dt(dt) {}
-        size_t getNumberOfGhostCells() {
-            return 0;
-        }
+public:
+    real dt;
+    ODESystem(real dt) : dt(dt) {}
+    size_t getNumberOfGhostCells() {
+        return 0;
+    }
 
-        void operator()( volume::Volume& conservedVariables,
-            rvec3& waveSpeeds, bool computeWaveSpeeds,
-            volume::Volume& output) {
-            output.getScalarMemoryArea(0)->getPointer()[0] = dt *
-                conservedVariables.getScalarMemoryArea(0)->getPointer()[0];
-            waveSpeeds = rvec3(1, 0, 0);
-        }
+    void operator()( volume::Volume& conservedVariables,
+        rvec3& waveSpeeds, bool computeWaveSpeeds,
+        volume::Volume& output) {
+        output.getScalarMemoryArea(0)->getPointer()[0] = dt *
+            conservedVariables.getScalarMemoryArea(0)->getPointer()[0];
+        waveSpeeds = rvec3(1, 0, 0);
+    }
 };
 }
 struct IntegratorParameters {
@@ -47,15 +47,15 @@ std::ostream& operator<<(std::ostream& os,
 }
 class IntegratorConvergenceTest : public ::testing::TestWithParam
     <IntegratorParameters> {
-    public:
+public:
 
-        IntegratorConvergenceTest() :
-            name(GetParam().name),
-            expectedConvergenceRate(GetParam().expectedConvergenceRate) {
-        }
+    IntegratorConvergenceTest() :
+        name(GetParam().name),
+        expectedConvergenceRate(GetParam().expectedConvergenceRate) {
+    }
 
-        std::string name;
-        double expectedConvergenceRate;
+    std::string name;
+    double expectedConvergenceRate;
 };
 
 TEST_P(IntegratorConvergenceTest, ConvergenceTest) {

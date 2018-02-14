@@ -7,8 +7,8 @@ namespace domain {
 
 class DomainDecompositionParameters
     : public config::GenericParameters {
-    public:
-        DomainDecompositionParameters(const boost::property_tree::ptree& ptree);
+public:
+    DomainDecompositionParameters(const boost::property_tree::ptree& ptree);
 };
 } // namespace domain
 } // namespace mpi

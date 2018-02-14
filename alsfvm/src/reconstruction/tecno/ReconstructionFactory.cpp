@@ -10,7 +10,8 @@
 namespace alsfvm {
 namespace reconstruction {
 namespace tecno {
-alsfvm::shared_ptr<TecnoReconstruction> ReconstructionFactory::createReconstruction(
+alsfvm::shared_ptr<TecnoReconstruction>
+ReconstructionFactory::createReconstruction(
     const std::string& name,
     const std::string& equation,
     const simulator::SimulatorParameters& simulatorParameters,

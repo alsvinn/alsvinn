@@ -50,110 +50,110 @@ std::ostream& operator<<(std::ostream& os,
 }
 class TecnoDiffusionTest : public ::testing::TestWithParam
     <DiffusionParameters> {
-    public:
+public:
 
-        TecnoDiffusionTest()
-            :   parameters(GetParam()) {
-            simulatorParameters.reset(new simulator::SimulatorParameters);
-            simulatorParameters->setEquationName(parameters.equation);
-            simulatorParameters->setPlatform(parameters.platform);
-            deviceConfiguration.reset(new DeviceConfiguration(parameters.platform));
-            deviceConfigurationCPU.reset(new DeviceConfiguration("cpu"));
+    TecnoDiffusionTest()
+        :   parameters(GetParam()) {
+        simulatorParameters.reset(new simulator::SimulatorParameters);
+        simulatorParameters->setEquationName(parameters.equation);
+        simulatorParameters->setPlatform(parameters.platform);
+        deviceConfiguration.reset(new DeviceConfiguration(parameters.platform));
+        deviceConfigurationCPU.reset(new DeviceConfiguration("cpu"));
 
-            memoryFactory.reset(new memory::MemoryFactory(deviceConfiguration));
-            memoryFactoryCPU.reset(new memory::MemoryFactory(deviceConfigurationCPU));
+        memoryFactory.reset(new memory::MemoryFactory(deviceConfiguration));
+        memoryFactoryCPU.reset(new memory::MemoryFactory(deviceConfigurationCPU));
 
-            volumeFactory.reset(new volume::VolumeFactory(parameters.equation,
-                    memoryFactory));
-            volumeFactoryCPU.reset(new volume::VolumeFactory(parameters.equation,
-                    memoryFactoryCPU));
+        volumeFactory.reset(new volume::VolumeFactory(parameters.equation,
+                memoryFactory));
+        volumeFactoryCPU.reset(new volume::VolumeFactory(parameters.equation,
+                memoryFactoryCPU));
 
-            boundaryFactory.reset(new boundary::BoundaryFactory("periodic",
-                    deviceConfiguration));
-            equation::EquationParameterFactory equationParameterFactory;
+        boundaryFactory.reset(new boundary::BoundaryFactory("periodic",
+                deviceConfiguration));
+        equation::EquationParameterFactory equationParameterFactory;
 
-            auto equationParameters =
-                equationParameterFactory.createDefaultEquationParameters(parameters.equation);
-            simulatorParameters->setEquationParameters( equationParameters );
-            equation::CellComputerFactory cellComputerFactory(simulatorParameters,
-                deviceConfiguration);
+        auto equationParameters =
+            equationParameterFactory.createDefaultEquationParameters(parameters.equation);
+        simulatorParameters->setEquationParameters( equationParameters );
+        equation::CellComputerFactory cellComputerFactory(simulatorParameters,
+            deviceConfiguration);
 
-            cellComputer = cellComputerFactory.createComputer();
-        }
+        cellComputer = cellComputerFactory.createComputer();
+    }
 
-        DiffusionParameters parameters;
+    DiffusionParameters parameters;
 
-        alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
-        alsfvm::shared_ptr<DeviceConfiguration> deviceConfigurationCPU;
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfigurationCPU;
 
-        alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
-        alsfvm::shared_ptr<memory::MemoryFactory> memoryFactoryCPU;
+    alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
+    alsfvm::shared_ptr<memory::MemoryFactory> memoryFactoryCPU;
 
-        alsfvm::shared_ptr<volume::VolumeFactory> volumeFactory;
-        alsfvm::shared_ptr<volume::VolumeFactory> volumeFactoryCPU;
+    alsfvm::shared_ptr<volume::VolumeFactory> volumeFactory;
+    alsfvm::shared_ptr<volume::VolumeFactory> volumeFactoryCPU;
 
-        alsfvm::shared_ptr<alsfvm::simulator::SimulatorParameters> simulatorParameters;
+    alsfvm::shared_ptr<alsfvm::simulator::SimulatorParameters> simulatorParameters;
 
-        alsfvm::shared_ptr<boundary::BoundaryFactory> boundaryFactory;
-        alsfvm::shared_ptr<alsfvm::equation::CellComputer> cellComputer;
-        std::tuple<grid::Grid, alsfvm::shared_ptr<volume::Volume>, alsfvm::shared_ptr<diffusion::DiffusionOperator> >
-        makeSetup(size_t nx) {
-            auto grid = grid::Grid(rvec3(0., 0., 0.), rvec3(1., 0., 0.), ivec3(nx, 1, 1));
+    alsfvm::shared_ptr<boundary::BoundaryFactory> boundaryFactory;
+    alsfvm::shared_ptr<alsfvm::equation::CellComputer> cellComputer;
+    std::tuple<grid::Grid, alsfvm::shared_ptr<volume::Volume>, alsfvm::shared_ptr<diffusion::DiffusionOperator> > makeSetup(
+        size_t nx) {
+        auto grid = grid::Grid(rvec3(0., 0., 0.), rvec3(1., 0., 0.), ivec3(nx, 1, 1));
 
-            diffusion::DiffusionFactory diffusionFactory;
+        diffusion::DiffusionFactory diffusionFactory;
 
-            auto diffusionOperator = diffusionFactory.createDiffusionOperator(
-                    parameters.equation, parameters.diffusion,
-                    parameters.reconstruction, grid, *simulatorParameters, deviceConfiguration,
-                    memoryFactory,
-                    *volumeFactory);
+        auto diffusionOperator = diffusionFactory.createDiffusionOperator(
+                parameters.equation, parameters.diffusion,
+                parameters.reconstruction, grid, *simulatorParameters, deviceConfiguration,
+                memoryFactory,
+                *volumeFactory);
 
-            auto boundary = boundaryFactory->createBoundary(
-                    diffusionOperator->getNumberOfGhostCells());
+        auto boundary = boundaryFactory->createBoundary(
+                diffusionOperator->getNumberOfGhostCells());
 
-            auto volumeCPU = volumeFactoryCPU->createConservedVolume(nx, 1, 1,
-                    diffusionOperator->getNumberOfGhostCells());
-            volumeCPU->makeZero();
-
-
-            // Integral of f / dx
-            // where dx = b - a
-            auto averageIntegralF = [](real a, real b) {
-                return 0.5 * (-cos(2 * M_PI * b) + cos(2 * M_PI * a)) / (2 * M_PI *
-                        (b - a)) + 1;
-            };
-
-            double dx = grid.getCellLengths().x;
-            volume::for_each_midpoint(*volumeCPU, grid, [&](real x, real y, real z,
-            size_t index) {
-                real a = index * dx;
-                real b = (index + 1) * dx;
-
-                for (size_t i = 0; i < volumeCPU->getNumberOfVariables(); ++i) {
-                    volumeCPU->getScalarMemoryArea(i)->getPointer()[index] = averageIntegralF(a, b);
-                }
-
-                if (parameters.equation == "euler1" || parameters.equation == "euler2"
-                    || parameters.equation == "euler3") {
-                    // make sure the energy is compatible
-                    volumeCPU->getScalarMemoryArea("E")->getPointer()[index] = averageIntegralF(a,
-                            b) + 20;
-                }
-            });
+        auto volumeCPU = volumeFactoryCPU->createConservedVolume(nx, 1, 1,
+                diffusionOperator->getNumberOfGhostCells());
+        volumeCPU->makeZero();
 
 
+        // Integral of f / dx
+        // where dx = b - a
+        auto averageIntegralF = [](real a, real b) {
+            return 0.5 * (-cos(2 * M_PI * b) + cos(2 * M_PI * a)) / (2 * M_PI *
+                    (b - a)) + 1;
+        };
 
-            auto volume = volumeFactory->createConservedVolume(nx, 1, 1,
-                    diffusionOperator->getNumberOfGhostCells());
+        double dx = grid.getCellLengths().x;
+        volume::for_each_midpoint(*volumeCPU, grid, [&](real x, real y, real z,
+        size_t index) {
+            real a = index * dx;
+            real b = (index + 1) * dx;
 
-            volumeCPU->copyTo(*volume);
-            auto extraVolume = volumeFactory->createExtraVolume(nx, 1, 1,
-                    diffusionOperator->getNumberOfGhostCells());
-            cellComputer->computeExtraVariables(*volume, *extraVolume);
-            //ASSERT_EQ(true, cellComputer->obeysConstraints(*volume, *extraVolume));
-            boundary->applyBoundaryConditions(*volume, grid);
-            return std::make_tuple(grid, volume, diffusionOperator);
-        }
+            for (size_t i = 0; i < volumeCPU->getNumberOfVariables(); ++i) {
+                volumeCPU->getScalarMemoryArea(i)->getPointer()[index] = averageIntegralF(a, b);
+            }
+
+            if (parameters.equation == "euler1" || parameters.equation == "euler2"
+                || parameters.equation == "euler3") {
+                // make sure the energy is compatible
+                volumeCPU->getScalarMemoryArea("E")->getPointer()[index] = averageIntegralF(a,
+                        b) + 20;
+            }
+        });
+
+
+
+        auto volume = volumeFactory->createConservedVolume(nx, 1, 1,
+                diffusionOperator->getNumberOfGhostCells());
+
+        volumeCPU->copyTo(*volume);
+        auto extraVolume = volumeFactory->createExtraVolume(nx, 1, 1,
+                diffusionOperator->getNumberOfGhostCells());
+        cellComputer->computeExtraVariables(*volume, *extraVolume);
+        //ASSERT_EQ(true, cellComputer->obeysConstraints(*volume, *extraVolume));
+        boundary->applyBoundaryConditions(*volume, grid);
+        return std::make_tuple(grid, volume, diffusionOperator);
+    }
 };
 
 

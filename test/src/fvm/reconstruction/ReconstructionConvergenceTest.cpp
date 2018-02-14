@@ -55,93 +55,93 @@ std::ostream& operator<<(std::ostream& os,
 
 class ReconstructionConvergenceTest : public ::testing::TestWithParam
     <ReconstructionParameters> {
-    public:
-        ReconstructionParameters parameters;
-        size_t nx = 10;
-        size_t ny = 10;
-        size_t nz = 1;
+public:
+    ReconstructionParameters parameters;
+    size_t nx = 10;
+    size_t ny = 10;
+    size_t nz = 1;
 
-        Grid grid;
+    Grid grid;
 
-        alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
-        alsfvm::shared_ptr<MemoryFactory> memoryFactory;
-        ReconstructionFactory reconstructionFactory;
-        VolumeFactory volumeFactory;
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+    alsfvm::shared_ptr<MemoryFactory> memoryFactory;
+    ReconstructionFactory reconstructionFactory;
+    VolumeFactory volumeFactory;
 
-        alsfvm::shared_ptr<DeviceConfiguration> deviceConfigurationCPU;
-        alsfvm::shared_ptr<MemoryFactory> memoryFactoryCPU;
-        VolumeFactory volumeFactoryCPU;
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfigurationCPU;
+    alsfvm::shared_ptr<MemoryFactory> memoryFactoryCPU;
+    VolumeFactory volumeFactoryCPU;
 
-        simulator::SimulatorParameters simulatorParameters;
+    simulator::SimulatorParameters simulatorParameters;
 
-        alsfvm::shared_ptr<Reconstruction> wenoCUDA;
+    alsfvm::shared_ptr<Reconstruction> wenoCUDA;
 
-        alsfvm::shared_ptr<Volume> conserved;
-        alsfvm::shared_ptr<Volume> left;
-        alsfvm::shared_ptr<Volume> right;
+    alsfvm::shared_ptr<Volume> conserved;
+    alsfvm::shared_ptr<Volume> left;
+    alsfvm::shared_ptr<Volume> right;
 
-        alsfvm::shared_ptr<Volume> conservedCPU;
-        alsfvm::shared_ptr<Volume> leftCPU;
-        alsfvm::shared_ptr<Volume> rightCPU;
+    alsfvm::shared_ptr<Volume> conservedCPU;
+    alsfvm::shared_ptr<Volume> leftCPU;
+    alsfvm::shared_ptr<Volume> rightCPU;
 
-        alsfvm::shared_ptr<boundary::Boundary> boundary;
+    alsfvm::shared_ptr<boundary::Boundary> boundary;
 
-        ReconstructionConvergenceTest()
+    ReconstructionConvergenceTest()
 
-            :
-            parameters(GetParam()),
-            grid({ 0, 0, 0 }, {
-            1, 1, 0
-        }, ivec3(nx, ny, nz)),
-        deviceConfiguration(new DeviceConfiguration(parameters.platform)),
-        memoryFactory(new MemoryFactory(deviceConfiguration)),
-        volumeFactory("euler3", memoryFactory),
-        deviceConfigurationCPU(new DeviceConfiguration("cpu")),
-        memoryFactoryCPU(new MemoryFactory(deviceConfigurationCPU)),
-        volumeFactoryCPU("euler3", memoryFactoryCPU)
+        :
+        parameters(GetParam()),
+        grid({ 0, 0, 0 }, {
+        1, 1, 0
+    }, ivec3(nx, ny, nz)),
+    deviceConfiguration(new DeviceConfiguration(parameters.platform)),
+    memoryFactory(new MemoryFactory(deviceConfiguration)),
+    volumeFactory("euler3", memoryFactory),
+    deviceConfigurationCPU(new DeviceConfiguration("cpu")),
+    memoryFactoryCPU(new MemoryFactory(deviceConfigurationCPU)),
+    volumeFactoryCPU("euler3", memoryFactoryCPU)
 
-        {
-            auto eulerParameters = alsfvm::make_shared<equation::euler::EulerParameters>();
+    {
+        auto eulerParameters = alsfvm::make_shared<equation::euler::EulerParameters>();
 
-            simulatorParameters.setEquationParameters(eulerParameters);
+        simulatorParameters.setEquationParameters(eulerParameters);
 
 
-        }
+    }
 
-        void makeReconstruction(const std::string name, size_t newNx) {
-            nx = newNx;
-            nz = 1;
-            ny = 1;
+    void makeReconstruction(const std::string name, size_t newNx) {
+        nx = newNx;
+        nz = 1;
+        ny = 1;
 
-            grid = Grid({ 0, 0, 0 }, { 1, 1, 0 }, ivec3(nx, ny, nz));
+        grid = Grid({ 0, 0, 0 }, { 1, 1, 0 }, ivec3(nx, ny, nz));
 
-            makeReconstruction(name);
-        }
+        makeReconstruction(name);
+    }
 
-        void makeReconstruction(const std::string& name) {
-            wenoCUDA = reconstructionFactory.createReconstruction(name, "euler3",
-                    simulatorParameters, memoryFactory, grid, deviceConfiguration);
+    void makeReconstruction(const std::string& name) {
+        wenoCUDA = reconstructionFactory.createReconstruction(name, "euler3",
+                simulatorParameters, memoryFactory, grid, deviceConfiguration);
 
-            conserved = volumeFactory.createConservedVolume(nx, ny, nz,
-                    wenoCUDA->getNumberOfGhostCells());
-            left = volumeFactory.createConservedVolume(nx, ny, nz,
-                    wenoCUDA->getNumberOfGhostCells());
-            right = volumeFactory.createConservedVolume(nx, ny, nz,
-                    wenoCUDA->getNumberOfGhostCells());
+        conserved = volumeFactory.createConservedVolume(nx, ny, nz,
+                wenoCUDA->getNumberOfGhostCells());
+        left = volumeFactory.createConservedVolume(nx, ny, nz,
+                wenoCUDA->getNumberOfGhostCells());
+        right = volumeFactory.createConservedVolume(nx, ny, nz,
+                wenoCUDA->getNumberOfGhostCells());
 
-            conservedCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz,
-                    wenoCUDA->getNumberOfGhostCells());
-            rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz,
-                    wenoCUDA->getNumberOfGhostCells());
-            leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz,
-                    wenoCUDA->getNumberOfGhostCells());
+        conservedCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz,
+                wenoCUDA->getNumberOfGhostCells());
+        rightCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz,
+                wenoCUDA->getNumberOfGhostCells());
+        leftCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz,
+                wenoCUDA->getNumberOfGhostCells());
 
-            conserved->makeZero();
+        conserved->makeZero();
 
-            boundary::BoundaryFactory boundaryFactory("periodic", deviceConfiguration);
+        boundary::BoundaryFactory boundaryFactory("periodic", deviceConfiguration);
 
-            boundary = boundaryFactory.createBoundary(wenoCUDA->getNumberOfGhostCells());
-        }
+        boundary = boundaryFactory.createBoundary(wenoCUDA->getNumberOfGhostCells());
+    }
 
 };
 

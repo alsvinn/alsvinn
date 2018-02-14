@@ -115,7 +115,8 @@ void callApplyBoundaryConditions(memory::View<real>& memoryArea,
 /// Constructs a new instance
 /// \param numberOfGhostCells the number of ghost cells on each side to use.
 ///
-template<class BoundaryConditions> BoundaryCUDA<BoundaryConditions>::BoundaryCUDA(
+template<class BoundaryConditions>
+BoundaryCUDA<BoundaryConditions>::BoundaryCUDA(
     size_t numberOfGhostCells)
     : numberOfGhostCells(numberOfGhostCells) {
 

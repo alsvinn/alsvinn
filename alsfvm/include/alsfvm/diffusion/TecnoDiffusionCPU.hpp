@@ -23,46 +23,46 @@ namespace diffusion {
 ///
 template<class Equation, template<class, int> class DiffusionMatrix>
 class TecnoDiffusionCPU : public DiffusionOperator {
-    public:
+public:
 
-        TecnoDiffusionCPU(volume::VolumeFactory& volumeFactory,
-            alsfvm::shared_ptr<reconstruction::tecno::TecnoReconstruction> reconstruction,
-            const simulator::SimulatorParameters& simulatorParameters);
+    TecnoDiffusionCPU(volume::VolumeFactory& volumeFactory,
+        alsfvm::shared_ptr<reconstruction::tecno::TecnoReconstruction> reconstruction,
+        const simulator::SimulatorParameters& simulatorParameters);
 
-        ///
-        /// Applies numerical diffusion to the outputVolume given the data in conservedVolume.
-        ///
-        /// The numerical diffusion will be added to outputVolume, ie. the code will
-        /// essentially work like
-        ///
-        /// \code
-        /// outputVolume += diffusion(conservedVolume);
-        /// \endcode
-        ///
-        ///
-        virtual void applyDiffusion(volume::Volume& outputVolume,
-            const volume::Volume& conservedVolume);
+    ///
+    /// Applies numerical diffusion to the outputVolume given the data in conservedVolume.
+    ///
+    /// The numerical diffusion will be added to outputVolume, ie. the code will
+    /// essentially work like
+    ///
+    /// \code
+    /// outputVolume += diffusion(conservedVolume);
+    /// \endcode
+    ///
+    ///
+    virtual void applyDiffusion(volume::Volume& outputVolume,
+        const volume::Volume& conservedVolume);
 
-        ///
-        /// Gets the total number of ghost cells this diffusion needs,
-        /// this is typically governed by reconstruction algorithm.
-        ///
-        virtual size_t getNumberOfGhostCells() const;
+    ///
+    /// Gets the total number of ghost cells this diffusion needs,
+    /// this is typically governed by reconstruction algorithm.
+    ///
+    virtual size_t getNumberOfGhostCells() const;
 
-    private:
-        alsfvm::volume::VolumeFactory volumeFactory;
-        alsfvm::shared_ptr<reconstruction::tecno::TecnoReconstruction> reconstruction;
+private:
+    alsfvm::volume::VolumeFactory volumeFactory;
+    alsfvm::shared_ptr<reconstruction::tecno::TecnoReconstruction> reconstruction;
 
-        // Reconstructed values (these are basically R^{-1}v,
-        // where v is the entropy variables and R^{-1} is the inverse of the
-        // eigenvalues of the flux.
-        alsfvm::shared_ptr<volume::Volume> left;
-        alsfvm::shared_ptr<volume::Volume> right;
+    // Reconstructed values (these are basically R^{-1}v,
+    // where v is the entropy variables and R^{-1} is the inverse of the
+    // eigenvalues of the flux.
+    alsfvm::shared_ptr<volume::Volume> left;
+    alsfvm::shared_ptr<volume::Volume> right;
 
-        alsfvm::shared_ptr<volume::Volume> entropyVariablesLeft;
-        alsfvm::shared_ptr<volume::Volume> entropyVariablesRight;
+    alsfvm::shared_ptr<volume::Volume> entropyVariablesLeft;
+    alsfvm::shared_ptr<volume::Volume> entropyVariablesRight;
 
-        Equation equation;
+    Equation equation;
 };
 } // namespace diffusion
 } // namespace alsfvm

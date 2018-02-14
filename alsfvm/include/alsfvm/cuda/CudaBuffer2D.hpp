@@ -8,28 +8,28 @@ namespace cuda {
 ///
 template<typename T>
 class CudaBuffer2D : public CudaBuffer < T > {
-    public:
-        ///
-        /// \param nx the number of Ts in x direction
-        /// \param ny the number of Ts in y direction
-        ///
-        CudaBuffer2D(size_t nx, size_t ny);
-        virtual ~CudaBuffer2D();
+public:
+    ///
+    /// \param nx the number of Ts in x direction
+    /// \param ny the number of Ts in y direction
+    ///
+    CudaBuffer2D(size_t nx, size_t ny);
+    virtual ~CudaBuffer2D();
 
 
-        ///
-        /// \returns the pointer to the data
-        ///
-        virtual T* getPointer();
+    ///
+    /// \returns the pointer to the data
+    ///
+    virtual T* getPointer();
 
-        ///
-        /// \returns the pointer to the data
-        ///
-        virtual const T* getPointer() const;
+    ///
+    /// \returns the pointer to the data
+    ///
+    virtual const T* getPointer() const;
 
 
-    private:
-        T* memoryPointer;
+private:
+    T* memoryPointer;
 };
 }
 }

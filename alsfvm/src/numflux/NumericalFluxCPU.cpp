@@ -127,7 +127,8 @@ void makeZero(Equation& equation, volume::Volume& out,
 
 }
 
-template<class Flux, class Equation, size_t dimension> NumericalFluxCPU<Flux, Equation, dimension>::NumericalFluxCPU(
+template<class Flux, class Equation, size_t dimension>
+NumericalFluxCPU<Flux, Equation, dimension>::NumericalFluxCPU(
     const grid::Grid& grid,
     alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
     const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters,

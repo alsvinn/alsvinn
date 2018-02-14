@@ -6,15 +6,15 @@ namespace mpi {
 
 //! Holds a collection of requests
 class RequestContainer {
-    public:
-        typedef Request::RequestPtr RequestPtr;
+public:
+    typedef Request::RequestPtr RequestPtr;
 
-        void addRequest(RequestPtr request);
+    void addRequest(RequestPtr request);
 
-        void waitForAll();
+    void waitForAll();
 
-    private:
-        std::vector<RequestPtr> requests;
+private:
+    std::vector<RequestPtr> requests;
 };
 } // namespace mpi
 } // namespace alsfvm

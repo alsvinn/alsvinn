@@ -7,11 +7,11 @@ namespace alsuq {
 namespace distribution {
 
 class DistributionFactory {
-    public:
-        std::shared_ptr<Distribution> createDistribution(const std::string& name,
-            const size_t dimensions,
-            const size_t numberVariables,
-            const Parameters& parameters);
+public:
+    std::shared_ptr<Distribution> createDistribution(const std::string& name,
+        const size_t dimensions,
+        const size_t numberVariables,
+        const Parameters& parameters);
 };
 } // namespace distribution
 } // namespace alsuq

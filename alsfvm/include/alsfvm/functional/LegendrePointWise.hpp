@@ -27,56 +27,56 @@ namespace functional {
 //!        for any implementation details. In short, \f$L_n(x)=boost::math::legendre_p(n,x)\f$
 //!
 class LegendrePointWise : public Functional {
-    public:
-        //! The following parameters are accepted through parameters
-        //!
-        //!    Name      | Description
-        //!    ----------|-------------
-        //!    minValue  | minimum value that the solution can obtain
-        //!    maxValue  | maximum value that the solution can obtain
-        //!    degree    | the degree of the polynomial \f$L_n(x)\f$
-        //!    variables | the variables to compute for (space separated)
-        LegendrePointWise(const Parameters& parameters);
+public:
+    //! The following parameters are accepted through parameters
+    //!
+    //!    Name      | Description
+    //!    ----------|-------------
+    //!    minValue  | minimum value that the solution can obtain
+    //!    maxValue  | maximum value that the solution can obtain
+    //!    degree    | the degree of the polynomial \f$L_n(x)\f$
+    //!    variables | the variables to compute for (space separated)
+    LegendrePointWise(const Parameters& parameters);
 
-        //! Computes the operator value on the givne input data
-        //!
-        //! @note In order to support time integration, the result should be
-        //!       added to conservedVolumeOut and extraVolumeOut, not overriding
-        //!       it.
-        //!
-        //! @param[out] conservedVolumeOut at the end, should have the contribution
-        //!             of the functional for the conservedVariables
-        //!
-        //! @param[out] extraVolumeOut at the end, should have the contribution
-        //!             of the functional for the extraVariables
-        //!
-        //! @param[in] conservedVolumeIn the state of the conserved variables
-        //!
-        //! @param[in] extraVolume the state of the extra volume
-        //!
-        //! @param[in] weight the current weight to be applied to the functional. Ie, the functional should compute
-        //!                   \code{.cpp}
-        //!                   conservedVolumeOut += weight + f(conservedVolumeIn)
-        //!                   \endcode
-        //!
-        virtual void operator()(volume::Volume& conservedVolumeOut,
-            volume::Volume& extraVolumeOut,
-            const volume::Volume& conservedVolumeIn,
-            const volume::Volume& extraVolumeIn,
-            const real weight,
-            const grid::Grid& grid
-        ) override;
+    //! Computes the operator value on the givne input data
+    //!
+    //! @note In order to support time integration, the result should be
+    //!       added to conservedVolumeOut and extraVolumeOut, not overriding
+    //!       it.
+    //!
+    //! @param[out] conservedVolumeOut at the end, should have the contribution
+    //!             of the functional for the conservedVariables
+    //!
+    //! @param[out] extraVolumeOut at the end, should have the contribution
+    //!             of the functional for the extraVariables
+    //!
+    //! @param[in] conservedVolumeIn the state of the conserved variables
+    //!
+    //! @param[in] extraVolume the state of the extra volume
+    //!
+    //! @param[in] weight the current weight to be applied to the functional. Ie, the functional should compute
+    //!                   \code{.cpp}
+    //!                   conservedVolumeOut += weight + f(conservedVolumeIn)
+    //!                   \endcode
+    //!
+    virtual void operator()(volume::Volume& conservedVolumeOut,
+        volume::Volume& extraVolumeOut,
+        const volume::Volume& conservedVolumeIn,
+        const volume::Volume& extraVolumeIn,
+        const real weight,
+        const grid::Grid& grid
+    ) override;
 
-        //! Returns grid.getDimensions()
-        virtual ivec3 getFunctionalSize(const grid::Grid& grid) const override;
+    //! Returns grid.getDimensions()
+    virtual ivec3 getFunctionalSize(const grid::Grid& grid) const override;
 
 
-    private:
-        const real minValue = -1;
-        const real maxValue = 1;
-        const int degree = 1;
+private:
+    const real minValue = -1;
+    const real maxValue = 1;
+    const int degree = 1;
 
-        std::vector<std::string> variables;
+    std::vector<std::string> variables;
 };
 } // namespace functional
 } // namespace alsfvm

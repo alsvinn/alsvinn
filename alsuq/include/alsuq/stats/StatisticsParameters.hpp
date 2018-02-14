@@ -6,27 +6,27 @@ namespace alsuq {
 namespace stats {
 
 class StatisticsParameters {
-    public:
+public:
 
 
-        void setNumberOfSamples(size_t samples);
-        size_t getNumberOfSamples() const;
+    void setNumberOfSamples(size_t samples);
+    size_t getNumberOfSamples() const;
 
-        const std::string getParameterAsString(const std::string& name) const;
-
-
-        real getParameterAsDouble(const std::string& name) const;
+    const std::string getParameterAsString(const std::string& name) const;
 
 
-        int getParameterAsInteger(const std::string& name) const;
-        void setConfiguration(const boost::property_tree::ptree& configuration);
-        mpi::ConfigurationPtr getMpiConfiguration() const;
-        void setMpiConfiguration(mpi::ConfigurationPtr value);
+    real getParameterAsDouble(const std::string& name) const;
 
-    private:
-        size_t samples;
-        boost::property_tree::ptree configuration;
-        mpi::ConfigurationPtr mpiConfiguration;
+
+    int getParameterAsInteger(const std::string& name) const;
+    void setConfiguration(const boost::property_tree::ptree& configuration);
+    mpi::ConfigurationPtr getMpiConfiguration() const;
+    void setMpiConfiguration(mpi::ConfigurationPtr value);
+
+private:
+    size_t samples;
+    boost::property_tree::ptree configuration;
+    mpi::ConfigurationPtr mpiConfiguration;
 };
 } // namespace stats
 } // namespace alsuq

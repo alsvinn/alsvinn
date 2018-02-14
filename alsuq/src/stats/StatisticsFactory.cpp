@@ -9,16 +9,16 @@ namespace {
 class StatististicsList {
 
 
-    public:
-        static StatististicsList& instance() {
-            static StatististicsList list;
+public:
+    static StatististicsList& instance() {
+        static StatististicsList list;
 
-            return list;
-        }
-        std::map<std::string, std::map<std::string, StatisticsFactory::StatisticsCreator> >
-        creators;
-    private:
-        StatististicsList() {}
+        return list;
+    }
+    std::map<std::string, std::map<std::string, StatisticsFactory::StatisticsCreator> >
+    creators;
+private:
+    StatististicsList() {}
 
 };
 }

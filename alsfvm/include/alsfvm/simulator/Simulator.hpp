@@ -36,137 +36,137 @@ namespace simulator {
 
 ///
 class Simulator {
-    public:
-        ///
-        /// \brief Simulator
-        /// \param simulatorParameters
-        /// \param grid
-        /// \param volumeFactory
-        /// \param integratorFactory
-        /// \param boundaryFactory
-        /// \param numericalFluxFactory
-        /// \param cellComputerFactory
-        /// \param memoryFactory
-        /// \param endTime
-        /// \param deviceConfiguration
-        /// \param equationName
-        /// \param diffusionOperator the diffusion operator to use
-        /// \param name the name of the simulator
-        ///
-        Simulator(const SimulatorParameters& simulatorParameters,
-            alsfvm::shared_ptr<grid::Grid>& grid,
-            volume::VolumeFactory& volumeFactory,
-            integrator::IntegratorFactory& integratorFactory,
-            boundary::BoundaryFactory& boundaryFactory,
-            numflux::NumericalFluxFactory& numericalFluxFactory,
-            equation::CellComputerFactory& cellComputerFactory,
-            alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
-            real endTime,
-            alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
-            std::string& equationName,
-            alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator,
-            const std::string& name
-        );
+public:
+    ///
+    /// \brief Simulator
+    /// \param simulatorParameters
+    /// \param grid
+    /// \param volumeFactory
+    /// \param integratorFactory
+    /// \param boundaryFactory
+    /// \param numericalFluxFactory
+    /// \param cellComputerFactory
+    /// \param memoryFactory
+    /// \param endTime
+    /// \param deviceConfiguration
+    /// \param equationName
+    /// \param diffusionOperator the diffusion operator to use
+    /// \param name the name of the simulator
+    ///
+    Simulator(const SimulatorParameters& simulatorParameters,
+        alsfvm::shared_ptr<grid::Grid>& grid,
+        volume::VolumeFactory& volumeFactory,
+        integrator::IntegratorFactory& integratorFactory,
+        boundary::BoundaryFactory& boundaryFactory,
+        numflux::NumericalFluxFactory& numericalFluxFactory,
+        equation::CellComputerFactory& cellComputerFactory,
+        alsfvm::shared_ptr<memory::MemoryFactory>& memoryFactory,
+        real endTime,
+        alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration,
+        std::string& equationName,
+        alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator,
+        const std::string& name
+    );
 
-        ~Simulator();
-
-
-
-        ///
-        /// \return true if the simulation is finished, false otherwise.
-        ///
-        bool atEnd();
-
-        ///
-        /// Performs one timestep
-        ///
-        void performStep();
-
-        ///
-        /// Calls the writers.
-        ///
-        void callWriters();
-
-        ///
-        /// \brief addWriter adds a writer, this will be called every time callWriter is called
-        /// \param writer
-        ///
-        void addWriter(alsfvm::shared_ptr<io::Writer> writer);
-
-        void addTimestepAdjuster(alsfvm::shared_ptr<integrator::TimestepAdjuster>&
-            adjuster);
-
-        ///
-        /// \return the current simulation time.
-        ///
-        real getCurrentTime() const;
-
-        ///
-        /// \return the end time of the simulation.
-        ///
-        real getEndTime() const;
-
-        ///
-        /// Updates the simulation state.
-        ///
-        /// \param conservedVolume the conservedVolume to update to
-        ///
-        /// \note This does not need to be on the same size as the conserved volume,
-        ///       interpolation will be done.
-        ///
-        void setSimulationState(const volume::Volume& conservedVolume);
-
-        std::string getPlatformName() const;
-
-        std::string getEquationName() const;
-
-        void setInitialValue(alsfvm::shared_ptr<init::InitialData>& initialData);
-
-        const std::shared_ptr<grid::Grid>& getGrid() const;
-        std::shared_ptr<grid::Grid>& getGrid();
-
-        void finalize();
-
-#ifdef ALSVINN_USE_MPI
-        void setCellExchanger(mpi::CellExchangerPtr value);
-#endif
-
-        std::string getName() const;
-
-    private:
+    ~Simulator();
 
 
-        void checkConstraints();
-        void incrementSolution();
-        void doCellExchange(volume::Volume& volume);
 
-        SimulatorParameters simulatorParameters;
-        volume::VolumeFactory volumeFactory;
-        TimestepInformation timestepInformation;
-        alsfvm::shared_ptr<grid::Grid> grid;
-        alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;
-        alsfvm::shared_ptr<integrator::System> system;
-        alsfvm::shared_ptr<integrator::Integrator> integrator;
-        alsfvm::shared_ptr<boundary::Boundary> boundary;
-        std::vector<alsfvm::shared_ptr<volume::Volume> > conservedVolumes;
-        alsfvm::shared_ptr<volume::Volume> extraVolume;
-        alsfvm::shared_ptr<equation::CellComputer> cellComputer;
+    ///
+    /// \return true if the simulation is finished, false otherwise.
+    ///
+    bool atEnd();
 
-        alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator;
-        std::vector<alsfvm::shared_ptr<io::Writer> > writers;
-        alsfvm::shared_ptr<init::InitialData> initialData;
+    ///
+    /// Performs one timestep
+    ///
+    void performStep();
 
-        const real cflNumber;
-        const real endTime;
-        const std::string equationName;
-        const std::string platformName;
-        alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+    ///
+    /// Calls the writers.
+    ///
+    void callWriters();
+
+    ///
+    /// \brief addWriter adds a writer, this will be called every time callWriter is called
+    /// \param writer
+    ///
+    void addWriter(alsfvm::shared_ptr<io::Writer> writer);
+
+    void addTimestepAdjuster(alsfvm::shared_ptr<integrator::TimestepAdjuster>&
+        adjuster);
+
+    ///
+    /// \return the current simulation time.
+    ///
+    real getCurrentTime() const;
+
+    ///
+    /// \return the end time of the simulation.
+    ///
+    real getEndTime() const;
+
+    ///
+    /// Updates the simulation state.
+    ///
+    /// \param conservedVolume the conservedVolume to update to
+    ///
+    /// \note This does not need to be on the same size as the conserved volume,
+    ///       interpolation will be done.
+    ///
+    void setSimulationState(const volume::Volume& conservedVolume);
+
+    std::string getPlatformName() const;
+
+    std::string getEquationName() const;
+
+    void setInitialValue(alsfvm::shared_ptr<init::InitialData>& initialData);
+
+    const std::shared_ptr<grid::Grid>& getGrid() const;
+    std::shared_ptr<grid::Grid>& getGrid();
+
+    void finalize();
 
 #ifdef ALSVINN_USE_MPI
-        mpi::CellExchangerPtr cellExchanger;
+    void setCellExchanger(mpi::CellExchangerPtr value);
 #endif
 
-        const std::string name;
+    std::string getName() const;
+
+private:
+
+
+    void checkConstraints();
+    void incrementSolution();
+    void doCellExchange(volume::Volume& volume);
+
+    SimulatorParameters simulatorParameters;
+    volume::VolumeFactory volumeFactory;
+    TimestepInformation timestepInformation;
+    alsfvm::shared_ptr<grid::Grid> grid;
+    alsfvm::shared_ptr<numflux::NumericalFlux> numericalFlux;
+    alsfvm::shared_ptr<integrator::System> system;
+    alsfvm::shared_ptr<integrator::Integrator> integrator;
+    alsfvm::shared_ptr<boundary::Boundary> boundary;
+    std::vector<alsfvm::shared_ptr<volume::Volume> > conservedVolumes;
+    alsfvm::shared_ptr<volume::Volume> extraVolume;
+    alsfvm::shared_ptr<equation::CellComputer> cellComputer;
+
+    alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator;
+    std::vector<alsfvm::shared_ptr<io::Writer> > writers;
+    alsfvm::shared_ptr<init::InitialData> initialData;
+
+    const real cflNumber;
+    const real endTime;
+    const std::string equationName;
+    const std::string platformName;
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+
+#ifdef ALSVINN_USE_MPI
+    mpi::CellExchangerPtr cellExchanger;
+#endif
+
+    const std::string name;
 };
 } // namespace alsfvm
 } // namespace simulator

@@ -9,16 +9,16 @@ namespace equation {
 ///
 template<class T>
 class EquationInformation {
-    public:
-        typedef T EquationType;
+public:
+    typedef T EquationType;
 
-        ///
-        /// Gets the name of the equation held in the EquationInformationType.
-        ///
-        static std::string getName() {
+    ///
+    /// Gets the name of the equation held in the EquationInformationType.
+    ///
+    static std::string getName() {
 
-            return EquationType::name;
-        }
+        return EquationType::name;
+    }
 };
 } // namespace alsfvm
 } // namespace equation

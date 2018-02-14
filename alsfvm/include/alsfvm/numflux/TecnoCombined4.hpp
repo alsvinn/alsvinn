@@ -16,44 +16,44 @@ namespace numflux {
 //!
 template<class Equation, class BaseFlux>
 class TecnoCombined4 {
-    public:
-        ///
-        /// \brief name is "tecno4"
-        ///
-        static const std::string name;
+public:
+    ///
+    /// \brief name is "tecno4"
+    ///
+    static const std::string name;
 
-        template<int direction>
-        __device__ __host__ inline static real computeFlux(const Equation& eq,
-            const typename Equation::AllVariables& uiMinus1,
-            const typename Equation::AllVariables& ui,
-            const typename Equation::AllVariables& uiPlus1,
-            const typename Equation::AllVariables& uiPlus2,
-            typename Equation::ConservedVariables& F) {
+    template<int direction>
+    __device__ __host__ inline static real computeFlux(const Equation& eq,
+        const typename Equation::AllVariables& uiMinus1,
+        const typename Equation::AllVariables& ui,
+        const typename Equation::AllVariables& uiPlus1,
+        const typename Equation::AllVariables& uiPlus2,
+        typename Equation::ConservedVariables& F) {
 
-            real maxWaveSpeed = 0;
-            // helper function to compute the numerical flux
-            auto flux = [&](const typename Equation::AllVariables & left,
-                    const typename Equation::AllVariables & right
-            ) {
+        real maxWaveSpeed = 0;
+        // helper function to compute the numerical flux
+        auto flux = [&](const typename Equation::AllVariables & left,
+                const typename Equation::AllVariables & right
+        ) {
 
-                typename Equation::ConservedVariables returnValue;
-                real waveSpeed = BaseFlux::template computeFlux<direction>(eq, left, right,
-                    returnValue);
-                maxWaveSpeed = fmax(maxWaveSpeed, waveSpeed);
+            typename Equation::ConservedVariables returnValue;
+            real waveSpeed = BaseFlux::template computeFlux<direction>(eq, left, right,
+                returnValue);
+            maxWaveSpeed = fmax(maxWaveSpeed, waveSpeed);
 
-                return returnValue;
+            return returnValue;
 
-            };
-            F = (4.0 / 3.0 * flux(ui, uiPlus1) - 1.0 / 6.0 * (flux(uiMinus1,
-                            uiPlus1) + flux(ui, uiPlus2)));
-            return maxWaveSpeed;
-        }
+        };
+        F = (4.0 / 3.0 * flux(ui, uiPlus1) - 1.0 / 6.0 * (flux(uiMinus1,
+                        uiPlus1) + flux(ui, uiPlus2)));
+        return maxWaveSpeed;
+    }
 
-        static constexpr bool hasStencil = true;
+    static constexpr bool hasStencil = true;
 
-        static __host__ __device__ ivec4 stencil() {
-            return{ -1, 0, 1, 2 };
-        }
+    static __host__ __device__ ivec4 stencil() {
+        return{ -1, 0, 1, 2 };
+    }
 };
 } // namespace numflux
 } // namespace alsfvm

@@ -13,70 +13,70 @@ namespace euler {
 ///
 template<int nsd>
 class ConservedVariables {
-    public:
-        typedef typename Types<nsd>::rvec rvec;
-        typedef typename Types < nsd + 2 >::rvec state_vector;
+public:
+    typedef typename Types<nsd>::rvec rvec;
+    typedef typename Types < nsd + 2 >::rvec state_vector;
 
-        inline __device__ __host__ ConservedVariables()
-            : rho(0), m(0), E(0) {
-            // empty
-        }
-
-
-
-        template<class ValueType>
-        inline __device__ __host__ ConservedVariables(real rho_,
-
-            const typename Types<nsd>::template vec<ValueType>& m_, real E_)
-            : rho(rho_), m(m_.template convert<real>()), E(E_) {
-            // empty
-        }
-
-
-        template<class T>
-        inline __device__ __host__ ConservedVariables(T rho_, T mx, T my, T mz, T E)
-            : rho(rho_), m(rvec3{mx, my, mz}), E(E) {
-            static_assert(nsd == 3 || sizeof(T) == 0, "Only for 3 dimensions!");
-        }
-
-        template<class T>
-        inline __device__ __host__ ConservedVariables(T rho_, T mx, T my, T E)
-            : rho(rho_), m(rvec2{mx, my}), E(E) {
-            static_assert(nsd == 2 || sizeof(T) == 0, "Only for 3 dimensions!");
-        }
-
-        template<class T>
-        inline __device__ __host__ ConservedVariables(T rho_, T mx, T E)
-            : rho(rho_), m(rvec1{mx}), E(E) {
-            static_assert(nsd == 1 || sizeof(T) == 0, "Only for 3 dimensions!");
-        }
+    inline __device__ __host__ ConservedVariables()
+        : rho(0), m(0), E(0) {
+        // empty
+    }
 
 
 
-        __device__ __host__ ConservedVariables(const state_vector& in);
+    template<class ValueType>
+    inline __device__ __host__ ConservedVariables(real rho_,
+
+        const typename Types<nsd>::template vec<ValueType>& m_, real E_)
+        : rho(rho_), m(m_.template convert<real>()), E(E_) {
+        // empty
+    }
 
 
-        inline __device__ __host__ real operator[](size_t index) const {
-            assert(index < nsd + 2);
-            return ((real*)this)[index];
-        }
+    template<class T>
+    inline __device__ __host__ ConservedVariables(T rho_, T mx, T my, T mz, T E)
+        : rho(rho_), m(rvec3{mx, my, mz}), E(E) {
+        static_assert(nsd == 3 || sizeof(T) == 0, "Only for 3 dimensions!");
+    }
 
-        inline __device__ __host__ real& operator[](size_t index) {
-            assert(index < nsd + 2);
-            return ((real*)this)[index];
-        }
+    template<class T>
+    inline __device__ __host__ ConservedVariables(T rho_, T mx, T my, T E)
+        : rho(rho_), m(rvec2{mx, my}), E(E) {
+        static_assert(nsd == 2 || sizeof(T) == 0, "Only for 3 dimensions!");
+    }
 
-        inline __device__ __host__ static constexpr size_t size() {
-            return nsd + 2;
-        }
+    template<class T>
+    inline __device__ __host__ ConservedVariables(T rho_, T mx, T E)
+        : rho(rho_), m(rvec1{mx}), E(E) {
+        static_assert(nsd == 1 || sizeof(T) == 0, "Only for 3 dimensions!");
+    }
 
-        inline __device__ __host__ bool operator==(const ConservedVariables& other)
-        const {
-            return rho == other.rho && m == other.m && E == other.E;
-        }
-        real rho;
-        rvec m;
-        real E;
+
+
+    __device__ __host__ ConservedVariables(const state_vector& in);
+
+
+    inline __device__ __host__ real operator[](size_t index) const {
+        assert(index < nsd + 2);
+        return ((real*)this)[index];
+    }
+
+    inline __device__ __host__ real& operator[](size_t index) {
+        assert(index < nsd + 2);
+        return ((real*)this)[index];
+    }
+
+    inline __device__ __host__ static constexpr size_t size() {
+        return nsd + 2;
+    }
+
+    inline __device__ __host__ bool operator==(const ConservedVariables& other)
+    const {
+        return rho == other.rho && m == other.m && E == other.E;
+    }
+    real rho;
+    rvec m;
+    real E;
 
 };
 

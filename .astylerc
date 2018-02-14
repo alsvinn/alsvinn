@@ -3,7 +3,6 @@
 
 --style=attach
 -s4
--C
 --indent-after-parens
 --indent-preproc-block
 --indent-col1-comments

@@ -10,16 +10,16 @@ namespace domain {
 //! Contains information about the domain this processor is assigned, as well
 //! as the given neighbours
 class DomainInformation {
-    public:
-        DomainInformation(alsfvm::shared_ptr<grid::Grid> grid,
-            CellExchangerPtr cellExchanger);
+public:
+    DomainInformation(alsfvm::shared_ptr<grid::Grid> grid,
+        CellExchangerPtr cellExchanger);
 
-        alsfvm::shared_ptr<grid::Grid> getGrid();
+    alsfvm::shared_ptr<grid::Grid> getGrid();
 
-        CellExchangerPtr getCellExchanger();
-    private:
-        alsfvm::shared_ptr<grid::Grid> grid;
-        CellExchangerPtr cellExchanger;
+    CellExchangerPtr getCellExchanger();
+private:
+    alsfvm::shared_ptr<grid::Grid> grid;
+    CellExchangerPtr cellExchanger;
 
 };
 

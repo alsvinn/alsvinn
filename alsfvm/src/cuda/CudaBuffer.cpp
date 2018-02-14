@@ -3,8 +3,7 @@
 namespace alsfvm {
 namespace cuda {
 
-template<class T>
-CudaBuffer<T>::CudaBuffer(size_t sizeInBytes,
+template<class T> CudaBuffer<T>::CudaBuffer(size_t sizeInBytes,
     size_t nx,
     size_t ny,
     size_t nz,
@@ -16,8 +15,7 @@ CudaBuffer<T>::CudaBuffer(size_t sizeInBytes,
 }
 
 /// Virtual because we need to inherit from this
-template<class T>
-CudaBuffer<T>::~CudaBuffer() {
+template<class T> CudaBuffer<T>::~CudaBuffer() {
     // Empty
 }
 

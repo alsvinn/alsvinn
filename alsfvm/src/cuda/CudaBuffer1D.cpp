@@ -5,14 +5,12 @@
 namespace alsfvm {
 namespace cuda {
 
-template<class T>
-CudaBuffer1D<T>::CudaBuffer1D(size_t nx)
+template<class T> CudaBuffer1D<T>::CudaBuffer1D(size_t nx)
     : CudaBuffer<T>(nx * sizeof(T), nx, 1, 1, nx * sizeof(T), 1) {
     CUDA_SAFE_CALL(cudaMalloc(&memoryPointer, this->getSizeInBytes()));
 }
 
-template<class T>
-CudaBuffer1D<T>::~CudaBuffer1D() {
+template<class T> CudaBuffer1D<T>::~CudaBuffer1D() {
     CUDA_SAFE_CALL(cudaFree(memoryPointer));
 }
 

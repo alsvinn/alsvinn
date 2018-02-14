@@ -10,30 +10,30 @@ namespace diffusion {
 //! the system.
 template<class Equation, int direction>
 class RoeMatrix {
-    public:
+public:
 
-        __device__ __host__ RoeMatrix (const Equation& equation,
-            const typename Equation::ConservedVariables& conservedVariables)
-            : equation(equation), conservedVariables(conservedVariables) {
-            // empty
+    __device__ __host__ RoeMatrix (const Equation& equation,
+        const typename Equation::ConservedVariables& conservedVariables)
+        : equation(equation), conservedVariables(conservedVariables) {
+        // empty
+    }
+
+    template<typename VectorType>
+    __device__ __host__ VectorType operator*(const VectorType& in) {
+        VectorType out;
+        auto eigenValues = equation.template computeEigenValues<direction>
+            (conservedVariables);
+
+        for (size_t i = 0; i < eigenValues.size(); ++i) {
+            out[i] = fabs(eigenValues[i]) * in[i];
         }
 
-        template<typename VectorType>
-        __device__ __host__ VectorType operator*(const VectorType& in) {
-            VectorType out;
-            auto eigenValues = equation.template computeEigenValues<direction>
-                (conservedVariables);
+        return out;
+    }
 
-            for (size_t i = 0; i < eigenValues.size(); ++i) {
-                out[i] = fabs(eigenValues[i]) * in[i];
-            }
-
-            return out;
-        }
-
-    private:
-        const Equation& equation;
-        typename Equation::ConservedVariables conservedVariables;
+private:
+    const Equation& equation;
+    typename Equation::ConservedVariables conservedVariables;
 };
 }
 }

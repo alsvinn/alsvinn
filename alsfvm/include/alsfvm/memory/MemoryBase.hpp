@@ -7,9 +7,9 @@ namespace memory {
 /// untemplated so it can be passed around easier.
 ///
 class MemoryBase {
-    public:
-        MemoryBase() {}
-        virtual ~MemoryBase() {}
+public:
+    MemoryBase() {}
+    virtual ~MemoryBase() {}
 };
 
 }

@@ -29,44 +29,44 @@ std::ostream& operator<<(std::ostream& os,
 }
 class CUDANumericalFluxTest : public ::testing::TestWithParam
     <CudaNumericalFluxTestParameters> {
-    public:
-        std::string equation;
-        std::string flux;
-        std::string reconstruction;
-        alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
-        alsfvm::shared_ptr<DeviceConfiguration> deviceConfigurationCPU;
+public:
+    std::string equation;
+    std::string flux;
+    std::string reconstruction;
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration;
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfigurationCPU;
 
-        alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParameters;
-        alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParametersCPU;
-        NumericalFluxFactory fluxFactory;
-        NumericalFluxFactory fluxFactoryCPU;
-        grid::Grid grid;
-        alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
-        alsfvm::shared_ptr<memory::MemoryFactory> memoryFactoryCPU;
-        volume::VolumeFactory volumeFactory;
-        volume::VolumeFactory volumeFactoryCPU;
-        const size_t nx;
-        const size_t ny;
-        const size_t nz;
+    alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParameters;
+    alsfvm::shared_ptr<simulator::SimulatorParameters> simulatorParametersCPU;
+    NumericalFluxFactory fluxFactory;
+    NumericalFluxFactory fluxFactoryCPU;
+    grid::Grid grid;
+    alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory;
+    alsfvm::shared_ptr<memory::MemoryFactory> memoryFactoryCPU;
+    volume::VolumeFactory volumeFactory;
+    volume::VolumeFactory volumeFactoryCPU;
+    const size_t nx;
+    const size_t ny;
+    const size_t nz;
 
-        CUDANumericalFluxTest()
-            : equation("euler3"), flux(GetParam().flux), reconstruction("none"),
-              deviceConfiguration(new DeviceConfiguration("cuda")),
-              deviceConfigurationCPU(new DeviceConfiguration("cpu")),
-              simulatorParameters(new simulator::SimulatorParameters("euler3", "cuda")),
-              simulatorParametersCPU(new simulator::SimulatorParameters("euler3", "cpu")),
-              fluxFactory(equation, flux, reconstruction, simulatorParameters,
-                  deviceConfiguration),
-              fluxFactoryCPU(equation, flux, reconstruction, simulatorParametersCPU,
-                  deviceConfigurationCPU),
-              grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(10, 10, 1)),
-              memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
-              memoryFactoryCPU(new memory::MemoryFactory(deviceConfigurationCPU)),
-              volumeFactory(equation, memoryFactory), volumeFactoryCPU(equation,
-                  memoryFactoryCPU),
-              nx(10), ny(10), nz(1) {
+    CUDANumericalFluxTest()
+        : equation("euler3"), flux(GetParam().flux), reconstruction("none"),
+          deviceConfiguration(new DeviceConfiguration("cuda")),
+          deviceConfigurationCPU(new DeviceConfiguration("cpu")),
+          simulatorParameters(new simulator::SimulatorParameters("euler3", "cuda")),
+          simulatorParametersCPU(new simulator::SimulatorParameters("euler3", "cpu")),
+          fluxFactory(equation, flux, reconstruction, simulatorParameters,
+              deviceConfiguration),
+          fluxFactoryCPU(equation, flux, reconstruction, simulatorParametersCPU,
+              deviceConfigurationCPU),
+          grid(rvec3(0, 0, 0), rvec3(1, 1, 1), ivec3(10, 10, 1)),
+          memoryFactory(new memory::MemoryFactory(deviceConfiguration)),
+          memoryFactoryCPU(new memory::MemoryFactory(deviceConfigurationCPU)),
+          volumeFactory(equation, memoryFactory), volumeFactoryCPU(equation,
+              memoryFactoryCPU),
+          nx(10), ny(10), nz(1) {
 
-        }
+    }
 };
 
 TEST_P(CUDANumericalFluxTest, ConstructionTest) {

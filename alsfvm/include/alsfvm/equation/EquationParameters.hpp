@@ -4,8 +4,8 @@ namespace alsfvm {
 namespace equation {
 
 class EquationParameters {
-    public:
-        // Nothing.
+public:
+    // Nothing.
 };
 } // namespace alsfvm
 } // namespace equation

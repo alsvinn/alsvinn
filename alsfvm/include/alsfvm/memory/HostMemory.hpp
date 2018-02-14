@@ -8,229 +8,229 @@ namespace memory {
 
 template<class T>
 class HostMemory : public alsfvm::memory::Memory<T> {
-    public:
+public:
 
-        ///
-        /// @param nx the size of the memory area in X (number of T)
-        /// @param ny the size of the memory area in Y (number of T)
-        /// @param nz the size of the memory area in Z (number of T)
-        ///
-        HostMemory(size_t nx, size_t ny = 1, size_t nz = 1);
-
-
-        //! Clones the memory area, but *does not copy the content*
-        virtual std::shared_ptr<Memory<T> > makeInstance() const;
-
-        ///
-        /// Checks if the memory area is on the host (CPU) or
-        /// on some device, if the latter, one needs to copy to host
-        /// before reading it.
-        /// @returns true if the memory is on host, false otherwise
-        ///
-        virtual bool isOnHost() const;
-
-        //! Copies the contents of the other memory area into this one
-        virtual void copyFrom(const Memory<T>& other);
-
-        ///
-        /// Gets the pointer to the data (need not be on the host!)
-        /// \note If this is an OpenCL implementation, the pointer will
-        /// be useless! If you want to use the OpenCL memory, you should
-        /// first cast to OpenCL memory, then get the OpenCL buffer pointer.
-        ///
-        virtual T* getPointer();
-
-        ///
-        /// Gets the pointer to the data (need not be on the host!)
-        /// \note If this is an OpenCL implementation, the pointer will
-        /// be useless! If you want to use the OpenCL memory, you should
-        /// first cast to OpenCL memory, then get the OpenCL buffer pointer.
-        ///
-        virtual const T* getPointer() const;
-
-        ///
-        /// Copies the memory to the given buffer
-        /// \note bufferLength must be at least getSize()
-        /// \param bufferPointer the buffer to write to
-        /// \param bufferLength the size of the buffer (in number of T's)
-        ///
-        virtual void copyToHost(T* bufferPointer,
-            size_t bufferLength) const;
-
-        ///
-        /// Copies the memory from the buffer (assumed to be on Host/CPU)
-        /// \note bufferLength must be at least getSize()
-        /// \param bufferPointer the buffer to write to
-        /// \param bufferLength the size of the buffer (in number of T's)
-        ///
-        virtual void copyFromHost(const T* bufferPointer,
-            size_t bufferLength);
+    ///
+    /// @param nx the size of the memory area in X (number of T)
+    /// @param ny the size of the memory area in Y (number of T)
+    /// @param nz the size of the memory area in Z (number of T)
+    ///
+    HostMemory(size_t nx, size_t ny = 1, size_t nz = 1);
 
 
-        ///
-        /// Adds the other memory area to this one
-        /// \param other the memory area to add from
-        ///
-        virtual void operator+=(const Memory<T>& other);
+    //! Clones the memory area, but *does not copy the content*
+    virtual std::shared_ptr<Memory<T> > makeInstance() const;
 
-        ///
-        /// Mutliplies the other memory area to this one
-        /// \param other the memory area to multiply from
-        ///
-        virtual void operator*=(const Memory<T>& other);
+    ///
+    /// Checks if the memory area is on the host (CPU) or
+    /// on some device, if the latter, one needs to copy to host
+    /// before reading it.
+    /// @returns true if the memory is on host, false otherwise
+    ///
+    virtual bool isOnHost() const;
 
-        ///
-        /// Subtracts the other memory area to this one
-        /// \param other the memory area to subtract from
-        ///
-        virtual void operator-=(const Memory<T>& other);
+    //! Copies the contents of the other memory area into this one
+    virtual void copyFrom(const Memory<T>& other);
 
-        ///
-        /// Divides the other memory area to this one
-        /// \param other the memory area to divide from
-        ///
-        virtual void operator/=(const Memory<T>& other);
+    ///
+    /// Gets the pointer to the data (need not be on the host!)
+    /// \note If this is an OpenCL implementation, the pointer will
+    /// be useless! If you want to use the OpenCL memory, you should
+    /// first cast to OpenCL memory, then get the OpenCL buffer pointer.
+    ///
+    virtual T* getPointer();
 
-        ///
-        /// Adds the scalar to each component
-        /// \param scalar the scalar to add
-        ///
-        virtual void operator+=(real scalar);
+    ///
+    /// Gets the pointer to the data (need not be on the host!)
+    /// \note If this is an OpenCL implementation, the pointer will
+    /// be useless! If you want to use the OpenCL memory, you should
+    /// first cast to OpenCL memory, then get the OpenCL buffer pointer.
+    ///
+    virtual const T* getPointer() const;
 
-        ///
-        /// Multiplies the scalar to each component
-        /// \param scalar the scalar to multiply
-        ///
-        virtual void operator*=(real scalar);
+    ///
+    /// Copies the memory to the given buffer
+    /// \note bufferLength must be at least getSize()
+    /// \param bufferPointer the buffer to write to
+    /// \param bufferLength the size of the buffer (in number of T's)
+    ///
+    virtual void copyToHost(T* bufferPointer,
+        size_t bufferLength) const;
 
-        ///
-        /// Subtracts the scalar from each component
-        /// \param scalar the scalar to subtract
-        ///
-        virtual void operator-=(real scalar);
-
-        ///
-        /// Divides the each component by the scalar
-        /// \param scalar the scalar to divide
-        ///
-        virtual void operator/=(real scalar);
-
-        ///
-        /// \brief at returns the data at the given index
-        /// \param x the x index
-        /// \param y the y index
-        /// \param z the z index
-        /// \return the data at the given index
-        ///
-        T& at(size_t x, size_t y = 0, size_t z = 0);
+    ///
+    /// Copies the memory from the buffer (assumed to be on Host/CPU)
+    /// \note bufferLength must be at least getSize()
+    /// \param bufferPointer the buffer to write to
+    /// \param bufferLength the size of the buffer (in number of T's)
+    ///
+    virtual void copyFromHost(const T* bufferPointer,
+        size_t bufferLength);
 
 
-        ///
-        /// \brief at returns the data at the given index
-        /// \param x the x index
-        /// \param y the y index
-        /// \param z the z index
-        /// \return the data at the given index
-        ///
-        const T& at(size_t x, size_t y = 0, size_t z = 0) const;
+    ///
+    /// Adds the other memory area to this one
+    /// \param other the memory area to add from
+    ///
+    virtual void operator+=(const Memory<T>& other);
 
-        ///
-        /// \brief makeZero sets every element to zero (0)
-        ///
-        virtual void makeZero();
+    ///
+    /// Mutliplies the other memory area to this one
+    /// \param other the memory area to multiply from
+    ///
+    virtual void operator*=(const Memory<T>& other);
 
-        ///
-        /// \brief copyInternalCells copies the internal cells into the memory area
-        /// This is ideal for removing ghost cells before outputing the solution.
-        /// \param startX start index (inclusive) for x direction
-        /// \param endX end index (exclusive) for x direction
-        /// \param startY start index (inclusive) for y direction
-        /// \param endY end index (exclusive) for y direction
-        /// \param startZ start index (inclusive) for z direction
-        /// \param endZ end index (exclusive) for z direction
-        /// \param output the output buffer
-        /// \param outputSize must be at least the size of the written memory
-        ///
-        /// This is essentially equivalent to doing
-        /// \code{.cpp}
-        /// size_t numberOfZ = endZ-startZ;
-        /// size_t numberOfY = endY-startY;
-        /// size_t numberOfX = endX-startX;
-        /// for(size_t z = startZ; z < endZ; z++) {
-        ///     for(size_t y = startY; y < endY; y++) {
-        ///         for(size_t x = startX; x < endX; x++) {
-        ///             size_t indexIn = z * nx * ny + y * nx + x;
-        ///             size_t indexOut = (z-startZ) * numberOfX * numberOfY
-        ///                   + (y - startY) * numberOfY + (x - startX);
-        ///             output[indexOut] = data[indexIn];
-        ///          }
-        ///     }
-        /// }
-        /// \endcode
-        ///
-        virtual void copyInternalCells(size_t startX, size_t endX,
-            size_t startY, size_t endY,
-            size_t startZ, size_t endZ,
-            T* output, size_t outputSize);
+    ///
+    /// Subtracts the other memory area to this one
+    /// \param other the memory area to subtract from
+    ///
+    virtual void operator-=(const Memory<T>& other);
 
-        //! Adds the memory with coefficients to this memory area
-        //! Here we compute the sum
-        //! \f[ v_1^{\mathrm{new}}=a_1v_1+a_2v_2+a_3v_3+a_4v_4+a_5v_5+a_6v_6\f]
-        //! where \f$v_1\f$ is the volume being operated on.
-        virtual void addLinearCombination(T a1,
-            T a2, const Memory<T>& v2,
-            T a3, const Memory<T>& v3,
-            T a4, const Memory<T>& v4,
-            T a5, const Memory<T>& v5);
+    ///
+    /// Divides the other memory area to this one
+    /// \param other the memory area to divide from
+    ///
+    virtual void operator/=(const Memory<T>& other);
 
+    ///
+    /// Adds the scalar to each component
+    /// \param scalar the scalar to add
+    ///
+    virtual void operator+=(real scalar);
 
-        //! Adds a power of the other memory area to this memory area, ie
-        //!
-        //! \f[this += pow(other, power)\f]
-        //!
-        //! @param other the other memory area to the the power of
-        //! @param power the power to use
-        virtual void addPower(const Memory<T>& other, double power);
+    ///
+    /// Multiplies the scalar to each component
+    /// \param scalar the scalar to multiply
+    ///
+    virtual void operator*=(real scalar);
 
-        //! Subtracts a power of the other memory area to this memory area, ie
-        //!
-        //! \f[this -= pow(other, power)\f]
-        //!
-        //! @param other the other memory area to the the power of
-        //! @param power the power to use
-        virtual void subtractPower(const Memory<T>& other, double power);
+    ///
+    /// Subtracts the scalar from each component
+    /// \param scalar the scalar to subtract
+    ///
+    virtual void operator-=(real scalar);
+
+    ///
+    /// Divides the each component by the scalar
+    /// \param scalar the scalar to divide
+    ///
+    virtual void operator/=(real scalar);
+
+    ///
+    /// \brief at returns the data at the given index
+    /// \param x the x index
+    /// \param y the y index
+    /// \param z the z index
+    /// \return the data at the given index
+    ///
+    T& at(size_t x, size_t y = 0, size_t z = 0);
 
 
-        virtual std::shared_ptr<Memory<T> > getHostMemory() override;
+    ///
+    /// \brief at returns the data at the given index
+    /// \param x the x index
+    /// \param y the y index
+    /// \param z the z index
+    /// \return the data at the given index
+    ///
+    const T& at(size_t x, size_t y = 0, size_t z = 0) const;
 
-        //! Computes the total variation, given here as
-        //!
-        //! \f[\sum_{i,j,k} \sqrt(\sum_{n=1}^d|u_{(i,j,k)}-u_{(i,j,k)-e_n}|^2)^p.\f]
-        //!
-        //! \note This function gives no performance guarantees
-        //!
-        //! @param p the exponent p
-        //! @param start the index to start at (inclusive)
-        //! @param end the maximum index (exclusive)
-        virtual real getTotalVariation(int p, const ivec3& start,
-            const ivec3& end) const;
+    ///
+    /// \brief makeZero sets every element to zero (0)
+    ///
+    virtual void makeZero();
 
-        //! Computes the total variation in a given direction \$d\in\{0,1,2\}\$
-        //!
-        //! \f[\sum_{i,j,k} |u_{(i,j,k)}-u_{(i,j,k)-e_n}|^p.\f]
-        //!
-        //! \note This function gives no performance guarantees
-        //!
-        //! @param p the exponent p
-        //! @param direction the direction (between 0 and 2 inclusive)
-        //! @param start the index to start at (inclusive)
-        //! @param end the maximum index (exclusive)
-        virtual real getTotalVariation(int direction, int p, const ivec3& start,
-            const ivec3& end) const;
+    ///
+    /// \brief copyInternalCells copies the internal cells into the memory area
+    /// This is ideal for removing ghost cells before outputing the solution.
+    /// \param startX start index (inclusive) for x direction
+    /// \param endX end index (exclusive) for x direction
+    /// \param startY start index (inclusive) for y direction
+    /// \param endY end index (exclusive) for y direction
+    /// \param startZ start index (inclusive) for z direction
+    /// \param endZ end index (exclusive) for z direction
+    /// \param output the output buffer
+    /// \param outputSize must be at least the size of the written memory
+    ///
+    /// This is essentially equivalent to doing
+    /// \code{.cpp}
+    /// size_t numberOfZ = endZ-startZ;
+    /// size_t numberOfY = endY-startY;
+    /// size_t numberOfX = endX-startX;
+    /// for(size_t z = startZ; z < endZ; z++) {
+    ///     for(size_t y = startY; y < endY; y++) {
+    ///         for(size_t x = startX; x < endX; x++) {
+    ///             size_t indexIn = z * nx * ny + y * nx + x;
+    ///             size_t indexOut = (z-startZ) * numberOfX * numberOfY
+    ///                   + (y - startY) * numberOfY + (x - startX);
+    ///             output[indexOut] = data[indexIn];
+    ///          }
+    ///     }
+    /// }
+    /// \endcode
+    ///
+    virtual void copyInternalCells(size_t startX, size_t endX,
+        size_t startY, size_t endY,
+        size_t startZ, size_t endZ,
+        T* output, size_t outputSize);
+
+    //! Adds the memory with coefficients to this memory area
+    //! Here we compute the sum
+    //! \f[ v_1^{\mathrm{new}}=a_1v_1+a_2v_2+a_3v_3+a_4v_4+a_5v_5+a_6v_6\f]
+    //! where \f$v_1\f$ is the volume being operated on.
+    virtual void addLinearCombination(T a1,
+        T a2, const Memory<T>& v2,
+        T a3, const Memory<T>& v3,
+        T a4, const Memory<T>& v4,
+        T a5, const Memory<T>& v5);
 
 
-    private:
-        std::vector<T> data;
+    //! Adds a power of the other memory area to this memory area, ie
+    //!
+    //! \f[this += pow(other, power)\f]
+    //!
+    //! @param other the other memory area to the the power of
+    //! @param power the power to use
+    virtual void addPower(const Memory<T>& other, double power);
+
+    //! Subtracts a power of the other memory area to this memory area, ie
+    //!
+    //! \f[this -= pow(other, power)\f]
+    //!
+    //! @param other the other memory area to the the power of
+    //! @param power the power to use
+    virtual void subtractPower(const Memory<T>& other, double power);
+
+
+    virtual std::shared_ptr<Memory<T> > getHostMemory() override;
+
+    //! Computes the total variation, given here as
+    //!
+    //! \f[\sum_{i,j,k} \sqrt(\sum_{n=1}^d|u_{(i,j,k)}-u_{(i,j,k)-e_n}|^2)^p.\f]
+    //!
+    //! \note This function gives no performance guarantees
+    //!
+    //! @param p the exponent p
+    //! @param start the index to start at (inclusive)
+    //! @param end the maximum index (exclusive)
+    virtual real getTotalVariation(int p, const ivec3& start,
+        const ivec3& end) const;
+
+    //! Computes the total variation in a given direction \$d\in\{0,1,2\}\$
+    //!
+    //! \f[\sum_{i,j,k} |u_{(i,j,k)}-u_{(i,j,k)-e_n}|^p.\f]
+    //!
+    //! \note This function gives no performance guarantees
+    //!
+    //! @param p the exponent p
+    //! @param direction the direction (between 0 and 2 inclusive)
+    //! @param start the index to start at (inclusive)
+    //! @param end the maximum index (exclusive)
+    virtual real getTotalVariation(int direction, int p, const ivec3& start,
+        const ivec3& end) const;
+
+
+private:
+    std::vector<T> data;
 };
 
 template<class T>

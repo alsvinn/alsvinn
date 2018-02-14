@@ -20,7 +20,8 @@ SimulatorCreator::SimulatorCreator(const std::string& configurationFile,
 
 }
 
-alsfvm::shared_ptr<alsfvm::simulator::Simulator> SimulatorCreator::createSimulator(
+alsfvm::shared_ptr<alsfvm::simulator::Simulator>
+SimulatorCreator::createSimulator(
     const alsfvm::init::Parameters& initialDataParameters,
     size_t sampleNumber) {
 

@@ -14,181 +14,181 @@ namespace euler {
 ///
 template<class VolumeType, class ViewType, int nsd>
 class ViewsExtra {
-    public:
+public:
 
 };
 
 template<class VolumeType, class ViewType>
 class ViewsExtra<VolumeType, ViewType, 3> {
-    public:
-        typedef typename Types<3>::rvec rvec;
-        typedef typename std::conditional<std::is_const<VolumeType>::value,
-                const real&,
-                real&>::type reference_type;
+public:
+    typedef typename Types<3>::rvec rvec;
+    typedef typename std::conditional<std::is_const<VolumeType>::value,
+            const real&,
+            real&>::type reference_type;
 
-        typedef typename Types<3>::template vec<reference_type> reference_vec;
+    typedef typename Types<3>::template vec<reference_type> reference_vec;
 
-        ViewsExtra(VolumeType& volume)
-            : p(volume.getScalarMemoryArea("p")->getView()),
-              ux(volume.getScalarMemoryArea("ux")->getView()),
-              uy(volume.getScalarMemoryArea("uy")->getView()),
-              uz(volume.getScalarMemoryArea("uz")->getView()) {
-            // Empty
-        }
+    ViewsExtra(VolumeType& volume)
+        : p(volume.getScalarMemoryArea("p")->getView()),
+          ux(volume.getScalarMemoryArea("ux")->getView()),
+          uy(volume.getScalarMemoryArea("uy")->getView()),
+          uz(volume.getScalarMemoryArea("uz")->getView()) {
+        // Empty
+    }
 
-        template<size_t variableIndex>
-        __device__ __host__ ViewType& get() {
-            static_assert(variableIndex < 5,
-                "We only have 5 conserved variables for Euler!");
+    template<size_t variableIndex>
+    __device__ __host__ ViewType& get() {
+        static_assert(variableIndex < 5,
+            "We only have 5 conserved variables for Euler!");
 
-            switch (variableIndex) {
-            case 0:
-                return p;
-
-            case 1:
-                return ux;
-
-            case 2:
-                return uy;
-
-            case 3:
-                return uz;
-            }
-
-            // If we reach this far, something has gone wrong
-            assert(false);
+        switch (variableIndex) {
+        case 0:
             return p;
+
+        case 1:
+            return ux;
+
+        case 2:
+            return uy;
+
+        case 3:
+            return uz;
         }
 
-        __device__ __host__ size_t index(size_t x, size_t y, size_t z) const {
-            return p.index(x, y, z);
-        }
+        // If we reach this far, something has gone wrong
+        assert(false);
+        return p;
+    }
+
+    __device__ __host__ size_t index(size_t x, size_t y, size_t z) const {
+        return p.index(x, y, z);
+    }
 
 
 
-        __device__ __host__ reference_vec u(size_t index)  {
-            return reference_vec(ux.at(index), uy.at(index), uz.at(index));
-        }
+    __device__ __host__ reference_vec u(size_t index)  {
+        return reference_vec(ux.at(index), uy.at(index), uz.at(index));
+    }
 
-        __device__ __host__ rvec u(size_t index) const {
-            return rvec(ux.at(index), uy.at(index), uz.at(index));
-        }
+    __device__ __host__ rvec u(size_t index) const {
+        return rvec(ux.at(index), uy.at(index), uz.at(index));
+    }
 
 
 
-        ViewType p;
-        ViewType ux;
-        ViewType uy;
-        ViewType uz;
+    ViewType p;
+    ViewType ux;
+    ViewType uy;
+    ViewType uz;
 };
 
 template<class VolumeType, class ViewType>
 class ViewsExtra<VolumeType, ViewType, 2> {
-    public:
-        typedef typename Types<2>::rvec rvec;
-        typedef typename std::conditional<std::is_const<VolumeType>::value,
-                const real&,
-                real&>::type reference_type;
+public:
+    typedef typename Types<2>::rvec rvec;
+    typedef typename std::conditional<std::is_const<VolumeType>::value,
+            const real&,
+            real&>::type reference_type;
 
-        typedef typename Types<2>::template vec<reference_type> reference_vec;
+    typedef typename Types<2>::template vec<reference_type> reference_vec;
 
 
-        ViewsExtra(VolumeType& volume)
-            : p(volume.getScalarMemoryArea("p")->getView()),
-              ux(volume.getScalarMemoryArea("ux")->getView()),
-              uy(volume.getScalarMemoryArea("uy")->getView()) {
-            // Empty
-        }
+    ViewsExtra(VolumeType& volume)
+        : p(volume.getScalarMemoryArea("p")->getView()),
+          ux(volume.getScalarMemoryArea("ux")->getView()),
+          uy(volume.getScalarMemoryArea("uy")->getView()) {
+        // Empty
+    }
 
-        template<size_t variableIndex>
-        __device__ __host__ ViewType& get() {
-            static_assert(variableIndex < 4,
-                "We only have 5 conserved variables for Euler!");
+    template<size_t variableIndex>
+    __device__ __host__ ViewType& get() {
+        static_assert(variableIndex < 4,
+            "We only have 5 conserved variables for Euler!");
 
-            switch (variableIndex) {
-            case 0:
-                return p;
-
-            case 1:
-                return ux;
-
-            case 2:
-                return uy;
-            }
-
-            // If we reach this far, something has gone wrong
-            assert(false);
+        switch (variableIndex) {
+        case 0:
             return p;
+
+        case 1:
+            return ux;
+
+        case 2:
+            return uy;
         }
 
-        __device__ __host__ size_t index(size_t x, size_t y, size_t z) const {
-            return p.index(x, y, z);
-        }
+        // If we reach this far, something has gone wrong
+        assert(false);
+        return p;
+    }
 
-        __device__ __host__ reference_vec u(size_t index) {
-            return reference_vec(ux.at(index), uy.at(index));
-        }
+    __device__ __host__ size_t index(size_t x, size_t y, size_t z) const {
+        return p.index(x, y, z);
+    }
 
-        __device__ __host__ rvec u(size_t index) const {
-            return rvec(ux.at(index), uy.at(index));
-        }
+    __device__ __host__ reference_vec u(size_t index) {
+        return reference_vec(ux.at(index), uy.at(index));
+    }
+
+    __device__ __host__ rvec u(size_t index) const {
+        return rvec(ux.at(index), uy.at(index));
+    }
 
 
-        ViewType p;
-        ViewType ux;
-        ViewType uy;
+    ViewType p;
+    ViewType ux;
+    ViewType uy;
 };
 
 
 template<class VolumeType, class ViewType>
 class ViewsExtra<VolumeType, ViewType, 1> {
-    public:
-        typedef typename Types<1>::rvec rvec;
-        typedef typename std::conditional<std::is_const<VolumeType>::value,
-                const real&,
-                real&>::type reference_type;
+public:
+    typedef typename Types<1>::rvec rvec;
+    typedef typename std::conditional<std::is_const<VolumeType>::value,
+            const real&,
+            real&>::type reference_type;
 
-        typedef typename Types<1>::template vec<reference_type> reference_vec;
+    typedef typename Types<1>::template vec<reference_type> reference_vec;
 
 
-        ViewsExtra(VolumeType& volume)
-            : p(volume.getScalarMemoryArea("p")->getView()),
-              ux(volume.getScalarMemoryArea("ux")->getView()) {
-            // Empty
-        }
+    ViewsExtra(VolumeType& volume)
+        : p(volume.getScalarMemoryArea("p")->getView()),
+          ux(volume.getScalarMemoryArea("ux")->getView()) {
+        // Empty
+    }
 
-        template<size_t variableIndex>
-        __device__ __host__ ViewType& get() {
-            static_assert(variableIndex < 2,
-                "We only have 5 conserved variables for Euler!");
+    template<size_t variableIndex>
+    __device__ __host__ ViewType& get() {
+        static_assert(variableIndex < 2,
+            "We only have 5 conserved variables for Euler!");
 
-            switch (variableIndex) {
-            case 0:
-                return p;
-
-            case 1:
-                return ux;
-            }
-
-            // If we reach this far, something has gone wrong
-            assert(false);
+        switch (variableIndex) {
+        case 0:
             return p;
+
+        case 1:
+            return ux;
         }
 
-        __device__ __host__ size_t index(size_t x, size_t y, size_t z) const {
-            return p.index(x, y, z);
-        }
+        // If we reach this far, something has gone wrong
+        assert(false);
+        return p;
+    }
 
-        __device__ __host__ reference_vec u(size_t index) {
-            return reference_vec(ux.at(index));
-        }
+    __device__ __host__ size_t index(size_t x, size_t y, size_t z) const {
+        return p.index(x, y, z);
+    }
 
-        __device__ __host__ rvec u(size_t index) const {
-            return rvec(ux.at(index));
-        }
+    __device__ __host__ reference_vec u(size_t index) {
+        return reference_vec(ux.at(index));
+    }
 
-        ViewType p;
-        ViewType ux;
+    __device__ __host__ rvec u(size_t index) const {
+        return rvec(ux.at(index));
+    }
+
+    ViewType p;
+    ViewType ux;
 };
 
 

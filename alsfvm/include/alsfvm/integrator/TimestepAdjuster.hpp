@@ -14,16 +14,16 @@ namespace integrator {
 ///
 ///
 class TimestepAdjuster {
-    public:
+public:
 
-        ///
-        /// \brief adjustTimestep returns the new timestep that the simulator should use
-        /// \param dt the current timestep being used
-        /// \param timestepInformation timesteps information
-        /// \return the new timestep
-        ///
-        virtual real adjustTimestep(real dt,
-            const simulator::TimestepInformation& timestepInformation) const = 0;
+    ///
+    /// \brief adjustTimestep returns the new timestep that the simulator should use
+    /// \param dt the current timestep being used
+    /// \param timestepInformation timesteps information
+    /// \return the new timestep
+    ///
+    virtual real adjustTimestep(real dt,
+        const simulator::TimestepInformation& timestepInformation) const = 0;
 };
 } // namespace alsfvm
 } // namespace integrator

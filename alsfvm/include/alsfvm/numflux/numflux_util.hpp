@@ -11,14 +11,14 @@ namespace numflux {
 //! SFINAE test, see http://stackoverflow.com/a/257382
 template <typename T>
 class has_stencil {
-        typedef char one;
-        typedef long two;
+    typedef char one;
+    typedef long two;
 
-        template <typename C> static one test(decltype(&C::hasStencil));
-        template <typename C> static two test(...);
+    template <typename C> static one test(decltype(&C::hasStencil));
+    template <typename C> static two test(...);
 
-    public:
-        enum { value = sizeof(test<T>(0)) == sizeof(char) };
+public:
+    enum { value = sizeof(test<T>(0)) == sizeof(char) };
 };
 // The following are two functions to get the
 // stencil for a numerical flux. The default
