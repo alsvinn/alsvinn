@@ -39,7 +39,14 @@ std::shared_ptr<memory::Memory<T> > CudaMemory<T>::makeInstance() const {
 // Note: Virtual distructor since we will inherit
 // from this.
 template<class T> CudaMemory<T>::~CudaMemory() {
-    CUDA_SAFE_CALL(cudaFree(memoryPointer));
+    // We do not want to throw exceptions from a Destructor, see
+    // http://en.cppreference.com/w/cpp/language/destructor#Exceptions
+    try {
+        CUDA_SAFE_CALL(cudaFree(memoryPointer));
+    } catch (std::runtime_error& e) {
+        ALSVINN_LOG(ERROR, "Could not delete CudaMemory, error message was\n\n"
+            << e.what());
+    }
 }
 
 template<class T>

@@ -16,7 +16,7 @@ struct MeanVarTestParameters {
         int D)
         : generatorName(generatorName), distributionName(distName), mean(mean),
           variance(variance), D(D) {
-        for (int i = 0; i < parameterNames.size(); ++i) {
+        for (size_t i = 0; i < parameterNames.size(); ++i) {
             parameters.setParameter(parameterNames[i], parameterValues[i]);
         }
     }
@@ -129,10 +129,8 @@ INSTANTIATE_TEST_CASE_P(MeanVarConvergenceTests,
     ::testing::Values(
         MeanVarTestParameters("well512a", "normal", 0, 1, {"mean", "sd"}, {0, 1}, 40),
         MeanVarTestParameters("well512a", "uniform", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
-            40),
-        MeanVarTestParameters("stlmersenne", "normal", 0, 1, {"mean", "sd"}, {0, 1},
-            40),
-        MeanVarTestParameters("stlmersenne", "uniform", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+            40), MeanVarTestParameters("stlmersenne", "normal", 0, 1, {"mean", "sd"}, {0, 1},
+            40), MeanVarTestParameters("stlmersenne", "uniform", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
             40)
 
     ));

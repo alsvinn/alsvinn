@@ -19,7 +19,7 @@ ConfigurationPtr, ConfigurationPtr> SimpleLoadBalancer::loadBalance(
     size_t totalNumberOfProcesses = mpiConfig.getNumberOfProcesses();
 
     if (multiSample * multiSpatial.x * multiSpatial.y  * multiSpatial.z !=
-        totalNumberOfProcesses) {
+        int(totalNumberOfProcesses)) {
         THROW("The number of processors given (" << totalNumberOfProcesses
             << ") does not match the distribution of the samples / spatial dimensions. We were given:\n"
             << "\tmultiSample: " << multiSample << "\n"

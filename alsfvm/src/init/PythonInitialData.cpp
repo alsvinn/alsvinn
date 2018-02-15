@@ -55,7 +55,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     equation::CellComputer& cellComputer,
     grid::Grid& grid) {
 
-    auto& interpreter = PythonInterpreter::getInstance();
+    PythonInterpreter::getInstance();
     boost::python::object mainModule = boost::python::import("__main__");
     boost::python::object mainNamespace = mainModule.attr("__dict__");
 

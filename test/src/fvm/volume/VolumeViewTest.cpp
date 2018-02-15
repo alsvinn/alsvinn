@@ -53,7 +53,7 @@ TEST(VolumeViewTest, ReconstructionTest) {
     }
 
     alsfvm::simulator::SimulatorParameters simulatorParameters("burgers", "cpu");
-    alsfvm::grid::Grid grid({ 0., 0., 0. }, { 1., 0., 0. }, { N, 1, 1 });
+    alsfvm::grid::Grid grid({ 0., 0., 0. }, { 1., 0., 0. }, { int(N), 1, 1 });
     alsfvm::reconstruction::ReconstructionFactory reconstructionFactory;
 
     auto reconstruction = reconstructionFactory.createReconstruction("none",
@@ -75,7 +75,7 @@ TEST(VolumeViewTest, ReconstructionTest) {
     }
 
     for (size_t var = 0; var < volume->getNumberOfVariables(); ++var) {
-        for (int i = 0; i < N; ++i) {
+        for (size_t i = 0; i < N; ++i) {
             ASSERT_EQ(i * N + var, left->getScalarMemoryArea(var)->getPointer()[i]);
             ASSERT_EQ(i * N + var, right->getScalarMemoryArea(var)->getPointer()[i]);
         }

@@ -5,7 +5,7 @@
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/equation/cubic/Cubic.hpp"
 #include "alsfvm/equation/EquationInformation.hpp"
-#include <boost/fusion/algorithm.hpp>
+#include "alsutils/fusion_without_warning.hpp"
 
 ///
 /// Defines the list of available equations and an easy way to loop over all

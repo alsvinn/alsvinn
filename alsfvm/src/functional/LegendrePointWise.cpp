@@ -44,12 +44,9 @@ void LegendrePointWise::operator()(volume::Volume& conservedVolumeOut,
             lengths);
     }
 
-    const real dxdydz = lengths.x * lengths.y * lengths.z;
+
 
     const auto ghostCells = conservedVolumeIn.getNumberOfGhostCells();
-    const auto origin = grid.getOrigin();
-    const auto top = grid.getTop();
-    const auto sides = top - origin;
 
     const auto innerSize = conservedVolumeIn.getInnerSize();
 

@@ -47,7 +47,7 @@ RequestContainer CartesianCellExchanger::exchangeCells(volume::Volume&
     for (int side = 0; side < 2 * dimensions; ++side) {
 
 
-        for (int var = 0; var < inputVolume.getNumberOfVariables(); ++ var) {
+        for (size_t var = 0; var < inputVolume.getNumberOfVariables(); ++ var) {
             auto opposite_side = [](int s) {
                 int d = s / 2;
                 int i = s % 2;

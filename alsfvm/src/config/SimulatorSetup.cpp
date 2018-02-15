@@ -457,7 +457,8 @@ void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree&
     }
 }
 
-alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion(
+alsfvm::shared_ptr<diffusion::DiffusionOperator>
+SimulatorSetup::createDiffusion(
     const SimulatorSetup::ptree& configuration,
     const grid::Grid& grid,
     const simulator::SimulatorParameters& simulatorParameters,
@@ -577,6 +578,7 @@ std::string SimulatorSetup::readFlux(const SimulatorSetup::ptree&
     return configuration.get<std::string>("fvm.flux");
 }
 
+#ifdef ALSVINN_USE_MPI
 mpi::domain::DomainInformationPtr SimulatorSetup::decomposeGrid(
     const alsfvm::shared_ptr<grid::Grid>& grid) {
     // for now we assume we have a cartesian grid
@@ -586,6 +588,7 @@ mpi::domain::DomainInformationPtr SimulatorSetup::decomposeGrid(
     return cartesianDecomposition.decompose(mpiConfiguration, *grid);
 
 }
+#endif
 
 }
 }

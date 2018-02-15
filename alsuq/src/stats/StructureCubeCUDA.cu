@@ -104,7 +104,7 @@ void StructureCubeCUDA::computeStatistics(const alsfvm::volume::Volume&
         extraVariables);
 }
 
-void StructureCubeCUDA::finalize() {
+void StructureCubeCUDA::finalizeStatistics() {
 
 }
 

@@ -6,13 +6,6 @@ namespace stats {
 
 
 namespace {
-int make_positive(int index, int N) {
-    if (index < 0) {
-        return index += N;
-    }
-
-    return index;
-}
 
 //! Computes the structure function for FIXED h
 //!
@@ -80,7 +73,7 @@ void StructureBasicCUDA::computeStatistics(const alsfvm::volume::Volume&
         extraVariables);
 }
 
-void StructureBasicCUDA::finalize() {
+void StructureBasicCUDA::finalizeStatistics() {
 
 }
 

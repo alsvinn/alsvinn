@@ -66,7 +66,7 @@ void Runner::run() {
         statisticsWriter->combineStatistics();
 
         if (mpiConfig->getRank() == 0) {
-            statisticsWriter->finalize();
+            statisticsWriter->finalizeStatistics();
             statisticsWriter->writeStatistics(*grid);
         }
     }

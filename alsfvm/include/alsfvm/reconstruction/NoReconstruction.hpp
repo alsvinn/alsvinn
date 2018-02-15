@@ -28,7 +28,8 @@ public:
     ///
     /// \param[out] rightOut at the end, will contain the right values
     ///                     for all grid cells in the interior.
-    ///
+    /// \param[in] start (positive) the first index to compute the flux for
+    /// \param[in] end (negative) the offset to on the upper part of the grid
     /// \todo This can be done more efficiently, but we will wait with this.
     ///
     virtual void performReconstruction(const volume::Volume& inputVariables,

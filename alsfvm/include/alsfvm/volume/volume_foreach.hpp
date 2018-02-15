@@ -31,7 +31,7 @@ inline void for_each_cell_index(const Volume& in, const Function& function,
     ivec3 offsetEnd = {0, 0, 0}) {
     const size_t nx = in.getTotalNumberOfXCells();
     const size_t ny = in.getTotalNumberOfYCells();
-    const size_t nz = in.getTotalNumberOfZCells();
+
     const size_t endx = in.getTotalNumberOfXCells() - offsetEnd[0];
     const size_t endy = in.getTotalNumberOfYCells() - offsetEnd[1];
     const size_t endz = in.getTotalNumberOfZCells() - offsetEnd[2];

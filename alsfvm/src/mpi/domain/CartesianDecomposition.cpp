@@ -34,7 +34,7 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr
     // Make sure we can evenly divide the dimensions. ie that
     // the number of processors to use in the x direction divides the number
     // of cells in the x direction, and so on.
-    for (int i = 0; i < dimensions.size(); ++i) {
+    for (size_t i = 0; i < dimensions.size(); ++i) {
         if (dimensions[i] % numberOfProcessors[i] != 0) {
             THROW("Error in domain decompositon. In direction " << i << "\n"
                 << "\tnumberOfProcessors assigned: " << numberOfProcessors[i] << "\n"
@@ -72,7 +72,7 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr
     }
 
 
-    for (int side = 0; side < grid.getActiveDimension() * 2; ++side) {
+    for (size_t side = 0; side < grid.getActiveDimension() * 2; ++side) {
 
 
         if ((side % 2 == 0 && nodePosition[side / 2] == 0) || (side % 2 == 1

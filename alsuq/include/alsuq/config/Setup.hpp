@@ -17,7 +17,7 @@ public:
     //! @param mpiConfigurationWorld the top level mpi configuration to use
     //!                              (for most practical use cases, this is MPI_COMM_WORLD)
     //!
-    //! @param multiSamples the number of samples to run in parallel
+    //! @param multiSample the number of samples to run in parallel
     //!
     //! @param multiSpatial a 3 vector, for which each component is the number of processors to use in each direction.
     //!

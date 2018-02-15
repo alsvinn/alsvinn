@@ -37,7 +37,8 @@ public:
     /// \param[out] waveSpeed the maximum wave speed in each direction
     /// \param[in] computeWaveSpeed should we compute the wave speeds?
     /// \param[out] output the output to write to
-    ///
+    /// \param[in] start (positive) the first index to compute the flux for
+    /// \param[in] end (negative) the offset to on the upper part of the grid
     /// \note this will calculate the extra variables on the fly.
     ///
     virtual void computeFlux(const volume::Volume& conservedVariables,

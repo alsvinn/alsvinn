@@ -39,7 +39,7 @@ void MeanVariance::computeStatistics(const alsfvm::volume::Volume&
 
 }
 
-void MeanVariance::finalize() {
+void MeanVariance::finalizeStatistics() {
     for (auto& snapshot : this->snapshots) {
         auto& secondMoment = snapshot.second["variance"];
         auto& volumesMoment = secondMoment.getVolumes();

@@ -35,38 +35,13 @@ void StructureSurface::computeStatistics(const alsfvm::volume::Volume&
         extraVariables);
 }
 
-void StructureSurface::finalize() {
+void StructureSurface::finalizeStatistics() {
 
 }
 
 void StructureSurface::computeStructure(alsfvm::volume::Volume& output,
     const alsfvm::volume::Volume& input) {
-    for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
-        auto inputView = input[var]->getView();
-        auto outputView = output[var]->getView();
-
-        int ngx = input.getNumberOfXGhostCells();
-        int ngy = input.getNumberOfYGhostCells();
-        int ngz = input.getNumberOfZGhostCells();
-
-        int nx = int(input.getNumberOfXCells()) - 2 * ngx;
-        int ny = int(input.getNumberOfYCells()) - 2 * ngy;
-        int nz = int(input.getNumberOfZCells()) - 2 * ngz;
-
-        for (int k = 0; k < nz; ++k) {
-            for (int j = 0; j < ny; ++j) {
-                for (int i = 0; i < nx; ++i) {
-                    for (int h = 0; h < int(numberOfH); ++h) {
-
-
-                        THROW("Not implemented yet");
-                    }
-                }
-            }
-        }
-
-
-    }
+    THROW("Not implemented yet");
 }
 REGISTER_STATISTICS(cpu, structure_surface, StructureSurface)
 }

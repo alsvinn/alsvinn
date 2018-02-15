@@ -32,12 +32,13 @@ public:
     //!
     //! @param[in] conservedVolumeIn the state of the conserved variables
     //!
-    //! @param[in] extraVolume the state of the extra volume
+    //! @param[in] extraVolumeIn the state of the extra volume
     //!
     //! @param[in] weight the current weight to be applied to the functional. Ie, the functional should compute
     //!                   \code{.cpp}
     //!                   conservedVolumeOut += weight + f(conservedVolumeIn)
     //!                   \endcode
+    //! @param[in] grid the grid to work on
     //!
     virtual void operator()(volume::Volume& conservedVolumeOut,
         volume::Volume& extraVolumeOut,

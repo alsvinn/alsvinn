@@ -27,7 +27,7 @@ public:
         const alsfvm::grid::Grid& grid,
         const alsfvm::simulator::TimestepInformation& timestepInformation) override;
 
-    virtual void finalize() override;
+    virtual void finalizeStatistics() override;
 
 
 

@@ -9,7 +9,7 @@ namespace cartesian {
 //! Computes the rank from the 3d coordinates (this is for domain decomposition
 //! to know where your CPU is "in space")
 //!
-//! @param coordinates the coordinates
+//! @param coordinate the coordinates
 //! @param numberOfProcessors the number of processors in each direction
 //!
 //! @see getCoordinates

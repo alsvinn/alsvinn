@@ -15,13 +15,12 @@ SimulatorCreator::SimulatorCreator(const std::string& configurationFile,
     : mpiConfigurationSpatial(mpiConfigurationSpatial),
       mpiConfigurationStatistical(mpiConfigurationStatistical),
       mpiConfigurationWorld(mpiConfigurationWorld),
-      filename(configurationFile),
-      multiSpatial(multiSpatial) {
+      multiSpatial(multiSpatial),
+      filename(configurationFile) {
 
 }
 
-alsfvm::shared_ptr<alsfvm::simulator::Simulator>
-SimulatorCreator::createSimulator(
+alsfvm::shared_ptr<alsfvm::simulator::Simulator> SimulatorCreator::createSimulator(
     const alsfvm::init::Parameters& initialDataParameters,
     size_t sampleNumber) {
 

@@ -70,11 +70,11 @@ TEST(CartesianCellExchangerEulerNeumann, Test1D) {
 
 
 
-    auto valueAtIndex = [&](int i,  int rank, int var) {
+    auto valueAtIndex = [&](int i,  int rank, size_t var) {
         return (i - ghostCells + N * rank) * volume->getNumberOfVariables() + var;
     };
 
-    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = ghostCells; i < N + ghostCells; ++i) {
             (*volume->getScalarMemoryArea(var))[i] = valueAtIndex(i, rank, var);
         }
@@ -82,7 +82,7 @@ TEST(CartesianCellExchangerEulerNeumann, Test1D) {
 
     const real magicValue = 42 * numberOfProcessors + rank;
 
-    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = 0; i < ghostCells; ++i) {
             (*volume->getScalarMemoryArea(var))[i] = magicValue;
             (*volume->getScalarMemoryArea(var))[N + ghostCells + i] = magicValue;
@@ -90,7 +90,7 @@ TEST(CartesianCellExchangerEulerNeumann, Test1D) {
     }
 
 
-    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = ghostCells; i < N + ghostCells; ++i) {
             auto value = (*volume->getScalarMemoryArea(var))[i];
             ASSERT_EQ(valueAtIndex(i, rank, var), value);
@@ -129,7 +129,7 @@ TEST(CartesianCellExchangerEulerNeumann, Test1D) {
 
 
     // left side
-    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = 0; i < ghostCells; ++i) {
             int index = i;
             auto value = (*volume->getScalarMemoryArea(var))[index];
@@ -253,7 +253,7 @@ TEST(CartesianCellExchangerEulerNeumann, Test2D) {
     // Set a default magicVAlue to make debugging easier
     const real magicValue = N * N * 42 * numberOfProcessors + rank;
 
-    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = 0; i < M * M; ++i) {
             (*volume->getScalarMemoryArea(var))[i] = magicValue;
         }
@@ -269,7 +269,7 @@ TEST(CartesianCellExchangerEulerNeumann, Test2D) {
         return r / nx;
     };
 
-    auto computeValue = [&](int i, int j, int r, int var) {
+    auto computeValue = [&](int i, int j, int r, size_t var) {
 
         return ((i - ghostCells + xComponent(r) * N) + (j - ghostCells + yComponent(
                         r) * N) * N) * volume->getNumberOfVariables() + var;
@@ -295,7 +295,7 @@ TEST(CartesianCellExchangerEulerNeumann, Test2D) {
         return x + y * nx;
     };
 
-    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = ghostCells; i < N + ghostCells; ++i) {
             for (int j = ghostCells; j < N + ghostCells; ++j) {
                 (*volume->getScalarMemoryArea(var))[j * M + i] = computeValue(i, j, rank, var);
@@ -305,7 +305,7 @@ TEST(CartesianCellExchangerEulerNeumann, Test2D) {
 
 
 
-    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < volume->getNumberOfVariables(); ++var) {
         for (int i = ghostCells; i < N + ghostCells; ++i) {
             for (int j = ghostCells; j < N + ghostCells; ++j) {
                 auto value = (*volume->getScalarMemoryArea(var))[j * M + i];
@@ -461,7 +461,7 @@ TEST(CartesianCellExchangerEulerNeumann, Test2D) {
     MPI_Barrier(MPI_COMM_WORLD);
 #endif
 
-    for (int var = 0; var < volume->getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < volume->getNumberOfVariables(); ++var) {
 
         // left side
         for (int i = 0; i < ghostCells; ++i) {

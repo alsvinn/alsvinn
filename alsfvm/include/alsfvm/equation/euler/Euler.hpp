@@ -484,8 +484,10 @@ __device__ __host__ matrix4 Euler<2>::computeEigenVectorMatrix(
                 conserved.E);
     }
 
+    matrix4 matrixWithEigenVectors;
+
     if (direction < 2) {
-        matrix4 matrixWithEigenVectors;
+
 
         auto primitive = computePrimitiveVariables(conserved);
         const real a = sqrt(gamma * primitive.p / conserved.rho);
@@ -514,6 +516,8 @@ __device__ __host__ matrix4 Euler<2>::computeEigenVectorMatrix(
     }
 
     assert(false);
+
+    return matrixWithEigenVectors;
 }
 
 template<>
@@ -550,9 +554,10 @@ template<int direction>
 __device__ __host__ matrix3 Euler<1>::computeEigenVectorMatrix(
     const ConservedVariables& conserved) const {
 
+    matrix3 matrixWithEigenVectors;
 
     if (direction == 0) {
-        matrix3 matrixWithEigenVectors;
+
 #if 1
         const real rho = conserved.rho;
 
@@ -603,6 +608,7 @@ __device__ __host__ matrix3 Euler<1>::computeEigenVectorMatrix(
     }
 
     assert(false);
+    return matrixWithEigenVectors;
 }
 
 template<>

@@ -200,9 +200,9 @@ void ENOCPU<order>::computeDividedDifferences(const memory::Memory<real>& input,
 
 
     // Sanity check, we need at least ONE point in the interior.
-    assert(nx > 2 * direction.x * level);
-    assert(ny > 2 * direction.y * level);
-    assert(nz > 2 * direction.z * level);
+    assert(nx > int(2 * direction.x * level));
+    assert(ny > int(2 * direction.y * level));
+    assert(nz > int(2 * direction.z * level));
 
     const int startX =        (direction.x == 0) * order + direction.x * level +
         start.x;

@@ -35,7 +35,7 @@ void OnePointMoment::computeStatistics(const alsfvm::volume::Volume&
 
 }
 
-void OnePointMoment::finalize() {
+void OnePointMoment::finalizeStatistics() {
 
 }
 

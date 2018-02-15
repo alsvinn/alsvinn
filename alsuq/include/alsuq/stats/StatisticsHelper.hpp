@@ -16,6 +16,7 @@ public:
     //! Add a writer to write the statistics to file
     //!
     //! @param writer the writer to add
+    //! @param name the name of the statistics (must be unique)
     void addWriter(const std::string& name,
         std::shared_ptr<alsfvm::io::Writer>& writer);
 

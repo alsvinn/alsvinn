@@ -298,17 +298,17 @@ real HostMemory<T>::getTotalVariation(int p, const ivec3& start,
     const size_t startY = start.y + (ny > 1 ? 1 : 0);
     T bv = 0;
 
-    for (size_t z = 0; z < end.z; z++) {
-        for (size_t y = startY; y < end.y; y++) {
-            for (size_t x = startX; x < end.x; x++) {
-                size_t index = z * nx * ny + y * nx + x;
-                size_t indexXLeft = z * nx * ny + y * nx + (x - 1);
+    for (int z = 0; z < end.z; z++) {
+        for (int y = startY; y < end.y; y++) {
+            for (int x = startX; x < end.x; x++) {
+                int index = z * nx * ny + y * nx + x;
+                int indexXLeft = z * nx * ny + y * nx + (x - 1);
 
-                size_t yBottom = ny > 0 ? y - 1 : 0;
+                int yBottom = ny > 1 ? y - 1 : 0;
 
 
-                size_t indexYLeft = z * nx * ny + yBottom * nx + x;
-                size_t indexLeft = z * nx * ny + yBottom * nx + (x - 1);
+                int indexYLeft = z * nx * ny + yBottom * nx + x;
+
 
                 bv += std::pow(std::sqrt(std::pow(data[index]
                                 - data[indexYLeft], 2) + std::pow(data[index]
@@ -328,7 +328,7 @@ real HostMemory<T>::getTotalVariation(int direction, int p, const ivec3& start,
     //
 
     auto directionVector = make_direction_vector(direction);
-    const size_t nx = this->nx;
+
     const size_t ny = this->ny;
     const size_t nz = this->nz;
 
@@ -336,18 +336,18 @@ real HostMemory<T>::getTotalVariation(int direction, int p, const ivec3& start,
         THROW("direction = " << direction << " is bigger than current dimension");
     }
 
-    const size_t startX = start.x + directionVector.x;
-    const size_t startY = start.y + directionVector.y;
-    const size_t startZ = start.z + directionVector.z;
+    const int startX = start.x + directionVector.x;
+    const int startY = start.y + directionVector.y;
+    const int startZ = start.z + directionVector.z;
     T bv = 0;
 
     const auto view = this->getView();
 
 
-    for (size_t z = startZ; z < end.z; z++) {
-        for (size_t y = startY; y < end.y; y++) {
-            for (size_t x = startX; x < end.x; x++) {
-                size_t index = z * nx * ny + y * nx + x;
+    for (int z = startZ; z < end.z; z++) {
+        for (int y = startY; y < end.y; y++) {
+            for (int x = startX; x < end.x; x++) {
+
                 auto positionLeft = ivec3(x, y, z) - directionVector;
 
                 bv += std::pow(std::abs(view.at(x, y, z) - view.at(positionLeft.x,

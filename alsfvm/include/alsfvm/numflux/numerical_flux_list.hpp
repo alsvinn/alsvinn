@@ -1,7 +1,5 @@
 #pragma once
 
-#include <boost/fusion/container.hpp>
-#include <boost/fusion/sequence/intrinsic/at_key.hpp>
 #include "alsfvm/equation/equation_list.hpp"
 #include "alsfvm/numflux/euler/HLL.hpp"
 #include "alsfvm/numflux/euler/HLL3.hpp"

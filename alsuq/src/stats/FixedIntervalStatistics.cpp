@@ -37,8 +37,8 @@ void FixedIntervalStatistics::writeStatistics(const alsfvm::grid::Grid& grid) {
     statistics->writeStatistics(grid);
 }
 
-void FixedIntervalStatistics::finalize() {
-    statistics->finalize();
+void FixedIntervalStatistics::finalizeStatistics() {
+    statistics->finalizeStatistics();
 }
 
 void FixedIntervalStatistics::computeStatistics(const alsfvm::volume::Volume&

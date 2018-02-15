@@ -31,8 +31,8 @@ void TimeIntegratedWriter::writeStatistics(const alsfvm::grid::Grid& grid) {
     statistics->writeStatistics(grid);
 }
 
-void TimeIntegratedWriter::finalize() {
-    statistics->finalize();
+void TimeIntegratedWriter::finalizeStatistics() {
+    statistics->finalizeStatistics();
 }
 
 void TimeIntegratedWriter::computeStatistics(const alsfvm::volume::Volume&

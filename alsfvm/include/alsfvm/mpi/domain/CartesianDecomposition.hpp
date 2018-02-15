@@ -26,7 +26,7 @@ public:
 
     //! Decomposes the domain
     //!
-    //! @param configuratino the given mpi configuration
+    //! @param configuration the given mpi configuration
     //! @param grid the whole grid to decompose
     //! @return the domain information, containing the cell exchanger and
     //!         the new grid.

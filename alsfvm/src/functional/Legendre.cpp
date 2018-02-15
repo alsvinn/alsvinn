@@ -48,7 +48,7 @@ void Legendre::operator()(volume::Volume& conservedVolumeOut,
 
     const real dxdydz = lengths.x * lengths.y * lengths.z;
 
-    const auto ghostCells = conservedVolumeIn.getNumberOfGhostCells();
+
     const auto origin = grid.getOrigin();
     const auto top = grid.getTop();
     const auto sides = top - origin;

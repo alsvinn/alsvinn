@@ -38,7 +38,7 @@ void StructureTwoPoints::computeStatistics(const alsfvm::volume::Volume&
         extraVariables);
 }
 
-void StructureTwoPoints::finalize() {
+void StructureTwoPoints::finalizeStatistics() {
 
 }
 

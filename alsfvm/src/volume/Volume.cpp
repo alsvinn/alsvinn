@@ -24,18 +24,8 @@
 
 namespace alsfvm {
 namespace volume {
-namespace {
-std::vector<std::string> makeComponentNameVector(const Volume& volume,
-    const std::vector<size_t>& components) {
-    std::vector<std::string> names;
 
-    for (size_t i : components) {
-        names.push_back(volume.getName(i));
-    }
 
-    return names;
-}
-}
 Volume::Volume(const std::vector<std::string>& variableNames,
     alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory,
     size_t nx, size_t ny, size_t nz,
@@ -78,15 +68,16 @@ size_t Volume::getNumberOfVariables() const {
 }
 
 ivec3 Volume::getSize() const {
-    return {getTotalNumberOfXCells(), getTotalNumberOfYCells(), getTotalNumberOfZCells()};
+    return {int(getTotalNumberOfXCells()),
+            int(getTotalNumberOfYCells()), int(getTotalNumberOfZCells())};
 }
 
 ivec3 Volume::getInnerSize() const {
-    return {getNumberOfXCells(), getNumberOfYCells(), getNumberOfZCells()};
+    return {int(getNumberOfXCells()), int(getNumberOfYCells()), int(getNumberOfZCells())};
 }
 
 ivec3 Volume::getNumberOfGhostCells() const {
-    return {getNumberOfXGhostCells(), getNumberOfYGhostCells(), getNumberOfZGhostCells()};
+    return {int(getNumberOfXGhostCells()), int(getNumberOfYGhostCells()), int(getNumberOfZGhostCells())};
 }
 
 ///

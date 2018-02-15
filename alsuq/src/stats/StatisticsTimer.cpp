@@ -53,9 +53,9 @@ void StatisticsTimer::computeStatistics(const alsfvm::volume::Volume&
 
 }
 
-void StatisticsTimer::finalize() {
+void StatisticsTimer::finalizeStatistics() {
     auto startTime = std::chrono::high_resolution_clock::now();
-    statistics->finalize();
+    statistics->finalizeStatistics();
     auto endTime = std::chrono::high_resolution_clock::now();
 
     finalizeTime += std::chrono::duration_cast<std::chrono::seconds>

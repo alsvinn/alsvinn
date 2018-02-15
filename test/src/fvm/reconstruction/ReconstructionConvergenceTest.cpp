@@ -185,7 +185,7 @@ TEST_P(ReconstructionConvergenceTest, ReconstructionTest) {
         const real dx = grid.getCellLengths().x;
         auto conservedView = conservedCPU->getScalarMemoryArea("rho")->getView();
 
-        for (int x = 0; x < nx; ++x) {
+        for (int x = 0; x < int(nx); ++x) {
             const real a = x * dx;
             const real b = (x + 1) * dx;
 

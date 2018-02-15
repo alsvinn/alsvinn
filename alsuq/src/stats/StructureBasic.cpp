@@ -37,7 +37,7 @@ void StructureBasic::computeStatistics(const alsfvm::volume::Volume&
         extraVariables);
 }
 
-void StructureBasic::finalize() {
+void StructureBasic::finalizeStatistics() {
 
 }
 

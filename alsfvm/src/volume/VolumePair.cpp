@@ -3,8 +3,8 @@
 namespace alsfvm {
 namespace volume {
 
-VolumePair::VolumePair(std::shared_ptr<Volume> conservedVolume,
-    std::shared_ptr<Volume> extraVolume)
+VolumePair::VolumePair(std::shared_ptr<volume::Volume> conservedVolume,
+    std::shared_ptr<volume::Volume> extraVolume)
     : volumes{conservedVolume, extraVolume} {
 
 }

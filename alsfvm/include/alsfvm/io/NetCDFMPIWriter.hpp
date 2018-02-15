@@ -80,7 +80,7 @@ protected:
     //!
     //! @return the dimensions created by netcdf
     virtual dimension_vector createDimensions(netcdf_raw_ptr basegroup,
-        const grid::Grid& griod,
+        const grid::Grid& grid,
         bool newFile);
 
 
@@ -125,6 +125,7 @@ protected:
     //! @param dataset the dataset to write to
     //! @param volume the volume is used to get size information
     //! @param memoryIndex the scalar memory index of the volume
+    //! @param grid the grid to use
     //!
     virtual void writeMemory(netcdf_raw_ptr baseGroup,
         netcdf_raw_ptr dataset,
@@ -140,6 +141,7 @@ protected:
     //! @param dimensions the given dimensions
     //! @param datasets a list of datasets (produced by makeDataset) that  is
     //!                 ordered according to the volume (makeDataset does this automatically)
+    //! @param grid the grid to use
     //!
     //!
     virtual void writeVolume(netcdf_raw_ptr baseGroup,

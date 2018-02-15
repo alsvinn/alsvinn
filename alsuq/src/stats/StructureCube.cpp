@@ -36,7 +36,7 @@ void StructureCube::computeStatistics(const alsfvm::volume::Volume&
         extraVariables);
 }
 
-void StructureCube::finalize() {
+void StructureCube::finalizeStatistics() {
 
 }
 

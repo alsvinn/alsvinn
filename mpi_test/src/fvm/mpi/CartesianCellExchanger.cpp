@@ -62,7 +62,6 @@ TEST_P(CartesianCellExchangerTest, Test1D) {
     ASSERT_EQ(globalPosition[0], rank * N);
     ASSERT_EQ(globalPosition[1], 0);
     ASSERT_EQ(globalPosition[2], 0);
-    ivec3 numberOfProcessorsPerDirection = {numberOfProcessors, 1, 1};
 
 
     for (int side = 0; side < 6; ++side) {

@@ -40,7 +40,9 @@ public:
         const real w0Right = a0Right / (a0Right + a1Right);
         const real w1Right = a1Right / (a0Right + a1Right);
 #if 1
+#ifdef __CUDA_ARCH__
 #pragma unroll
+#endif
 
         for (size_t var = 0; var < Equation::getNumberOfConservedVariables(); ++var) {
             leftView.get(var).at(indexOut) = 0.5 * (w1Left * in.get(var).at(indexLeft) +

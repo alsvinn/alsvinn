@@ -15,9 +15,8 @@ public:
     //! Decomposes the grid. The returned object is the local information
     //! for this node.
     //!
-    //! @param grid the whole grid to work on
-    //! @param numberOfProcessors the total number of processors to work with
-    //! @param the current node number
+    //! @param configuration the configuration
+    //! @param grid the grid
     virtual DomainInformationPtr decompose(ConfigurationPtr configuration,
         const grid::Grid& grid) = 0;
 };

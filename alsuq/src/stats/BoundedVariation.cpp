@@ -30,14 +30,14 @@ void BoundedVariation::computeStatistics(const alsfvm::volume::Volume&
     const ivec3 end = conservedVariables.getSize() -
         conservedVariables.getNumberOfGhostCells();
 
-    for (int var = 0; var < conservedVariables.getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < conservedVariables.getNumberOfVariables(); ++var) {
         bv.getVolumes().getConservedVolume()->getScalarMemoryArea(var)->getPointer()[0]
             = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(p,
                     start,
                     end);
     }
 
-    for (int var = 0; var < extraVariables.getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < extraVariables.getNumberOfVariables(); ++var) {
         bv.getVolumes().getExtraVolume()->getScalarMemoryArea(var)->getPointer()[0]
             = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(p,
                     start,
@@ -51,7 +51,7 @@ void BoundedVariation::computeStatistics(const alsfvm::volume::Volume&
 
 }
 
-void BoundedVariation::finalize() {
+void BoundedVariation::finalizeStatistics() {
 
 }
 REGISTER_STATISTICS(cpu, bv, BoundedVariation);

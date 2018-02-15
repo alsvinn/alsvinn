@@ -42,7 +42,7 @@ void BoundedVariationDirection::computeStatistics(const alsfvm::volume::Volume&
             conservedVariables,
             extraVariables, 1, 1, 1, "cpu");
 
-    for (int var = 0; var < conservedVariables.getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < conservedVariables.getNumberOfVariables(); ++var) {
         bvX.getVolumes().getConservedVolume()->getScalarMemoryArea(var)->getPointer()[0]
             = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(0, p, start,
                     end);
@@ -61,7 +61,7 @@ void BoundedVariationDirection::computeStatistics(const alsfvm::volume::Volume&
 
     }
 
-    for (int var = 0; var < extraVariables.getNumberOfVariables(); ++var) {
+    for (size_t var = 0; var < extraVariables.getNumberOfVariables(); ++var) {
         bvX.getVolumes().getExtraVolume()->getScalarMemoryArea(var)->getPointer()[0] =
             conservedVariables.getScalarMemoryArea(var)->getTotalVariation(0, p, start,
                 end);
@@ -87,7 +87,7 @@ void BoundedVariationDirection::computeStatistics(const alsfvm::volume::Volume&
 
 }
 
-void BoundedVariationDirection::finalize() {
+void BoundedVariationDirection::finalizeStatistics() {
 
 }
 REGISTER_STATISTICS(cpu, bv_direction, BoundedVariationDirection);
