@@ -5,7 +5,7 @@ namespace volume {
 
 VolumePair::VolumePair(std::shared_ptr<volume::Volume> conservedVolume,
     std::shared_ptr<volume::Volume> extraVolume)
-    : volumes{conservedVolume, extraVolume} {
+    : volumes{{conservedVolume, extraVolume}} {
 
 }
 

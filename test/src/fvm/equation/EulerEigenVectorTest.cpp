@@ -139,11 +139,11 @@ struct EulerEigenVectorTest : public ::testing::Test {
             for (int j = 0; j < d + 2; ++j) {
                 EXPECT_NEAR(eigenValues[i] * eigenVector[j], eigenVectorMultipliedByA[j], 1e-6)
                         << "Mismatch eigenvector " << i << ", component " << j << std::endl
-                            << "\teigenVector = " << eigenVector << std::endl
+                            << "\teigenVector = " << eigenVector.str() << std::endl
                             << "\teigenValue  = " << eigenValues[i] << std::endl
-                            << "\tmultiplied  = " << eigenValues[i] * eigenVector << std::endl
-                            << "\tresult      = " << eigenVectorMultipliedByA << std::endl
-                            << "\tscalings    = " << scaling << std::endl;
+                            << "\tmultiplied  = " << (eigenValues[i] * eigenVector).str() << std::endl
+                            << "\tresult      = " << eigenVectorMultipliedByA.str() << std::endl
+                            << "\tscalings    = " << scaling.str() << std::endl;
             }
         }
 

@@ -18,16 +18,20 @@ enum Type {
 //! Convenience function to create an array of length 6 with only Type::PERIODIC
 //! entries
 inline std::array<Type, 6> allPeriodic() {
-    return {Type::PERIODIC, Type::PERIODIC, Type::PERIODIC,
-            Type::PERIODIC, Type::PERIODIC, Type::PERIODIC};
+    return {{
+            Type::PERIODIC, Type::PERIODIC, Type::PERIODIC,
+            Type::PERIODIC, Type::PERIODIC, Type::PERIODIC
+        }};
 }
 
 
 //! Convenience function to create an array of length 6 with only Type::NEUMANN
 //! entries
 inline std::array<Type, 6> allNeumann() {
-    return {Type::NEUMANN, Type::NEUMANN, Type::NEUMANN,
-            Type::NEUMANN, Type::NEUMANN, Type::NEUMANN};
+    return {{
+            Type::NEUMANN, Type::NEUMANN, Type::NEUMANN,
+            Type::NEUMANN, Type::NEUMANN, Type::NEUMANN
+        }};
 }
 
 } // namespace boundary

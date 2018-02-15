@@ -74,6 +74,8 @@ struct vec6 {
     __device__ __host__ static constexpr size_t size() {
         return 6;
     }
+
+    __host__ std::string str() const;
 };
 
 ///
@@ -132,8 +134,9 @@ __device__ __host__ inline vec6<T> operator+(const vec6<T>& a,
 
 }
 
+
 template<typename T>
-inline std::ostream& operator<<(std::ostream& os,
+std::ostream& operator  <<(std::ostream& os,
     const alsutils::vec6<T>& vec) {
     os << "[";
 
@@ -147,4 +150,10 @@ inline std::ostream& operator<<(std::ostream& os,
 
     os << "]";
     return os;
+}
+template<class T>
+inline __host__ std::string alsutils::vec6<T>::str() const {
+    std::stringstream ss;
+    ss << *this;
+    return ss.str();
 }

@@ -6,8 +6,8 @@ namespace alsfvm {
 namespace io {
 
 FixedIntervalWriter::FixedIntervalWriter(alsfvm::shared_ptr<Writer>& writer,
-    real timeInterval, real endTime)
-    : writer(writer), timeInterval(timeInterval), endTime(endTime), numberSaved(0) {
+    real timeInterval, real )
+    : writer(writer), timeInterval(timeInterval), numberSaved(0) {
 
 }
 

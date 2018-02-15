@@ -3,7 +3,9 @@
 #ifdef ALSVINN_USE_MPI
     #include <mpi.h>
 #endif
-#include <cuda_runtime.h>
+#ifdef ALSVINN_HAVE_CUDA
+    #include <cuda_runtime.h>
+#endif
 #include <cstdlib>
 int main(int argc, char** argv) {
 #ifdef ALSVINN_USE_MPI

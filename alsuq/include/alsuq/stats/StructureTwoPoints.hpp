@@ -18,7 +18,7 @@ public:
 
 
     //! Returns a list of ['structure_2pt']
-    virtual std::vector<std::string> getStatisticsNames() const;
+    virtual std::vector<std::string> getStatisticsNames() const override;
 
 
 

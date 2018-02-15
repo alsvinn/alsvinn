@@ -126,20 +126,22 @@ void runTest(
             dt = integrator->performSubstep(conservedVolumes, grid.getCellLengths(), dt,
                     cfl, *conservedNext, substep, timestepInformation);
 
-            std::array<real*, 5> conservedPointers = {
-                conservedNext->getScalarMemoryArea(0)->getPointer(),
-                conservedNext->getScalarMemoryArea(1)->getPointer(),
-                conservedNext->getScalarMemoryArea(2)->getPointer(),
-                conservedNext->getScalarMemoryArea(3)->getPointer(),
-                conservedNext->getScalarMemoryArea(4)->getPointer()
+            std::array<real*, 5> conservedPointers = {{
+                    conservedNext->getScalarMemoryArea(0)->getPointer(),
+                    conservedNext->getScalarMemoryArea(1)->getPointer(),
+                    conservedNext->getScalarMemoryArea(2)->getPointer(),
+                    conservedNext->getScalarMemoryArea(3)->getPointer(),
+                    conservedNext->getScalarMemoryArea(4)->getPointer()
+                }
             };
 
-            std::array<real*, 4> extraPointers = {
-                extra1->getScalarMemoryArea(0)->getPointer(),
-                extra1->getScalarMemoryArea(1)->getPointer(),
-                extra1->getScalarMemoryArea(2)->getPointer(),
-                extra1->getScalarMemoryArea(3)->getPointer()
+            std::array<real*, 4> extraPointers = {{
+                    extra1->getScalarMemoryArea(0)->getPointer(),
+                    extra1->getScalarMemoryArea(1)->getPointer(),
+                    extra1->getScalarMemoryArea(2)->getPointer(),
+                    extra1->getScalarMemoryArea(3)->getPointer()
 
+                }
             };
 
             boundary->applyBoundaryConditions(*conservedNext, grid);

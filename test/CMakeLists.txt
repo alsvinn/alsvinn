@@ -9,6 +9,11 @@ IF (NOT ALSVINN_USE_MPI)
     LIST(REMOVE_ITEM SRC ${MPI_SRC})
 ENDIF()
 
+IF (NOT ALSVINN_USE_CUDA)
+    FILE(GLOB_RECURSE CUDA_SRC src/*CUDA*.cpp src/uq/*CUDA*.cpp)
+    LIST(REMOVE_ITEM SRC ${CUDA_SRC})
+ENDIF()
+
 
 set_source_groups( "Source Files" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SRC}")
 set_source_groups( "Header Files" "${CMAKE_CURRENT_SOURCE_DIR}/include/alsfvm" "${HEADERS}")

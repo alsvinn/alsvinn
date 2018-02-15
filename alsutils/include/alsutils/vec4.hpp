@@ -107,6 +107,8 @@ struct vec4 {
 
         return *this;
     }
+
+    __host__ std::string str() const;
 };
 
 ///
@@ -162,8 +164,9 @@ __device__ __host__ inline vec4<T> operator+(const vec4<T>& a,
 
 
 }
+
 template<typename T>
-inline std::ostream& operator<<(std::ostream& os,
+std::ostream& operator<<(std::ostream& os,
     const alsutils::vec4<T>& vec) {
     os << "[";
 
@@ -178,3 +181,11 @@ inline std::ostream& operator<<(std::ostream& os,
     os << "]";
     return os;
 }
+
+template<class T>
+inline __host__ std::string alsutils::vec4<T>::str() const {
+    std::stringstream ss;
+    ss << *this;
+    return ss.str();
+}
+

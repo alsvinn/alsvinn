@@ -16,7 +16,7 @@ public:
 
 
     //! Returns a list of ['structure_basic']
-    virtual std::vector<std::string> getStatisticsNames() const;
+    virtual std::vector<std::string> getStatisticsNames() const override;
 
 
 

@@ -43,6 +43,6 @@ inline std::array<real, 2> linearFit(const std::vector<real>& x,
 
     boost::numeric::ublas::lu_substitute(ATA, permutationMatrix, ATc);
 
-    return std::array < real, 1 + 1 > ({ ATc(0, 0), ATc(1, 0) });
+    return std::array < real, 1 + 1 > ({{ ATc(0, 0), ATc(1, 0) }});
 }
 }

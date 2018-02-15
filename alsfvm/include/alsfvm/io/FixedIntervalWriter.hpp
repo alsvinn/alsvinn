@@ -42,7 +42,6 @@ public:
 private:
     alsfvm::shared_ptr<Writer> writer;
     const real timeInterval;
-    const real endTime;
     size_t numberSaved;
 
 };

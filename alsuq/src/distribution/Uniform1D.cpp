@@ -5,7 +5,7 @@
 namespace alsuq {
 namespace distribution {
 Uniform1D::Uniform1D(size_t numberOfSamples, real a, real b)
-    : a(a), b(b) {
+    : a(a) {
     ALSVINN_LOG(INFO, "numberOfSampes = " << numberOfSamples);
 
     deltaX = (b - a) / numberOfSamples;

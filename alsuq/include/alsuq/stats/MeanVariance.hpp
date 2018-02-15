@@ -9,7 +9,7 @@ class MeanVariance : public StatisticsHelper {
 public:
     MeanVariance(const StatisticsParameters& parameters);
     //! Returns a list of ['mean', 'variance']
-    virtual std::vector<std::string> getStatisticsNames() const;
+    virtual std::vector<std::string> getStatisticsNames() const override;
 
 
 

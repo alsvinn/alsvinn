@@ -10,7 +10,7 @@ public:
     OnePointMoment(const StatisticsParameters& parameters);
 
     //! Returns 'm<n>' where n is the moment
-    virtual std::vector<std::string> getStatisticsNames() const;
+    virtual std::vector<std::string> getStatisticsNames() const override;
 
 
 

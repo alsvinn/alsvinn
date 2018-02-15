@@ -22,31 +22,31 @@ public:
     \
 
     //! To be called when the statistics should be combined.
-    virtual void combineStatistics();
+    virtual void combineStatistics() override;
 
     //! Adds a write for the given statistics name
     //! @param name the name of the statitics (one of the names returned in
     //!             getStatiticsNames()
     //! @param writer the writer to use
     virtual void addWriter(const std::string& name,
-        std::shared_ptr<alsfvm::io::Writer>& writer);
+        std::shared_ptr<alsfvm::io::Writer>& writer) override;
 
     //! Returns a list of the names of the statistics being computed,
     //! typically this could be ['mean', 'variance']
-    virtual std::vector<std::string> getStatisticsNames() const;
+    virtual std::vector<std::string> getStatisticsNames() const override;
 
-    void writeStatistics(const alsfvm::grid::Grid& grid);
+    void writeStatistics(const alsfvm::grid::Grid& grid) override;
 
 
     //! To be called in the end, this could be to eg compute the variance
     //! through M_2-mean^2 or any other postprocessing needed
-    virtual void finalizeStatistics();
+    virtual void finalizeStatistics() override;
 
 protected:
     virtual void computeStatistics(const alsfvm::volume::Volume& conservedVariables,
         const alsfvm::volume::Volume& extraVariables,
         const alsfvm::grid::Grid& grid,
-        const alsfvm::simulator::TimestepInformation& timestepInformation);
+        const alsfvm::simulator::TimestepInformation& timestepInformation) override;
 
 private:
     alsfvm::shared_ptr<Statistics> statistics;

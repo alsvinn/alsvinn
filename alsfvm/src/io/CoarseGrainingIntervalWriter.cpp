@@ -10,11 +10,11 @@ CoarseGrainingIntervalWriter::CoarseGrainingIntervalWriter(
     alsfvm::shared_ptr<Writer>& writer,
     real timeInterval,
     int numberOfCoarseSaves,
-    real endTime, int numberOfSkips)
+    real, int numberOfSkips)
     : writer(writer), timeInterval(timeInterval),
       numberOfCoarseSaves(numberOfCoarseSaves),
       numberOfSkips(numberOfSkips),
-      endTime(endTime), numberSaved(0) {
+      numberSaved(0) {
 
 }
 

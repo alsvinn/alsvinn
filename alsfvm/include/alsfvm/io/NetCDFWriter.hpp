@@ -43,7 +43,7 @@ protected:
     //! @param extraVariables the extraVariables to write
     //! @param grid the underlying grid
     //! @param timestepInformation the current timestep information
-    virtual void writeToFile(netcdf_raw_ptr file,
+    void writeToFile(netcdf_raw_ptr file,
         const volume::Volume& conservedVariables,
         const volume::Volume& extraVariables,
         const grid::Grid& grid,
@@ -55,7 +55,7 @@ protected:
     //! @param basegroup the file pointer to write to
     //! @param volume will use this to get the dimensions
     //!
-    virtual std::array<netcdf_raw_ptr, 3> createDimensions(netcdf_raw_ptr basegroup,
+    std::array<netcdf_raw_ptr, 3> createDimensions(netcdf_raw_ptr basegroup,
         const volume::Volume& volume);
 
     //! Writes the memory to the given memory dataset
@@ -64,7 +64,7 @@ protected:
     //! @param dataset the dataset to write to
     //! @param volume the volume to extract the memory from (we need this to get the sizes)
     //! @param memoryIndex the memoryIndex of the volume
-    virtual void writeMemory(netcdf_raw_ptr baseGroup, netcdf_raw_ptr dataset,
+    void writeMemory(netcdf_raw_ptr baseGroup, netcdf_raw_ptr dataset,
         const volume::Volume& volume, size_t memoryIndex);
 
 
@@ -73,7 +73,7 @@ protected:
     //! @param baseGroup the baseGroup to write to
     //! @param volume the given volume
     //! @param dimensions already created dimensions
-    virtual void writeVolume(netcdf_raw_ptr baseGroup, const volume::Volume& volume,
+    void writeVolume(netcdf_raw_ptr baseGroup, const volume::Volume& volume,
         std::array<netcdf_raw_ptr, 3> dimensions);
 
     //! Creates or opens a dataset for the given volume and memory index
@@ -83,7 +83,7 @@ protected:
     //! @param memoryIndex the given memoryIndex  (used for the name)
     //! @param dimensions the already created dimensions
     //! \returns a  touple where the first member is the file/group id, and the second the dataset
-    virtual std::pair<netcdf_raw_ptr, netcdf_raw_ptr> makeDataset(
+    std::pair<netcdf_raw_ptr, netcdf_raw_ptr> makeDataset(
         netcdf_raw_ptr baseGroup, const volume::Volume& volume,
         size_t memoryIndex, std::array<netcdf_raw_ptr, 3> dimensions);
 

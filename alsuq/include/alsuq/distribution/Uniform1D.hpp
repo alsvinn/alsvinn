@@ -14,7 +14,6 @@ private:
     size_t currentSample = 0;
     real deltaX;
     real a;
-    real b;
 };
 } // namespace generator
 } // namespace alsuq

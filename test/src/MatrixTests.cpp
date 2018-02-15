@@ -75,14 +75,16 @@ TEST(MatrixTest, MatrixMatrixMultiplication) {
         6490,  6630,  6770,  6910,  7050
     };
 
+    std::cout << "A is now " << A << std::endl;
+
     for (int i = 0; i < 5; ++i) {
 
         for (int j = 0; j < 5; ++j) {
             ASSERT_FLOAT_EQ(correctAnswer[i * 5 + j], product(i, j))
                     << "Wrong product value in (" << i << ", " << j << ")" << std::endl
-                        << "product = " << product << std::endl
-                        << "A = " << A << std::endl
-                        << "B = " << B << std::endl;
+                        << "product = " << product.str() << std::endl
+                        << "A = " << A.str() << std::endl
+                        << "B = " << B.str() << std::endl;
         }
     }
 }

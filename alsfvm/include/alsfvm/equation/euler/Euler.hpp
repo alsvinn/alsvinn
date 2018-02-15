@@ -372,6 +372,7 @@ private:
 };
 
 
+
 template<>
 template<int direction>
 __device__ __host__ matrix5 Euler<3>::computeEigenVectorMatrix(
@@ -625,6 +626,9 @@ __device__ __host__ rvec3 Euler<1>::computeEigenValues(const ConservedVariables&
 
     return rvec3{0, 0, 0};
 }
+
+
+
 }
 } // namespace alsfvm
 } // namespace equation

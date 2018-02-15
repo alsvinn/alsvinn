@@ -65,6 +65,12 @@ ADD_DEFINITIONS(-DMPICH_RDMA_ENABLED_CUDA=1)
 FIND_PACKAGE(OpenMP REQUIRED)
 
 add_compile_options($<$<COMPILE_LANGUAGE:CXX>:${OpenMP_CXX_FLAGS}>)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-undefined-var-template>)
+    add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-gnu-zero-variadic-macro-arguments>)
+endif()
+
 if (NOT WIN32)
 	add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wall>)
 	add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-comment>)

@@ -19,7 +19,7 @@ public:
 
 
     //! Clones the memory area, but *does not copy the content*
-    virtual std::shared_ptr<Memory<T> > makeInstance() const;
+    virtual std::shared_ptr<Memory<T> > makeInstance() const override;
 
     ///
     /// Checks if the memory area is on the host (CPU) or
@@ -27,10 +27,10 @@ public:
     /// before reading it.
     /// @returns true if the memory is on host, false otherwise
     ///
-    virtual bool isOnHost() const;
+    virtual bool isOnHost() const override;
 
     //! Copies the contents of the other memory area into this one
-    virtual void copyFrom(const Memory<T>& other);
+    virtual void copyFrom(const Memory<T>& other) override;
 
     ///
     /// Gets the pointer to the data (need not be on the host!)
@@ -38,7 +38,7 @@ public:
     /// be useless! If you want to use the OpenCL memory, you should
     /// first cast to OpenCL memory, then get the OpenCL buffer pointer.
     ///
-    virtual T* getPointer();
+    virtual T* getPointer() override;
 
     ///
     /// Gets the pointer to the data (need not be on the host!)
@@ -46,7 +46,7 @@ public:
     /// be useless! If you want to use the OpenCL memory, you should
     /// first cast to OpenCL memory, then get the OpenCL buffer pointer.
     ///
-    virtual const T* getPointer() const;
+    virtual const T* getPointer() const override;
 
     ///
     /// Copies the memory to the given buffer
@@ -55,7 +55,7 @@ public:
     /// \param bufferLength the size of the buffer (in number of T's)
     ///
     virtual void copyToHost(T* bufferPointer,
-        size_t bufferLength) const;
+        size_t bufferLength) const override;
 
     ///
     /// Copies the memory from the buffer (assumed to be on Host/CPU)
@@ -64,56 +64,56 @@ public:
     /// \param bufferLength the size of the buffer (in number of T's)
     ///
     virtual void copyFromHost(const T* bufferPointer,
-        size_t bufferLength);
+        size_t bufferLength) override;
 
 
     ///
     /// Adds the other memory area to this one
     /// \param other the memory area to add from
     ///
-    virtual void operator+=(const Memory<T>& other);
+    virtual void operator+=(const Memory<T>& other) override;
 
     ///
     /// Mutliplies the other memory area to this one
     /// \param other the memory area to multiply from
     ///
-    virtual void operator*=(const Memory<T>& other);
+    virtual void operator*=(const Memory<T>& other) override;
 
     ///
     /// Subtracts the other memory area to this one
     /// \param other the memory area to subtract from
     ///
-    virtual void operator-=(const Memory<T>& other);
+    virtual void operator-=(const Memory<T>& other) override;
 
     ///
     /// Divides the other memory area to this one
     /// \param other the memory area to divide from
     ///
-    virtual void operator/=(const Memory<T>& other);
+    virtual void operator/=(const Memory<T>& other) override;
 
     ///
     /// Adds the scalar to each component
     /// \param scalar the scalar to add
     ///
-    virtual void operator+=(real scalar);
+    virtual void operator+=(real scalar) override;
 
     ///
     /// Multiplies the scalar to each component
     /// \param scalar the scalar to multiply
     ///
-    virtual void operator*=(real scalar);
+    virtual void operator*=(real scalar) override;
 
     ///
     /// Subtracts the scalar from each component
     /// \param scalar the scalar to subtract
     ///
-    virtual void operator-=(real scalar);
+    virtual void operator-=(real scalar) override;
 
     ///
     /// Divides the each component by the scalar
     /// \param scalar the scalar to divide
     ///
-    virtual void operator/=(real scalar);
+    virtual void operator/=(real scalar) override;
 
     ///
     /// \brief at returns the data at the given index
@@ -137,7 +137,7 @@ public:
     ///
     /// \brief makeZero sets every element to zero (0)
     ///
-    virtual void makeZero();
+    virtual void makeZero() override;
 
     ///
     /// \brief copyInternalCells copies the internal cells into the memory area
@@ -171,7 +171,7 @@ public:
     virtual void copyInternalCells(size_t startX, size_t endX,
         size_t startY, size_t endY,
         size_t startZ, size_t endZ,
-        T* output, size_t outputSize);
+        T* output, size_t outputSize) override;
 
     //! Adds the memory with coefficients to this memory area
     //! Here we compute the sum
@@ -181,7 +181,7 @@ public:
         T a2, const Memory<T>& v2,
         T a3, const Memory<T>& v3,
         T a4, const Memory<T>& v4,
-        T a5, const Memory<T>& v5);
+        T a5, const Memory<T>& v5) override;
 
 
     //! Adds a power of the other memory area to this memory area, ie
@@ -190,7 +190,7 @@ public:
     //!
     //! @param other the other memory area to the the power of
     //! @param power the power to use
-    virtual void addPower(const Memory<T>& other, double power);
+    virtual void addPower(const Memory<T>& other, double power) override;
 
     //! Subtracts a power of the other memory area to this memory area, ie
     //!
@@ -198,7 +198,7 @@ public:
     //!
     //! @param other the other memory area to the the power of
     //! @param power the power to use
-    virtual void subtractPower(const Memory<T>& other, double power);
+    virtual void subtractPower(const Memory<T>& other, double power) override;
 
 
     virtual std::shared_ptr<Memory<T> > getHostMemory() override;
@@ -213,7 +213,7 @@ public:
     //! @param start the index to start at (inclusive)
     //! @param end the maximum index (exclusive)
     virtual real getTotalVariation(int p, const ivec3& start,
-        const ivec3& end) const;
+        const ivec3& end) const override;
 
     //! Computes the total variation in a given direction \$d\in\{0,1,2\}\$
     //!
@@ -226,7 +226,7 @@ public:
     //! @param start the index to start at (inclusive)
     //! @param end the maximum index (exclusive)
     virtual real getTotalVariation(int direction, int p, const ivec3& start,
-        const ivec3& end) const;
+        const ivec3& end) const override;
 
 
 private:

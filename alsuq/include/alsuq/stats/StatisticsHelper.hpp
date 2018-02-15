@@ -18,15 +18,15 @@ public:
     //! @param writer the writer to add
     //! @param name the name of the statistics (must be unique)
     void addWriter(const std::string& name,
-        std::shared_ptr<alsfvm::io::Writer>& writer);
+        std::shared_ptr<alsfvm::io::Writer>& writer) override;
 
     //! Should be called at the end of the simulation
-    virtual void combineStatistics();
+    virtual void combineStatistics() override;
 
 
 
     //! Writes the statistics to file
-    virtual void writeStatistics(const alsfvm::grid::Grid& grid);
+    virtual void writeStatistics(const alsfvm::grid::Grid& grid) override;
 
 
 

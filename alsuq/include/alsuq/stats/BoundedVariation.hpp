@@ -11,7 +11,7 @@ public:
 
 
     //! Returns a list of ['bv']
-    virtual std::vector<std::string> getStatisticsNames() const;
+    virtual std::vector<std::string> getStatisticsNames() const override;
 
 
 

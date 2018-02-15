@@ -18,7 +18,7 @@ public:
 
     void operator()( volume::Volume& conservedVariables,
         rvec3& waveSpeeds, bool computeWaveSpeeds,
-        volume::Volume& output) {
+        volume::Volume& output) override {
         output.getScalarMemoryArea(0)->getPointer()[0] = dt *
             conservedVariables.getScalarMemoryArea(0)->getPointer()[0];
         waveSpeeds = rvec3(1, 0, 0);

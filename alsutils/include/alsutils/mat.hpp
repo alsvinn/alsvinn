@@ -1,5 +1,7 @@
 #pragma once
 #include <cassert>
+#include <iostream>
+#include <string>
 namespace alsutils {
 
 template<class T, size_t NumberOfRows, size_t NumberOfColumns>
@@ -116,6 +118,22 @@ public:
         return identityMatrix;
     }
 
+    __host__ std::string str() const {
+        std::stringstream ss;
+
+        for (size_t i = 0; i < NumberOfRows; ++i) {
+            for (size_t j = 0; j < NumberOfColumns; ++j) {
+                ss << (*this)(i, j);
+
+                if (j < NumberOfColumns - 1) {
+                    ss << ", ";
+                }
+            }
+        }
+
+        return ss.str();
+    }
+
 
 private:
     T data[NumberOfColumns][NumberOfRows];
@@ -125,7 +143,8 @@ private:
 }
 
 template<class T, size_t NumberOfRows, size_t NumberOfColumns>
-inline std::ostream& operator<<(std::ostream& os,
+std::ostream& operator<<(
+    std::ostream& os,
     const alsutils::matrix<T, NumberOfRows, NumberOfColumns>& mat) {
     os << "[" << std::endl;
 
@@ -144,5 +163,8 @@ inline std::ostream& operator<<(std::ostream& os,
     os << "]";
     return os;
 }
+
+
+
 
 

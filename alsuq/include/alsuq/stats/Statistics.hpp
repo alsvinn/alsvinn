@@ -17,7 +17,7 @@ public:
     virtual void write(const alsfvm::volume::Volume& conservedVariables,
         const alsfvm::volume::Volume& extraVariables,
         const alsfvm::grid::Grid& grid,
-        const alsfvm::simulator::TimestepInformation& timestepInformation);
+        const alsfvm::simulator::TimestepInformation& timestepInformation) override;
 
 
     //! To be called when the statistics should be combined.

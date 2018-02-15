@@ -55,7 +55,7 @@ private:
     const real timeInterval;
     const int numberOfCoarseSaves;
     const int numberOfSkips;
-    const real endTime;
+
     int numberSaved{0};
     int numberSmallSaved{0};
     bool first{true};
