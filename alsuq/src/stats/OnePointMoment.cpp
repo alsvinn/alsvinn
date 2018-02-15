@@ -39,8 +39,8 @@ void OnePointMoment::finalizeStatistics() {
 
 }
 
-REGISTER_STATISTICS(cpu, onepointmoment, OnePointMoment);
-REGISTER_STATISTICS(cuda, onepointmoment, OnePointMoment);
+REGISTER_STATISTICS(cpu, onepointmoment, OnePointMoment)
+REGISTER_STATISTICS(cuda, onepointmoment, OnePointMoment)
 }
 }
 

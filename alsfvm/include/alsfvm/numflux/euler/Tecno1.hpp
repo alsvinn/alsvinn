@@ -98,7 +98,7 @@ __device__ __host__ inline  real Tecno1<2>::computeFlux(
                     rightZ[0])) * ((gamma + 1) / (gamma - 1) * divLn(leftZ[0], rightZ[0],
                     (F[0])) + bar(leftZ[1], rightZ[1]) * F[1] + bar(leftZ[2], rightZ[2]) * F[2]);
     } else  if (direction == 1) {
-        F[0] = bar(leftZ[2], rightZ[2]) * ln(leftZ[4], rightZ[4]);
+        F[0] = bar(leftZ[2], rightZ[2]) * ln(leftZ[3], rightZ[3]);
         F[1] = bar(leftZ[1], rightZ[1]) / bar(leftZ[0], rightZ[0]) * F[0];
         F[2] = bar(leftZ[3], rightZ[3]) / bar(leftZ[0], rightZ[0]) + bar(leftZ[2],
                 rightZ[2]) / bar(leftZ[0], rightZ[0]) * F[0];

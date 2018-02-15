@@ -90,8 +90,8 @@ void BoundedVariationDirection::computeStatistics(const alsfvm::volume::Volume&
 void BoundedVariationDirection::finalizeStatistics() {
 
 }
-REGISTER_STATISTICS(cpu, bv_direction, BoundedVariationDirection);
-REGISTER_STATISTICS(cuda, bv_direction, BoundedVariationDirection);
+REGISTER_STATISTICS(cpu, bv_direction, BoundedVariationDirection)
+REGISTER_STATISTICS(cuda, bv_direction, BoundedVariationDirection)
 }
 }
 

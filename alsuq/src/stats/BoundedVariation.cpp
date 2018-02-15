@@ -54,7 +54,7 @@ void BoundedVariation::computeStatistics(const alsfvm::volume::Volume&
 void BoundedVariation::finalizeStatistics() {
 
 }
-REGISTER_STATISTICS(cpu, bv, BoundedVariation);
-REGISTER_STATISTICS(cuda, bv, BoundedVariation);
+REGISTER_STATISTICS(cpu, bv, BoundedVariation)
+REGISTER_STATISTICS(cuda, bv, BoundedVariation)
 }
 }

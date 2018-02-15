@@ -53,8 +53,8 @@ void MeanVariance::finalizeStatistics() {
             2.);
     }
 }
-REGISTER_STATISTICS(cpu, meanvar, MeanVariance);
-REGISTER_STATISTICS(cuda, meanvar, MeanVariance);
+REGISTER_STATISTICS(cpu, meanvar, MeanVariance)
+REGISTER_STATISTICS(cuda, meanvar, MeanVariance)
 }
 }
 

@@ -235,12 +235,20 @@ inline void transform_volume(const Volume& in, Volume& out,
     const std::function<VariableStructOut(const VariableStructIn&)>& function) {
 
     std::array < const real*, sizeof(VariableStructIn) / sizeof(real) > pointersIn;
+    pointersIn.fill(nullptr);
+
+    if (pointersIn.size() != in.getNumberOfVariables()) {
+        THROW("Number of variables given does not match struct size."
+            << " Number of variables given: "
+            << in.getNumberOfVariables());
+    }
 
     for (size_t i = 0; i < in.getNumberOfVariables(); i++) {
         pointersIn[i] = in.getScalarMemoryArea(i)->getPointer();
     }
 
     std::array < real*, sizeof(VariableStructOut) / sizeof(real) > pointersOut;
+    pointersOut.fill(nullptr);
 
     for (size_t i = 0; i < out.getNumberOfVariables(); i++) {
         pointersOut[i] = out.getScalarMemoryArea(i)->getPointer();
@@ -268,6 +276,7 @@ template<class VariableStruct>
 inline void for_each_cell(const Volume& in,
     const std::function<void(const VariableStruct&, size_t index)>& function) {
     std::array < const real*, sizeof(VariableStruct) / sizeof(real) > pointersIn;
+    pointersIn.fill(nullptr);
 
     if (pointersIn.size() != in.getNumberOfVariables()) {
         THROW("We expected to get " << pointersIn.size() << " variables, but got " <<
@@ -298,7 +307,9 @@ inline void for_each_cell(const Volume& inA, const Volume& inB,
     const std::function<void(const VariableStructA&, const VariableStructB&, size_t index)>&
     function) {
     std::array < const real*, sizeof(VariableStructA) / sizeof(real) > pointersInA;
+    pointersInA.fill(nullptr);
     std::array < const real*, sizeof(VariableStructB) / sizeof(real) > pointersInB;
+    pointersInB.fill(nullptr);
 
     if (pointersInA.size() != inA.getNumberOfVariables()) {
         THROW("We expected to get " << pointersInA.size() << " variables, but got " <<
@@ -351,7 +362,9 @@ inline void fill_volume(Volume& outA,  Volume& outB,
         VariableStructB& outB) >& fillerFunction) {
 
     std::array < real*, sizeof(VariableStructA) / sizeof(real) > pointersOutA;
+    pointersOutA.fill(nullptr);
     std::array < real*, sizeof(VariableStructB) / sizeof(real) > pointersOutB;
+    pointersOutB.fill(nullptr);
 
     if (pointersOutA.size() != outA.getNumberOfVariables()) {
         THROW("We expected to get " << pointersOutA.size() << " variables, but got " <<
@@ -488,6 +501,7 @@ inline void fill_volume(Volume& out,
     fillerFunction) {
 
     std::array < real*, sizeof(VariableStruct) / sizeof(real) > pointersOut;
+    pointersOut.fill(nullptr);
 
     if (pointersOut.size() != out.getNumberOfVariables()) {
         THROW("We expected to get " << pointersOut.size() << " variables, but got " <<

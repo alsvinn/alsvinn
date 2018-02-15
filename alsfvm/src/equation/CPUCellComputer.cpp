@@ -133,6 +133,6 @@ void CPUCellComputer<Equation>::computeFromPrimitive(const volume::Volume&
     });
 }
 
-ALSFVM_EQUATION_INSTANTIATE(CPUCellComputer);
+ALSFVM_EQUATION_INSTANTIATE(CPUCellComputer)
 }
 }
