@@ -74,6 +74,9 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string& inputFilename,
     auto statistics  = createStatistics(configuration, statisticalConfiguration,
             spatialConfiguration, mpiConfigurationWorld);
     runner->setStatistics(statistics);
+
+    // We want to make sure everything is created before going further
+    MPI_Barrier(mpiConfigurationWorld->getCommunicator());
     return runner;
 }
 
@@ -120,6 +123,8 @@ std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(
         generators[name] = std::make_pair(length, std::make_pair(generator,
                     distribution));
     }
+
+
 
     return std::make_shared<samples::SampleGenerator> (generators);
 
