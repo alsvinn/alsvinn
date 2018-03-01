@@ -7,8 +7,8 @@
 namespace alsuq {
 namespace distribution {
 
-//! The DLL Distribution loads dynamically functions
-//! from a user specified DLL File.
+//! The DLL Distribution loads functions dynamically
+//! from a user specified DLL file (shared library) at run time.
 //!
 //! This is ideal when you want to use some third party QMC
 //! module that you don't want to include into the project
