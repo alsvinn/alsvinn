@@ -50,11 +50,74 @@ namespace distribution {
 //!                               void delete_parameters_function(void* parameters);
 //!                            \endcode</td></tr>
 //!
-//! <tr><td>set_parameters_function </td><td> set the parameter, assumes the signature
+//! <tr><td>set_parameter_function </td><td> set the parameter, assumes the signature
 //!                            \code{.cpp}
-//!                                void set_parameters_function(void* parameters, const char* key, const char* value);
+//!                                void set_parameter_function(void* parameters, const char* key, const char* value);
 //!                            \endcode</td></tr>
 //! </table>
+//!
+//! set_parameter_function will be called for every parameter given to the distribution
+//! tag, ie if the xml given was
+//!
+//! \code{.xml}
+//! <distribution>
+//!    <type>dll</type>
+//!    <library>libfoo.so</library>
+//!    ...
+//!    <optionA>value</optionA>
+//! </distribution>
+//! \endcode
+//!
+//! the following code will essentially be called
+//!
+//! \code{.cpp}
+//! parameters = make_parameters_function();
+//! set_parameter_function(parameters, "type", "dll");
+//! set_parameter_function(parameters, "library", "libfoo.so");
+//! // ...
+//! set_parameter_function(parameters, "optionA", "value");
+//!
+//! // In addition, we always supply the mpi_node and mpi_size
+//! // (from MPI_Comm_rank and MPI_Comm_size)
+//! set_parameter_function(parameters, "mpi_node", mpi_node_as_string);
+//! set_parameter_function(parameters, "mpi_size", mpi_size_as_string);
+//! \endcode
+//!
+//! To get an idea on how this is called, this is a rough sketch (the code
+//! assumes every option is set, there are some if tests to check that the user
+//! supplied every function, otherwise they are gracefully skipped):
+//!
+//! \code{.cpp}
+//! void init() {
+//!     parameters = make_parameters_function();
+//!     set_parameter_function(parameters, "type", "dll");
+//!     set_parameter_function(parameters, "library", "libfoo.so");
+//!     // ...
+//!     set_parameter_function(parameters, "optionA", "value");
+//!
+//!     // In addition, we always supply the mpi_node and mpi_size
+//!     // (from MPI_Comm_rank and MPI_Comm_size)
+//!     set_parameter_function(parameters, "mpi_node", mpi_node_as_string);
+//!     set_parameter_function(parameters, "mpi_size", mpi_size_as_string);
+//!
+//!     data = create_function(size, dimension, parameters);
+//!
+//!     // you can assume mpi gets synchronized at this point, that is, we
+//!     // will essentially call
+//!     MPI_Barrier(MPI_COMM_WORLD);
+//! }
+//!
+//! double generate_sample(int component, int sample) {
+//!     return generate_function(data, size, dimension, component, sample, parameters);
+//! }
+//!
+//! void destruct() {
+//!     // first delete the data
+//!     delete_function(data);
+//!     // then delete the parameters
+//!     delete_parameters_function(parameters);
+//! }
+//! \endcode
 //!
 class DLLDistribution : public Distribution {
 public:
