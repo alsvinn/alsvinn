@@ -84,6 +84,9 @@ public:
         return pointer[index];
     }
 
+    __device__ __host__ size_t size() const {
+        return nx * ny * nz;
+    }
 
     ///
     /// \brief index computes the linear index of the given cell
