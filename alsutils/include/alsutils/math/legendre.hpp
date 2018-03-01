@@ -9,11 +9,11 @@
 //! I have tried to keep the  interface 100% identical to boost, see
 //! http://www.boost.org/doc/libs/1_46_1/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_poly/legendre.html
 //!
-namespace alsutils { namespace math {
+namespace alsutils {
+namespace math {
 
 
 //! Should compute the legendre polynomial of degree n at x
-//! @param n the degree of the polynomial
 //! @param x the point to evuluate in
 //!
 //! See also http://www.boost.org/doc/libs/1_46_1/libs/math/doc/sf_and_dist/html/math_toolkit/special/sf_poly/legendre.html
@@ -23,7 +23,8 @@ namespace alsutils { namespace math {
 template<int n>
 __device__ __host__
 double legendre(real x) {
-    return 1.0/n * (x*legendre<n-1>(x)-(n-1)*legendre<n-2>(x));
+    return 1.0 / n * (x * legendre < n - 1 > (x) - (n - 1) * legendre < n - 2 >
+            (x));
 
 }
 
@@ -63,6 +64,7 @@ __device__ __host__ real legendre_p(int degree, real x) {
     switch (degree) {
     case 0:
         return legendre<0>(x);
+
     case 1:
         return legendre<1>(x);
 
@@ -99,6 +101,7 @@ __device__ __host__ real legendre_p(int degree, real x) {
     default:
         assert(false);
     }
+
     return 0;
 }
 }
