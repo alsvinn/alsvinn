@@ -31,5 +31,5 @@ std::string getVersionControlStatus();
   std::string getAllCmakeVariables();
 
   void writeCmakeConfiguration(const std::string& outputFile);
-
+  std::string getFloatingPointPrecisionDescription();
 }
