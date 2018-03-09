@@ -3,15 +3,15 @@
   <name>
     kh
   </name>
-  <platform>cpu</platform>
+  <platform>cuda</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>64 64 1</dimension>
+    <dimension>1024 1024 1</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>hll3</flux>
-  <endTime>2</endTime>
+  <endTime>1</endTime>
   <equation>euler2</equation>
   <equationParameters>
     <gamma>1.4</gamma>
@@ -20,82 +20,6 @@
   <cfl>auto</cfl>
   <integrator>auto</integrator>
   <functionals>
-
-<functional>
-    <name>legendre_pointwise</name>
-    <time>2</time>
-    <timeRadius>1</timeRadius>
-
-    <degree>1</degree>
-    <minValue>0</minValue>
-    <maxValue>4</maxValue>
-    <variables>rho</variables>
-    <writer>
-        <type>netcdf</type>
-        <basename>kh_legendre_pointwise_time_1</basename>
-    </writer>
-</functional>
-
-<functional>
-    <name>legendre_pointwise</name>
-    <numberOfSaves>1</numberOfSaves>
-    <degree>1</degree>
-
-    <minValue>0.9</minValue>
-    <maxValue>2.5</maxValue>
-    <variables>rho</variables>
-    <writer>
-        <type>netcdf</type>
-        <basename>kh_legendre_pointwise_1</basename>
-    </writer>
-</functional>
-    <functional>
-        <name>legendre</name>
-        <time>2</time>
-        <timeRadius>1</timeRadius>
-        <degree_k>1</degree_k>
-        <degree_n>1</degree_n>
-        <degree_m>1</degree_m>
-        <minValue>0</minValue>
-        <maxValue>4</maxValue>
-        <variables>rho</variables>
-        <writer>
-            <type>netcdf</type>
-            <basename>kh_legendre1</basename>
-        </writer>
-    </functional>
-
-    <functional>
-        <name>legendre</name>
-        <time>2</time>
-        <timeRadius>1</timeRadius>
-        <degree_k>2</degree_k>
-        <degree_n>2</degree_n>
-        <degree_m>2</degree_m>
-        <minValue>0</minValue>
-        <maxValue>4</maxValue>
-        <variables>rho</variables>
-        <writer>
-            <type>netcdf</type>
-            <basename>kh_legendre2</basename>
-        </writer>
-    </functional>
-
-    <functional>
-        <name>legendre</name>
-        <time>2</time>
-        <timeRadius>1</timeRadius>
-        <degree_k>3</degree_k>
-        <degree_n>3</degree_n>
-        <degree_m>3</degree_m>
-        <minValue>0</minValue>
-        <maxValue>4</maxValue>
-        <variables>rho</variables>
-        <writer>
-            <type>netcdf</type>
-            <basename>kh_legendre3</basename>
-        </writer>
-    </functional>
 
 
 

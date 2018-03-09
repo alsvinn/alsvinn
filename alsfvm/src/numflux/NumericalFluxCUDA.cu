@@ -10,6 +10,7 @@
 #include <iostream>
 #include "alsfvm/numflux/numerical_flux_list.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
+#include "alsfvm/cuda/compute_grid.hpp"
 
 namespace alsfvm {
 namespace numflux {
@@ -23,12 +24,16 @@ __global__ void combineFluxDevice(Equation equation,
     const size_t numberOfZCells, const size_t numberOfGhostCells,
     ivec3 start, ivec3 end) {
 
-    const size_t index = threadIdx.x + blockDim.x * blockIdx.x;
+    auto internalFormat = cuda::getInternalFormat(threadIdx, blockIdx, blockDim);
+    const size_t xInternalFormat = internalFormat.x;
+    const size_t yInternalFormat = internalFormat.y;
+    const size_t zInternalFormat = internalFormat.z;
 
-
-    const size_t xInternalFormat = index % numberOfXCells;
-    const size_t yInternalFormat = (index / numberOfXCells) % numberOfYCells;
-    const size_t zInternalFormat = (index) / (numberOfXCells * numberOfYCells);
+    //printf(" %d %d %d\n", xInternalFormat, yInternalFormat, zInternalFormat);
+    if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells
+        || zInternalFormat >= numberOfZCells) {
+        return;
+    }
 
     const size_t x = xInternalFormat + numberOfGhostCells - xDir + start.x;
     const size_t y = yInternalFormat + (dimension > 1) * numberOfGhostCells - yDir +
@@ -36,10 +41,7 @@ __global__ void combineFluxDevice(Equation equation,
     const size_t z = zInternalFormat + (dimension > 2) * numberOfGhostCells - zDir +
         start.z;
 
-    if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells
-        || zInternalFormat >= numberOfZCells) {
-        return;
-    }
+
 
     const size_t rightIndex = output.index(x + xDir, y + yDir, z + zDir);
     const size_t middleIndex = output.index(x, y, z);
@@ -64,34 +66,36 @@ __global__ void computeFluxDevice(Equation equation,
     real* waveSpeeds,
     const size_t numberOfGhostCells, ivec3 start, ivec3 end) {
 
-    const size_t index = threadIdx.x + blockDim.x * blockIdx.x;
-    // We have
-    // index = z * nx * ny + y * nx + x;
-    const size_t xInternalFormat = index % numberOfXCells;
-    const size_t yInternalFormat = (index / numberOfXCells) % numberOfYCells;
-    const size_t zInternalFormat = (index) / (numberOfXCells * numberOfYCells);
+    auto internalFormat = cuda::getInternalFormat(threadIdx, blockIdx, blockDim);
+    const size_t xInternalFormat = internalFormat.x;
+    const size_t yInternalFormat = internalFormat.y;
+    const size_t zInternalFormat = internalFormat.z;
+    if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells
+        || zInternalFormat >= numberOfZCells) {
+        return;
+    }
 
+    const size_t index = xInternalFormat
+            + yInternalFormat * numberOfXCells
+            + zInternalFormat * numberOfXCells * numberOfYCells;
     const size_t x = xInternalFormat +  numberOfGhostCells - xDir + start.x;
     const size_t y = yInternalFormat + (dimension > 1) * (numberOfGhostCells - yDir)
         + start.y;
     const size_t z = zInternalFormat + (dimension > 2) * (numberOfGhostCells - zDir)
         + start.z;
 
-    if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells
-        || zInternalFormat >= numberOfZCells) {
-        return;
-    }
+
 
 
     auto stencil = getStencil<Flux>(Flux());
     // Now we need to build up the stencil for this set of indices
     decltype(stencil) indices;
 
-    for (int index = 0; index < stencil.size(); ++index) {
-        indices[index] = output.index(
-                x + xDir * stencil[index],
-                y + yDir * stencil[index],
-                z + zDir * stencil[index]);
+    for (int stencilIndex = 0; stencilIndex < stencil.size(); ++stencilIndex) {
+        indices[stencilIndex] = output.index(
+                x + xDir * stencil[stencilIndex],
+                y + yDir * stencil[stencilIndex],
+                z + zDir * stencil[stencilIndex]);
     }
 
 
@@ -115,24 +119,20 @@ __global__ void makeZeroDevice(Equation equation,
     const size_t numberOfZCells,
 
     const size_t numberOfGhostCells, ivec3 start, ivec3 end) {
-
-    const size_t index = threadIdx.x + blockDim.x * blockIdx.x;
-
-
-    const size_t xInternalFormat = index % numberOfXCells;
-    const size_t yInternalFormat = (index / numberOfXCells) % numberOfYCells;
-    const size_t zInternalFormat = (index) / (numberOfXCells * numberOfYCells);
+    auto internalFormat = cuda::getInternalFormat(threadIdx, blockIdx, blockDim);
+    const size_t xInternalFormat = internalFormat.x;
+    const size_t yInternalFormat = internalFormat.y;
+    const size_t zInternalFormat = internalFormat.z;
+    if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells
+        || zInternalFormat >= numberOfZCells) {
+        return;
+    }
 
     const size_t x = xInternalFormat + numberOfGhostCells  + start.x;
     const size_t y = yInternalFormat + (dimension > 1) * numberOfGhostCells  +
         start.y;
     const size_t z = zInternalFormat + (dimension > 2) * numberOfGhostCells  +
         start.z;
-
-    if (xInternalFormat >= numberOfXCells || yInternalFormat >= numberOfYCells
-        || zInternalFormat >= numberOfZCells) {
-        return;
-    }
 
     typename Equation::ConservedVariables zero;
     equation.setViewAt(view, view.index(x, y, z), zero);
@@ -159,8 +159,18 @@ void makeZero(volume::Volume& volume,
     size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
     size_t blockSize = 128;
 
+    auto blockDim = cuda::makeBlockDimension({numberOfXCells,
+                                             numberOfYCells,
+                                             numberOfZCells},
+                                             blockSize);
+
+    auto gridDim = cuda::makeGridDimension({numberOfXCells,
+                                             numberOfYCells,
+                                             numberOfZCells},
+                                             blockSize);
+
     makeZeroDevice<Equation, dimension>
-            << < (totalSize + blockSize - 1) / blockSize, blockSize >> >
+            << <gridDim, blockDim>> >
                 (equation, viewOut, numberOfXCells, numberOfYCells, numberOfZCells,
                     numberOfGhostCells, start, end);
 
@@ -188,10 +198,20 @@ void computeFlux(const Equation& equation,
     typename Equation::Views viewOut(output);
 
     size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
+    const size_t blockSize = 128;
+    auto blockDim = cuda::makeBlockDimension({numberOfXCells,
+                                             numberOfYCells,
+                                             numberOfZCells},
+                                             blockSize);
 
-    size_t blockSize = 128;
+    auto gridDim = cuda::makeGridDimension({numberOfXCells,
+                                             numberOfYCells,
+                                             numberOfZCells},
+                                             blockSize);
+
+
     computeFluxDevice <Flux, Equation, dimension, xDir, yDir, zDir, direction>
-            << < (totalSize + blockSize - 1) / blockSize, blockSize >> >
+            << < gridDim, blockDim >> >
                 (equation, viewLeft, viewRight, viewOut, numberOfXCells,
                     numberOfYCells, numberOfZCells,
                     thrust::raw_pointer_cast(&waveSpeeds[0]), numberOfGhostCells, start, end);
@@ -219,10 +239,20 @@ void combineFlux(const Equation& equation, const volume::Volume& input,
     typename Equation::Views viewOut(output);
 
     size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
-    size_t blockSize = 128;
+    const size_t blockSize = 128;
+    auto blockDim = cuda::makeBlockDimension({numberOfXCells,
+                                             numberOfYCells,
+                                             numberOfZCells},
+                                             blockSize);
+
+    auto gridDim = cuda::makeGridDimension({numberOfXCells,
+                                             numberOfYCells,
+                                             numberOfZCells},
+                                             blockSize);
+
 
     combineFluxDevice <Equation, dimension, xDir, yDir, zDir, direction>
-            << < (totalSize + blockSize - 1) / blockSize, blockSize >> >
+            << < gridDim, blockDim >> >
                 (equation, inputView, viewOut, numberOfXCells, numberOfYCells, numberOfZCells,
                     numberOfGhostCells, start, end);
 
