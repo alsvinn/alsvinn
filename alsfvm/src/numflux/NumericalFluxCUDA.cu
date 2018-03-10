@@ -11,14 +11,14 @@
 #include "alsfvm/numflux/numerical_flux_list.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
 #include "alsfvm/cuda/compute_grid.hpp"
-#include "alsutils/log.hpp"
+
 namespace alsfvm {
 namespace numflux {
 
 namespace {
 
 template<class Equation, size_t dimension, bool xDir, bool yDir, bool zDir, size_t direction>
-__global__ void combineFluxDevice(Equation equation,
+__global__ __launch_bounds__(512, 2) void combineFluxDevice(Equation equation,
     typename Equation::ConstViews input, typename Equation::Views output,
     const size_t numberOfXCells, const size_t numberOfYCells,
     const size_t numberOfZCells, const size_t numberOfGhostCells,
@@ -357,17 +357,6 @@ NumericalFluxCUDA<Flux, Equation, dimension>::NumericalFluxCUDA(
 
     cudaOccupancyMaxPotentialBlockSize (&minGridSizeMakeZero, &blockSizeMakeZero,
                                         makeZeroDevice<Equation,  dimension>);
-
-
-
-    ALSVINN_LOG(INFO, "minGridSizeFlux = " << minGridSizeFlux);
-    ALSVINN_LOG(INFO, "blockSizeFlux = " << blockSizeFlux);
-
-    ALSVINN_LOG(INFO, "minGridSizeCombine = " << minGridSizeCombine);
-    ALSVINN_LOG(INFO, "blockSizeCombine = " << blockSizeCombine);
-
-    ALSVINN_LOG(INFO, "minGridSizeMakeZero = " << minGridSizeMakeZero);
-    ALSVINN_LOG(INFO, "blockSizeMakeZero = " << blockSizeMakeZero);
 
 }
 
