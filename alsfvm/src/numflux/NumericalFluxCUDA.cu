@@ -11,7 +11,7 @@
 #include "alsfvm/numflux/numerical_flux_list.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
 #include "alsfvm/cuda/compute_grid.hpp"
-
+#include "alsutils/log.hpp"
 namespace alsfvm {
 namespace numflux {
 
@@ -139,45 +139,11 @@ __global__ void makeZeroDevice(Equation equation,
 
 }
 
-template< class Equation, size_t dimension>
-void makeZero(volume::Volume& volume,
-    const ivec3& start,
-    const ivec3& end,
-    const Equation& equation) {
-    const int numberOfGhostCells = volume.getNumberOfGhostCells().x;
-    const int numberOfXCells = int(volume.getTotalNumberOfXCells()) - 2 *
-        numberOfGhostCells - start.x + end.x;
-    const int numberOfYCells = int(volume.getTotalNumberOfYCells()) - 2 *
-        (dimension > 1) * numberOfGhostCells  - start.y + end.y;
-    const int numberOfZCells = int(volume.getTotalNumberOfZCells()) - 2 *
-        (dimension > 2) * numberOfGhostCells  - start.z + end.z;
-
-
-
-    typename Equation::Views viewOut(volume);
-
-    size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
-    size_t blockSize = 128;
-
-    auto blockDim = cuda::makeBlockDimension({numberOfXCells,
-                                             numberOfYCells,
-                                             numberOfZCells},
-                                             blockSize);
-
-    auto gridDim = cuda::makeGridDimension({numberOfXCells,
-                                             numberOfYCells,
-                                             numberOfZCells},
-                                             blockSize);
-
-    makeZeroDevice<Equation, dimension>
-            << <gridDim, blockDim>> >
-                (equation, viewOut, numberOfXCells, numberOfYCells, numberOfZCells,
-                    numberOfGhostCells, start, end);
-
 }
 
-template<class Flux, class Equation,  size_t dimension, bool xDir, bool yDir, bool zDir, size_t direction>
-void computeFlux(const Equation& equation,
+template<class Flux, class Equation,  size_t dimension>
+template<bool xDir, bool yDir, bool zDir, size_t direction>
+void NumericalFluxCUDA<Flux, Equation, dimension>::computeFluxInDirection(const Equation& equation,
     const volume::Volume& left,
     const volume::Volume& right,
     volume::Volume& output,
@@ -198,7 +164,7 @@ void computeFlux(const Equation& equation,
     typename Equation::Views viewOut(output);
 
     size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
-    const size_t blockSize = 128;
+    const size_t blockSize = this->blockSizeFlux;
     auto blockDim = cuda::makeBlockDimension({numberOfXCells,
                                              numberOfYCells,
                                              numberOfZCells},
@@ -222,8 +188,9 @@ void computeFlux(const Equation& equation,
 }
 
 
-template<class Equation, size_t dimension, bool xDir, bool yDir, bool zDir, size_t direction>
-void combineFlux(const Equation& equation, const volume::Volume& input,
+template<class Flux, class Equation, size_t dimension>
+template<bool xDir, bool yDir, bool zDir, size_t direction>
+void NumericalFluxCUDA<Flux, Equation, dimension>::combineFlux(const Equation& equation, const volume::Volume& input,
     volume::Volume& output, int numberOfGhostCells
     ,  const ivec3& start,
     const ivec3& end) {
@@ -239,7 +206,7 @@ void combineFlux(const Equation& equation, const volume::Volume& input,
     typename Equation::Views viewOut(output);
 
     size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
-    const size_t blockSize = 128;
+    const size_t blockSize = blockSizeCombine;
     auto blockDim = cuda::makeBlockDimension({numberOfXCells,
                                              numberOfYCells,
                                              numberOfZCells},
@@ -258,21 +225,27 @@ void combineFlux(const Equation& equation, const volume::Volume& input,
 
 }
 
+
+
+
+
 template<class Flux, class Equation, size_t dimension>
-void callComputeFlux(const Equation& equation,
+void NumericalFluxCUDA<Flux, Equation, dimension>::callComputeFlux(const Equation& equation,
     const volume::Volume& conservedVariables, volume::Volume& left,
     volume::Volume& right, volume::Volume& output, volume::Volume& temporaryOutput,
     size_t numberOfGhostCells, rvec3& waveSpeeds,
     reconstruction::Reconstruction& reconstruction,  const ivec3& start,
     const ivec3& end) {
+
     reconstruction.performReconstruction(conservedVariables, 0, 0, left, right,
         start, end);
-    computeFlux<Flux, Equation, dimension, 1, 0, 0, 0>(equation, left, right,
+
+    computeFluxInDirection<1, 0, 0, 0>(equation, left, right,
         temporaryOutput,
         numberOfGhostCells,
         waveSpeeds.x,
         start, end);
-    combineFlux<Equation, dimension, 1, 0, 0, 0>(equation,
+    combineFlux<1, 0, 0, 0>(equation,
         temporaryOutput,
         output,
         numberOfGhostCells,
@@ -282,22 +255,57 @@ void callComputeFlux(const Equation& equation,
     if (dimension > 1) {
         reconstruction.performReconstruction(conservedVariables, 1, 0, left, right,
             start, end);
-        computeFlux<Flux, Equation, dimension, 0, 1, 0, 1>(equation, left, right,
+        computeFluxInDirection<0, 1, 0, 1>(equation, left, right,
             temporaryOutput, numberOfGhostCells, waveSpeeds.y, start, end);
-        combineFlux<Equation, dimension, 0, 1, 0, 1>(equation, temporaryOutput, output,
+        combineFlux<0, 1, 0, 1>(equation, temporaryOutput, output,
             numberOfGhostCells, start, end);
     }
 
     if (dimension > 2) {
         reconstruction.performReconstruction(conservedVariables, 2, 0, left, right,
             start, end);
-        computeFlux<Flux, Equation, dimension, 0, 0, 1, 2>(equation, left, right,
+        computeFluxInDirection<0, 0, 1, 2>(equation, left, right,
             temporaryOutput, numberOfGhostCells, waveSpeeds.z, start, end);
-        combineFlux<Equation, dimension, 0, 0, 1, 2>(equation, temporaryOutput, output,
+        combineFlux<0, 0, 1, 2>(equation, temporaryOutput, output,
             numberOfGhostCells, start, end);
     }
 
 }
+
+template<class Flux, class Equation, size_t dimension>
+void NumericalFluxCUDA<Flux, Equation, dimension>::makeZero(volume::Volume& volume,
+    const ivec3& start,
+    const ivec3& end,
+    const Equation& equation) {
+    const int numberOfGhostCells = volume.getNumberOfGhostCells().x;
+    const int numberOfXCells = int(volume.getTotalNumberOfXCells()) - 2 *
+        numberOfGhostCells - start.x + end.x;
+    const int numberOfYCells = int(volume.getTotalNumberOfYCells()) - 2 *
+        (dimension > 1) * numberOfGhostCells  - start.y + end.y;
+    const int numberOfZCells = int(volume.getTotalNumberOfZCells()) - 2 *
+        (dimension > 2) * numberOfGhostCells  - start.z + end.z;
+
+
+
+    typename Equation::Views viewOut(volume);
+
+    size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
+    size_t blockSize = this->blockSizeMakeZero;
+
+    auto blockDim = cuda::makeBlockDimension({numberOfXCells,
+                                             numberOfYCells,
+                                             numberOfZCells},
+                                             blockSize);
+
+    auto gridDim = cuda::makeGridDimension({numberOfXCells,
+                                             numberOfYCells,
+                                             numberOfZCells},
+                                             blockSize);
+
+    makeZeroDevice<Equation, dimension>
+            << <gridDim, blockDim>> >
+                (equation, viewOut, numberOfXCells, numberOfYCells, numberOfZCells,
+                    numberOfGhostCells, start, end);
 
 }
 
@@ -335,7 +343,34 @@ NumericalFluxCUDA<Flux, Equation, dimension>::NumericalFluxCUDA(
             grid.getDimensions().y,
             grid.getDimensions().z,
             getNumberOfGhostCells());
+
+    // http://docs.nvidia.com/cuda/cuda-runtime-api/index.html#ixzz59L1eqfIh
+    // http://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1gee5334618ed4bb0871e4559a77643fc1
+    //
+    // We want to get the optimal grid sizes (currently making experiments to see if
+    // this changes anything).
+    cudaOccupancyMaxPotentialBlockSize (&minGridSizeFlux, &blockSizeFlux,
+                                        computeFluxDevice<Flux, Equation,  dimension, 1, 0, 0, 0>);
+
+    cudaOccupancyMaxPotentialBlockSize (&minGridSizeCombine, &blockSizeCombine,
+                                        combineFluxDevice<Equation,  dimension, 1, 0, 0, 0>);
+
+    cudaOccupancyMaxPotentialBlockSize (&minGridSizeMakeZero, &blockSizeMakeZero,
+                                        makeZeroDevice<Equation,  dimension>);
+
+
+
+    ALSVINN_LOG(INFO, "minGridSizeFlux = " << minGridSizeFlux);
+    ALSVINN_LOG(INFO, "blockSizeFlux = " << blockSizeFlux);
+
+    ALSVINN_LOG(INFO, "minGridSizeCombine = " << minGridSizeCombine);
+    ALSVINN_LOG(INFO, "blockSizeCombine = " << blockSizeCombine);
+
+    ALSVINN_LOG(INFO, "minGridSizeMakeZero = " << minGridSizeMakeZero);
+    ALSVINN_LOG(INFO, "blockSizeMakeZero = " << blockSizeMakeZero);
+
 }
+
 
 template<class Flux, class Equation, size_t dimension>
 void NumericalFluxCUDA<Flux, Equation, dimension>::computeFlux(
@@ -347,10 +382,10 @@ void NumericalFluxCUDA<Flux, Equation, dimension>::computeFlux(
     static_assert(dimension > 0, "We only support positive dimension!");
     static_assert(dimension < 4, "We only support dimension up to 3");
 
-    makeZero<Equation, dimension>(output, start,
+    makeZero(output, start,
         end, equation);
 
-    callComputeFlux<Flux, Equation, dimension>(equation,
+    callComputeFlux(equation,
         conservedVariables,
         *left,
         *right,

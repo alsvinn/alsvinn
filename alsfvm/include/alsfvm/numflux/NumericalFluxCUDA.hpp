@@ -51,6 +51,67 @@ private:
     typename Equation::Parameters equationParameters;
     Equation equation;
 
+    //! Minimum grid size to use for the compute flux kernel, this is obtained
+    //! through the cuda function  cudaOccupancyMaxPotentialBlockSize
+    int minGridSizeFlux = 0;
+
+    //! Block size to use for the compute flux kernel, this is obtained
+    //! through the cuda function  cudaOccupancyMaxPotentialBlockSize
+    int blockSizeFlux = 128;
+
+
+
+    //! Minimum grid size to use for the combine flux kernel, this is obtained
+    //! through the cuda function  cudaOccupancyMaxPotentialBlockSize
+    int minGridSizeCombine = 0;
+
+    //! Block size to use for the combine flux kernel, this is obtained
+    //! through the cuda function  cudaOccupancyMaxPotentialBlockSize
+    int blockSizeCombine = 128;
+
+
+    //! Minimum grid size to use for the make zero kernel, this is obtained
+    //! through the cuda function  cudaOccupancyMaxPotentialBlockSize
+    int minGridSizeMakeZero = 0;
+
+    //! block size to use for the make zero kernel, this is obtained
+    //! through the cuda function  cudaOccupancyMaxPotentialBlockSize
+    int blockSizeMakeZero = 128;
+
+    //! Makes the interior of the volume zero.
+    //!
+    //! @param volume the volume to make zero
+    //! @param start the start index
+    //! @param end the end index
+    //! @param equation the erelevant equation
+    void makeZero(volume::Volume& volume,
+        const ivec3& start,
+        const ivec3& end,
+        const Equation& equation);
+
+    void callComputeFlux(const Equation& equation,
+        const volume::Volume& conservedVariables, volume::Volume& left,
+        volume::Volume& right, volume::Volume& output, volume::Volume& temporaryOutput,
+        size_t numberOfGhostCells, rvec3& waveSpeeds,
+        reconstruction::Reconstruction& reconstruction,  const ivec3& start,
+        const ivec3& end);
+
+    template<bool xDir, bool yDir, bool zDir, size_t direction>
+    void computeFluxInDirection(
+        const Equation& equation,
+        const volume::Volume& left,
+        const volume::Volume& right,
+        volume::Volume& output,
+        int numberOfGhostCells,
+        real& waveSpeed,  const ivec3& start,
+        const ivec3& end);
+
+
+    template<bool xDir, bool yDir, bool zDir, size_t direction>
+    void combineFlux(const Equation& equation, const volume::Volume& input,
+        volume::Volume& output, int numberOfGhostCells,  const ivec3& start,
+        const ivec3& end);
+
 
 };
 } // namespace alsfvm

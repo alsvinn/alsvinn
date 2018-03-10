@@ -8,7 +8,23 @@ namespace cuda {
 dim3 makeBlockDimension(const ivec3& size, const int maximumBlockSize = 1024) {
     // We prioritize the x direction
     dim3 blockDimension;
-    blockDimension.x = maximumBlockSize;
+
+    // We don't want to allocate too much
+    if (size.x < maximumBlockSize) {
+        blockDimension.x = size.x;
+
+    } else if (size.x % maximumBlockSize == 0) {
+        blockDimension.x = maximumBlockSize;
+    } else {
+        blockDimension.x = size.x;
+
+        // Here we take (we hope, obviously doesn't work if blockDimension.x is a prime)
+        // to take the nearest denominator of size.x
+        while (blockDimension.x > maximumBlockSize) {
+            blockDimension.x /= 2;
+        }
+    }
+
     blockDimension.y = 1;
     blockDimension.z = 1;
 
@@ -17,7 +33,9 @@ dim3 makeBlockDimension(const ivec3& size, const int maximumBlockSize = 1024) {
 
 dim3 makeGridDimension(const ivec3& size, const int maximumBlockSize = 1024) {
     dim3 gridDimension;
-    gridDimension.x = (size.x + maximumBlockSize - 1) / maximumBlockSize;
+    dim3 blockSize = makeBlockDimension(size, maximumBlockSize);
+
+    gridDimension.x = (size.x + blockSize.x - 1) / blockSize.x;
     gridDimension.y = size.y;
     gridDimension.z = size.z;
 
