@@ -1,4 +1,8 @@
 #include "alsutils/config.hpp"
+#include "alsutils/types.hpp"
+#include <limits>
+#include <sstream>
+
 namespace alsutils {
   std::string getVersionControlID() {
     return "@GIT_SHA1@";
@@ -55,4 +59,40 @@ std::string getVersionControlStatus() {
     return "double (double precision, 64 bits)";
 #endif
 }
+
+std::string getFloatingPointType() {
+#ifdef ALSVINN_USE_FLOAT
+  return "float";
+#else
+  return "double";
+#endif
+}
+
+std::string getFloatingPointMaxValue() {
+  std::stringstream ss;
+
+  ss << std::numeric_limits<real>::max();
+
+  return ss.str();
+}
+
+
+std::string getFloatingPointMinValue() {
+  std::stringstream ss;
+
+  ss << std::numeric_limits<real>::min();
+
+  return ss.str();
+}
+
+
+std::string getFloatingPointEpsilon() {
+
+  std::stringstream ss;
+
+  ss << std::numeric_limits<real>::epsilon();
+
+  return ss.str();
+}
+
 }

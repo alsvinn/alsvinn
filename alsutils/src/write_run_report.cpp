@@ -55,7 +55,15 @@ void writeRunReport(const std::string& executable,
     propertyTree.put("report.cxxFlags", getCXXFlags());
     propertyTree.put("report.cudaFlags", getCUDAFlags());
     propertyTree.put("report.cudaVersion", getCUDAVersion());
-    propertyTree.put("report.floatingPointPrecisionDescription", getFloatingPointPrecisionDescription());
+
+    // Floating point stuff
+    propertyTree.put("report.floatingPointPrecisionDescription",
+        getFloatingPointPrecisionDescription());
+    propertyTree.put("report.floatingPointType", getFloatingPointType());
+
+    propertyTree.put("report.floatingPointMax", getFloatingPointMaxValue());
+    propertyTree.put("report.floatingPointMin", getFloatingPointMinValue());
+    propertyTree.put("report.floatingPointEpsilon", getFloatingPointEpsilon());
 
 
 #ifdef ALSVINN_USE_MPI
@@ -70,7 +78,7 @@ void writeRunReport(const std::string& executable,
 
 #ifdef _OPENMP
     propertyTree.put("report.ompEnabled", true);
-    propertyTree.put("report.ompThreads", omp_get_num_threads());
+    propertyTree.put("report.ompThreads", omp_get_max_threads());
 #else
     propertyTree.put("report.ompEnabled", false);
     propertyTree.put("report.ompThreads", 1);

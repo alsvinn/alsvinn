@@ -8,6 +8,7 @@
 #ifndef COMPILING_ALSVINN
 #cmakedefine ALSVINN_HAVE_CUDA 1
 #cmakedefine ALSVINN_USE_MPI 1
+#cmakedefine ALSVINN_USE_FLOAT
 #endif
 
 #define ALSVINN_HAS_CONFIG 1
@@ -32,4 +33,10 @@ std::string getVersionControlStatus();
 
   void writeCmakeConfiguration(const std::string& outputFile);
   std::string getFloatingPointPrecisionDescription();
+
+  std::string getFloatingPointType();
+
+  std::string getFloatingPointMaxValue();
+  std::string getFloatingPointMinValue();
+  std::string getFloatingPointEpsilon();
 }
