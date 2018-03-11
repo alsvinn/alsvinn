@@ -55,6 +55,7 @@ void writeRunReport(const std::string& executable,
     propertyTree.put("report.cxxFlags", getCXXFlags());
     propertyTree.put("report.cudaFlags", getCUDAFlags());
     propertyTree.put("report.cudaVersion", getCUDAVersion());
+    propertyTree.put("report.floatingPointPrecisionDescription", getFloatingPointPrecisionDescription());
 
 
 #ifdef ALSVINN_USE_MPI

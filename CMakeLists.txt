@@ -1,4 +1,7 @@
 cmake_minimum_required (VERSION 3.1.0)
+
+SET(ALSVINN_USE_FLOAT OFF CACHE BOOL "Do all computations with 32 bits
+floating point numbers, instead of 64 bit double precision")
 SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
 SET(ALSVINN_USE_HUNTER OFF CACHE BOOL "Use Hunter for automatic compiling of additional packages")
 set(CMAKE_CXX_STANDARD 11)
@@ -106,10 +109,14 @@ include("cmake/hdf5.cmake")
 include("cmake/netcdf.cmake")
 include("cmake/python.cmake")
 if(ALSVINN_USE_CUDA)
-        set(CMAKE_CUDA_FLAGS "--use_fast_math -Xptxas -warn-spills -arch=compute_50 -code=sm_50 -maxrregcount=40" )
+        set(CMAKE_CUDA_FLAGS "--use_fast_math -Xptxas -warn-spills -arch=compute_60 -code=sm_60" )
 	set(CMAKE_CUDA_FLAGS_DEBUG "-G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0")
 	set(ALSVINN_HAVE_CUDA On)
 	add_definitions(-DALSVINN_HAVE_CUDA)
+endif()
+
+if(ALSVINN_USE_FLOAT)
+	ADD_DEFINITIONS(-DALSVINN_USE_FLOAT)
 endif()
 
 find_package(HDF5 REQUIRED)

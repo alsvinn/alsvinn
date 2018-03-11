@@ -22,8 +22,8 @@ namespace math {
 //!       (as of version 1.66, boost still doens't have a gpu friendly legendre implementation)
 template<int n>
 __device__ __host__
-double legendre(real x) {
-    return 1.0 / n * (x * legendre < n - 1 > (x) - (n - 1) * legendre < n - 2 >
+real legendre(real x) {
+  return real(1.0 / n) * (x * legendre < n - 1 > (x) - (n - 1) * legendre < n - 2 >
             (x));
 
 }

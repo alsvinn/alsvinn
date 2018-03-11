@@ -45,9 +45,11 @@ using std::dynamic_pointer_cast;
 
 
 namespace alsutils {
-
+#ifndef ALSVINN_USE_FLOAT
 typedef double real;
-
+#else
+typedef float real;
+#endif
 
 typedef vec1<real> rvec1;
 typedef vec1<int> ivec1;
