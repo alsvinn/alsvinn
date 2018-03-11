@@ -22,6 +22,34 @@
   <functionals>
 
 <functional>
+    <name>legendre_pointwise</name>
+    <time>2</time>
+    <timeRadius>1</timeRadius>
+
+    <degree>1</degree>
+    <minValue>0</minValue>
+    <maxValue>4</maxValue>
+    <variables>rho</variables>
+    <writer>
+        <type>netcdf</type>
+        <basename>kh_legendre_pointwise_time_1</basename>
+    </writer>
+</functional>
+
+<functional>
+    <name>legendre_pointwise</name>
+    <numberOfSaves>1</numberOfSaves>
+    <degree>1</degree>
+
+    <minValue>0.9</minValue>
+    <maxValue>2.5</maxValue>
+    <variables>rho</variables>
+    <writer>
+        <type>netcdf</type>
+        <basename>kh_legendre_pointwise_1</basename>
+    </writer>
+</functional>
+
 
   </functionals>
   <initialData>
@@ -66,34 +94,34 @@
     </writer>
     </stat>
     <stat>
-      <name>
-	functional_time_integrated
-      </name>
-      <time>1</time>
-      <timeRadius>0.5</timeRadius>
-      <functionalName>identity</functionalName>
-      <writer>
-	<type>netcdf</type>
-	<basename>kh</basename>
-      </writer>
+        <name>
+        functional_time_integrated
+        </name>
+        <functionalName>identity</functionalName>
+        <time>1</time>
+        <timeRadius>0.5</timeRadius>
+        <writer>
+          <type>netcdf</type>
+          <basename>kh</basename>
+        </writer>
+    </stat>
 
-    </stat>
     <stat>
-      <name>
-	functional_time_integrated
-      </name>
-      <time>1</time>
-      <timeRadius>0.5</timeRadius>
-      <functionalName>legendre_pointwise</functionalName>
-      <minValue>0</minValue>
-      <maxValue>4</maxValue>
-      <variables>rho</variables>
-      <writer>
-	<type>netcdf</type>
-	<basename>kh</basename>
-      </writer>
+        <name>
+        functional_time_integrated
+        </name>
+        <functionalName>legendre_pointwise</functionalName>
+        <time>1</time>
+        <degree>1</degree>
+        <minValue>0</minValue>
+        <maxValue>4</maxValue>
+        <variables>rho</variables>
+        <timeRadius>0.5</timeRadius>
+        <writer>
+          <type>netcdf</type>
+          <basename>kh</basename>
+        </writer>
     </stat>
-    
   </stats>
 </uq>
 </config>

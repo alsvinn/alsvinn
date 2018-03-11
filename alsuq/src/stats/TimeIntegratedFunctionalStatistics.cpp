@@ -12,7 +12,7 @@ TimeIntegratedFunctionalStatistics::TimeIntegratedFunctionalStatistics(
     alsfvm::functional::FunctionalFactory functionalFactory;
 
     platform = parameters.getPlatform();
-    const std::string name = parameters.getString("functional_name");
+    const std::string name = parameters.getString("functionalName");
     functional = functionalFactory.makeFunctional(platform, name,
             parameters);
 
@@ -25,7 +25,8 @@ TimeIntegratedFunctionalStatistics::TimeIntegratedFunctionalStatistics(
 
 }
 
-std::vector<std::string> TimeIntegratedFunctionalStatistics::getStatisticsNames()
+std::vector<std::string>
+TimeIntegratedFunctionalStatistics::getStatisticsNames()
 const {
     return statisticsNames;
 }

@@ -9,12 +9,12 @@ namespace stats {
 //!
 //! parameters accepted are:
 //!
-//! parameter name               | description
+//!    parameter name            | description
 //! -----------------------------|-----------------
-//!  functional_name             | name of functional
+//!  functionalName              | name of functional
 //!  time                        | time point to integrated around
 //!  timeRadius                  | the time radius
-//!  other arguments           | gets passed to the functional directly
+//!  other arguments             | gets passed to the functional directly
 class TimeIntegratedFunctionalStatistics : public StatisticsHelper {
 public:
 
