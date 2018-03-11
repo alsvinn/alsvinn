@@ -45,6 +45,7 @@ StatisticsFactory::StatisticsPointer StatisticsFactory::makeStatistics(
         THROW("Unknown statistics: " << name);
     }
 
+
     StatisticsPointer pointer;
     pointer.reset(new StatisticsTimer(name, list[platform][name](params)));
 

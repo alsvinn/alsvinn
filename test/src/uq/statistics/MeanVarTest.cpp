@@ -2,7 +2,7 @@
 #include "alsuq/stats/StatisticsFactory.hpp"
 using namespace alsuq::stats;
 TEST(MeanVarStatistics, ConstructTest) {
-    StatisticsParameters params;
+    StatisticsParameters params{boost::property_tree::ptree()};
     StatisticsFactory factory;
     auto meanVar = factory.makeStatistics("cpu", "meanvar", params);
 

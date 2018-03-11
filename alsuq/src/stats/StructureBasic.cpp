@@ -6,10 +6,10 @@ namespace stats {
 
 StructureBasic::StructureBasic(const StatisticsParameters& parameters)
     : StatisticsHelper(parameters),
-      direction(parameters.getParameterAsInteger("direction")),
-      p(parameters.getParameterAsDouble("p")),
+      direction(parameters.getInteger("direction")),
+      p(parameters.getDouble("p")),
       directionVector(make_direction_vector(direction)),
-      numberOfH(parameters.getParameterAsInteger("numberOfH")),
+      numberOfH(parameters.getInteger("numberOfH")),
       statisticsName ("structure_basic_" + std::to_string(p))
 
 {

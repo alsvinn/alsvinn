@@ -177,10 +177,10 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(
     for (auto& statisticsNode : statisticsNodes) {
         auto name = statisticsNode.second.get<std::string>("name");
         boost::trim(name);
-        stats::StatisticsParameters parameters;
+        stats::StatisticsParameters parameters(statisticsNode.second);
         parameters.setMpiConfiguration(statisticalConfiguration);
         parameters.setNumberOfSamples(readNumberOfSamples(configuration));
-        parameters.setConfiguration(statisticsNode.second);
+        parameters.setPlatform(platform);
         auto statistics = statisticsFactory.makeStatistics(platform, name, parameters);
 
 
