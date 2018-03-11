@@ -10,7 +10,11 @@ namespace functional {
 class IdentityCUDA : public Functional {
 public:
 
-    //! Uses no parameter
+    //! The following parameters are accepted through parameters
+    //!
+    //!    Name      | Description
+    //!    ----------|-------------
+    //!    variables | the variables to compute for (space separated)
     IdentityCUDA(const Parameters& parameters);
 
     //! Computes the operator value on the givne input data
@@ -49,6 +53,7 @@ public:
 
 
 private:
+    std::vector<std::string> variables;
 
 };
 } // namespace functional

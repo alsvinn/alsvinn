@@ -25,7 +25,11 @@ __global__ void addInnerKernel(memory::View<real> output,
 
 }
 IdentityCUDA::IdentityCUDA(const Functional::Parameters& parameters) {
-
+    if (parameters.contains("variables")) {
+        for (auto variable : parameters.getStringVectorFromString("variables")) {
+            variables.push_back(variable);
+        }
+    }
 }
 
 void IdentityCUDA::operator()(volume::Volume& conservedVolumeOut,
@@ -35,37 +39,52 @@ void IdentityCUDA::operator()(volume::Volume& conservedVolumeOut,
     const real weight,
     const grid::Grid& ) {
 
-    const auto ghostCells = conservedVolumeIn.getNumberOfGhostCells();
-    for (size_t var = 0; var < conservedVolumeIn.getNumberOfVariables(); ++var) {
+    if (variables.size() == 0) {
+        for (size_t var = 0; var < conservedVolumeIn.getNumberOfVariables(); ++var) {
+            variables.push_back(conservedVolumeIn.getName(var));
+        }
 
-
-        auto viewIn = conservedVolumeIn.getScalarMemoryArea(var)->getView();
-        auto viewOut = conservedVolumeOut.getScalarMemoryArea(var)->getView();
-
-        const size_t threads = 1024;
-        const size_t size = viewOut.size();
-        addInnerKernel<<<(size + threads -1)/threads, threads>>>(viewOut, viewIn,
-                                                                ghostCells.x,
-                                                                ghostCells.y,
-                                                                ghostCells.z,
-                                                                weight);
+        for (size_t var = 0; var < extraVolumeIn.getNumberOfVariables(); ++var) {
+            variables.push_back(extraVolumeIn.getName(var));
+        }
 
     }
 
-    for (size_t var = 0; var < extraVolumeIn.getNumberOfVariables(); ++var) {
+
+    const auto ghostCells = conservedVolumeIn.getNumberOfGhostCells();
+    for (const std::string& variableName : variables) {
+        if (conservedVolumeIn.hasVariable(variableName)) {
 
 
 
-        auto viewIn = extraVolumeIn.getScalarMemoryArea(var)->getView();
-        auto viewOut = extraVolumeOut.getScalarMemoryArea(var)->getView();
+            auto viewIn = conservedVolumeIn.getScalarMemoryArea(variableName)->getView();
+            auto viewOut = conservedVolumeOut.getScalarMemoryArea(variableName)->getView();
 
-        const size_t threads = 1024;
-        const size_t size = viewOut.size();
-        addInnerKernel<<<(size + threads -1)/threads, threads>>>(viewOut, viewIn,
-                                                                ghostCells.x,
-                                                                ghostCells.y,
-                                                                ghostCells.z,
-                                                                weight);
+            const size_t threads = 1024;
+            const size_t size = viewOut.size();
+            addInnerKernel<<<(size + threads -1)/threads, threads>>>(viewOut, viewIn,
+                                                                    ghostCells.x,
+                                                                    ghostCells.y,
+                                                                    ghostCells.z,
+                                                                    weight);
+
+        } else if (extraVolumeIn.hasVariable(variableName)) {
+
+            auto viewIn = extraVolumeIn.getScalarMemoryArea(variableName)->getView();
+            auto viewOut = extraVolumeOut.getScalarMemoryArea(variableName)->getView();
+
+            const size_t threads = 1024;
+            const size_t size = viewOut.size();
+            addInnerKernel<<<(size + threads -1)/threads, threads>>>(viewOut, viewIn,
+                                                                    ghostCells.x,
+                                                                    ghostCells.y,
+                                                                    ghostCells.z,
+                                                                    weight);
+
+        } else {
+            THROW("Unknown variable name given to IdentityCUDA functional: " <<
+                            variableName);
+        }
 
     }
 }
