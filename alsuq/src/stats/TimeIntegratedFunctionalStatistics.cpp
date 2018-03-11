@@ -18,15 +18,16 @@ TimeIntegratedFunctionalStatistics::TimeIntegratedFunctionalStatistics(
 
     statisticsNames = {"mean_" + name};
 
+
     time = parameters.getDouble("time");
     timeRadius = parameters.getDouble("timeRadius");
+
 
     fixedTimestepInformation = alsfvm::simulator::TimestepInformation(time, 0);
 
 }
 
-std::vector<std::string>
-TimeIntegratedFunctionalStatistics::getStatisticsNames()
+std::vector<std::string> TimeIntegratedFunctionalStatistics::getStatisticsNames()
 const {
     return statisticsNames;
 }
@@ -63,6 +64,8 @@ void TimeIntegratedFunctionalStatistics::computeStatistics(
         }
 
     }
+
+    lastTime = currentTime;
 
 
 }
