@@ -13,7 +13,7 @@ import sys
 Adds the current file to version control (does not commit!)
 """
 def addToGit(filename):
-    print "Adding %s to git repo" % filename
+    print("Adding %s to git repo" % filename)
     os.system("git add %s" %filename)
     
 def directoryExists(directoryName):
@@ -28,7 +28,7 @@ def writeToFile(filename, content):
     if os.path.exists(filename):
         raise Exception("File %s already exists!" % filename)
     
-    print "Writing to %s" % filename
+    print("Writing to %s" % filename)
     splitName = filename.split("/")
     fullPath = ""
     for name in splitName[0:-1]:
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     if not className.startswith("alsuq"):
         className = "alsuq::" + className
         
-    print "Creating class %s" % className
+    print("Creating class %s" % className)
     classTextHpp = createClassTextHpp(className)
     classTextCpp = createClassTextCpp(className)
 
