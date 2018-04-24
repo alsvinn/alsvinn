@@ -1,4 +1,5 @@
 #include "alsfvm/functional/IntervalFunctionalWriter.hpp"
+#include "alsutils/log.hpp"
 
 namespace alsfvm {
 namespace functional {
@@ -27,14 +28,30 @@ void IntervalFunctionalWriter::write(const volume::Volume& conservedVariables,
     (*functional)(*conservedVolume, *extraVolume, conservedVariables,
         extraVariables, 1, grid);
 
-    grid::Grid modifiedGrid(grid.getOrigin(),
-        grid.getTop(),
-        functionalSize,
-        grid.getBoundaryConditions(),
-        grid.getGlobalPosition(),
-        grid.getGlobalSize());
-    writer->write(*conservedVolume, *extraVolume, modifiedGrid,
-        timestepInformation);
+    if (functionalSize == grid.getDimensions()) {
+        writer->write(*conservedVolume, *extraVolume, grid,
+            timestepInformation);
+    } else {
+        const ivec3 numberOfNodes = grid.getGlobalSize() / grid.getDimensions();
+        grid::Grid modifiedGrid(grid.getOrigin(),
+            grid.getTop(),
+            functionalSize,
+            grid.getBoundaryConditions(),
+            grid.getGlobalPosition(),
+            numberOfNodes * functionalSize);
+
+        ALSVINN_LOG(INFO, "modifiedGrid.getDimensions().x = " <<
+            modifiedGrid.getDimensions().x);
+        ALSVINN_LOG(INFO, "conservedVolume.x = " <<
+            conservedVolume->getSize().x);
+        ALSVINN_LOG(INFO, "extraVolume.x = " <<
+            extraVolume->getSize().x);
+
+        writer->write(*conservedVolume, *extraVolume, modifiedGrid,
+            timestepInformation);
+    }
+
+
 }
 
 void IntervalFunctionalWriter::makeVolumes(const grid::Grid& grid) {

@@ -5,7 +5,7 @@
 namespace alsfvm {
 namespace functional {
 
-__device__ __host__ int makePositive(int position, int N) {
+__device__ __host__ inline int makePositive(int position, int N) {
     if (position < 0) {
         position += N;
     }
@@ -14,7 +14,7 @@ __device__ __host__ int makePositive(int position, int N) {
 
 }
 
-__device__ __host__ void computeStructureCube(alsfvm::memory::View<real>&
+__device__ __host__ inline void computeStructureCube(alsfvm::memory::View<real>&
     output,
     const alsfvm::memory::View<const real>& input,
     int i, int j, int k, int h, int nx, int ny, int nz,

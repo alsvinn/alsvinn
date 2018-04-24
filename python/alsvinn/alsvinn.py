@@ -373,6 +373,13 @@ class Alsvinn(object):
                                                     'basename' : basename
                                                 }})
 
+    def add_functional(self, functionalOptions):
+        if 'functionals' not in self.fvmSettings.keys():
+            self.fvmSettings['functionals']  = []
+        elif type(self.fvmSettings['functionals']) is not list:
+            self.fvmSettings['functionals'] = [self.fvmSettings['functionals']['functional']]
+        self.fvmSettings['functionals'].append(functionalOptions)
+
     def set_distribution(self, distribution):
         self.uqSettings['parameter']['parameter']['type']=distribution
 
@@ -406,6 +413,7 @@ def run(name=None, equation=None,
         statistics=None,
         samples=None,
         generator=None,
+        functionals=None
         ):
 
 
@@ -506,6 +514,12 @@ def run(name=None, equation=None,
         alsvinn_object.set_uq_value('stats',[])
         for stat in statistics:
             alsvinn_object.add_statistics(stat, 'netcdf', name, number_of_saves)
+    if functionals is not None:
+        if number_of_saves is None:
+            number_of_saves = 1
+        alsvinn_object.set_fvm_value('functionals',[])
+        for functional in functionals:
+            alsvinn_object.add_functional(functional)
     if samples is not None:
         alsvinn_object.set_uq_value('samples', str(samples))
     if generator is not None:
