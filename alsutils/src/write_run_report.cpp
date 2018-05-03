@@ -6,6 +6,9 @@
 #include <sstream>
 #include <fstream>
 #include <boost/filesystem.hpp>
+#ifdef ALSVINN_HAVE_CUDA
+    #include "alsutils/cuda/get_device_properties.hpp"
+#endif
 #ifdef ALSVINN_USE_MPI
     #include <mpi.h>
 #endif
@@ -66,6 +69,12 @@ void writeRunReport(const std::string& executable,
     propertyTree.put("report.floatingPointEpsilon", getFloatingPointEpsilon());
 
 
+    
+    #ifdef ALSVINN_HAVE_CUDA
+    propertyTree.add_child("report.cudaProperties",
+    		     alsutils::cuda::getDeviceProperties());
+    #endif
+    
 #ifdef ALSVINN_USE_MPI
     int mpiNumThreads = 1;
     MPI_Comm_size(MPI_COMM_WORLD, &mpiNumThreads);
@@ -83,6 +92,8 @@ void writeRunReport(const std::string& executable,
     propertyTree.put("report.ompEnabled", false);
     propertyTree.put("report.ompThreads", 1);
 #endif
+
+
 
     boost::property_tree::write_json(executable + "_" + name + "_report.json",
         propertyTree);
