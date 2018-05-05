@@ -3,7 +3,7 @@
 namespace alsfvm {
 namespace equation {
 namespace cubic {
-const std::string Cubic::name = "cubic";
+
 const std::vector<std::string> Cubic::conservedVariables = { "u"};
 
 

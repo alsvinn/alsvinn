@@ -3,14 +3,6 @@
 namespace alsfvm {
 namespace equation {
 namespace euler {
-template<>
-const std::string Euler<1>::name = "euler1";
-
-template<>
-const std::string Euler<2>::name = "euler2";
-
-template<>
-const std::string Euler<3>::name = "euler3";
 
 
 template<>

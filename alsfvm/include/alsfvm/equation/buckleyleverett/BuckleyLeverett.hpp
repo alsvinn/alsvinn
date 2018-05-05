@@ -31,7 +31,9 @@ public:
     ///
     /// Defaults to "buckleyleverett".
     ///
-    static const std::string name;
+    static std::string getName() {
+        return "buckleyleverett";
+    }
 
     //!
     //! List of all conserved variables used by buckleyleverett (u)

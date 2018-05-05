@@ -17,7 +17,7 @@ public:
     ///
     static std::string getName() {
 
-        return EquationType::name;
+        return EquationType::getName();
     }
 };
 } // namespace alsfvm
