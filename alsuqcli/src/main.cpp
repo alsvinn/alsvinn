@@ -89,8 +89,10 @@ int main(int argc, char** argv) {
 
         }
 
-        MPI_Init(&argc, &argv);
+
 	alsutils::mpi::setCudaDevice();
+        MPI_Init(&argc, &argv);
+
         alsuq::mpi::ConfigurationPtr mpiConfig(new alsuq::mpi::Configuration(
                 MPI_COMM_WORLD));
         rank = mpiConfig->getRank();
