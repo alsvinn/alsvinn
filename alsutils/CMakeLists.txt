@@ -24,7 +24,7 @@ target_include_directories(alsutils_include INTERFACE
   ${CMAKE_CURRENT_BINARY_DIR}/config.cpp ESCAPE_QUOTES)
 
 add_library( alsutils SHARED ${SRC} ${HEADERS}  ${CMAKE_CURRENT_BINARY_DIR}/config.cpp)
-target_link_libraries(alsutils PUBLIC Boost::log MPI::MPI_C)
+target_link_libraries(alsutils PUBLIC Boost::log MPI::MPI_C ${CUDA_LIBRARIES})
 target_include_directories(alsutils PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
