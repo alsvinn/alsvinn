@@ -286,7 +286,7 @@ NumericalFluxCUDA<Flux, Equation, dimension>::NumericalFluxCUDA(
 
     alsfvm::shared_ptr<memory::MemoryFactory> memoryFactory(
         new memory::MemoryFactory(deviceConfiguration));
-    volume::VolumeFactory volumeFactory(Equation::name, memoryFactory);
+    volume::VolumeFactory volumeFactory(Equation::getName(), memoryFactory);
 
     left = volumeFactory.createConservedVolume(grid.getDimensions().x,
             grid.getDimensions().y,
