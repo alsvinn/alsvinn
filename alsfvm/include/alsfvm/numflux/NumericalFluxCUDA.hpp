@@ -52,6 +52,36 @@ private:
     Equation equation;
 
 
+    void callComputeFlux(const Equation& equation,
+        const volume::Volume& conservedVariables, volume::Volume& left,
+        volume::Volume& right, volume::Volume& output, volume::Volume& temporaryOutput,
+        size_t numberOfGhostCells, rvec3& waveSpeeds,
+        reconstruction::Reconstruction& reconstruction,  const ivec3& start,
+        const ivec3& end);
+
+    template<bool xDir, bool yDir, bool zDir, size_t direction>
+    void computeFlux(const Equation& equation,
+        const volume::Volume& left,
+        const volume::Volume& right,
+        volume::Volume& output,
+        int numberOfGhostCells,
+        real& waveSpeed,  const ivec3& start,
+        const ivec3& end);
+
+    //! Memory we need for reduction (O(N))
+    std::unique_ptr<memory::Memory<real>> waveSpeedBuffer;
+
+    //! Memory we need for reduction (O(1))
+    std::unique_ptr<memory::Memory<real>> waveSpeedBufferOut;
+
+    //! Memory we need for reduction (O(N))
+    std::unique_ptr<memory::Memory<real>>temporaryReductionMemory;
+
+    //! size of temporary reduction memory reported by cub
+    size_t temporaryReductionMemoryStorageSizeBytes = 0;
+
+    void initializeWaveSpeedAndReductionMemory(int size);
 };
+
 } // namespace alsfvm
 } // namespace numflux

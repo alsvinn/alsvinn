@@ -10,6 +10,9 @@
 #include <iostream>
 #include "alsfvm/numflux/numerical_flux_list.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
+#include <cub/util_allocator.cuh>
+#include <cub/device/device_reduce.cuh>
+#include "alsfvm/cuda/CudaMemory.hpp"
 
 namespace alsfvm {
 namespace numflux {
@@ -166,40 +169,6 @@ void makeZero(volume::Volume& volume,
 
 }
 
-template<class Flux, class Equation,  size_t dimension, bool xDir, bool yDir, bool zDir, size_t direction>
-void computeFlux(const Equation& equation,
-    const volume::Volume& left,
-    const volume::Volume& right,
-    volume::Volume& output,
-    int numberOfGhostCells,
-    real& waveSpeed,  const ivec3& start,
-    const ivec3& end) {
-    static thrust::device_vector<real> waveSpeeds;
-    waveSpeeds.resize(left.getScalarMemoryArea(0)->getSize(), 0.0);
-
-    const int numberOfXCells = int(left.getTotalNumberOfXCells()) - 2 *
-        numberOfGhostCells + xDir - start.x + end.x;
-    const int numberOfYCells = int(left.getTotalNumberOfYCells()) - 2 *
-        (dimension > 1) * numberOfGhostCells + yDir - start.y + end.y;
-    const int numberOfZCells = int(left.getTotalNumberOfZCells()) - 2 *
-        (dimension > 2) * numberOfGhostCells + zDir - start.z + end.z;
-    typename Equation::ConstViews viewLeft(left);
-    typename Equation::ConstViews viewRight(right);
-    typename Equation::Views viewOut(output);
-
-    size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
-
-    size_t blockSize = 128;
-    computeFluxDevice <Flux, Equation, dimension, xDir, yDir, zDir, direction>
-            << < (totalSize + blockSize - 1) / blockSize, blockSize >> >
-                (equation, viewLeft, viewRight, viewOut, numberOfXCells,
-                    numberOfYCells, numberOfZCells,
-                    thrust::raw_pointer_cast(&waveSpeeds[0]), numberOfGhostCells, start, end);
-
-    waveSpeed = thrust::reduce(waveSpeeds.begin(), waveSpeeds.begin() + totalSize,
-            0.0, thrust::maximum<real>());
-
-}
 
 
 template<class Equation, size_t dimension, bool xDir, bool yDir, bool zDir, size_t direction>
@@ -228,46 +197,6 @@ void combineFlux(const Equation& equation, const volume::Volume& input,
 
 }
 
-template<class Flux, class Equation, size_t dimension>
-void callComputeFlux(const Equation& equation,
-    const volume::Volume& conservedVariables, volume::Volume& left,
-    volume::Volume& right, volume::Volume& output, volume::Volume& temporaryOutput,
-    size_t numberOfGhostCells, rvec3& waveSpeeds,
-    reconstruction::Reconstruction& reconstruction,  const ivec3& start,
-    const ivec3& end) {
-    reconstruction.performReconstruction(conservedVariables, 0, 0, left, right,
-        start, end);
-    computeFlux<Flux, Equation, dimension, 1, 0, 0, 0>(equation, left, right,
-        temporaryOutput,
-        numberOfGhostCells,
-        waveSpeeds.x,
-        start, end);
-    combineFlux<Equation, dimension, 1, 0, 0, 0>(equation,
-        temporaryOutput,
-        output,
-        numberOfGhostCells,
-        start,
-        end);
-
-    if (dimension > 1) {
-        reconstruction.performReconstruction(conservedVariables, 1, 0, left, right,
-            start, end);
-        computeFlux<Flux, Equation, dimension, 0, 1, 0, 1>(equation, left, right,
-            temporaryOutput, numberOfGhostCells, waveSpeeds.y, start, end);
-        combineFlux<Equation, dimension, 0, 1, 0, 1>(equation, temporaryOutput, output,
-            numberOfGhostCells, start, end);
-    }
-
-    if (dimension > 2) {
-        reconstruction.performReconstruction(conservedVariables, 2, 0, left, right,
-            start, end);
-        computeFlux<Flux, Equation, dimension, 0, 0, 1, 2>(equation, left, right,
-            temporaryOutput, numberOfGhostCells, waveSpeeds.z, start, end);
-        combineFlux<Equation, dimension, 0, 0, 1, 2>(equation, temporaryOutput, output,
-            numberOfGhostCells, start, end);
-    }
-
-}
 
 }
 
@@ -307,6 +236,120 @@ NumericalFluxCUDA<Flux, Equation, dimension>::NumericalFluxCUDA(
             getNumberOfGhostCells());
 }
 
+
+template<class Flux, class Equation, size_t dimension>
+void NumericalFluxCUDA<Flux, Equation, dimension>::callComputeFlux(const Equation& equation,
+    const volume::Volume& conservedVariables, volume::Volume& left,
+    volume::Volume& right, volume::Volume& output, volume::Volume& temporaryOutput,
+    size_t numberOfGhostCells, rvec3& waveSpeeds,
+    reconstruction::Reconstruction& reconstruction,  const ivec3& start,
+    const ivec3& end) {
+    reconstruction.performReconstruction(conservedVariables, 0, 0, left, right,
+        start, end);
+    computeFlux<1, 0, 0, 0>(equation, left, right,
+        temporaryOutput,
+        numberOfGhostCells,
+        waveSpeeds.x,
+        start, end);
+    combineFlux<Equation, dimension, 1, 0, 0, 0>(equation,
+        temporaryOutput,
+        output,
+        numberOfGhostCells,
+        start,
+        end);
+
+    if (dimension > 1) {
+        reconstruction.performReconstruction(conservedVariables, 1, 0, left, right,
+            start, end);
+        computeFlux<0, 1, 0, 1>(equation, left, right,
+            temporaryOutput, numberOfGhostCells, waveSpeeds.y, start, end);
+        combineFlux<Equation, dimension, 0, 1, 0, 1>(equation, temporaryOutput, output,
+            numberOfGhostCells, start, end);
+    }
+
+    if (dimension > 2) {
+        reconstruction.performReconstruction(conservedVariables, 2, 0, left, right,
+            start, end);
+        computeFlux< 0, 0, 1, 2>(equation, left, right,
+            temporaryOutput, numberOfGhostCells, waveSpeeds.z, start, end);
+        combineFlux<Equation, dimension, 0, 0, 1, 2>(equation, temporaryOutput, output,
+            numberOfGhostCells, start, end);
+    }
+
+}
+
+template<class Flux, class Equation, size_t dimension>
+void NumericalFluxCUDA<Flux, Equation, dimension>::initializeWaveSpeedAndReductionMemory(int size)
+{
+    // We need some temporary space for the reduction algorithm,
+    // see http://nvlabs.github.io/cub/example_device_reduce_8cu-example.html
+    // for full usage example and information
+    if (!waveSpeedBuffer || waveSpeedBuffer->getSize() != size) {
+        waveSpeedBuffer.reset(new cuda::CudaMemory<real>(size));
+        waveSpeedBufferOut.reset(new cuda::CudaMemory<real>(1));
+
+        temporaryReductionMemoryStorageSizeBytes = 0;
+        void* rawPointerStorage = nullptr;
+
+        // This is a bit weird, but the first time we call it with a null pointer,
+        // it will tell us the size we need to allocate. Again, read the documentation
+        // at http://nvlabs.github.io/cub/example_device_reduce_8cu-example.html
+        CUDA_SAFE_CALL(cub::DeviceReduce::Sum(rawPointerStorage,
+                                         temporaryReductionMemoryStorageSizeBytes,
+                                         waveSpeedBuffer->getPointer(),
+                                         waveSpeedBufferOut->getPointer(),
+                                         size));
+
+        // we get size in bytes, but we want to allocate whole reals (makes setup easier,
+        // no real technical reason), we just make sure we allocate at least temporaryReductionMemoryStorageSizeBytes bytes:
+        temporaryReductionMemory.reset(new cuda::CudaMemory<real>((temporaryReductionMemoryStorageSizeBytes+sizeof(real)-1)/sizeof(real)));
+
+    }
+}
+
+
+template<class Flux, class Equation, size_t dimension>
+template<bool xDir, bool yDir, bool zDir, size_t direction>
+void NumericalFluxCUDA<Flux, Equation, dimension>::computeFlux(const Equation& equation,
+    const volume::Volume& left,
+    const volume::Volume& right,
+    volume::Volume& output,
+    int numberOfGhostCells,
+    real& waveSpeed,  const ivec3& start,
+    const ivec3& end) {
+    initializeWaveSpeedAndReductionMemory(left.getScalarMemoryArea(0)->getSize());
+
+    const int numberOfXCells = int(left.getTotalNumberOfXCells()) - 2 *
+        numberOfGhostCells + xDir - start.x + end.x;
+    const int numberOfYCells = int(left.getTotalNumberOfYCells()) - 2 *
+        (dimension > 1) * numberOfGhostCells + yDir - start.y + end.y;
+    const int numberOfZCells = int(left.getTotalNumberOfZCells()) - 2 *
+        (dimension > 2) * numberOfGhostCells + zDir - start.z + end.z;
+    typename Equation::ConstViews viewLeft(left);
+    typename Equation::ConstViews viewRight(right);
+    typename Equation::Views viewOut(output);
+
+    size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
+
+    size_t blockSize = 128;
+    computeFluxDevice <Flux, Equation, dimension, xDir, yDir, zDir, direction>
+            << < (totalSize + blockSize - 1) / blockSize, blockSize >> >
+                (equation, viewLeft, viewRight, viewOut, numberOfXCells,
+                    numberOfYCells, numberOfZCells,
+                    waveSpeedBuffer->getPointer(), numberOfGhostCells, start, end);
+
+
+
+
+    CUDA_SAFE_CALL(cub::DeviceReduce::Max(temporaryReductionMemory->getPointer(),
+                                     temporaryReductionMemoryStorageSizeBytes,
+                                     waveSpeedBuffer->getPointer(),
+                                     waveSpeedBufferOut->getPointer(),
+                                     totalSize));
+    CUDA_SAFE_CALL(cudaMemcpy(&waveSpeed, waveSpeedBufferOut->getPointer(),
+                              sizeof(real), cudaMemcpyDeviceToHost));
+}
+
 template<class Flux, class Equation, size_t dimension>
 void NumericalFluxCUDA<Flux, Equation, dimension>::computeFlux(
     const volume::Volume& conservedVariables,
@@ -320,7 +363,7 @@ void NumericalFluxCUDA<Flux, Equation, dimension>::computeFlux(
     makeZero<Equation, dimension>(output, start,
         end, equation);
 
-    callComputeFlux<Flux, Equation, dimension>(equation,
+    callComputeFlux(equation,
         conservedVariables,
         *left,
         *right,
