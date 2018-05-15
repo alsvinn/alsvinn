@@ -113,7 +113,7 @@ if (ALSVINN_USE_CUDA)
 endif()
 
 if(ALSVINN_USE_CUDA)
-        set(CMAKE_CUDA_FLAGS "--use_fast_math -Xptxas -warn-spills -arch=compute_50 -code=sm_50" )
+        set(CMAKE_CUDA_FLAGS "--use_fast_math -Xptxas -warn-spills -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61" )
 	set(CMAKE_CUDA_FLAGS_DEBUG "-G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0")
 	set(ALSVINN_HAVE_CUDA On)
 	add_definitions(-DALSVINN_HAVE_CUDA)
