@@ -2,7 +2,7 @@
 #include "alsfvm/io/netcdf_utils.hpp"
 #include "alsfvm/io/io_utils.hpp"
 #include "alsutils/log.hpp"
-
+#include "alsfvm/io/netcdf_write_report.hpp"
 namespace alsfvm {
 namespace io {
 
@@ -18,6 +18,7 @@ void NetCDFWriter::write(const volume::Volume& conservedVariables,
     netcdf_raw_ptr file;
     auto filename = getFilename();
     NETCDF_SAFE_CALl(nc_create(filename.c_str(),  NC_CLOBBER | NC_NETCDF4, &file));
+    netcdfWriteReport(file);
     writeToFile(file, conservedVariables, extraVariables, grid,
         timestepInformation);
     NETCDF_SAFE_CALl(nc_close(file));
