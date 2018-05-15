@@ -26,7 +26,7 @@ void writePropertyTree(netcdf_raw_ptr varid,
 
 }
 }
-void parallelNetcdfWriteReport(netcdf_raw_ptr file) {
+void netcdfWriteReport(netcdf_raw_ptr file) {
     auto propertyTree = alsutils::makeBasicReport();
     writePropertyTree(file, propertyTree.get_child("report"), "alsvinn_report");
 }
