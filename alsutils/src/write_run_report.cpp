@@ -3,9 +3,14 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include "alsutils/config.hpp"
+#include "alsutils/get_boost_properties.hpp"
+#include "alsutils/get_os_name.hpp"
+#include "alsutils/get_cpu_name.hpp"
+#include "alsutils/mpi/get_mpi_version.hpp"
 #include <sstream>
 #include <fstream>
 #include <boost/filesystem.hpp>
+
 #ifdef ALSVINN_HAVE_CUDA
     #include "alsutils/cuda/get_device_properties.hpp"
 #endif
@@ -52,12 +57,23 @@ void writeRunReport(const std::string& executable,
 
     propertyTree.put("report.timesteps", timesteps);
     propertyTree.put("report.command", commandLine.str());
+    propertyTree.put("report.operatingSystem", alsutils::getOSName());
+    propertyTree.put("report.CPU", alsutils::getCPUName());
     propertyTree.put("report.revision", getVersionControlID());
     propertyTree.put("report.versionControlStatus", getVersionControlStatus());
     propertyTree.put("report.buildType", getBuildType());
     propertyTree.put("report.cxxFlags", getCXXFlags());
+    propertyTree.put("report.cxxFlagsDebug", getCXXFlagsDebug());
+    propertyTree.put("report.cxxFlagsRelease", getCXXFlagsRelease());
+    propertyTree.put("report.cxxFlagsMinSizeRel", getCXXFlagsMinSizeRel());
+    propertyTree.put("report.cxxFlagsRelWithDebInfo", getCXXFlagsRelWithDebInfo());
     propertyTree.put("report.cudaFlags", getCUDAFlags());
     propertyTree.put("report.cudaVersion", getCUDAVersion());
+
+
+    propertyTree.put("report.cxxCompiler", getCompilerName());
+    propertyTree.put("report.cudaCompiler", getCUDACompilerName());
+    propertyTree.add_child("report.boost", alsutils::getBoostProperties());
 
     // Floating point stuff
     propertyTree.put("report.floatingPointPrecisionDescription",
@@ -69,17 +85,18 @@ void writeRunReport(const std::string& executable,
     propertyTree.put("report.floatingPointEpsilon", getFloatingPointEpsilon());
 
 
-    
-    #ifdef ALSVINN_HAVE_CUDA
+
+#ifdef ALSVINN_HAVE_CUDA
     propertyTree.add_child("report.cudaProperties",
-    		     alsutils::cuda::getDeviceProperties());
-    #endif
-    
+        alsutils::cuda::getDeviceProperties());
+#endif
+
 #ifdef ALSVINN_USE_MPI
     int mpiNumThreads = 1;
     MPI_Comm_size(MPI_COMM_WORLD, &mpiNumThreads);
     propertyTree.put("report.mpiEnabled", true);
     propertyTree.put("report.mpiProcesses", mpiNumThreads);
+    propertyTree.put("report.mpiVersion", alsutils::mpi::getMPIVersion());
 #else
     propertyTree.put("report.mpiEnabled", false);
     propertyTree.put("report.mpiProcesses", 1);

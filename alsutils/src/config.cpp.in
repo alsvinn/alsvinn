@@ -4,6 +4,34 @@
 #include <sstream>
 
 namespace alsutils {
+
+  std::string getCompilerID() {
+    return "@CMAKE_CXX_COMPILER_ID@";
+  }
+
+
+  std::string getCompilerVersion() {
+    return "@CMAKE_CXX_COMPILER_VERSION@";
+  }
+
+  std::string getCompilerName() {
+    return getCompilerID() + " " + getCompilerVersion();
+  }
+
+
+
+    std::string getCUDACompilerID() {
+      return "@CMAKE_CUDA_COMPILER_ID@";
+    }
+
+
+    std::string getCUDACompilerVersion() {
+      return "@CMAKE_CUDA_COMPILER_VERSION@";
+    }
+
+    std::string getCUDACompilerName() {
+      return getCUDACompilerID() + " " + getCUDACompilerVersion();
+    }
   std::string getVersionControlID() {
     return "@GIT_SHA1@";
   }
@@ -18,6 +46,22 @@ namespace alsutils {
 
   std::string getCXXFlags() {
     return "@CMAKE_CXX_FLAGS@";
+  }
+
+  std::string getCXXFlagsRelease() {
+    return "@CMAKE_CXX_FLAGS_RELEASE@";
+  }
+
+  std::string getCXXFlagsDebug() {
+    return "@CMAKE_CXX_FLAGS_DEBUG@";
+  }
+
+  std::string getCXXFlagsMinSizeRel() {
+    return "@CMAKE_CXX_FLAGS_MINSIZEREL@";
+  }
+
+  std::string getCXXFlagsRelWithDebInfo() {
+    return "@CMAKE_CXX_FLAGS_RELWITHDEBINFO@";
   }
 
   std::string getCUDAFlags() {

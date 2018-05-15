@@ -22,11 +22,29 @@ namespace alsutils {
 
   std::string getCXXFlags();
 
+  std::string getCXXFlagsDebug();
+
+  std::string getCXXFlagsRelease();
+
+  std::string getCXXFlagsMinSizeRel();
+  std::string getCXXFlagsRelWithDebInfo();
+
   std::string getCUDAFlags();
 
-std::string getVersionControlStatus();
+  std::string getVersionControlStatus();
+
+  std::string getCompilerID();
 
 
+  std::string getCompilerVersion();
+  std::string getCompilerName();
+
+
+  std::string getCUDACompilerID();
+
+
+  std::string getCUDACompilerVersion();
+  std::string getCUDACompilerName();
   void dumpInformationToLog();
 
   std::string getAllCmakeVariables();

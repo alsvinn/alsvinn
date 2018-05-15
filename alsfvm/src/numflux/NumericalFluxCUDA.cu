@@ -284,7 +284,7 @@ void NumericalFluxCUDA<Flux, Equation, dimension>::initializeWaveSpeedAndReducti
     // We need some temporary space for the reduction algorithm,
     // see http://nvlabs.github.io/cub/example_device_reduce_8cu-example.html
     // for full usage example and information
-    if (!waveSpeedBuffer || waveSpeedBuffer->getSize() != size) {
+    if (!waveSpeedBuffer || waveSpeedBuffer->getSize() < size) {
         waveSpeedBuffer.reset(new cuda::CudaMemory<real>(size));
         waveSpeedBufferOut.reset(new cuda::CudaMemory<real>(1));
 
