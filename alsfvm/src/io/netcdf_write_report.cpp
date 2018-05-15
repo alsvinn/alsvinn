@@ -1,7 +1,8 @@
 
 #include "alsfvm/io/parallel_netcdf_write_report.hpp"
-#include <netcdf.h>
+#include <pnetcdf.h>
 #include "alsutils/make_basic_report.hpp"
+#include <iostream>
 namespace alsfvm {
 namespace io {
 
@@ -25,13 +26,9 @@ void writePropertyTree(netcdf_raw_ptr varid,
 
 }
 }
-void netcdfWriteReport(netcdf_raw_ptr file) {
-    netcdf_raw_ptr varid;
-    NETCDF_SAFE_CALl(nc_inq_varid(file, "report", &varid));
-
+void parallelNetcdfWriteReport(netcdf_raw_ptr file) {
     auto propertyTree = alsutils::makeBasicReport();
-
-    writePropertyTree(varid, propertyTree.get_child("report"), "report");
+    writePropertyTree(file, propertyTree.get_child("report"), "alsvinn_report");
 }
 }
 }
