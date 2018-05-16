@@ -1,10 +1,14 @@
 #include "alsutils/make_basic_report.hpp"
 #include <boost/property_tree/ptree.hpp>
-
+#include <boost/chrono.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include "alsutils/config.hpp"
 #include "alsutils/get_boost_properties.hpp"
 #include "alsutils/get_os_name.hpp"
+#include "alsutils/get_hostname.hpp"
 #include "alsutils/get_cpu_name.hpp"
+#include "alsutils/get_username.hpp"
+#include "alsutils/get_hostname.hpp"
 #include "alsutils/mpi/get_mpi_version.hpp"
 #include <boost/filesystem.hpp>
 
@@ -23,13 +27,22 @@ namespace alsutils {
 boost::property_tree::ptree makeBasicReport() {
     boost::property_tree::ptree propertyTree;
 
+    propertyTree.put("report.software", "alsvinn https://github.com/alsvinn");
 
     boost::filesystem::path currentWorkingDirectory(
         boost::filesystem::current_path());
+
     propertyTree.put("report.currentWorkingDirectory",
         currentWorkingDirectory.string());
 
     propertyTree.put("report.operatingSystem", alsutils::getOSName());
+    propertyTree.put("report.username", alsutils::getUsername());
+    propertyTree.put("report.host", alsutils::getHostname());
+
+
+    propertyTree.put("report.generatedAt", boost::posix_time::to_iso_string(
+            boost::posix_time::second_clock::local_time()));
+
     propertyTree.put("report.CPU", alsutils::getCPUName());
     propertyTree.put("report.revision", getVersionControlID());
     propertyTree.put("report.versionControlStatus", getVersionControlStatus());
