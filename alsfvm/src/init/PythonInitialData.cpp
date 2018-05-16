@@ -151,7 +151,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
             << std::endl;
     }
 
-    ALSVINN_LOG(INFO, "Python program: \n" << functionStringStream.str());
+    //ALSVINN_LOG(INFO, "Python program: \n" << functionStringStream.str());
 
     boost::python::exec(functionStringStream.str().c_str(), mainNamespace);
     ALSVINN_LOG(INFO, "Pythonprogram executed");
