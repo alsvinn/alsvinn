@@ -5,6 +5,7 @@
 #include "alsutils/config.hpp"
 #include "alsutils/get_boost_properties.hpp"
 #include "alsutils/get_os_name.hpp"
+#include "alsutils/get_standard_c_library.hpp"
 #include "alsutils/get_hostname.hpp"
 #include "alsutils/get_cpu_name.hpp"
 #include "alsutils/get_username.hpp"
@@ -38,6 +39,7 @@ boost::property_tree::ptree makeBasicReport() {
     propertyTree.put("report.operatingSystem", alsutils::getOSName());
     propertyTree.put("report.username", alsutils::getUsername());
     propertyTree.put("report.host", alsutils::getHostname());
+    propertyTree.put("report.standardCLibrary", alsutils::getStandardCLibrary());
 
 
     propertyTree.put("report.generatedAt", boost::posix_time::to_iso_string(
