@@ -9,7 +9,7 @@ namespace stats {
 TimeIntegratedWriter::TimeIntegratedWriter(alsfvm::shared_ptr<Statistics>&
     statistics,
     real time, real radius)
-    : statistics(statistics), time(time), timeRadius(radius) {
+    : statistics(statistics) {
 
 }
 
@@ -42,20 +42,11 @@ void TimeIntegratedWriter::computeStatistics(const alsfvm::volume::Volume&
     const alsfvm::simulator::TimestepInformation& timestepInformation) {
 
 
-    const real currentTime = timestepInformation.getCurrentTime();
 
-    if (std::abs(currentTime - time) <= timeRadius) {
 
-        // Here we want the statistics to "think" it is the time at which we have the interval centered,
-        // so that they will accumulate the statistics on the same time.
-        alsfvm::simulator::TimestepInformation timestepInformationAtTime(time,
-            timestepInformation.getNumberOfStepsPerformed());
+    statistics->computeStatistics(conservedVariables, extraVariables, grid,
+        timestepInformation);
 
-        ALSVINN_LOG(INFO, "Computing statistics, currentTime = " << currentTime);
-        statistics->computeStatistics(conservedVariables, extraVariables, grid,
-            timestepInformationAtTime);
-
-    }
 }
 
 }

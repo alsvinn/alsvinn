@@ -50,8 +50,6 @@ protected:
 
 private:
     alsfvm::shared_ptr<Statistics> statistics;
-    const real time;
-    const real timeRadius;
 
 };
 } // namespace stats

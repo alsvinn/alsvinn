@@ -4,7 +4,7 @@ namespace alsuq {
 namespace stats {
 
 OnePointMoment::OnePointMoment(const StatisticsParameters& parameters)
-    : StatisticsHelper(parameters), p(parameters.getParameterAsInteger("p")),
+    : StatisticsHelper(parameters), p(parameters.getInteger("p")),
       statisticsName("m" + std::to_string(p)) {
 
 }

@@ -23,6 +23,8 @@ public:
 
     std::vector<std::string> getStringVectorFromString(const std::string& name)
     const;
+
+    std::vector<std::string> getKeys() const;
 private:
     boost::property_tree::ptree ptree;
 

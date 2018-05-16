@@ -133,7 +133,7 @@ NumericalFluxCPU<Flux, Equation, dimension>::NumericalFluxCPU(
     alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
     const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters,
     alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration)
-    : volumeFactory(Equation::name,
+  : volumeFactory(Equation::getName(),
           alsfvm::make_shared<memory::MemoryFactory>(deviceConfiguration)),
       reconstruction(reconstruction),
       parameters(static_cast<typename Equation::Parameters&>

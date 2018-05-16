@@ -6,11 +6,11 @@ namespace stats {
 
 StructureTwoPoints::StructureTwoPoints(const StatisticsParameters& parameters)
     : StatisticsHelper(parameters),
-      direction1(parameters.getParameterAsInteger("direction1")),
-      direction2(parameters.getParameterAsInteger("direction2")),
+      direction1(parameters.getInteger("direction1")),
+      direction2(parameters.getInteger("direction2")),
       directionVector1(make_direction_vector(direction1)),
       directionVector2(make_direction_vector(direction2)),
-      numberOfH(parameters.getParameterAsInteger("numberOfH")),
+      numberOfH(parameters.getInteger("numberOfH")),
       statisticsName ("structure_2pt")
 
 {

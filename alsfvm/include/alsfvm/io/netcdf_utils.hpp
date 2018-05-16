@@ -1,5 +1,6 @@
 #pragma once
 #include "alsutils/error/Exception.hpp"
+#include <netcdf.h>
 
 #define NETCDF_SAFE_CALl(x) {\
     auto error = x; \

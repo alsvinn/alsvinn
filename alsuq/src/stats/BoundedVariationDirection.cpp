@@ -7,7 +7,7 @@ namespace stats {
 
 BoundedVariationDirection::BoundedVariationDirection(const
     alsuq::stats::StatisticsParameters& parameters)
-    : StatisticsHelper(parameters), p(parameters.getParameterAsInteger("p")),
+    : StatisticsHelper(parameters), p(parameters.getInteger("p")),
       statisticsNames({"bv_x_" + std::to_string(p),
     "bv_y_" + std::to_string(p),
     "bv_z_" + std::to_string(p)}) {

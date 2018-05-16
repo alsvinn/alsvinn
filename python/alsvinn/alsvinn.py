@@ -29,7 +29,7 @@ class Alsvinn(object):
         self.data_path = data_path
         if xml_file != None:
             self.read_xml(xml_file)
-
+        
         elif configuration != None:
             self.fvmSettings = configuration
         self.alsvinncli = alsvinncli
@@ -143,9 +143,9 @@ class Alsvinn(object):
 
         newPythonFile = self.get_name() + '.py'
 
-
-        shutil.copyfile(os.path.join(os.path.dirname(self.source_xml_path), settings["fvm"]["initialData"]["python"]), newPythonFile)
-        settings["fvm"]["initialData"]["python"] = newPythonFile
+        if settings["fvm"]["initialData"]["python"] != newPythonFile:
+            shutil.copyfile(os.path.join(os.path.dirname(self.source_xml_path), settings["fvm"]["initialData"]["python"]), newPythonFile)
+            settings["fvm"]["initialData"]["python"] = newPythonFile
 
         xmlObject = dicttoxml.dicttoxml( settings, custom_root='config', attr_type=False, item_func=self.__xml_item_func)
 
@@ -231,14 +231,14 @@ class Alsvinn(object):
             basename = self.fvmSettings["writer"]["basename"]
             type = self.fvmSettings["writer"]["type"]
         else:
-
+            
             # Loop through uq stats to find statistics:
             for s in self.uqSettings['stats']:
                 if isinstance(s, str):
                     s = self.uqSettings['stats'][s]
-
+                    
                 if statistics == 'mean' or statistics == 'variance':
-
+                    
                     if s['name'] == 'meanvar':
 
                         basename = s['writer']['basename']
@@ -246,7 +246,7 @@ class Alsvinn(object):
                 elif s['name'] == statistics:
                     basename = s['writer']['basename']
                     type = s['writer']['type']
-
+            
         if type == "netcdf":
             append = "nc"
 
@@ -373,6 +373,13 @@ class Alsvinn(object):
                                                     'basename' : basename
                                                 }})
 
+    def add_functional(self, functionalOptions):
+        if 'functionals' not in self.fvmSettings.keys():
+            self.fvmSettings['functionals']  = []
+        elif type(self.fvmSettings['functionals']) is not list:
+            self.fvmSettings['functionals'] = [self.fvmSettings['functionals']['functional']]
+        self.fvmSettings['functionals'].append(functionalOptions)
+
     def set_distribution(self, distribution):
         self.uqSettings['parameter']['parameter']['type']=distribution
 
@@ -411,7 +418,8 @@ def run(name=None, equation=None,
         samples=None,
         generator=None,
         diffusion_operator=None,
-        diffusion_reconstruction=None
+        diffusion_reconstruction=None,
+	functionals=None
         ):
 
 
@@ -516,6 +524,12 @@ def run(name=None, equation=None,
         alsvinn_object.set_uq_value('stats',[])
         for stat in statistics:
             alsvinn_object.add_statistics(stat, 'netcdf', name, number_of_saves)
+    if functionals is not None:
+        if number_of_saves is None:
+            number_of_saves = 1
+        alsvinn_object.set_fvm_value('functionals',[])
+        for functional in functionals:
+            alsvinn_object.add_functional(functional)
     if samples is not None:
         alsvinn_object.set_uq_value('samples', str(samples))
     if generator is not None:
@@ -525,3 +539,7 @@ def run(name=None, equation=None,
         alsvinn_object.set_diffusion(diffusion_operator, diffusion_reconstruction)
     alsvinn_object.run(multix=multix, multiy=multiy,multiz=multiz, uq=uq, multiSample=multiSample)
     return alsvinn_object
+
+
+
+

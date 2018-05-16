@@ -3,9 +3,17 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include "alsutils/config.hpp"
+#include "alsutils/get_boost_properties.hpp"
+#include "alsutils/get_os_name.hpp"
+#include "alsutils/get_cpu_name.hpp"
+#include "alsutils/mpi/get_mpi_version.hpp"
 #include <sstream>
 #include <fstream>
 #include <boost/filesystem.hpp>
+#include "alsutils/make_basic_report.hpp"
+#ifdef ALSVINN_HAVE_CUDA
+    #include "alsutils/cuda/get_device_properties.hpp"
+#endif
 #ifdef ALSVINN_USE_MPI
     #include <mpi.h>
 #endif
@@ -22,14 +30,11 @@ void writeRunReport(const std::string& executable,
     const int timesteps,
     const int argc,
     char** argv) {
-    boost::property_tree::ptree propertyTree;
+    boost::property_tree::ptree propertyTree = alsutils::makeBasicReport();
 
     propertyTree.put("report.executable", executable);
     propertyTree.put("report.name", name);
-    boost::filesystem::path currentWorkingDirectory(
-        boost::filesystem::current_path());
-    propertyTree.put("report.currentWorkingDirectory",
-        currentWorkingDirectory.string());
+
     propertyTree.put("report.endTime",
         boost::posix_time::to_iso_string(
             boost::posix_time::second_clock::local_time()));
@@ -49,31 +54,9 @@ void writeRunReport(const std::string& executable,
 
     propertyTree.put("report.timesteps", timesteps);
     propertyTree.put("report.command", commandLine.str());
-    propertyTree.put("report.revision", getVersionControlID());
-    propertyTree.put("report.versionControlStatus", getVersionControlStatus());
-    propertyTree.put("report.buildType", getBuildType());
-    propertyTree.put("report.cxxFlags", getCXXFlags());
-    propertyTree.put("report.cudaFlags", getCUDAFlags());
-    propertyTree.put("report.cudaVersion", getCUDAVersion());
 
 
-#ifdef ALSVINN_USE_MPI
-    int mpiNumThreads = 1;
-    MPI_Comm_size(MPI_COMM_WORLD, &mpiNumThreads);
-    propertyTree.put("report.mpiEnabled", true);
-    propertyTree.put("report.mpiProcesses", mpiNumThreads);
-#else
-    propertyTree.put("report.mpiEnabled", false);
-    propertyTree.put("report.mpiProcesses", 1);
-#endif
 
-#ifdef _OPENMP
-    propertyTree.put("report.ompEnabled", true);
-    propertyTree.put("report.ompThreads", omp_get_num_threads());
-#else
-    propertyTree.put("report.ompEnabled", false);
-    propertyTree.put("report.ompThreads", 1);
-#endif
 
     boost::property_tree::write_json(executable + "_" + name + "_report.json",
         propertyTree);

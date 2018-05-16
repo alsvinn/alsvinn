@@ -38,7 +38,7 @@ public:
     ///
     /// Defaults to "euler<nsd>".
     ///
-    static const std::string name;
+    static std::string getName();
 
     //!
     //! List of all conserved variables used by Euler (rho, mx, my, mz, E)
@@ -370,6 +370,22 @@ public:
 private:
     const real gamma;
 };
+
+
+  template<>
+  inline std::string Euler<3>::getName() {
+    return "euler3";
+  }
+
+  template<>
+  inline std::string Euler<2>::getName() {
+    return "euler2";
+  }
+
+  template<>
+  inline std::string Euler<1>::getName() {
+    return "euler1";
+  }
 
 
 

@@ -7,6 +7,7 @@
 #include <boost/program_options.hpp>
 #include "alsutils/config.hpp"
 #include "alsutils/write_run_report.hpp"
+#include "alsutils/mpi/set_cuda_device.hpp"
 
 int main(int argc, char** argv) {
     int rank = 0;
@@ -88,7 +89,10 @@ int main(int argc, char** argv) {
 
         }
 
+
+	alsutils::mpi::setCudaDevice();
         MPI_Init(&argc, &argv);
+
         alsuq::mpi::ConfigurationPtr mpiConfig(new alsuq::mpi::Configuration(
                 MPI_COMM_WORLD));
         rank = mpiConfig->getRank();

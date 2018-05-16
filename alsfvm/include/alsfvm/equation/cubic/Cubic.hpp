@@ -31,7 +31,9 @@ public:
     ///
     /// Defaults to "cubic".
     ///
-    static const std::string name;
+    static std::string getName() {
+        return "cubic";
+    }
 
     //!
     //! List of all conserved variables used by Cubic (u)

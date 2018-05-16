@@ -1,5 +1,37 @@
 #include "alsutils/config.hpp"
+#include "alsutils/types.hpp"
+#include <limits>
+#include <sstream>
+
 namespace alsutils {
+
+  std::string getCompilerID() {
+    return "@CMAKE_CXX_COMPILER_ID@";
+  }
+
+
+  std::string getCompilerVersion() {
+    return "@CMAKE_CXX_COMPILER_VERSION@";
+  }
+
+  std::string getCompilerName() {
+    return getCompilerID() + " " + getCompilerVersion();
+  }
+
+
+
+    std::string getCUDACompilerID() {
+      return "@CMAKE_CUDA_COMPILER_ID@";
+    }
+
+
+    std::string getCUDACompilerVersion() {
+      return "@CMAKE_CUDA_COMPILER_VERSION@";
+    }
+
+    std::string getCUDACompilerName() {
+      return getCUDACompilerID() + " " + getCUDACompilerVersion();
+    }
   std::string getVersionControlID() {
     return "@GIT_SHA1@";
   }
@@ -14,6 +46,22 @@ namespace alsutils {
 
   std::string getCXXFlags() {
     return "@CMAKE_CXX_FLAGS@";
+  }
+
+  std::string getCXXFlagsRelease() {
+    return "@CMAKE_CXX_FLAGS_RELEASE@";
+  }
+
+  std::string getCXXFlagsDebug() {
+    return "@CMAKE_CXX_FLAGS_DEBUG@";
+  }
+
+  std::string getCXXFlagsMinSizeRel() {
+    return "@CMAKE_CXX_FLAGS_MINSIZEREL@";
+  }
+
+  std::string getCXXFlagsRelWithDebInfo() {
+    return "@CMAKE_CXX_FLAGS_RELWITHDEBINFO@";
   }
 
   std::string getCUDAFlags() {
@@ -34,6 +82,7 @@ std::string getVersionControlStatus() {
                    << "CUDA Version:      " << getCUDAVersion() << "\n"
                    << "Extra CXX flags:   " << getCXXFlags() << "\n"
                    << "CUDA flags:        " << getCUDAFlags() << "\n"
+		   << "Floating point:    " << getFloatingPointPrecisionDescription() << "\n"
                    << "++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
   }
 
@@ -46,4 +95,48 @@ std::string getVersionControlStatus() {
     std::ofstream output(outputFile);
     output << getAllCmakeVariables() << std::endl;
   }
+
+  std::string getFloatingPointPrecisionDescription() {
+#ifdef ALSVINN_USE_FLOAT
+    return "float (single precision, 32 bits)";
+#else
+    return "double (double precision, 64 bits)";
+#endif
+}
+
+std::string getFloatingPointType() {
+#ifdef ALSVINN_USE_FLOAT
+  return "float";
+#else
+  return "double";
+#endif
+}
+
+std::string getFloatingPointMaxValue() {
+  std::stringstream ss;
+
+  ss << std::numeric_limits<real>::max();
+
+  return ss.str();
+}
+
+
+std::string getFloatingPointMinValue() {
+  std::stringstream ss;
+
+  ss << std::numeric_limits<real>::min();
+
+  return ss.str();
+}
+
+
+std::string getFloatingPointEpsilon() {
+
+  std::stringstream ss;
+
+  ss << std::numeric_limits<real>::epsilon();
+
+  return ss.str();
+}
+
 }

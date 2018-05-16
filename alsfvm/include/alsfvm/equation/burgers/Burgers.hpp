@@ -31,7 +31,9 @@ public:
     ///
     /// Defaults to "burgers".
     ///
-    static const std::string name;
+    static std::string getName() {
+        return "burgers";
+    }
 
     //!
     //! List of all conserved variables used by Burgers (u)

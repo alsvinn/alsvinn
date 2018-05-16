@@ -6,8 +6,8 @@ namespace stats {
 
 StructureSurface::StructureSurface(const StatisticsParameters& parameters)
     : StatisticsHelper(parameters),
-      p(parameters.getParameterAsDouble("p")),
-      numberOfH(parameters.getParameterAsInteger("numberOfH")),
+      p(parameters.getDouble("p")),
+      numberOfH(parameters.getInteger("numberOfH")),
       statisticsName ("structure_surface_" + std::to_string(p))
 
 {

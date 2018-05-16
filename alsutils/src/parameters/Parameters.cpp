@@ -40,5 +40,15 @@ std::vector<std::string> Parameters::getStringVectorFromString(
     return strings;
 }
 
+std::vector<std::string> Parameters::getKeys() const {
+    std::vector<std::string> parameters;
+
+    for (const auto& child : ptree) {
+        parameters.push_back(child.first);
+    }
+
+    return parameters;
+}
+
 }
 }

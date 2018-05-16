@@ -21,6 +21,7 @@
 #ifdef ALSVINN_HAVE_CUDA
     #include <cuda.h>
     #include <cuda_runtime.h>
+    #include "alsutils/mpi/set_cuda_device.hpp"
 #endif
 
 
@@ -105,6 +106,7 @@ int main(int argc, char** argv) {
         }
 
 #ifdef ALSVINN_USE_MPI
+	alsutils::mpi::setCudaDevice();
         int mpiRank;
 
         MPI_SAFE_CALL(MPI_Init(NULL, NULL));
@@ -120,6 +122,7 @@ int main(int argc, char** argv) {
         alsutils::log::setLogFile("alsvinncli_mpi_log_" + std::to_string(mpiRank)
             + ".txt");
         ALSVINN_LOG(INFO, "MPI enabled");
+
 #else
         ALSVINN_LOG(INFO, "MPI disabled");
 

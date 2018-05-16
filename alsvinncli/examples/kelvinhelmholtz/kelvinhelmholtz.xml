@@ -22,82 +22,6 @@
   <functionals>
 
 <functional>
-    <name>legendre_pointwise</name>
-    <time>2</time>
-    <timeRadius>1</timeRadius>
-
-    <degree>1</degree>
-    <minValue>0</minValue>
-    <maxValue>4</maxValue>
-    <variables>rho</variables>
-    <writer>
-        <type>netcdf</type>
-        <basename>kh_legendre_pointwise_time_1</basename>
-    </writer>
-</functional>
-
-<functional>
-    <name>legendre_pointwise</name>
-    <numberOfSaves>1</numberOfSaves>
-    <degree>1</degree>
-
-    <minValue>0.9</minValue>
-    <maxValue>2.5</maxValue>
-    <variables>rho</variables>
-    <writer>
-        <type>netcdf</type>
-        <basename>kh_legendre_pointwise_1</basename>
-    </writer>
-</functional>
-    <functional>
-        <name>legendre</name>
-        <time>2</time>
-        <timeRadius>1</timeRadius>
-        <degree_k>1</degree_k>
-        <degree_n>1</degree_n>
-        <degree_m>1</degree_m>
-        <minValue>0</minValue>
-        <maxValue>4</maxValue>
-        <variables>rho</variables>
-        <writer>
-            <type>netcdf</type>
-            <basename>kh_legendre1</basename>
-        </writer>
-    </functional>
-
-    <functional>
-        <name>legendre</name>
-        <time>2</time>
-        <timeRadius>1</timeRadius>
-        <degree_k>2</degree_k>
-        <degree_n>2</degree_n>
-        <degree_m>2</degree_m>
-        <minValue>0</minValue>
-        <maxValue>4</maxValue>
-        <variables>rho</variables>
-        <writer>
-            <type>netcdf</type>
-            <basename>kh_legendre2</basename>
-        </writer>
-    </functional>
-
-    <functional>
-        <name>legendre</name>
-        <time>2</time>
-        <timeRadius>1</timeRadius>
-        <degree_k>3</degree_k>
-        <degree_n>3</degree_n>
-        <degree_m>3</degree_m>
-        <minValue>0</minValue>
-        <maxValue>4</maxValue>
-        <variables>rho</variables>
-        <writer>
-            <type>netcdf</type>
-            <basename>kh_legendre3</basename>
-        </writer>
-    </functional>
-
-
 
   </functionals>
   <initialData>
@@ -141,81 +65,35 @@
       <basename>kh</basename>
     </writer>
     </stat>
+    <stat>
+      <name>
+	functional_time_integrated
+      </name>
+      <time>1</time>
+      <timeRadius>0.5</timeRadius>
+      <functionalName>identity</functionalName>
+      <writer>
+	<type>netcdf</type>
+	<basename>kh</basename>
+      </writer>
 
-<stat>
-  <name>
-    structure_basic
-  </name>
-  <numberOfSaves>1</numberOfSaves>
-  <direction>0</direction>
-  <numberOfH>32</numberOfH>
-  <p>1</p>
-  <writer>
-    <type>netcdf</type>
-    <basename>kh_x</basename>
-  </writer>
-  </stat>
-
-<stat>
-  <name>
-    structure_basic
-  </name>
-  <numberOfSaves>1</numberOfSaves>
-  <direction>1</direction>
-  <numberOfH>32</numberOfH>
-  <p>1</p>
-  <writer>
-    <type>netcdf</type>
-    <basename>kh_y</basename>
-  </writer>
-  </stat>
-
-<stat>
-  <name>
-    structure_cube
-  </name>
-  <numberOfSaves>1</numberOfSaves>
-  <numberOfH>32</numberOfH>
-  <p>1</p>
-  <writer>
-    <type>netcdf</type>
-    <basename>kh_cube</basename>
-  </writer>
-  </stat>
-
-<stat>
-  <name>
-    bv
-  </name>
-  <numberOfSaves>1</numberOfSaves>
-   <p>1</p>
-  <writer>
-    <type>netcdf</type>
-    <basename>kh</basename>
-  </writer>
-  </stat>
-  <stat>
-    <name>
-      bv
-    </name>
-    <numberOfSaves>1</numberOfSaves>
-     <p>2</p>
-    <writer>
-      <type>netcdf</type>
-      <basename>kh</basename>
-    </writer>
     </stat>
     <stat>
       <name>
-        bv
+	functional_time_integrated
       </name>
-      <numberOfSaves>1</numberOfSaves>
-       <p>3</p>
+      <time>1</time>
+      <timeRadius>0.5</timeRadius>
+      <functionalName>legendre_pointwise</functionalName>
+      <minValue>0</minValue>
+      <maxValue>4</maxValue>
+      <variables>rho</variables>
       <writer>
-        <type>netcdf</type>
-        <basename>kh</basename>
+	<type>netcdf</type>
+	<basename>kh</basename>
       </writer>
-      </stat>
+    </stat>
+    
   </stats>
 </uq>
 </config>

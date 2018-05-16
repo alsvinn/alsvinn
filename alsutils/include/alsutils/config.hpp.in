@@ -8,6 +8,7 @@
 #ifndef COMPILING_ALSVINN
 #cmakedefine ALSVINN_HAVE_CUDA 1
 #cmakedefine ALSVINN_USE_MPI 1
+#cmakedefine ALSVINN_USE_FLOAT
 #endif
 
 #define ALSVINN_HAS_CONFIG 1
@@ -21,15 +22,39 @@ namespace alsutils {
 
   std::string getCXXFlags();
 
+  std::string getCXXFlagsDebug();
+
+  std::string getCXXFlagsRelease();
+
+  std::string getCXXFlagsMinSizeRel();
+  std::string getCXXFlagsRelWithDebInfo();
+
   std::string getCUDAFlags();
 
-std::string getVersionControlStatus();
+  std::string getVersionControlStatus();
+
+  std::string getCompilerID();
 
 
+  std::string getCompilerVersion();
+  std::string getCompilerName();
+
+
+  std::string getCUDACompilerID();
+
+
+  std::string getCUDACompilerVersion();
+  std::string getCUDACompilerName();
   void dumpInformationToLog();
 
   std::string getAllCmakeVariables();
 
   void writeCmakeConfiguration(const std::string& outputFile);
+  std::string getFloatingPointPrecisionDescription();
 
+  std::string getFloatingPointType();
+
+  std::string getFloatingPointMaxValue();
+  std::string getFloatingPointMinValue();
+  std::string getFloatingPointEpsilon();
 }

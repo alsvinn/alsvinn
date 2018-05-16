@@ -75,8 +75,8 @@ __global__ void computeStructureCube(real* output,
 
 StructureCubeCUDA::StructureCubeCUDA(const StatisticsParameters& parameters)
     : StatisticsHelper(parameters),
-      p(parameters.getParameterAsDouble("p")),
-      numberOfH(parameters.getParameterAsInteger("numberOfH")),
+      p(parameters.getDouble("p")),
+      numberOfH(parameters.getInteger("numberOfH")),
       statisticsName ("structure_cube_" + std::to_string(p))
 
 {

@@ -32,7 +32,7 @@ IF(ALSVINN_HAVE_CUDA)
   FILE(GLOB_RECURSE CUDA_SRC src/*.cu)
   set_source_groups( "CUDA Files" "${CMAKE_CURRENT_SOURCE_DIR}/src/" "${CUDA_SRC}")
   add_library(alsfvm_cuda SHARED ${CUDA_SRC})
-  target_link_libraries(alsfvm_cuda alsutils_include MPI::MPI_C_include)
+  target_link_libraries(alsfvm_cuda alsutils_include MPI::MPI_C_include Boost::log CUB::CUB_CPP)
   target_include_directories(alsfvm_cuda PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:include>)

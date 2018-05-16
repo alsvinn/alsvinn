@@ -1,0 +1,127 @@
+<config>
+<fvm>
+  <name>
+    kh
+  </name>
+  <platform>cpu</platform>
+  <grid>
+    <lowerCorner>0 0 0</lowerCorner>
+    <upperCorner>1 1 0</upperCorner>
+    <dimension>64 64 1</dimension>
+  </grid>
+  <boundary>periodic</boundary>
+  <flux>hll3</flux>
+  <endTime>2</endTime>
+  <equation>euler2</equation>
+  <equationParameters>
+    <gamma>1.4</gamma>
+  </equationParameters>
+  <reconstruction>weno2</reconstruction>
+  <cfl>auto</cfl>
+  <integrator>auto</integrator>
+  <functionals>
+
+<functional>
+    <name>legendre_pointwise</name>
+    <time>2</time>
+    <timeRadius>1</timeRadius>
+
+    <degree>1</degree>
+    <minValue>0</minValue>
+    <maxValue>4</maxValue>
+    <variables>rho</variables>
+    <writer>
+        <type>netcdf</type>
+        <basename>kh_legendre_pointwise_time_1</basename>
+    </writer>
+</functional>
+
+<functional>
+    <name>legendre_pointwise</name>
+    <numberOfSaves>1</numberOfSaves>
+    <degree>1</degree>
+
+    <minValue>0.9</minValue>
+    <maxValue>2.5</maxValue>
+    <variables>rho</variables>
+    <writer>
+        <type>netcdf</type>
+        <basename>kh_legendre_pointwise_1</basename>
+    </writer>
+</functional>
+
+
+  </functionals>
+  <initialData>
+    <python>kelvinhelmholtz.py</python>
+    <parameters>
+      <parameter>
+        <name>a</name>
+        <length>40</length>
+        <values><value>0</value></values>
+      </parameter>
+    </parameters>
+  </initialData>
+  <diffusion>
+    <name>none</name>
+    <reconstruction>none</reconstruction>
+  </diffusion>
+  <writer>
+    <type>netcdf</type>
+    <basename>kh</basename>
+    <numberOfSaves>10</numberOfSaves>
+  </writer>
+</fvm>
+<uq>
+  <samples>4</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>a</name>
+      <length>40</length>
+      <type>uniform</type>
+    </parameter>
+  </parameters>
+  <stats>
+  <stat>
+    <name>
+      meanvar
+    </name>
+    <numberOfSaves>1</numberOfSaves>
+    <writer>
+      <type>netcdf</type>
+      <basename>kh</basename>
+    </writer>
+    </stat>
+    <stat>
+        <name>
+        functional_time_integrated
+        </name>
+        <functionalName>identity</functionalName>
+        <time>1</time>
+        <timeRadius>0.5</timeRadius>
+        <writer>
+          <type>netcdf</type>
+          <basename>kh</basename>
+        </writer>
+    </stat>
+
+    <stat>
+        <name>
+        functional_time_integrated
+        </name>
+        <functionalName>legendre_pointwise</functionalName>
+        <time>1</time>
+        <degree>1</degree>
+        <minValue>0</minValue>
+        <maxValue>4</maxValue>
+        <variables>rho</variables>
+        <timeRadius>0.5</timeRadius>
+        <writer>
+          <type>netcdf</type>
+          <basename>kh</basename>
+        </writer>
+    </stat>
+  </stats>
+</uq>
+</config>
