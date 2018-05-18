@@ -49,7 +49,12 @@ While it's easy to implement new configurations, we already have a wide variety 
   * hdf5, netcdf, parallel-netcdf
   * doxygen (optional)
   * cuda (optional)
- 
+
+## Cloning
+
+This project uses a git submodule, the easiest way to clone the repository is by
+
+    git clone --recursive git@github.com:kjetil-lye/alsvinn.git
 ## Compiling
 
 Should be as easy as running (for advanced cmake-users: the location of the build folder can be arbitrary)
