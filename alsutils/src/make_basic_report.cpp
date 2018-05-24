@@ -44,6 +44,7 @@ boost::property_tree::ptree makeBasicReport() {
     boost::property_tree::ptree propertyTree;
 
     propertyTree.put("report.software", "alsvinn https://github.com/alsvinn");
+    propertyTree.put("report.softwareVersion", getAlsvinnVersion());
 
     boost::filesystem::path currentWorkingDirectory(
         boost::filesystem::current_path());

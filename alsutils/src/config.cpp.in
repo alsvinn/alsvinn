@@ -4,7 +4,10 @@
 #include <sstream>
 
 namespace alsutils {
-
+  std::string getAlsvinnVersion() {
+    return "@ALSVINN_VERSION@";
+  }
+  
   std::string getCompilerID() {
     return "@CMAKE_CXX_COMPILER_ID@";
   }

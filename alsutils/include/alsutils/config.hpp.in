@@ -13,7 +13,15 @@
 
 #define ALSVINN_HAS_CONFIG 1
 
-namespace alsutils {
+#define ALSVINN_MAJOR_VERSION @ALSVINN_MAJOR_VERSION@
+#define ALSVINN_MINOR_VERSION @ALSVINN_MINOR_VERSION@
+#define ALSVINN_PATCH_VERSION @ALSVINN_PATCH_VERSION@
+
+
+
+namespace alsutils {\
+  std::string getAlsvinnVersion();
+  
   std::string getVersionControlID();
 
   std::string getBuildType();
