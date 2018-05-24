@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -142,9 +142,7 @@ TEST_P(MeanVarTest, MeanVarTest) {
 INSTANTIATE_TEST_CASE_P(MeanVarConvergenceTests,
     MeanVarTest,
     ::testing::Values(
-        MeanVarTestParameters("well512a", "normal", 0, 1, {"mean", "sd"}, {0, 1}, 40),
-        MeanVarTestParameters("well512a", "uniform", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
-            40), MeanVarTestParameters("stlmersenne", "normal", 0, 1, {"mean", "sd"}, {0, 1},
+        MeanVarTestParameters("stlmersenne", "normal", 0, 1, {"mean", "sd"}, {0, 1},
             40), MeanVarTestParameters("stlmersenne", "uniform", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
             40)
 
