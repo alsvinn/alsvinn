@@ -3,6 +3,7 @@
 #include "alsfvm/io/io_utils.hpp"
 #include "alsutils/log.hpp"
 #include "alsfvm/io/netcdf_write_report.hpp"
+#include "alsfvm/io/netcdf_write_attributes.hpp"
 namespace alsfvm {
 namespace io {
 
@@ -19,6 +20,11 @@ void NetCDFWriter::write(const volume::Volume& conservedVariables,
     auto filename = getFilename();
     NETCDF_SAFE_CALl(nc_create(filename.c_str(),  NC_CLOBBER | NC_NETCDF4, &file));
     netcdfWriteReport(file);
+
+    for (auto attribute : attributesMap) {
+        netcdfWriteAttributes(file, attribute.first, attribute.second);
+    }
+
     writeToFile(file, conservedVariables, extraVariables, grid,
         timestepInformation);
     NETCDF_SAFE_CALl(nc_close(file));

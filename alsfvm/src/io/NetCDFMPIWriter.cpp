@@ -3,6 +3,7 @@
 #include "alsutils/log.hpp"
 #include "alsutils/mpi/to_mpi_offset.hpp"
 #include "alsfvm/io/parallel_netcdf_write_report.hpp"
+#include "alsfvm/io/parallel_netcdf_write_attributes.hpp"
 #include <boost/filesystem.hpp>
 
 #include <fstream>
@@ -41,6 +42,11 @@ void NetCDFMPIWriter::write(const volume::Volume& conservedVariables,
 
 
         parallelNetcdfWriteReport(file);
+
+        for (auto attribute : attributesMap) {
+            parallelNetcdfWriteAttributes(file, attribute.first, attribute.second);
+        }
+
         // write current time
         netcdf_raw_ptr timeDim;
         NETCDF_SAFE_CALl(ncmpi_def_dim(file, "t", 1, &timeDim));

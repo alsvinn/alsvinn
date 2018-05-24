@@ -2,6 +2,7 @@
 #include "alsfvm/simulator/TimestepInformation.hpp"
 #include "alsfvm/volume/Volume.hpp"
 #include "alsfvm/grid/Grid.hpp"
+#include <boost/property_tree/ptree.hpp>
 
 namespace alsfvm {
 namespace io {
@@ -31,6 +32,16 @@ public:
     //! This method should be called at the end of the simulation
     virtual void finalize(const grid::Grid& grid,
         const simulator::TimestepInformation& timestepInformation) {}
+
+    //! Adds attributes to be written to the file (this is an optional
+    //! feature, not every writer supports this. Attributes should be
+    //! description of the simulation environment to help reproduce the output
+    //! file (eg. numerical parameters, initial data, etc).
+    void addAttributes(const std::string& nameOfAttributes,
+        const boost::property_tree::ptree& attributes);
+
+protected:
+    std::map<std::string, boost::property_tree::ptree> attributesMap;
 
 };
 

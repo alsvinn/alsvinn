@@ -21,7 +21,6 @@
   <integrator>auto</integrator>
   <functionals>
 
-<functional>
 
   </functionals>
   <initialData>
@@ -64,34 +63,6 @@
       <type>netcdf</type>
       <basename>kh</basename>
     </writer>
-    </stat>
-    <stat>
-      <name>
-	functional_time_integrated
-      </name>
-      <time>1</time>
-      <timeRadius>0.5</timeRadius>
-      <functionalName>identity</functionalName>
-      <writer>
-	<type>netcdf</type>
-	<basename>kh</basename>
-      </writer>
-
-    </stat>
-    <stat>
-      <name>
-	functional_time_integrated
-      </name>
-      <time>1</time>
-      <timeRadius>0.5</timeRadius>
-      <functionalName>legendre_pointwise</functionalName>
-      <minValue>0</minValue>
-      <maxValue>4</maxValue>
-      <variables>rho</variables>
-      <writer>
-	<type>netcdf</type>
-	<basename>kh</basename>
-      </writer>
     </stat>
     
   </stats>

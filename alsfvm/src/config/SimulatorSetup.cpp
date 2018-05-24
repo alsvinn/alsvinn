@@ -333,6 +333,7 @@ alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(
         std::string type = configuration.get<std::string>("fvm.writer.type");
         std::string basename = configuration.get<std::string>("fvm.writer.basename");
         auto baseWriter = writerFactory->createWriter(type, basename);
+        baseWriter->addAttributes("fvm_configuration", configuration);
         ALSVINN_LOG(INFO, "Adding writer " << basename);
         const auto& writerNode = configuration.get_child("fvm.writer");
 

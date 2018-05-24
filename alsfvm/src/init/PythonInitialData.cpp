@@ -191,6 +191,15 @@ void PythonInitialData::setParameters(const Parameters& parameters) {
 
 }
 
+boost::property_tree::ptree PythonInitialData::getDescription() const {
+    boost::property_tree::ptree information;
+    information.add("programString", programString);
+    information.add("type", "python");
+
+    return information;
+
+}
+
 
 
 }

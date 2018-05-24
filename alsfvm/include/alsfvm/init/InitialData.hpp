@@ -3,6 +3,7 @@
 #include "alsfvm/grid/Grid.hpp"
 #include "alsfvm/equation/CellComputer.hpp"
 #include "alsfvm/init/Parameters.hpp"
+#include <boost/property_tree/ptree.hpp>
 namespace alsfvm {
 namespace init {
 
@@ -29,6 +30,11 @@ public:
 
 
     virtual void setParameters(const Parameters& parameters) = 0;
+
+    //! Should provide a description of the initial data (eg the python script
+    //! used for the initial data). Does not need to be machine parseable in any
+    //! way, this is for "human readable reproducability" and extra debugging information.
+    virtual boost::property_tree::ptree getDescription() const = 0;
 };
 } // namespace alsfvm
 } // namespace init

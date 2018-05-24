@@ -195,6 +195,7 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(
 
             auto outputname = basename + "_" + statisticsName;
             auto baseWriter = writerFactory->createWriter(type, outputname);
+            baseWriter->addAttributes("uqAttributes", configuration);
             statistics->addWriter(statisticsName, baseWriter);
         }
 

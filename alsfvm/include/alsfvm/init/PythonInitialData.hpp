@@ -65,9 +65,16 @@ public:
         volume::Volume& extraVolume,
         volume::Volume& primitiveVolume,
         equation::CellComputer& cellComputer,
-        grid::Grid& grid);
+        grid::Grid& grid) override;
 
-    virtual void setParameters(const Parameters& parameters);
+    virtual void setParameters(const Parameters& parameters) override;
+
+
+    //! Should provide a description of the initial data (eg the python script
+    //! used for the initial data). Does not need to be machine parseable in any
+    //! way, this is for "human readable reproducability" and extra debugging information.
+    virtual boost::property_tree::ptree getDescription() const override
+    ;
 
 private:
     Parameters parameters;
