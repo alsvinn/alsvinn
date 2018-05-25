@@ -4,5 +4,5 @@
 @import "{{ site.theme }}";
 
 header.inner {
-    background-image: url("../../documentation/images/kh.png");
+    background-image: url("/alsvinn/documentation/images/kh.png");
 }
