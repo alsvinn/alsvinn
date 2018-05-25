@@ -3,7 +3,7 @@
 
 Alsvinn is a toolset consisting of a finite volume simulator (FVM) and modules for uncertaintity quantifications (UQ). 
 All the major operations can be computed on either a multi-core CPU or an NVIDIA GPU (through CUDA). 
-It also supports cluster configurations cocnsisting of either CPUs or GPUs. It exhibits excellent scaling.
+It also supports cluster configurations consisting of either CPUs or GPUs. It exhibits excellent scaling.
 
 ## Supported equations
 
@@ -54,7 +54,7 @@ While it's easy to implement new configurations, we already have a wide variety 
 
 This project uses a git submodule, the easiest way to clone the repository is by
 
-    git clone --recursive git@github.com:alsvinn/alsvinn.git
+    git clone --recursive https://github.com/alsvinn/alsvinn.git
     
 ## Compiling
 
