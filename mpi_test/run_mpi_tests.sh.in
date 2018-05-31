@@ -8,7 +8,7 @@ NUMBER_OF_CORES=`nproc --all`
 
 N=1
 
-while [ $N -le $((4*$NUMBER_OF_CORES)) ]
+while [ $N -le $(($NUMBER_OF_CORES)) ]
 do
     echo ""
     echo "####################"
