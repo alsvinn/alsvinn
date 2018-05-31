@@ -1,0 +1,8 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+header.inner {
+    background-image: url("/alsvinn/documentation/images/kh.png");
+}
