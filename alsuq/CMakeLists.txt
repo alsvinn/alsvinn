@@ -38,7 +38,7 @@ add_library(alsvinn::alsuq ALIAS alsuq)
 
 target_include_directories(alsuq PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
+    $<INSTALL_INTERFACE:include}>)
 
 TARGET_LINK_LIBRARIES(alsuq
   PUBLIC
