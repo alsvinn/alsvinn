@@ -25,7 +25,7 @@ namespace stats {
 //!
 //! Computes the structure function as
 //!
-//! \f[\sum_{i,j,k} \sum_{\tilde{i}=i-h}^{i+h}\cdot \sum_{\tildle{k}=k-h}^{k+h}|u_{(\tilde{i},\tilde{j},\tilde{i})}-u_{(i,j,k)}|^p/h^2\f]
+//! \f[\sum_{i,j,k} \sum_{\tilde{i}=i-h}^{i+h}\cdot \sum_{\tilde{k}=k-h}^{k+h}|u_{(\tilde{i},\tilde{j},\tilde{i})}-u_{(i,j,k)}|^p/h^2\f]
 class StructureCubeCUDA : public StatisticsHelper {
 public:
     StructureCubeCUDA(const StatisticsParameters& parameters);

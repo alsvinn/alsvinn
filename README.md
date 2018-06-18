@@ -1,9 +1,9 @@
 ![Alsvinn](https://github.com/kjetil-lye/alsvinn/raw/master/documentation/images/kh.png "Kelvin-Helmholtz simulation")
-# Alsvinn - The fast FVM Simulator with support for UQ
+# Alsvinn
 
 Alsvinn is a toolset consisting of a finite volume simulator (FVM) and modules for uncertaintity quantifications (UQ). 
 All the major operations can be computed on either a multi-core CPU or an NVIDIA GPU (through CUDA). 
-It also supports cluster configurations cocnsisting of either CPUs or GPUs. It exhibits excellent scaling.
+It also supports cluster configurations consisting of either CPUs or GPUs. It exhibits excellent scaling.
 
 ## Supported equations
 
@@ -42,19 +42,24 @@ While it's easy to implement new configurations, we already have a wide variety 
 
 ## Requirements
 
-  * C++11 compiler (tested with clang, gcc and MSVC-12.0)
-  * gtest (optional)
-  * boost (including boost-numpy)
-  * python 
-  * hdf5, netcdf, parallel-netcdf
-  * doxygen (optional)
-  * cuda (optional)
+  * C++11 compiler (tested with clang and gcc)
+  * [gtest](https://github.com/google/googletest) (optional)
+  * [boost](https://www.boost.org/) (including boost-numpy)
+  * [python](https://www.python.org)
+  * [hdf5](https://support.hdfgroup.org/HDF5/),
+  * [netcdf](https://www.unidata.ucar.edu/software/netcdf/)
+  * [parallel-netcdf](https://trac.mcs.anl.gov/projects/parallel-netcdf) *NOTE*: This is *not* the same as building netcdf with parallel support
+  * [doxygen](http://www.stack.nl/~dimitri/doxygen/) (optional)
+  * [NVIDIA CUDA](https://developer.nvidia.com/cuda-zone) (optional)
+  
+see [Installing necessary software](#installing-necessary-software) for more information.
 
 ## Cloning
 
 This project uses a git submodule, the easiest way to clone the repository is by
 
-    git clone --recursive git@github.com:alsvinn/alsvinn.git
+    git clone --recursive https://github.com/alsvinn/alsvinn.git
+   
     
 ## Compiling
 
@@ -70,7 +75,10 @@ note that you should probably run it with ```-DCMAKE_BUILD_TYPE=Release```, ie
     cd build
     cmake .. -DCMAKE_BUILD_TYPE=Release
     
-    
+### Compiling with CUDA
+
+If you do not have a CUDA device on your computer, or if you do not have CUDA installed, you should run CMAKE with the ```-DALSVINN_USE_CUDA=OFF``` option.
+
 ## Running tests
 
 Before you try to run the simulations, it's probably a good idea to validate that the build was successful by running the unittests. From the build folder, run
@@ -140,4 +148,21 @@ If you have installed Anaconda AND HDF5, make sure the right HDF5 version is pic
 but the two can intertwine in one or several of: include directories, libraries and Path (for dll).)
 
 
+## Installing necessary software
+### Arch Linux
+Pacman should have all needed packages, simply install
 
+    pacman -S git cmake cuda g++ netcdf parallel-netcdf-openmpi hdf5-openmpi doxygen gtest boost python
+
+### Manually installing parallel-netcdf
+
+On Fedora and Ubuntu, you have to compile parallel-netcdf yourself. You can [download the latest version from the webpage](https://trac.mcs.anl.gov/projects/parallel-netcdf/wiki/Download) and install using autotools. Notice that you should compile with the CFLAG ```-fPIC```. A quick way to install parallel-netcdf would be
+
+    wget http://cucis.ece.northwestern.edu/projects/PnetCDF/Release/parallel-netcdf-1.9.0.tar.gz
+    tar xvf parallel-netcdf-1.9.0.tar.gz
+    cd parallel-netcdf-1.9.0
+    export CFLAGS='-fPIC'
+    ./configure --prefix=<some location>
+    make install
+    
+remember to specify ```<some location>``` to ```-DCMAKE_PREFIX_PATH``` afterwards

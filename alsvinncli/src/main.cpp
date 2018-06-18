@@ -36,9 +36,8 @@
 #ifdef ALSVINN_HAVE_CUDA
     #include <cuda.h>
     #include <cuda_runtime.h>
-    #include "alsutils/mpi/set_cuda_device.hpp"
 #endif
-
+#include "alsutils/mpi/set_cuda_device.hpp"
 
 int main(int argc, char** argv) {
     setenv("MPICH_RDMA_ENABLED_CUDA", "1", 1);
