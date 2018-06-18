@@ -14,6 +14,7 @@
  */
 
 #include "alsuq/config/Setup.hpp"
+#include "alsuq/run/FiniteVolumeSimulatorCreator.hpp"
 #include "alsuq/generator/GeneratorFactory.hpp"
 #include "alsuq/distribution/DistributionFactory.hpp"
 #include "alsuq/mpi/SimpleLoadBalancer.hpp"
@@ -75,11 +76,13 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string& inputFilename,
     auto spatialConfiguration = std::get<2>(loadBalanceConfiguration);
 
 
-    auto simulatorCreator = std::make_shared<run::SimulatorCreator>(inputFilename,
-            spatialConfiguration,
-            statisticalConfiguration,
-            mpiConfigurationWorld,
-            multiSpatial);
+    auto simulatorCreator = std::dynamic_pointer_cast<run::SimulatorCreator>
+        (std::make_shared<run::FiniteVolumeSimulatorCreator>
+            (inputFilename,
+                spatialConfiguration,
+                statisticalConfiguration,
+                mpiConfigurationWorld,
+                multiSpatial));
 
     auto name = boost::algorithm::trim_copy(
             configuration.get<std::string>("fvm.name"));

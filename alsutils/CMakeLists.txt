@@ -15,6 +15,7 @@ set_source_groups( "Header Files" "${CMAKE_CURRENT_SOURCE_DIR}/include/alsutils"
 # doesn't
 # understand it.
 add_library(alsutils_include INTERFACE)
+add_library(alsvinn::alsutils_include ALIAS alsutils_include)
 target_include_directories(alsutils_include INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
@@ -24,12 +25,30 @@ target_include_directories(alsutils_include INTERFACE
   ${CMAKE_CURRENT_BINARY_DIR}/config.cpp ESCAPE_QUOTES)
 
 add_library( alsutils SHARED ${SRC} ${HEADERS}  ${CMAKE_CURRENT_BINARY_DIR}/config.cpp)
+add_library(alsvinn::alsutils ALIAS alsutils)
 target_link_libraries(alsutils PUBLIC Boost::log MPI::MPI_C ${CUDA_LIBRARIES})
 target_include_directories(alsutils PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
       ${CUDA_INCLUDE_DIRS}
     $<INSTALL_INTERFACE:include>)
+
+install(TARGETS alsutils_include
+    EXPORT alsvinn-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT alsutils)
+
+install(TARGETS alsutils
+    EXPORT alsvinn-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT alsutils)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        COMPONENT alsutils)
+
+
 
 # Dump all variables to the header file
 SET(ALL_CONFIGURATIONS "")
