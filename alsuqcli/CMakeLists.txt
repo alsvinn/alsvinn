@@ -9,3 +9,10 @@ ADD_EXECUTABLE(alsuqcli ${SRC} ${EXAMPLES})
 
 
 TARGET_LINK_LIBRARIES(alsuqcli alsuq Boost::program_options ${OpenMP_CXX_LIB_NAMES})
+
+INSTALL(TARGETS
+    alsuqcli
+    EXPORT alsvinn-targets
+    RUNTIME
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT alsuqcli)

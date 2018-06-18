@@ -21,3 +21,11 @@ TARGET_LINK_LIBRARIES(alsvinncli alsfvm
   ${OpenMP_CXX_LIB_NAMES}
   Boost::program_options
   )
+
+
+INSTALL(TARGETS
+    alsvinncli
+    EXPORT alsvinn-targets
+    RUNTIME
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT alsvinncli)

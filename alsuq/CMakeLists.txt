@@ -32,7 +32,9 @@ ELSE()
 	ADD_LIBRARY(alsuq_cuda INTERFACE)
 ENDIF()
 
+add_library(alsvinn::alsuq_cuda ALIAS alsuq_cuda)
 ADD_LIBRARY( alsuq SHARED ${SRC} ${HEADERS})
+add_library(alsvinn::alsuq ALIAS alsuq)
 
 target_include_directories(alsuq PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -49,3 +51,19 @@ TARGET_LINK_LIBRARIES(alsuq
   netcdf::NetCDF4_c
   netcdf::parallel_NetCDF4_c
   ${CUDA_LIBRARIES})
+
+
+install(TARGETS alsuq_cuda
+    EXPORT alsvinn-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT alsuq)
+
+install(TARGETS alsuq
+    EXPORT alsvinn-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT alsuq)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        COMPONENT alsuq)
