@@ -117,6 +117,9 @@ int main(int argc, char** argv) {
 		      timestepInformation);
   }
 
+  statistics->combineStatistics();
+  statistics->finalizeStatistics();
+
   statistics->writeStatistics(grid);
 
   
