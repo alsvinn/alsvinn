@@ -51,7 +51,7 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
   for (int z = 0; z < nz; ++z) {
     for (int y = 0; y < ny; ++y) {
       for (int x = 0; x < nx; ++x) {
-	conservedVolume->getScalarMemoryArea("u")->getView().at(x, y, z) = distribution(generator);
+	(*conservedVolume)["u"](x, y, z) = distribution(generator);
       }
     }
   }
