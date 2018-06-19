@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -116,7 +116,7 @@ public:
     getScalarMemoryArea(const std::string& name) const;
 
     ///
-    /// \brief getScalarMemoryArea gets the scalar memory area (real)
+    /// \brief  gets the scalar memory area (real)
     /// \param index the index of the variable
     /// \return the MemoryArea for the given name
     /// \note Equivalent to calling
@@ -125,8 +125,11 @@ public:
     virtual alsfvm::shared_ptr<const memory::Memory<real> >
     operator[](size_t index) const;
 
+
+
+
     ///
-    /// \brief getScalarMemoryArea gets the scalar memory area (real)
+    /// \brief  gets the scalar memory area (real)
     /// \param index the index of the variable
     /// \return the MemoryArea for the given name
     /// \note Equivalent to calling
@@ -134,6 +137,30 @@ public:
     ///
     virtual alsfvm::shared_ptr<memory::Memory<real> >
     operator[](size_t index);
+
+
+    ///
+    /// \brief  gets the scalar memory area (real)
+    /// \param name the name of the variable
+    /// \return the MemoryArea for the given name
+    /// \note Equivalent to calling
+    ///     getScalarMemoryArea(name)
+    ///
+    virtual const memory::Memory<real>&
+    operator[](const std::string& name) const;
+
+
+
+
+    ///
+    /// \brief  gets the scalar memory area (real)
+    /// \param name the name of the variable
+    /// \return the MemoryArea for the given name
+    /// \note Equivalent to calling
+    ///     getScalarMemoryArea(name)
+    ///
+    virtual memory::Memory<real>&
+    operator[](const std::string& name);
 
 
 
