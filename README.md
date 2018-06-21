@@ -166,3 +166,6 @@ On Fedora and Ubuntu, you have to compile parallel-netcdf yourself. You can [dow
     make install
 
 remember to specify ```<some location>``` to ```-DCMAKE_PREFIX_PATH``` afterwards
+
+# Using alsvinn as a library
+While it is not recommend, there are [guides available on how to run alsvinn as a standalone library](library_examples/README.md).
