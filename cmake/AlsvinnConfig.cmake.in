@@ -1,0 +1,25 @@
+get_filename_component(alsvinn_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+list(APPEND CMAKE_MODULE_PATH ${alsvinn_CMAKE_DIR})
+include(CMakeFindDependencyMacro)
+find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python numpy)
+find_package(PythonLibs REQUIRED)
+if ("@ALSVINN_USE_MPI@" STREQUAL "ON")
+    find_package(MPI REQUIRED)
+    include("${alsvinn_CMAKE_DIR}/mpi.cmake")
+endif()
+if("@ALSVINN_USE_CUDA@" STREQUAL "ON")
+    include("${alsvinn_CMAKE_DIR}/cub.cmake")
+endif()
+
+include("${alsvinn_CMAKE_DIR}/hdf5.cmake")
+
+include("${alsvinn_CMAKE_DIR}/netcdf.cmake")
+include("${alsvinn_CMAKE_DIR}/python.cmake")
+
+
+if(NOT TARGET alsvinn::alsutils)
+    include("${alsvinn_CMAKE_DIR}/AlsvinnTargets.cmake")
+endif()
+
+set(alsvinn_LIBRARIES alsvinn::alsutils alsvinn::alsfvm_cuda alsvinn::alsfvm alsvinn::alsuq_cuda alsvinn::alsuq)
+list(REMOVE_AT CMAKE_MODULE_PATH -1)

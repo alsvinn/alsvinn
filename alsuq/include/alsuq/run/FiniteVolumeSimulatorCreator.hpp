@@ -15,7 +15,7 @@
 
 #pragma once
 #include "alsfvm/simulator/Simulator.hpp"
-#include "alsfvm/simulator/AbstractSimulator.hpp"
+#include "alsuq/run/SimulatorCreator.hpp"
 #include "alsfvm/init/Parameters.hpp"
 #include "alsuq/mpi/Configuration.hpp"
 #include <mpi.h>
@@ -24,14 +24,36 @@
 namespace alsuq {
 namespace run {
 //!
-//! \brief The SimulatorCreator is an abstract interface for creating new simulators
+//! \brief The FiniteVolumeSimulatorCreator class creates a new instance of the FVM simulator
 //!
-class SimulatorCreator {
+class FiniteVolumeSimulatorCreator : public SimulatorCreator {
 public:
+    FiniteVolumeSimulatorCreator(const std::string& configurationFile,
+        mpi::ConfigurationPtr mpiConfigurationSpatial,
+        mpi::ConfigurationPtr mpiConfigurationStatistical,
+        mpi::ConfigurationPtr mpiConfigurationWorld,
+        ivec3 multiSpatial
+    );
 
-    virtual alsfvm::shared_ptr<alsfvm::simulator::AbstractSimulator>
+    alsfvm::shared_ptr<alsfvm::simulator::AbstractSimulator>
     createSimulator(const alsfvm::init::Parameters& initialDataParameters,
-        size_t sampleNumber) = 0;
+        size_t sampleNumber) override;
+
+private:
+    mpi::ConfigurationPtr mpiConfigurationSpatial;
+    mpi::ConfigurationPtr mpiConfigurationStatistical;
+    mpi::ConfigurationPtr mpiConfigurationWorld;
+
+    ivec3 multiSpatial;
+
+    //! Gathers all the current samples from all current mpi procs
+    //! and creates a list of names of the samples now being computed
+    std::vector<std::string> makeGroupNames(size_t sampleNumber);
+
+    bool firstCall{true};
+    const std::string filename;
+
+
 
 };
 } // namespace run

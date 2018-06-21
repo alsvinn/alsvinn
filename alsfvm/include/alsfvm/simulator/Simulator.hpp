@@ -3,17 +3,18 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
+#include "alsfvm/simulator/AbstractSimulator.hpp"
 #include "alsfvm/io/Writer.hpp"
 #include "alsfvm/integrator/IntegratorFactory.hpp"
 #include "alsfvm/volume/VolumeFactory.hpp"
@@ -50,7 +51,7 @@ namespace simulator {
 /// \endcode
 
 ///
-class Simulator {
+class Simulator : public AbstractSimulator {
 public:
     ///
     /// \brief Simulator
@@ -90,36 +91,47 @@ public:
     ///
     /// \return true if the simulation is finished, false otherwise.
     ///
-    bool atEnd();
+    bool atEnd() override;
 
     ///
     /// Performs one timestep
     ///
-    void performStep();
+    void performStep() override;
 
     ///
     /// Calls the writers.
     ///
-    void callWriters();
+    void callWriters() override;
 
     ///
     /// \brief addWriter adds a writer, this will be called every time callWriter is called
     /// \param writer
     ///
-    void addWriter(alsfvm::shared_ptr<io::Writer> writer);
+    void addWriter(alsfvm::shared_ptr<io::Writer> writer) override;
 
+    //! Adds a timestep adjuster.
+    //!
+    //! The timestep adjuster is run as
+    //! \code{.cpp}
+    //! real newTimestep = someInitialValueFromCFL;
+    //! for (auto adjuster : timestepAdjusters) {
+    //!      newTimestep = adjuster(newTimestep);
+    //! }
+    //! \endcode
+    //!
+    //! the timestep adjuster is used to save at specific times.
     void addTimestepAdjuster(alsfvm::shared_ptr<integrator::TimestepAdjuster>&
-        adjuster);
+        adjuster) override;
 
     ///
     /// \return the current simulation time.
     ///
-    real getCurrentTime() const;
+    real getCurrentTime() const override;
 
     ///
     /// \return the end time of the simulation.
     ///
-    real getEndTime() const;
+    real getEndTime() const override;
 
     ///
     /// Updates the simulation state.
@@ -137,10 +149,10 @@ public:
 
     void setInitialValue(alsfvm::shared_ptr<init::InitialData>& initialData);
 
-    const std::shared_ptr<grid::Grid>& getGrid() const;
-    std::shared_ptr<grid::Grid>& getGrid();
+    const std::shared_ptr<grid::Grid>& getGrid() const override;
+    std::shared_ptr<grid::Grid>& getGrid() override;
 
-    void finalize();
+    void finalize() override;
 
 #ifdef ALSVINN_USE_MPI
     void setCellExchanger(mpi::CellExchangerPtr value);

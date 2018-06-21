@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.1.0)
-
+project (alsvinn VERSION 0.1.2 LANGUAGES C CXX )
 SET(ALSVINN_USE_FLOAT OFF CACHE BOOL "Do all computations with 32 bits
 floating point numbers, instead of 64 bit double precision")
 SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
@@ -25,12 +25,8 @@ ELSE()
 	ENDMACRO()
 ENDIF()
 if(${ALSVINN_USE_CUDA})
-	project (alsvinn C CXX CUDA)
-
-	# We still need the libraries IMPORTED
+        enable_language(CUDA)
 	find_package(CUDA REQUIRED)
-else()
-	project (alsvinn C CXX)
 endif()
 INCLUDE("cmake/version.cmake")      
 ADD_DEFINITIONS(-DCOMPILING_ALSVINN)
@@ -66,6 +62,8 @@ FIND_PACKAGE(OpenMP REQUIRED)
 
 add_compile_options($<$<COMPILE_LANGUAGE:CXX>:${OpenMP_CXX_FLAGS}>)
 
+
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-undefined-var-template>)
     add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-gnu-zero-variadic-macro-arguments>)
@@ -75,13 +73,6 @@ if (NOT WIN32)
 	add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wall>)
 	add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-comment>)
         add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wpedantic>)
-
-else()
-	# This is apparently needed for Visual Studio 2013, could be
-	# fixed on 2015, but cuda doesn't work there...
-	ADD_DEFINITIONS(-DBOOST_NO_CXX11_ALLOCATOR)
-
-	ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
 endif()
 
 # Python dependency could be made optional eventually, but for now it's
@@ -100,6 +91,8 @@ endif()
 IF(WIN32)
 	add_definitions(-DBOOST_ALL_NO_LIB=1)
 endif()
+
+
 
 find_package (Threads)
 include("cmake/hdf5.cmake")
@@ -130,6 +123,9 @@ if(ALSVINN_USE_MPI)
     include("cmake/mpi.cmake")
 endif()
 
+include(GNUInstallDirs)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/alsvinn)
+
 
 add_subdirectory("alsutils")
 
@@ -155,3 +151,70 @@ if(ALSVINN_BUILD_DOXYGEN)
 	add_subdirectory("doxygen")
 endif()
 add_subdirectory("python")
+
+
+install(EXPORT alsvinn-targets
+  FILE
+    AlsvinnTargets.cmake
+  NAMESPACE
+    alsvinn::
+  DESTINATION
+    ${INSTALL_CONFIGDIR}
+)
+
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/AlsvinnConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/AlsvinnConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/AlsvinnConfig.cmake
+    INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+
+install(FILES
+    ${CMAKE_CURRENT_LIST_DIR}/cmake/netcdf.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/cmake/hdf5.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/cmake/mpi.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/cmake/python.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/cmake/cub.cmake
+    ${CMAKE_CURRENT_LIST_DIR}/cmake/Modules/FindNetCDF.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/AlsvinnConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/AlsvinnConfigVersion.cmake
+    DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+
+export(EXPORT alsvinn-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/AlsvinnTargets.cmake NAMESPACE alsvinn::)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/netcdf.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/netcdf.cmake
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/hdf5.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/hdf5.cmake
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/python.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/python.cmake
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/cub.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cub.cmake
+    COPYONLY)
+
+
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/Modules/FindNetCDF.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/FindNetCDF.cmake
+    COPYONLY)
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/mpi.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/mpi.cmake
+    COPYONLY)
+
+
+export(PACKAGE alsvinn)
