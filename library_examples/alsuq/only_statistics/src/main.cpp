@@ -1,14 +1,21 @@
+/** [headers]*/
+// STL headers (not needed from Alsvinn, just this example)
 #include <iostream>
+#include <random>
+
+// Alsvinn headers
 #include <alsfvm/io/WriterFactory.hpp>
 #include <alsuq/stats/StatisticsFactory.hpp>
 #include <alsfvm/volume/make_volume.hpp>
 #include <alsfvm/volume/VolumePair.hpp>
-#include <random>
+/** [headers]*/
 
+/** [simulator_info]*/
 // It is probably a good idea to add version information to the file
 #define SIMULATOR_NAME "Alsuq standalone example"
 #define SIMULATOR_VERSION "0.0.1"
 #define RAW_DATA_GENERATED_BY "SomeOtherCFDCode <version>"
+/** [simulator_info]*/
 
 void addWriters(alsuq::stats::StatisticsFactory::StatisticsPointer
     statisticsPointer,
@@ -37,24 +44,32 @@ void addWriters(alsuq::stats::StatisticsFactory::StatisticsPointer
 }
 
 
-
+/** [makeStructureFunction]*/
 alsuq::stats::StatisticsFactory::StatisticsPointer makeStructureFunction(
     double p, int numberOfH, int numberOfSamples, const std::string& platform,
     const alsuq::mpi::ConfigurationPtr mpiConfiguration) {
+/** [makeStructureFunction]*/
+/** [factoryInstance]*/
     alsuq::stats::StatisticsFactory statisticsFactory;
+/** [factoryInstance]*/
 
+/** [parameters]*/
     boost::property_tree::ptree properties;
     properties.put("p", 2);
     properties.put("numberOfH", 32);
     alsuq::stats::StatisticsParameters parameters(properties);
     parameters.setNumberOfSamples(numberOfSamples);
     parameters.setMpiConfiguration(mpiConfiguration);
+/** [parameters]*/
 
+/** [createStatistics]*/
     auto statistics = statisticsFactory.makeStatistics(platform, "structure_cube",
             parameters);
 
     return statistics;
+/** [createStatistics]*/
 }
+
 
 alsfvm::volume::VolumePair getSample(const std::string& platform,
     const std::string& equation,
