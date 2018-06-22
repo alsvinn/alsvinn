@@ -59,6 +59,8 @@ private:
     void copyToDatasets( const volume::Volume& conservedVariables,
         const volume::Volume& extraVariables);
 
+    boost::python::object makeGrid(const grid::Grid& grid);
+
     bool datasetsInitialized = false;
 
 

@@ -3,7 +3,7 @@
   <name>
     kh
   </name>
-  <platform>cpu</platform>
+  <platform>cuda</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
@@ -38,7 +38,7 @@
     <reconstruction>none</reconstruction>
   </diffusion>
   <writer>
-    <type>netcdf</type>
+    <type>python</type>
     <basename>kh</basename>
     <pythonCode>load:plotting.py</pythonCode>
     <pythonClass>PlotKH</pythonClass>
@@ -46,7 +46,7 @@
   </writer>
 </fvm>
 <uq>
-  <samples>4</samples>
+  <samples>1</samples>
   <generator>auto</generator>
   <parameters>
     <parameter>

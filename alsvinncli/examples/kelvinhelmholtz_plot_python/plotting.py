@@ -12,24 +12,34 @@ class PlotKH(object):
         self.mpi_size = 0
         self.sample = 'sample_0'
         if 'mpi_rank' in parameters:
-            print (parameters['mpi_rank'])
             self.mpi_rank = int(parameters['mpi_rank'])
             self.mpi_size = int(parameters['mpi_size'])
         if 'group_names' in parameters:
             group_names = parameters['group_names'].split()
             self.sample = group_names[int(parameters['group_index'])]
 
-        print("Constructed")
-        
+        self.colormaps = ['PuRd', 'jet', 'rainbow', 'viridis']
+        self.ratio = [16,9]
 
-    def write(self, conserved, extra):
-        print("plotting")
-        plt.pcolormesh(conserved['rho'][:,:,0],vmin=0.9,vmax=2.1)
-        plt.colorbar()
-        plt.savefig('kh_%s_%d_%d.png' % (self.sample, self.mpi_rank, self.ts))
-        plt.close("all")
+    def write(self, conserved, extra, grid):
+        nx = int(grid['local_size'][0])
+        ny = int(grid['local_size'][1])
+
+        nx_tot = int(grid['global_size'][0])
+        ny_tot = int(grid['global_size'][1])
+        rho = reshape(conserved['rho'], (ny, nx))
+        for cmap in self.colormaps:
+
+            f = plt.figure(figsize=(int(self.ratio[0]*float(nx)/nx_tot), int(self.ratio[1]*float(ny)/ny_tot)))
+
+
+            x,y = mgrid[0:1:nx*1j, 0:1:ny*1j]
+            plt.pcolormesh(rho, vmin=0.9,vmax=2.1, cmap=cmap)
+            plt.axis('off')
+            plt.savefig('kh_%s_%s_%d_%d.png' % (cmap, self.sample, self.mpi_rank, self.ts), bbox_inches='tight')
+            plt.close(f)
         self.ts += 1
-        print("Plotted")
+        del rho
 
 
     def finalize(self):

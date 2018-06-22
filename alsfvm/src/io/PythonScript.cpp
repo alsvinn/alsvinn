@@ -70,7 +70,7 @@ void PythonScript::write(const volume::Volume& conservedVariables,
     try {
         copyToDatasets(conservedVariables, extraVariables);
         classInstance.attr("write")(datasetsConserved,
-            datasetsExtra);
+            datasetsExtra, makeGrid(grid));
     } catch (boost::python::error_already_set&) {
         HANDLE_PYTHON_EXCEPTION
     }
@@ -87,7 +87,9 @@ void PythonScript::makeDatasets(const volume::Volume& conservedVariables,
     rawPointersConserved.resize(0);
     rawPointersExtra.resize(0);
     auto size = conservedVariables.getInnerSize();
-    boost::python::tuple shape = boost::python::make_tuple(size.x, size.y, size.z);
+
+    boost::python::tuple shape = boost::python::make_tuple(size.x * size.y *
+            size.z);
     boost::python::tuple stride = boost::python::make_tuple(sizeof(real));
     auto type = boost::python::numpy::dtype::get_builtin<real>();
 
@@ -97,12 +99,15 @@ void PythonScript::makeDatasets(const volume::Volume& conservedVariables,
         auto array = boost::python::numpy::zeros(shape, type);
         rawPointersConserved.push_back((double*)array.get_data());
         datasetsConserved[conservedVariables.getName(var)] = array;
+
+
     }
 
     for (size_t var = 0; var < extraVariables.getNumberOfVariables(); ++var) {
         auto array = boost::python::numpy::zeros(shape, type);
         rawPointersExtra.push_back((double*)array.get_data());
         datasetsExtra[extraVariables.getName(var)] = array;
+
     }
 
     datasetsInitialized = true;
@@ -116,6 +121,7 @@ void PythonScript::copyToDatasets(const volume::Volume& conservedVariables,
     }
 
     const auto size = conservedVariables.getInnerSize();
+
     const auto totalSize = size.x * size.y * size.z;
 
     for (size_t var = 0; var < conservedVariables.getNumberOfVariables(); ++var) {
@@ -130,6 +136,27 @@ void PythonScript::copyToDatasets(const volume::Volume& conservedVariables,
             rawPointersExtra[var], totalSize);
 
     }
+}
+
+boost::python::api::object PythonScript::makeGrid(const grid::Grid& grid) {
+    boost::python::dict gridAsDict;
+    gridAsDict["origin"] = boost::python::make_tuple(grid.getOrigin().x,
+            grid.getOrigin().y, grid.getOrigin().z);
+
+    gridAsDict["top"] = boost::python::make_tuple(grid.getTop().x,
+            grid.getTop().y, grid.getTop().z);
+
+    gridAsDict["global_size"] = boost::python::make_tuple(grid.getGlobalSize().x,
+            grid.getGlobalSize().y, grid.getGlobalSize().z);
+
+    gridAsDict["local_size"] = boost::python::make_tuple(grid.getDimensions().x,
+            grid.getDimensions().y, grid.getDimensions().z);
+    gridAsDict["global_position"] = boost::python::make_tuple(
+            grid.getGlobalPosition().x,
+            grid.getGlobalPosition().y, grid.getGlobalPosition().z);
+
+    return gridAsDict;
+
 }
 
 }
