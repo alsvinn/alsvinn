@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -97,6 +97,7 @@ const std::string& filename) {
     XMLParser::ptree configurationBase;
     parser.parseFile(file, configurationBase);
     auto configuration = configurationBase.get_child("config");
+    loadFiles(configuration);
 
 
     std::set<std::string> supportedNodes = {
@@ -347,7 +348,8 @@ alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(
 
         std::string type = configuration.get<std::string>("fvm.writer.type");
         std::string basename = configuration.get<std::string>("fvm.writer.basename");
-        auto baseWriter = writerFactory->createWriter(type, basename);
+        auto baseWriter = writerFactory->createWriter(type, basename,
+                io::Parameters(fvmNode.get_child("writer")));
         baseWriter->addAttributes("fvm_configuration", configuration);
         ALSVINN_LOG(INFO, "Adding writer " << basename);
         const auto& writerNode = configuration.get_child("fvm.writer");
@@ -473,8 +475,7 @@ void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree&
     }
 }
 
-alsfvm::shared_ptr<diffusion::DiffusionOperator>
-SimulatorSetup::createDiffusion(
+alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion(
     const SimulatorSetup::ptree& configuration,
     const grid::Grid& grid,
     const simulator::SimulatorParameters& simulatorParameters,
@@ -543,7 +544,8 @@ std::vector<io::WriterPointer> SimulatorSetup::createFunctionals(
             const std::string writerBasename =
                 functional.second.get<std::string>("writer.basename");
 
-            auto writer = writerFactory->createWriter(writerType, writerBasename);
+            auto writer = writerFactory->createWriter(writerType, writerBasename,
+                    io::Parameters(functional.second.get_child("writer")));
             functional::Functional::Parameters parameters(functional.second);
 
             auto functionalPointer = functionalFactory.makeFunctional(this->readPlatform(
@@ -604,7 +606,41 @@ mpi::domain::DomainInformationPtr SimulatorSetup::decomposeGrid(
     return cartesianDecomposition.decompose(mpiConfiguration, *grid);
 
 }
+
+
 #endif
+
+void SimulatorSetup::loadFiles(boost::property_tree::ptree& configuration) {
+
+    for (auto& node : configuration) {
+
+        if (node.second.empty()) {
+            std::string data = node.second.data();
+
+            if (data.substr(0, 5) == "load:") {
+                std::string filename = data.substr(5);
+                auto filenameFull = basePath + "/" + filename;
+                std::ifstream file( filenameFull);
+
+
+                if (! file.good()) {
+                    THROW("Could not open file: " << filenameFull);
+                }
+
+                std::string content((std::istreambuf_iterator<char>(file)),
+                    std::istreambuf_iterator<char>());
+
+                node.second.put_value(content);
+
+            }
+        }
+
+        else {
+            loadFiles(node.second);
+        }
+    }
+
+}
 
 }
 }

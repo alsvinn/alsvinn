@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -92,6 +92,13 @@ protected:
     int multiY;
     int multiZ;
 #endif
+
+    //! Loops through all the configuration and looks for the pattern
+    //! load:filename. Whenever this is found, it replaces the value with
+    //! the content of filename or basepath/filename, where basepath is the folder
+    //! the .xml file was located
+    void loadFiles(
+        boost::property_tree::ptree& configuration);
 };
 } // namespace alsfvm
 } // namespace config
