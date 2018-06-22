@@ -43,6 +43,9 @@ public:
 
     void addIntegerParameter(const std::string& name, int i);
     void addStringParameter(const std::string& name, std::string value);
+    void addVectorParameter(const std::string& name,
+        const std::vector<std::string>& values);
+
 
     //! Returns an empty parameter instance, when you don't want to give any parameters.
     static Parameters empty();

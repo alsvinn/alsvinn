@@ -33,7 +33,7 @@ public:
 
     //! This method should be called at the end of the simulation
     virtual void finalize(const grid::Grid& grid,
-        const simulator::TimestepInformation& timestepInformation);
+        const simulator::TimestepInformation& timestepInformation) override;
 
 private:
 

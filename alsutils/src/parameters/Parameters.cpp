@@ -74,6 +74,12 @@ void Parameters::addStringParameter(const std::string& name,
     ptree.put(name, value);
 }
 
+void Parameters::addVectorParameter(const std::string& name,
+    const std::vector<std::string>& values) {
+    auto valuesCopy = values;
+    ptree.put(name, boost::algorithm::join(valuesCopy, " "));
+}
+
 Parameters Parameters::empty() {
     boost::property_tree::ptree ptree;
     return Parameters(ptree);

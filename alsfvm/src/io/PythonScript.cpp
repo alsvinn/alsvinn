@@ -43,22 +43,24 @@ PythonScript::PythonScript(const std::string& basename,
     pythonClass(parameters.getString("pythonClass")),
     pythonInterpreterInstance(python::PythonInterpreter::getInstance()) {
 
+    try {
+        boost::python::object mainModule = boost::python::import("__main__");
+        boost::python::object mainNamespace = mainModule.attr("__dict__");
+
+        boost::python::exec(pythonCode.c_str(), mainNamespace);
+
+        boost::python::dict parametersAsDictionary;
+
+        for (const auto& key : parameters.getKeys()) {
+            parametersAsDictionary[key] = parameters.getString(key);
+        }
 
 
-    boost::python::object mainModule = boost::python::import("__main__");
-    boost::python::object mainNamespace = mainModule.attr("__dict__");
+        classInstance = mainNamespace[pythonClass](parametersAsDictionary);
 
-    std::cout << "blah" << std::endl;
-    boost::python::exec(pythonCode.c_str(), mainNamespace);
-
-    boost::python::dict parametersAsDictionary;
-
-    for (const auto& key : parameters.getKeys()) {
-        parametersAsDictionary[key] = parameters.getString(key);
+    } catch (boost::python::error_already_set&) {
+        HANDLE_PYTHON_EXCEPTION
     }
-
-    std::cout << "Here" << std::endl;
-    classInstance = mainNamespace[pythonClass](parametersAsDictionary);
 }
 
 void PythonScript::write(const volume::Volume& conservedVariables,
@@ -67,21 +69,17 @@ void PythonScript::write(const volume::Volume& conservedVariables,
 
     try {
         copyToDatasets(conservedVariables, extraVariables);
-        std::cout << "initalized" << std::endl;
-        classInstance["write"](classInstance["write"], datasetsConserved,
+        classInstance.attr("write")(datasetsConserved,
             datasetsExtra);
-    } catch (boost::python::error_already_set) {
-
-        if (PyErr_Occurred()) {
-
-        }
+    } catch (boost::python::error_already_set&) {
+        HANDLE_PYTHON_EXCEPTION
     }
 }
 
 void PythonScript::finalize(const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
 
-    classInstance["finalize"]();
+    classInstance.attr("finalize")();
 }
 
 void PythonScript::makeDatasets(const volume::Volume& conservedVariables,
