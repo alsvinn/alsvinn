@@ -1,8 +1,11 @@
 #pragma once
+#include "alsutils/config.hpp"
 #include "alsfvm/io/Writer.hpp"
 #include "alsfvm/io/Parameters.hpp"
 #include "alsfvm/python/PythonInterpreter.hpp"
 #include <boost/python.hpp>
+#include "alsutils/mpi/Configuration.hpp"
+
 namespace alsfvm {
 namespace io {
 
@@ -15,8 +18,12 @@ namespace io {
 //!
 class PythonScript : public io::Writer {
 public:
+
+
     PythonScript(const std::string& basename,
-        const Parameters& parameters
+        const Parameters& parameters,
+        alsutils::mpi::ConfigurationPtr mpiConfigration = nullptr
+
     );
     ///
     /// \brief write writes the data to disk
@@ -62,6 +69,8 @@ private:
     boost::python::object makeGrid(const grid::Grid& grid);
 
     bool datasetsInitialized = false;
+
+    alsutils::mpi::ConfigurationPtr mpiConfiguration;
 
 
 };

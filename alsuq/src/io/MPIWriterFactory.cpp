@@ -37,13 +37,14 @@ alsfvm::shared_ptr<alsfvm::io::Writer> MPIWriterFactory::createWriter(
     const std::string& baseFilename,
     const alsutils::parameters::Parameters& parameters) {
 
-    mpi::Configuration configuration(mpiCommunicator, "cpu");
+    mpi::ConfigurationPtr configuration = std::make_shared<mpi::Configuration>
+        (mpiCommunicator, "cpu");
 
     alsfvm::shared_ptr<alsfvm::io::Writer> writer;
     auto parameterCopy = parameters;
-    parameterCopy.addIntegerParameter("mpi_rank", configuration.getRank());
+    parameterCopy.addIntegerParameter("mpi_rank", configuration->getRank());
     parameterCopy.addIntegerParameter("mpi_size",
-        configuration.getNumberOfProcesses());
+        configuration->getNumberOfProcesses());
     parameterCopy.addVectorParameter("group_names", groupNames);
     parameterCopy.addIntegerParameter("group_index", groupIndex);
 
@@ -57,7 +58,8 @@ alsfvm::shared_ptr<alsfvm::io::Writer> MPIWriterFactory::createWriter(
                 mpiInfo));
 
     } else if (name == "python") {
-        writer.reset(new alsfvm::io::PythonScript(baseFilename, parameterCopy));
+        writer.reset(new alsfvm::io::PythonScript(baseFilename, parameterCopy,
+                configuration));
     } else {
         THROW("Unknown writer " << name);
     }

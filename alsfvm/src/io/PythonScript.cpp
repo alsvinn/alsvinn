@@ -33,15 +33,22 @@
 #include <fstream>
 #include <iostream>
 #include "alsfvm/python/handle_pyerror.hpp"
+#ifdef ALSVINN_USE_MPI
+    #include "alsutils/mpi/safe_call.hpp"
+#endif
 namespace alsfvm {
 namespace io {
 
 PythonScript::PythonScript(const std::string& basename,
-    const Parameters& parameters)
+    const Parameters& parameters, alsutils::mpi::ConfigurationPtr mpiConfiguration)
+
     :
     pythonCode(parameters.getString("pythonCode")),
     pythonClass(parameters.getString("pythonClass")),
-    pythonInterpreterInstance(python::PythonInterpreter::getInstance()) {
+    pythonInterpreterInstance(python::PythonInterpreter::getInstance()),
+    mpiConfiguration(mpiConfiguration)
+
+{
 
     try {
         boost::python::object mainModule = boost::python::import("__main__");
@@ -71,6 +78,18 @@ void PythonScript::write(const volume::Volume& conservedVariables,
         copyToDatasets(conservedVariables, extraVariables);
         classInstance.attr("write")(datasetsConserved,
             datasetsExtra, makeGrid(grid));
+
+
+#ifdef ALSVINN_USE_MPI
+
+        if (mpiConfiguration) {
+            MPI_SAFE_CALL(MPI_Barrier(mpiConfiguration->getCommunicator()));
+        }
+
+#endif
+
+        classInstance.attr("afterMPISync")();
+
     } catch (boost::python::error_already_set&) {
         HANDLE_PYTHON_EXCEPTION
     }

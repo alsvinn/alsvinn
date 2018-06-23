@@ -41,7 +41,7 @@ alsfvm::shared_ptr<Writer> MpiWriterFactory::createWriter(
                 configuration->getCommunicator(),
                 configuration->getInfo()));
     } else if (name == "python") {
-        writer.reset(new PythonScript(baseFilename, parameters));
+        writer.reset(new PythonScript(baseFilename, parameters, configuration));
     } else {
         THROW("Unknown writer " << name << std::endl << "Does not have MPI support.");
     }
