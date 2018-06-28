@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -335,8 +335,19 @@ alsfvm::shared_ptr<const memory::Memory<real> > Volume::operator[](
     return this->getScalarMemoryArea(index);
 }
 
-alsfvm::shared_ptr<memory::Memory<real> > Volume::operator[](size_t index) {
+alsfvm::shared_ptr<memory::Memory<real> > Volume::operator[](
+    size_t index) {
     return getScalarMemoryArea(index);
+}
+
+const memory::Memory<real>& Volume::operator[](
+    const std::string& name) const {
+    return *getScalarMemoryArea(name);
+}
+
+memory::Memory<real>& Volume::operator[](
+    const std::string& name) {
+    return *getScalarMemoryArea(name);
 }
 
 //! Adds the volumes with coefficients to this volume

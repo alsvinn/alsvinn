@@ -1,8 +1,8 @@
 ![Alsvinn](https://github.com/kjetil-lye/alsvinn/raw/master/documentation/images/kh.png "Kelvin-Helmholtz simulation")
-# Alsvinn
+# Alsvinn {#mainpage}
 
-Alsvinn is a toolset consisting of a finite volume simulator (FVM) and modules for uncertaintity quantifications (UQ). 
-All the major operations can be computed on either a multi-core CPU or an NVIDIA GPU (through CUDA). 
+Alsvinn is a toolset consisting of a finite volume simulator (FVM) and modules for uncertaintity quantifications (UQ).
+All the major operations can be computed on either a multi-core CPU or an NVIDIA GPU (through CUDA).
 It also supports cluster configurations consisting of either CPUs or GPUs. It exhibits excellent scaling.
 
 ## Supported equations
@@ -11,7 +11,7 @@ It also supports cluster configurations consisting of either CPUs or GPUs. It ex
   * The scalar Burgers' Equation
   * A scalar cubic conservation law
   * Buckley-Leverett
-  
+
 It is also possible to add new equations without issue (tutorial coming soon).
 
 ## Initial data
@@ -37,7 +37,7 @@ While it's easy to implement new configurations, we already have a wide variety 
    * Cloudshock interaction
    * Shockvortex
    * Fractional Brownian motion
-   
+
 
 
 ## Requirements
@@ -51,7 +51,7 @@ While it's easy to implement new configurations, we already have a wide variety 
   * [parallel-netcdf](https://trac.mcs.anl.gov/projects/parallel-netcdf) *NOTE*: This is *not* the same as building netcdf with parallel support
   * [doxygen](http://www.stack.nl/~dimitri/doxygen/) (optional)
   * [NVIDIA CUDA](https://developer.nvidia.com/cuda-zone) (optional)
-  
+
 see [Installing necessary software](#installing-necessary-software) for more information.
 
 ## Cloning
@@ -59,8 +59,8 @@ see [Installing necessary software](#installing-necessary-software) for more inf
 This project uses a git submodule, the easiest way to clone the repository is by
 
     git clone --recursive https://github.com/alsvinn/alsvinn.git
-   
-    
+
+
 ## Compiling
 
 Should be as easy as running (for advanced cmake-users: the location of the build folder can be arbitrary)
@@ -74,7 +74,7 @@ note that you should probably run it with ```-DCMAKE_BUILD_TYPE=Release```, ie
     mkdir build
     cd build
     cmake .. -DCMAKE_BUILD_TYPE=Release
-    
+
 ### Compiling with CUDA
 
 If you do not have a CUDA device on your computer, or if you do not have CUDA installed, you should run CMAKE with the ```-DALSVINN_USE_CUDA=OFF``` option.
@@ -95,9 +95,9 @@ The basic input of alsvinn are ```.xml```-files specifying the different options
 You make a deterministic run by running the ```alsvinncli``` utility. From the build folder, run
 
     ./alsvinncli/alsvinncli <path to xml file>
- 
+
  it has some options for mpi parallelization (for all options run ```alsvinncli/alsvinncli --help```). To run with MPI support, run eg
- 
+
      mpirun -np <number of processes> ./alsvinncli/alsvinncli --multi-x <number of procs in x direction> path-to-xml.xml
 
 ### UQ run
@@ -105,9 +105,9 @@ You make a deterministic run by running the ```alsvinncli``` utility. From the b
 You make a UQ run by running the ```alsuqcli``` utility. From the build folder, run
 
     ./alsuqcli/alsuqcli <path to xml file>
- 
+
  it has some options for mpi parallelization (for all options run ```alsuqcli/alsuqcli --help```). To run with MPI support, run eg
- 
+
      mpirun -np <number of processes> ./alsuqcli/alsuqcli --multi-sample <number of procs in sample direction> path-to-xml.xml
 
 ## Output files
@@ -134,17 +134,17 @@ After you have installed GCC-6 on your distribution, you can set the C/C++ compi
 
 ## Notes on Windows
 
-You will need to download ghostcript in order for doxygen to work. Download from 
+You will need to download ghostcript in order for doxygen to work. Download from
 
      https://code.google.com/p/ghostscript/downloads/detail?name=gs910w32.exe&can=2&q=
 
 Sometimes cmake finds libhdf5 as the dll and not the lib-file. Check that the HDF5_C_LIBRARY is set to hdf5.lib in cmake
 
-gtest should be built with "-Dgtest_force_shared_crt=ON" via cmake. This will ensure that there is no library compability issues. 
+gtest should be built with "-Dgtest_force_shared_crt=ON" via cmake. This will ensure that there is no library compability issues.
 
-You will also want to compile a Debug AND Release version of Gtest, and set each library manually in Cmake. 
+You will also want to compile a Debug AND Release version of Gtest, and set each library manually in Cmake.
 
-If you have installed Anaconda AND HDF5, make sure the right HDF5 version is picked (it is irrelevant which one you pick, 
+If you have installed Anaconda AND HDF5, make sure the right HDF5 version is picked (it is irrelevant which one you pick,
 but the two can intertwine in one or several of: include directories, libraries and Path (for dll).)
 
 
@@ -164,5 +164,8 @@ On Fedora and Ubuntu, you have to compile parallel-netcdf yourself. You can [dow
     export CFLAGS='-fPIC'
     ./configure --prefix=<some location>
     make install
-    
+
 remember to specify ```<some location>``` to ```-DCMAKE_PREFIX_PATH``` afterwards
+
+# Using alsvinn as a library
+While it is not recommend, there are [guides available on how to run alsvinn as a standalone library](library_examples/README.md).

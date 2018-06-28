@@ -41,6 +41,8 @@ ELSE()
   add_library(alsfvm_cuda INTERFACE)
 ENDIF()
 
+add_library(alsvinn::alsfvm_cuda ALIAS alsfvm_cuda)
+
 # This is a dummy target in a way, but the problem is that the current cmake
 # version messes up the cuda flags if we link with alsfvm
 # basically, some library exports the -pthreads C flag onto nvcc, and it doesn't
@@ -50,7 +52,10 @@ target_include_directories(alsfvm_include INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_library(alsvinn::alsfvm_include ALIAS alsfvm_include)
+
 add_library( alsfvm SHARED ${SRC} ${HEADERS} )
+add_library(alsvinn::alsfvm ALIAS alsfvm)
 
 target_include_directories(alsfvm PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -70,3 +75,24 @@ target_link_libraries(alsfvm
   ${OpenMP_CXX_LIB_NAMES}
   netcdf::NetCDF4_c
   netcdf::parallel_NetCDF4_c)
+
+install(TARGETS alsfvm_cuda
+    EXPORT alsvinn-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT alsfvm)
+
+install(TARGETS alsfvm_include
+    EXPORT alsvinn-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT alsfvm)
+
+install(TARGETS alsfvm
+    EXPORT alsvinn-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT alsfvm)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        COMPONENT alsfvm)

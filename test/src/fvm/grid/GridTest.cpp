@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -60,6 +60,34 @@ TEST(GridTest, MidPointTest2D) {
 
             ASSERT_NEAR(midpointX, midPoints[index].x, 1e-8);
             ASSERT_NEAR(midpointY, midPoints[index].y, 1e-8);
+        }
+    }
+}
+
+
+TEST(GridTest, MidPointTest3D) {
+    rvec3 origin(0, 0, 0);
+    rvec3 top(1, 1, 1);
+
+    const int N = 30;
+    ivec3 dimensions(N, N, N);
+
+    grid::Grid grid(origin, top, dimensions);
+    auto midPoints = grid.getCellMidpoints();
+
+    for (size_t z = 0; z < N; z++) {
+        for (size_t y = 0; y < N; y++) {
+            for (size_t x = 0; x < N; x++) {
+                real midpointX = 0 + 1.0 / N * x + 0.5 / N;
+                real midpointY = 0 + 1.0 / N * y + 0.5 / N;
+                real midpointZ = 0 + 1.0 / N * z + 0.5 / N;
+
+                const size_t index = z * N * N + y * N  + x;
+
+                ASSERT_NEAR(midpointX, midPoints[index].x, 1e-8);
+                ASSERT_NEAR(midpointY, midPoints[index].y, 1e-8);
+                ASSERT_NEAR(midpointZ, midPoints[index].z, 1e-8);
+            }
         }
     }
 }

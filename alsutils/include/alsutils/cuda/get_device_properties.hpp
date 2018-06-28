@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -18,6 +18,7 @@
     #include <cuda_runtime.h>
 #endif
 #include <boost/property_tree/ptree.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include "alsutils/cuda/cuda_safe_call.hpp"
 namespace alsutils {
 namespace cuda {
@@ -39,7 +40,44 @@ inline boost::property_tree::ptree getDeviceProperties() {
 
         propertiesTree.add("name", properties.name);
         propertiesTree.add("totalGlobalMem", properties.totalGlobalMem);
+        propertiesTree.add("sharedMemPerBlock", properties.sharedMemPerBlock);
         propertiesTree.add("regsPerBlock", properties.regsPerBlock);
+        propertiesTree.add("warpSize", properties.warpSize);
+        propertiesTree.add("memPitch", properties.memPitch);
+        propertiesTree.add("maxThreadsPerBlock", properties.maxThreadsPerBlock);
+        propertiesTree.add("maxThreadsDim",
+            boost::algorithm::join(
+                std::vector<std::string>({std::to_string(properties.maxThreadsDim[0]),
+                        std::to_string(properties.maxThreadsDim[1]),
+                        std::to_string(properties.maxThreadsDim[2])}),
+                ", "));
+        propertiesTree.add("maxGridSize",
+            boost::algorithm::join(
+                std::vector<std::string>({std::to_string(properties.maxGridSize[0]),
+                        std::to_string(properties.maxGridSize[1]),
+                        std::to_string(properties.maxGridSize[2])}),
+                ", "));
+        propertiesTree.add("totalConstMem", properties.totalConstMem);
+        propertiesTree.add("major", properties.major);
+        propertiesTree.add("minor", properties.minor);
+        propertiesTree.add("clockRate", properties.clockRate);
+        propertiesTree.add("textureAlignment", properties.textureAlignment);
+        propertiesTree.add("deviceOverlap", properties.deviceOverlap);
+        propertiesTree.add("multiProcessorCount", properties.multiProcessorCount);
+        propertiesTree.add("kernelExecTimeoutEnabled",
+            properties.kernelExecTimeoutEnabled);
+        propertiesTree.add("integrated", properties.integrated);
+        propertiesTree.add("canMapHostMemory", properties.canMapHostMemory);
+        propertiesTree.add("computeMode", properties.computeMode);
+        propertiesTree.add("concurrentKernels", properties.concurrentKernels);
+        propertiesTree.add("ECCEnabled", properties.ECCEnabled);
+        propertiesTree.add("pciBusID", properties.pciBusID);
+        propertiesTree.add("pciDeviceID", properties.pciDeviceID);
+        propertiesTree.add("tccDriver", properties.tccDriver);
+
+
+
+
     } catch (std::runtime_error& e) {
         ALSVINN_LOG(WARNING,
             "(Ignore this if you are not running with CUDA). Failed getting CUDA GPU properties: "
