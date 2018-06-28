@@ -1,5 +1,5 @@
 ![Alsvinn](https://github.com/kjetil-lye/alsvinn/raw/master/documentation/images/kh.png "Kelvin-Helmholtz simulation")
-# Alsvinn {#mainpage}
+# Alsvinn
 
 Alsvinn is a toolset consisting of a finite volume simulator (FVM) and modules for uncertaintity quantifications (UQ).
 All the major operations can be computed on either a multi-core CPU or an NVIDIA GPU (through CUDA).
