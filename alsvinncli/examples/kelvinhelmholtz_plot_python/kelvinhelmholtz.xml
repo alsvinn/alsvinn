@@ -38,13 +38,15 @@
     <reconstruction>none</reconstruction>
   </diffusion>
   <writer>
-    <type>netcdf</type>
+    <type>python</type>
     <basename>kh</basename>
+    <pythonCode>load:plotting.py</pythonCode>
+    <pythonClass>PlotKH</pythonClass>
     <numberOfSaves>10</numberOfSaves>
   </writer>
 </fvm>
 <uq>
-  <samples>4</samples>
+  <samples>1</samples>
   <generator>auto</generator>
   <parameters>
     <parameter>

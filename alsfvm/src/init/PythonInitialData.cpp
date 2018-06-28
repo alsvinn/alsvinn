@@ -30,6 +30,7 @@
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsfvm/python/PythonInterpreter.hpp"
 #include "alsutils/log.hpp"
+#include "alsfvm/python/handle_pyerror.hpp"
 #define L std::cout << __FILE__ << ":" << __LINE__ << std::endl;
 
 #define CHECK_PYTHON \
@@ -70,138 +71,144 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     equation::CellComputer& cellComputer,
     grid::Grid& grid) {
 
-    PythonInterpreter::getInstance();
-    boost::python::object mainModule = boost::python::import("__main__");
-    boost::python::object mainNamespace = mainModule.attr("__dict__");
+    try {
 
-    // Now we declare the wrappers around the function.
-    std::stringstream functionStringStream;
+        PythonInterpreter::getInstance();
+        boost::python::object mainModule = boost::python::import("__main__");
+        boost::python::object mainNamespace = mainModule.attr("__dict__");
 
-    // We need to figure out if we are dealing with a function or just a
-    // snippet
-    bool snippet = true;
+        // Now we declare the wrappers around the function.
+        std::stringstream functionStringStream;
 
-    if (programString.find("init_global") != std::string::npos) {
+        // We need to figure out if we are dealing with a function or just a
+        // snippet
+        bool snippet = true;
 
-        snippet = false;
-    }
+        if (programString.find("init_global") != std::string::npos) {
 
-    functionStringStream << "from math import *" << std::endl;
-    functionStringStream << "try:\n    from numpy import *\nexcept:\n    pass" <<
-        std::endl;
-    functionStringStream << "def initial_data(x, y, z, i, j, k, output):\n";
+            snippet = false;
+        }
 
-    // Now we need to add the variables we need to write:
-    for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
-        // We set them to None, that way we can check at the end if they are checked.
-        addIndent(primitiveVolume.getName(i) + " = 0.0", functionStringStream);
-    }
+        functionStringStream << "from math import *" << std::endl;
+        functionStringStream << "try:\n    from numpy import *\nexcept:\n    pass" <<
+            std::endl;
+        functionStringStream << "def initial_data(x, y, z, i, j, k, output):\n";
 
-    // Then we add the parameters
-    for (auto parameterName : parameters.getParameterNames()) {
-        const auto& parameter = parameters.getParameter(parameterName);
+        // Now we need to add the variables we need to write:
+        for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
+            // We set them to None, that way we can check at the end if they are checked.
+            addIndent(primitiveVolume.getName(i) + " = 0.0", functionStringStream);
+        }
 
-        // See http://stackoverflow.com/questions/3001239/define-a-global-in-a-python-module-from-a-c-api
-        // and https://docs.python.org/3/c-api/object.html#PyObject_SetAttrString
-        if (parameter.size() == 1) {
-            mainModule.attr(parameterName.c_str()) = boost::python::object(parameter[0]);
+        // Then we add the parameters
+        for (auto parameterName : parameters.getParameterNames()) {
+            const auto& parameter = parameters.getParameter(parameterName);
 
+            // See http://stackoverflow.com/questions/3001239/define-a-global-in-a-python-module-from-a-c-api
+            // and https://docs.python.org/3/c-api/object.html#PyObject_SetAttrString
+            if (parameter.size() == 1) {
+                mainModule.attr(parameterName.c_str()) = boost::python::object(parameter[0]);
+
+            } else {
+                boost::python::tuple shape = boost::python::make_tuple(parameter.size());
+                boost::python::tuple stride = boost::python::make_tuple(sizeof(real));
+                auto type = boost::python::numpy::dtype::get_builtin<real>();
+                auto array = boost::python::numpy::from_data(parameter.data(),
+                        type, shape, stride,
+                        mainModule);
+                mainModule.attr(parameterName.c_str()) = boost::python::object(array);
+
+            }
+        }
+
+        if (snippet) {
+            addIndent(programString, functionStringStream);
+
+
+            // Add code to store the variables:
+            for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
+                // We set them to None, that way we can check at the end if they are checked.
+                const auto& name = primitiveVolume.getName(i);
+                addIndent(std::string("output['") + name + "'] = " + name,
+                    functionStringStream);
+            }
         } else {
-            boost::python::tuple shape = boost::python::make_tuple(parameter.size());
-            boost::python::tuple stride = boost::python::make_tuple(sizeof(real));
-            auto type = boost::python::numpy::dtype::get_builtin<real>();
-            auto array = boost::python::numpy::from_data(parameter.data(),
-                    type, shape, stride,
-                    mainModule);
-            mainModule.attr(parameterName.c_str()) = boost::python::object(array);
-
+            // Add code to store the variables:
+            for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
+                // We set them to None, that way we can check at the end if they are checked.
+                const auto& name = primitiveVolume.getName(i);
+                addIndent(std::string("output['") + name + "'] = " + name + "_global[i,j,k]",
+                    functionStringStream);
+            }
         }
-    }
 
-    if (snippet) {
-        addIndent(programString, functionStringStream);
+        if (!snippet) {
+            for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
+                // We set them to None, that way we can check at the end if they are checked.
+                const auto& name = primitiveVolume.getName(i);
+                functionStringStream << name << "_global = zeros(("
+                    << grid.getDimensions().x << ", "
+                    << grid.getDimensions().y << ", "
+                    << grid.getDimensions().z << "))"
+                    << std::endl;
+            }
 
+            functionStringStream << programString << std::endl;
 
-        // Add code to store the variables:
-        for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
-            // We set them to None, that way we can check at the end if they are checked.
-            const auto& name = primitiveVolume.getName(i);
-            addIndent(std::string("output['") + name + "'] = " + name,
-                functionStringStream);
-        }
-    } else {
-        // Add code to store the variables:
-        for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
-            // We set them to None, that way we can check at the end if they are checked.
-            const auto& name = primitiveVolume.getName(i);
-            addIndent(std::string("output['") + name + "'] = " + name + "_global[i,j,k]",
-                functionStringStream);
-        }
-    }
+            functionStringStream << "init_global(";
 
-    if (!snippet) {
-        for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
-            // We set them to None, that way we can check at the end if they are checked.
-            const auto& name = primitiveVolume.getName(i);
-            functionStringStream << name << "_global = zeros(("
-                << grid.getDimensions().x << ", "
+            for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
+                // We set them to None, that way we can check at the end if they are checked.
+                const auto& name = primitiveVolume.getName(i);
+                functionStringStream << name << "_global, ";
+            }
+
+            functionStringStream << grid.getDimensions().x << ", "
                 << grid.getDimensions().y << ", "
-                << grid.getDimensions().z << "))"
+                << grid.getDimensions().z << ")"
                 << std::endl;
         }
 
-        functionStringStream << programString << std::endl;
+        //ALSVINN_LOG(INFO, "Python program: \n" << functionStringStream.str());
 
-        functionStringStream << "init_global(";
+        boost::python::exec(functionStringStream.str().c_str(), mainNamespace);
+        ALSVINN_LOG(INFO, "Pythonprogram executed");
 
-        for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
-            // We set them to None, that way we can check at the end if they are checked.
-            const auto& name = primitiveVolume.getName(i);
-            functionStringStream << name << "_global, ";
-        }
+        auto initialValueFunction = mainNamespace["initial_data"];
 
-        functionStringStream << grid.getDimensions().x << ", "
-            << grid.getDimensions().y << ", "
-            << grid.getDimensions().z << ")"
-            << std::endl;
+
+
+        ALSVINN_LOG(INFO, "InitialData grid sizes" << grid.getDimensions());
+
+        // loop through the map and set the initial values
+        volume::for_each_midpoint(primitiveVolume, grid,
+            [&](real x, real y, real z, size_t index,
+        size_t i, size_t j, size_t k) {
+
+
+
+            boost::python::dict outputMap;
+
+            initialValueFunction(x, y, z, i, j, k, outputMap);
+
+            // Loop through each variable and set it in the primitive variables:
+            for (size_t var = 0; var <  primitiveVolume.getNumberOfVariables(); ++var) {
+                const auto& name = primitiveVolume.getName(var);
+
+                const double value = boost::python::extract<double>(outputMap[name]);
+
+                primitiveVolume.getScalarMemoryArea(var)->getPointer()[index] = value;
+            }
+
+        });
+
+        ALSVINN_LOG(INFO, "Done setting initial data");
+        cellComputer.computeFromPrimitive(primitiveVolume, conservedVolume,
+            extraVolume);
+
+    } catch (boost::python::error_already_set&) {
+        HANDLE_PYTHON_EXCEPTION
     }
-
-    //ALSVINN_LOG(INFO, "Python program: \n" << functionStringStream.str());
-
-    boost::python::exec(functionStringStream.str().c_str(), mainNamespace);
-    ALSVINN_LOG(INFO, "Pythonprogram executed");
-
-    auto initialValueFunction = mainNamespace["initial_data"];
-
-
-
-    ALSVINN_LOG(INFO, "InitialData grid sizes" << grid.getDimensions());
-
-    // loop through the map and set the initial values
-    volume::for_each_midpoint(primitiveVolume, grid,
-        [&](real x, real y, real z, size_t index,
-    size_t i, size_t j, size_t k) {
-
-
-
-        boost::python::dict outputMap;
-
-        initialValueFunction(x, y, z, i, j, k, outputMap);
-
-        // Loop through each variable and set it in the primitive variables:
-        for (size_t var = 0; var <  primitiveVolume.getNumberOfVariables(); ++var) {
-            const auto& name = primitiveVolume.getName(var);
-
-            const double value = boost::python::extract<double>(outputMap[name]);
-
-            primitiveVolume.getScalarMemoryArea(var)->getPointer()[index] = value;
-        }
-
-    });
-
-    ALSVINN_LOG(INFO, "Done setting initial data");
-    cellComputer.computeFromPrimitive(primitiveVolume, conservedVolume,
-        extraVolume);
 }
 
 void PythonInitialData::setParameters(const Parameters& parameters) {

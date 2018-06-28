@@ -212,7 +212,8 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(
         for (auto statisticsName : statistics->getStatisticsNames()) {
 
             auto outputname = basename + "_" + statisticsName;
-            auto baseWriter = writerFactory->createWriter(type, outputname);
+            auto baseWriter = writerFactory->createWriter(type, outputname,
+                    alsfvm::io::Parameters(statisticsNode.second.get_child("writer")));
             baseWriter->addAttributes("uqAttributes", configuration);
             statistics->addWriter(statisticsName, baseWriter);
         }

@@ -3,19 +3,20 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
 #include "alsfvm/io/Writer.hpp"
-
+#include "alsfvm/io/Parameters.hpp"
+#include "alsutils/base/Factory.hpp"
 
 namespace alsfvm {
 namespace io {
@@ -25,8 +26,14 @@ namespace io {
 //! mpi writers, and sometimes not.
 class WriterFactory {
 public:
+    typedef alsutils::base::Factory<Writer, const std::string&, const Parameters&>::CreatorType
+    CreatorType;
+
     virtual alsfvm::shared_ptr<Writer> createWriter(const std::string& name,
-        const std::string& baseFilename);
+        const std::string& baseFilename,
+        const Parameters& parameters);
+
+
 };
 } // namespace io
 } // namespace alsfvm

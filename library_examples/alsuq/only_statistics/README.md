@@ -46,5 +46,3 @@ the parameter struct directly
 And lastly, we create and return the statistics.
 \snippet src/main.cpp createStatistics
 
-
-\snippet src/main.cpp
