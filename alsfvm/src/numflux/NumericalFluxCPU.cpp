@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,6 +20,7 @@
 #include "alsfvm/numflux/numflux_util.hpp"
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
+#include "alsutils/timer/Timer.hpp"
 #include <fstream>
 
 #include <iostream>
@@ -35,6 +36,8 @@ void computeNetFlux(const Equation& eq, const volume::Volume& left,
     volume::Volume& temporaryVolume,
     real& waveSpeed, size_t numberOfGhostCells,
     const ivec3 start, const ivec3 end) {
+
+    ALSVINN_TIME_BLOCK(alsvinn, fvm, numflux);
     // We will automate the creation of these pointer arrays soon,
     // for now we keep them to keep things simple.
 
@@ -148,7 +151,7 @@ NumericalFluxCPU<Flux, Equation, dimension>::NumericalFluxCPU(
     alsfvm::shared_ptr<reconstruction::Reconstruction>& reconstruction,
     const alsfvm::shared_ptr<simulator::SimulatorParameters>& simulatorParameters,
     alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration)
-  : volumeFactory(Equation::getName(),
+    : volumeFactory(Equation::getName(),
           alsfvm::make_shared<memory::MemoryFactory>(deviceConfiguration)),
       reconstruction(reconstruction),
       parameters(static_cast<typename Equation::Parameters&>

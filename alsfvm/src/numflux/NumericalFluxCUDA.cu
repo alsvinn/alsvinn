@@ -28,6 +28,7 @@
 #include <cub/util_allocator.cuh>
 #include <cub/device/device_reduce.cuh>
 #include "alsfvm/cuda/CudaMemory.hpp"
+#include "alsutils/timer/Timer.hpp"
 
 namespace alsfvm {
 namespace numflux {
@@ -259,6 +260,7 @@ void NumericalFluxCUDA<Flux, Equation, dimension>::callComputeFlux(const Equatio
     size_t numberOfGhostCells, rvec3& waveSpeeds,
     reconstruction::Reconstruction& reconstruction,  const ivec3& start,
     const ivec3& end) {
+    ALSVINN_TIME_BLOCK(alsvinn, fvm, numflux);
     reconstruction.performReconstruction(conservedVariables, 0, 0, left, right,
         start, end);
     computeFlux<1, 0, 0, 0>(equation, left, right,
