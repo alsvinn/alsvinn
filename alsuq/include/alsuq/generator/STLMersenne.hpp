@@ -21,6 +21,9 @@ namespace alsuq {
 namespace generator {
 
 //! Uses the C++ STL implementation to generate random numbers
+//!
+//! @todo This needs to be fixed for multiple users (ie. when multiple
+//! instances uses this, it will not work properly with the sample fast forwarding)
 class STLMersenne : public Generator {
 public:
     STLMersenne(size_t dimension);
