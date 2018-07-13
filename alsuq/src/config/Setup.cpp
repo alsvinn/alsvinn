@@ -61,6 +61,8 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string& inputFilename,
     auto numberOfSamples = readNumberOfSamples(configuration);
     auto sampleStart = readSampleStart(configuration);
 
+    ALSVINN_LOG(INFO, "sampleStart = " << sampleStart);
+
     std::vector<size_t> samples;
     samples.reserve(numberOfSamples);
 
@@ -257,9 +259,10 @@ size_t Setup::readNumberOfSamples(Setup::ptree& configuration) {
 }
 
 size_t Setup::readSampleStart(Setup::ptree& configuration) {
-    auto uq = configuration.get_child("uq");
+    auto& uq = configuration.get_child("uq");
 
-    if (uq.find("startSample") != uq.not_found()) {
+    if (uq.find("sampleStart") != uq.not_found()) {
+        ALSVINN_LOG(INFO, "sampleStart tag present");
         return uq.get<size_t>("sampleStart");
     }
 
