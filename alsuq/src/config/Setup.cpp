@@ -28,6 +28,7 @@
 #include "alsuq/stats/TimeIntegratedWriter.hpp"
 #include <boost/algorithm/string.hpp>
 #include "alsutils/log.hpp"
+#include "alsutils/timer/Timer.hpp"
 
 namespace alsuq {
 namespace config {
@@ -51,18 +52,20 @@ namespace config {
 std::shared_ptr<run::Runner> Setup::makeRunner(const std::string& inputFilename,
     alsutils::mpi::ConfigurationPtr mpiConfigurationWorld,
     int multiSample, ivec3 multiSpatial) {
+    ALSVINN_TIME_BLOCK(alsvinn, uq, init);
     std::ifstream stream(inputFilename);
     ptree configurationBase;
     boost::property_tree::read_xml(stream, configurationBase);
     auto configuration = configurationBase.get_child("config");
     auto sampleGenerator = makeSampleGenerator(configuration);
     auto numberOfSamples = readNumberOfSamples(configuration);
+    auto sampleStart = readSampleStart(configuration);
 
     std::vector<size_t> samples;
     samples.reserve(numberOfSamples);
 
     for (size_t i = 0; i < numberOfSamples; ++i) {
-        samples.push_back(i);
+        samples.push_back(sampleStart + i);
     }
 
 
@@ -251,6 +254,16 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(
 
 size_t Setup::readNumberOfSamples(Setup::ptree& configuration) {
     return configuration.get<real>("uq.samples");
+}
+
+size_t Setup::readSampleStart(Setup::ptree& configuration) {
+    auto uq = configuration.get_child("uq");
+
+    if (uq.find("startSample") != uq.not_found()) {
+        return uq.get<size_t>("sampleStart");
+    }
+
+    return 0;
 }
 }
 }
