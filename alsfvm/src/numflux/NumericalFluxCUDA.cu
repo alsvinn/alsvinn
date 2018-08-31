@@ -28,6 +28,8 @@
 #include <cub/util_allocator.cuh>
 #include <cub/device/device_reduce.cuh>
 #include "alsfvm/cuda/CudaMemory.hpp"
+#include "alsutils/timer/Timer.hpp"
+#include "alsutils/timer/CudaTimer.hpp"
 
 namespace alsfvm {
 namespace numflux {
@@ -177,10 +179,13 @@ void makeZero(volume::Volume& volume,
     size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
     size_t blockSize = 128;
 
+    {
+    ALSVINN_TIME_CUDA_BLOCK(0, alsvinn, fvm, numflux, cuda, makeZero);
     makeZeroDevice<Equation, dimension>
             << < (totalSize + blockSize - 1) / blockSize, blockSize >> >
                 (equation, viewOut, numberOfXCells, numberOfYCells, numberOfZCells,
                     numberOfGhostCells, start, end);
+    }
 
 }
 
@@ -204,11 +209,13 @@ void combineFlux(const Equation& equation, const volume::Volume& input,
 
     size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
     size_t blockSize = 128;
-
+    {
+    ALSVINN_TIME_CUDA_BLOCK(0, alsvinn, fvm, numflux, cuda, combine);
     combineFluxDevice <Equation, dimension, xDir, yDir, zDir, direction>
             << < (totalSize + blockSize - 1) / blockSize, blockSize >> >
                 (equation, inputView, viewOut, numberOfXCells, numberOfYCells, numberOfZCells,
                     numberOfGhostCells, start, end);
+    }
 
 }
 
@@ -259,6 +266,7 @@ void NumericalFluxCUDA<Flux, Equation, dimension>::callComputeFlux(const Equatio
     size_t numberOfGhostCells, rvec3& waveSpeeds,
     reconstruction::Reconstruction& reconstruction,  const ivec3& start,
     const ivec3& end) {
+
     reconstruction.performReconstruction(conservedVariables, 0, 0, left, right,
         start, end);
     computeFlux<1, 0, 0, 0>(equation, left, right,
@@ -347,22 +355,34 @@ void NumericalFluxCUDA<Flux, Equation, dimension>::computeFlux(const Equation& e
     size_t totalSize = numberOfXCells * numberOfYCells * numberOfZCells;
 
     size_t blockSize = 128;
+    {
+    ALSVINN_TIME_CUDA_BLOCK(0, alsvinn, fvm, numflux, cuda, computeFlux);
     computeFluxDevice <Flux, Equation, dimension, xDir, yDir, zDir, direction>
             << < (totalSize + blockSize - 1) / blockSize, blockSize >> >
                 (equation, viewLeft, viewRight, viewOut, numberOfXCells,
                     numberOfYCells, numberOfZCells,
                     waveSpeedBuffer->getPointer(), numberOfGhostCells, start, end);
+    }
 
 
 
+    {
+
+    ALSVINN_TIME_CUDA_BLOCK(0, alsvinn, fvm, numflux, cuda, reduce);
 
     CUDA_SAFE_CALL(cub::DeviceReduce::Max(temporaryReductionMemory->getPointer(),
                                      temporaryReductionMemoryStorageSizeBytes,
                                      waveSpeedBuffer->getPointer(),
                                      waveSpeedBufferOut->getPointer(),
                                      totalSize));
-    CUDA_SAFE_CALL(cudaMemcpy(&waveSpeed, waveSpeedBufferOut->getPointer(),
+    }
+
+
+    {
+        ALSVINN_TIME_CUDA_BLOCK(0, alsvinn, fvm, numflux, cuda, memcopy);
+        CUDA_SAFE_CALL(cudaMemcpy(&waveSpeed, waveSpeedBufferOut->getPointer(),
                               sizeof(real), cudaMemcpyDeviceToHost));
+    }
 }
 
 template<class Flux, class Equation, size_t dimension>
@@ -371,6 +391,7 @@ void NumericalFluxCUDA<Flux, Equation, dimension>::computeFlux(
     rvec3& waveSpeeds, bool computeWaveSpeeds,
     volume::Volume& output, const ivec3& start,
     const ivec3& end     ) {
+    ALSVINN_TIME_BLOCK(alsvinn, fvm, numflux);
 
     static_assert(dimension > 0, "We only support positive dimension!");
     static_assert(dimension < 4, "We only support dimension up to 3");

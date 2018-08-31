@@ -26,6 +26,7 @@
 #include <omp.h>
 #include "alsutils/log.hpp"
 #include "alsutils/config.hpp"
+#include "alsutils/timer/Timer.hpp"
 #ifdef _WIN32
     #ifndef NDEBUG
         #include <float.h> // enable floating point exceptions on windows.
@@ -40,6 +41,7 @@
 #include "alsutils/mpi/set_cuda_device.hpp"
 
 int main(int argc, char** argv) {
+
     setenv("MPICH_RDMA_ENABLED_CUDA", "1", 1);
     setenv("MV2_USE_CUDA", "1", 1);
 
@@ -190,42 +192,47 @@ int main(int argc, char** argv) {
         setup.enableMPI(MPI_COMM_WORLD, multiX, multiY, multiZ);
 #endif
 
+
         auto simulatorPair = setup.readSetupFromFile(inputfile);
 
         auto simulator = simulatorPair.first;
-        simulator->setInitialValue(simulatorPair.second);
-
-        if (mpiRank == 0) {
-            std::cout << "Running simulator... " << std::endl;
-            std::cout << std::endl;
-            std::cout << std::setprecision(std::numeric_limits<long double>::digits10 + 1);
-        }
-
-        simulator->callWriters();
-
-
-
-        int lastPercentSeen = -1;
         size_t timestepsPerformed = 0;
+        {
+            ALSVINN_TIME_BLOCK(alsvinn);
+            simulator->setInitialValue(simulatorPair.second);
 
-        while (!simulator->atEnd()) {
-
-            simulator->performStep();
-            timestepsPerformed++;
-            int percentDone = std::round(80.0 * simulator->getCurrentTime() /
-                    simulator->getEndTime());
-
-            if (percentDone != lastPercentSeen) {
-                if (mpiRank == 0) {
-                    std::cout << "#" << std::flush;
-                }
-
-                lastPercentSeen = percentDone;
+            if (mpiRank == 0) {
+                std::cout << "Running simulator... " << std::endl;
+                std::cout << std::endl;
+                std::cout << std::setprecision(std::numeric_limits<long double>::digits10 + 1);
             }
 
-        }
+            simulator->callWriters();
 
-        simulator->finalize();
+
+
+            int lastPercentSeen = -1;
+
+
+            while (!simulator->atEnd()) {
+
+                simulator->performStep();
+                timestepsPerformed++;
+                int percentDone = std::round(80.0 * simulator->getCurrentTime() /
+                        simulator->getEndTime());
+
+                if (percentDone != lastPercentSeen) {
+                    if (mpiRank == 0) {
+                        std::cout << "#" << std::flush;
+                    }
+
+                    lastPercentSeen = percentDone;
+                }
+
+            }
+
+            simulator->finalize();
+        }
 
         if (mpiRank == 0) {
             std::cout << std::endl << std::endl;

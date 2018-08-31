@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,6 +26,7 @@
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include "alsutils/make_basic_report.hpp"
+#include "alsutils/timer/TimerDatabase.hpp"
 #ifdef ALSVINN_HAVE_CUDA
     #include "alsutils/cuda/get_device_properties.hpp"
 #endif
@@ -47,6 +48,8 @@ void writeRunReport(const std::string& executable,
     char** argv) {
     boost::property_tree::ptree propertyTree = alsutils::makeBasicReport();
 
+    propertyTree.add_child("report.timings",
+        alsutils::timer::TimerDatabase::getInstance().getTimesAsPropertyTree());
     propertyTree.put("report.executable", executable);
     propertyTree.put("report.name", name);
 
@@ -77,5 +80,7 @@ void writeRunReport(const std::string& executable,
         propertyTree);
     boost::property_tree::write_xml(executable + "_" + name + "_report.xml",
         propertyTree);
+
+
 }
 }

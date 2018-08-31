@@ -15,6 +15,7 @@
 
 #include "alsfvm/reconstruction/NoReconstructionCUDA.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
+#include "alsutils/timer/Timer.hpp"
 
 namespace alsfvm {
 namespace reconstruction {
@@ -30,6 +31,7 @@ void NoReconstructionCUDA::performReconstruction(const volume::Volume&
     volume::Volume& leftOut,
     volume::Volume& rightOut, const ivec3& start,
     const ivec3& end) {
+    ALSVINN_TIME_BLOCK(alsvinn, fvm, reconstruction);
 
     for (size_t var = 0; var < inputVariables.getNumberOfVariables(); ++var) {
         CUDA_SAFE_CALL(cudaMemcpyAsync(leftOut.getScalarMemoryArea(var)->getPointer(),

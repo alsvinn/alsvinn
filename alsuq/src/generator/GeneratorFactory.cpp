@@ -27,7 +27,8 @@ std::shared_ptr<Generator> GeneratorFactory::makeGenerator(
 ) {
 
     if (name == "stlmersenne") {
-        return STLMersenne::getInstance();
+        return std::dynamic_pointer_cast<Generator>(std::make_shared<STLMersenne>
+                (dimensions));
     } else {
         THROW("Unknown generator " << name);
     }

@@ -20,8 +20,8 @@
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/equation/burgers/Burgers.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
-
-
+#include "alsutils/timer/Timer.hpp"
+#include "alsutils/timer/CudaTimer.hpp"
 namespace alsfvm {
 namespace reconstruction {
 namespace {
@@ -185,6 +185,9 @@ void ReconstructionCUDA<ReconstructionType, Equation>::performReconstruction(
     volume::Volume& leftOut,
     volume::Volume& rightOut, const ivec3& start,
     const ivec3& end) {
+
+    ALSVINN_TIME_BLOCK(alsvinn,fvm, reconstruction);
+    ALSVINN_TIME_CUDA_BLOCK(0, alsvinn, fvm, reconstruction, cuda);
     size_t dimension = 1 + (leftOut.getNumberOfYCells() > 1) +
         (leftOut.getNumberOfZCells() > 1);
 

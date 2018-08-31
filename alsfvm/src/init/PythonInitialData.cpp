@@ -31,6 +31,7 @@
 #include "alsfvm/python/PythonInterpreter.hpp"
 #include "alsutils/log.hpp"
 #include "alsfvm/python/handle_pyerror.hpp"
+#include "alsutils/timer/Timer.hpp"
 #define L std::cout << __FILE__ << ":" << __LINE__ << std::endl;
 
 #define CHECK_PYTHON \
@@ -70,6 +71,8 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     volume::Volume& primitiveVolume,
     equation::CellComputer& cellComputer,
     grid::Grid& grid) {
+
+    ALSVINN_TIME_BLOCK(alsvinn, fvm, init, python);
 
     try {
 

@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,6 +19,7 @@
 #include "alsutils/log.hpp"
 #include "alsfvm/io/netcdf_write_report.hpp"
 #include "alsfvm/io/netcdf_write_attributes.hpp"
+#include "alsutils/timer/Timer.hpp"
 namespace alsfvm {
 namespace io {
 
@@ -31,6 +32,7 @@ void NetCDFWriter::write(const volume::Volume& conservedVariables,
     const volume::Volume& extraVariables,
     const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
+    ALSVINN_TIME_BLOCK(alsvinn, fvm, io, netcdf);
     netcdf_raw_ptr file;
     auto filename = getFilename();
     NETCDF_SAFE_CALl(nc_create(filename.c_str(),  NC_CLOBBER | NC_NETCDF4, &file));

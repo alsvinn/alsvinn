@@ -23,7 +23,7 @@
 #include <fstream>
 #include "alsfvm/equation/equation_list.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
-
+#include "alsutils/timer/Timer.hpp"
 
 namespace alsfvm {
 namespace reconstruction {
@@ -134,6 +134,7 @@ void ENOCUDA<Equation, order>::performReconstruction(const volume::Volume&
     volume::Volume& rightOut,
     const ivec3& startIndex,
     const ivec3& endIndex) {
+    ALSVINN_TIME_BLOCK(alsvinn, fvm, reconstruction);
     // We often do compute order-1.
     static_assert(order > 0, "Can not do ENO reconstruction of order 0.");
 
