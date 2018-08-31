@@ -104,7 +104,7 @@ TEST_P(MeanVarTest, MeanVarTest) {
             N += 1;
 
             for (int i = 0; i < D; ++i) {
-                real x = dist->generate(*generator, i);
+                real x = dist->generate(*generator, i, n);
                 real delta = x - mean[i];
                 mean[i] += delta / N;
                 real delta2 = x - mean[i];
