@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include <string>
+#include <cmath>
 #include <boost/property_tree/ptree.hpp>
 
 namespace alsutils {
