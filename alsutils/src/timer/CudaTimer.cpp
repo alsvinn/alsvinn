@@ -1,5 +1,6 @@
 #include "alsutils/timer/CudaTimer.hpp"
 #include "alsutils/cuda/cuda_safe_call.hpp"
+#ifdef ALSVINN_HAVE_CUDA
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -52,3 +53,4 @@ CudaTimer::~CudaTimer() noexcept(false) {
 
 }
 }
+#endif
