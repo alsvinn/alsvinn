@@ -2,11 +2,13 @@
 #include "alsutils/timer/TimerDatabase.hpp"
 #include "alsutils/timer/Timer.hpp"
 #include "alsutils/config.hpp"
+#ifdef ALSVINN_HAVE_CUDA
 #include <cuda_runtime.h>
+#endif
 #include <chrono>
 namespace alsutils {
 namespace timer {
-
+#ifdef ALSVINN_HAVE_CUDA
 class CudaTimer {
 public:
     template<class ...T> CudaTimer(cudaStream_t stream, T... names) :
@@ -32,10 +34,15 @@ private:
     std::chrono::high_resolution_clock::time_point* start;
 
 };
+  #endif
 } // namespace timer
 } // namespace alsutils
+#ifdef ALSVINN_HAVE_CUDA
 #ifdef ALSVINN_USE_CUDA_TIMERS
     #define ALSVINN_TIME_CUDA_BLOCK(STREAM, ...) ::alsutils::timer::CudaTimer ALSVINN_MAKE_TIMER_VARIABLE_NAME(__VA_ARGS__) (STREAM, ALSVINN_MAKE_TIMER_STRINGS(__VA_ARGS__))
+#else
+    #define ALSVINN_TIME_CUDA_BLOCK(STREAM, ...)
+#endif
 #else
     #define ALSVINN_TIME_CUDA_BLOCK(STREAM, ...)
 #endif
