@@ -57,8 +57,8 @@ private:
     boost::python::dict datasetsConserved;
     boost::python::dict datasetsExtra;
 
-    std::vector<double*> rawPointersConserved;
-    std::vector<double*> rawPointersExtra;
+    std::vector<real*> rawPointersConserved;
+    std::vector<real*> rawPointersExtra;
 
     void makeDatasets(const volume::Volume& conservedVariables,
         const volume::Volume& extraVariables);
