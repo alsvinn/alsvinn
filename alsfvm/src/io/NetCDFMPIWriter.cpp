@@ -52,8 +52,7 @@ void NetCDFMPIWriter::write(const volume::Volume& conservedVariables,
 
 
     if (newFile) {
-      std::cout << "writing to old new " << filename << std::endl;
-      ALSVINN_LOG(INFO, "Writing to new file " << filename << std::endl);
+        ALSVINN_LOG(INFO, "Writing to new file " << filename << std::endl);
         NETCDF_SAFE_CALl(ncmpi_create(mpiCommunicator, filename.c_str(),
                 NC_CLOBBER|NC_64BIT_OFFSET,
                 mpiInfo, &file));
@@ -76,8 +75,7 @@ void NetCDFMPIWriter::write(const volume::Volume& conservedVariables,
 
 
     } else {
-      std::cout << "writing to old file " << filename << std::endl;
-      ALSVINN_LOG(INFO, "Writing to old file " << filename << std::endl);
+        ALSVINN_LOG(INFO, "Writing to old file " << filename << std::endl);
         NETCDF_SAFE_CALl(ncmpi_open(mpiCommunicator, filename.c_str(),
                 NC_WRITE,
                 mpiInfo, &file));
