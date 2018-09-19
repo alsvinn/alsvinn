@@ -1,3 +1,4 @@
+SET(HDF5_NO_FIND_PACKAGE_CONFIG_FILE ON)
 find_package(HDF5 REQUIRED)
 
 # This gets a bit complicated, but basically, if

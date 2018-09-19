@@ -116,7 +116,7 @@ void PythonScript::makeDatasets(const volume::Volume& conservedVariables,
     for (size_t var = 0; var < conservedVariables.getNumberOfVariables(); ++var) {
 
         auto array = boost::python::numpy::zeros(shape, type);
-        rawPointersConserved.push_back((double*)array.get_data());
+        rawPointersConserved.push_back((real*)array.get_data());
         datasetsConserved[conservedVariables.getName(var)] = array;
 
 
@@ -124,7 +124,7 @@ void PythonScript::makeDatasets(const volume::Volume& conservedVariables,
 
     for (size_t var = 0; var < extraVariables.getNumberOfVariables(); ++var) {
         auto array = boost::python::numpy::zeros(shape, type);
-        rawPointersExtra.push_back((double*)array.get_data());
+        rawPointersExtra.push_back((real*)array.get_data());
         datasetsExtra[extraVariables.getName(var)] = array;
 
     }

@@ -50,10 +50,11 @@ void NetCDFMPIWriter::write(const volume::Volume& conservedVariables,
     auto filename = getFilename();
     netcdf_raw_ptr timeVar;
 
-    if (newFile) {
 
+    if (newFile) {
+        ALSVINN_LOG(INFO, "Writing to new file " << filename << std::endl);
         NETCDF_SAFE_CALl(ncmpi_create(mpiCommunicator, filename.c_str(),
-                NC_64BIT_DATA | NC_CLOBBER,
+                NC_CLOBBER|NC_64BIT_OFFSET,
                 mpiInfo, &file));
 
 
@@ -74,8 +75,9 @@ void NetCDFMPIWriter::write(const volume::Volume& conservedVariables,
 
 
     } else {
+        ALSVINN_LOG(INFO, "Writing to old file " << filename << std::endl);
         NETCDF_SAFE_CALl(ncmpi_open(mpiCommunicator, filename.c_str(),
-                NC_WRITE | NC_64BIT_DATA,
+                NC_WRITE,
                 mpiInfo, &file));
         NETCDF_SAFE_CALl(ncmpi_redef(file));
     }
@@ -99,7 +101,7 @@ NetCDFMPIWriter::dimension_vector NetCDFMPIWriter::createDimensions(
     netcdf_raw_ptr xdim, ydim, zdim;
 
     if (newFile) {
-        ALSVINN_LOG(INFO, "Making new file with sizes " << grid.getGlobalSize());
+      ALSVINN_LOG(INFO, "Making new file with sizes " << grid.getGlobalSize());
         NETCDF_SAFE_CALl(ncmpi_def_dim(baseGroup, "x", grid.getGlobalSize()[0],
                 &xdim));
         NETCDF_SAFE_CALl(ncmpi_def_dim(baseGroup, "y", grid.getGlobalSize()[1],

@@ -163,8 +163,9 @@ template< class Equation, size_t dimension>
 void makeZero(volume::Volume& volume,
     const ivec3& start,
     const ivec3& end,
-    const Equation& equation) {
-    const int numberOfGhostCells = volume.getNumberOfGhostCells().x;
+    const Equation& equation,
+    int numberOfGhostCells) {
+
     const int numberOfXCells = int(volume.getTotalNumberOfXCells()) - 2 *
         numberOfGhostCells - start.x + end.x;
     const int numberOfYCells = int(volume.getTotalNumberOfYCells()) - 2 *
@@ -397,7 +398,7 @@ void NumericalFluxCUDA<Flux, Equation, dimension>::computeFlux(
     static_assert(dimension < 4, "We only support dimension up to 3");
 
     makeZero<Equation, dimension>(output, start,
-        end, equation);
+        end, equation, getNumberOfGhostCells());
 
     callComputeFlux(equation,
         conservedVariables,
