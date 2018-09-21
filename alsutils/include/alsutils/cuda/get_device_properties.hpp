@@ -20,6 +20,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include "alsutils/cuda/cuda_safe_call.hpp"
+#include "alsutils/log.hpp"
 namespace alsutils {
 namespace cuda {
 //! Returns the information of cudaGetDeviceProperties for the current device

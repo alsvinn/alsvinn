@@ -37,7 +37,7 @@ private:
 #define ALSVINN_MAKE_TIMER_STRINGS3(X,Y, Z) #X,#Y,#Z
 #define ALSVINN_MAKE_TIMER_STRINGS4(X,Y, Z,V) #X, #Y, #Z,#V
 #define ALSVINN_MAKE_TIMER_STRINGS5(X,Y, Z,V,W) #X, #Y, #Z, #V, #W
-#define ALSVINN_MAKE_TIMER_STRINGS6(X,Y, Z,V,W, Q) #X, #Y, $Z, #V, #W, #Q
+#define ALSVINN_MAKE_TIMER_STRINGS6(X,Y, Z,V,W, Q) #X, #Y, #Z, #V, #W, #Q
 
 // see https://stackoverflow.com/a/11763277 for explanation of GET_MACRO
 #define GET_MACRO(_1,_2,_3, _4, _5, _6, NAME,...) NAME
