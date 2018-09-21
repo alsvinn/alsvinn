@@ -2,6 +2,7 @@
 #include "alsutils/types.hpp"
 #include <limits>
 #include <sstream>
+#include "alsutils/log.hpp"
 
 namespace alsutils {
   std::string getAlsvinnVersion() {

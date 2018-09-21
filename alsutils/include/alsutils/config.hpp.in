@@ -2,7 +2,6 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
-#include "alsutils/log.hpp"
 #include <fstream>
 
 #ifndef COMPILING_ALSVINN
