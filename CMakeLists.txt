@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.1.0)
-project (alsvinn VERSION 0.1.2 LANGUAGES C CXX )
+project (alsvinn VERSION 0.2.1 LANGUAGES C CXX )
 SET(ALSVINN_USE_FLOAT OFF CACHE BOOL "Do all computations with 32 bits
 floating point numbers, instead of 64 bit double precision")
 SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")

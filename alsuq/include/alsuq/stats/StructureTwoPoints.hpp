@@ -26,7 +26,7 @@ namespace stats {
 //!
 //! It then computes the structure function as
 //!
-//! \f[\sum_{i,j,k} (u_{(i,j,k) + e_1}-u_{(i,j,k)})(u_{(i,j,k) + e_2}-u_{(i,j,k))^2\f]
+//! \f[\sum_{i,j,k} (u_{(i,j,k) + e_1}-u_{(i,j,k)})(u_{(i,j,k) + e_2}-u_{(i,j,k)})^2\f]
 class StructureTwoPoints : public StatisticsHelper {
 public:
     StructureTwoPoints(const StatisticsParameters& parameters);
