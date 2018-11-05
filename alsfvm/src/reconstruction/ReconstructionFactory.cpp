@@ -24,6 +24,7 @@
 #endif
 #include "alsfvm/reconstruction/WENOF2.hpp"
 #include "alsfvm/reconstruction/MC.hpp"
+#include "alsfvm/reconstruction/MM.hpp"
 #include "alsfvm/reconstruction/WENO2.hpp"
 #include "alsfvm/reconstruction/ReconstructionCPU.hpp"
 #include "alsfvm/reconstruction/ReconstructionCUDA.hpp"
@@ -133,12 +134,32 @@ ReconstructionFactory::createReconstruction(
                     reconstruction::ReconstructionCPU<reconstruction::MC<equation::burgers::Burgers>, equation::burgers::Burgers>
                     (simulatorParameters));
             }
+	} else if (name == "mm") {
+
+            if (equation == "euler1") {
+                reconstructor.reset(new
+                    reconstruction::ReconstructionCPU<reconstruction::MM<equation::euler::Euler<1> >, equation::euler::Euler<1> >
+                    (simulatorParameters));
+            } else  if (equation == "euler2") {
+                reconstructor.reset(new
+                    reconstruction::ReconstructionCPU<reconstruction::MM<equation::euler::Euler<2> >, equation::euler::Euler<2> >
+                    (simulatorParameters));
+            } else  if (equation == "euler3") {
+                reconstructor.reset(new
+                    reconstruction::ReconstructionCPU<reconstruction::MM<equation::euler::Euler<3> >, equation::euler::Euler<3> >
+                    (simulatorParameters));
+            } else {
+                reconstructor.reset(new
+				    reconstruction::ReconstructionCPU<reconstruction::MM<equation::burgers::Burgers>, equation::burgers::Burgers>
+                    (simulatorParameters));
+            }
 
 
         }
 
+
         else {
-            THROW("Unknown reconstruction " << name);
+            THROW("Unknown reconstruction \"" << name<<"\"");
         }
     }
 
@@ -289,11 +310,37 @@ ReconstructionFactory::createReconstruction(
                     reconstruction::ReconstructionCUDA<reconstruction::MC<equation::burgers::Burgers>, equation::burgers::Burgers>
                     (simulatorParameters));
             } else {
-                THROW("We do not support WENOCUDA for equation " << equation);
+                THROW("We do not support MC for equation " << equation);
+            }
+        } else if (name == "mm") {
+            if (equation == "euler1") {
+
+                reconstructor.reset(new
+                    reconstruction::ReconstructionCUDA<reconstruction::MM<equation::euler::Euler<1>>, equation::euler::Euler<1> >
+                    (simulatorParameters));
+
+            } else if (equation == "euler2") {
+                //reconstructor.reset(new reconstruction::WENO2CUDA<equation::euler::Euler>());
+                reconstructor.reset(new
+                    reconstruction::ReconstructionCUDA<reconstruction::MM<equation::euler::Euler<2>>, equation::euler::Euler<2> >
+                    (simulatorParameters));
+
+            } else if (equation == "euler3") {
+                //reconstructor.reset(new reconstruction::WENO2CUDA<equation::euler::Euler>());
+                reconstructor.reset(new
+                    reconstruction::ReconstructionCUDA<reconstruction::MM<equation::euler::Euler<3>>, equation::euler::Euler<3> >
+                    (simulatorParameters));
+
+            } else if (equation == "burgers") {
+                reconstructor.reset(new
+                    reconstruction::ReconstructionCUDA<reconstruction::MM<equation::burgers::Burgers>, equation::burgers::Burgers>
+                    (simulatorParameters));
+            } else {
+                THROW("We do not support MM for equation " << equation);
             }
 
         } else {
-            THROW("Unknown reconstruction " << name);
+            THROW("Unknown reconstruction \"" << name<<"\"");
         }
 
     }
