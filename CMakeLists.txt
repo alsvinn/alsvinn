@@ -80,11 +80,11 @@ endif()
 
 # Python dependency could be made optional eventually, but for now it's
 # the only way of specify initial data
-find_package(PythonLibs REQUIRED)
+find_package(PythonLibs 2.7 REQUIRED)
 
 
 hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log)
-find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python numpy)
+find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python27 numpy27)
 
 
 if (NOT ALSVINN_USE_HUNTER)
