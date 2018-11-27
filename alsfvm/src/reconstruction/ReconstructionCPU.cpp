@@ -19,6 +19,7 @@
 #include "alsfvm/reconstruction/WENO2.hpp"
 #include "alsfvm/reconstruction/WENOF2.hpp"
 #include "alsfvm/reconstruction/MC.hpp"
+#include "alsfvm/reconstruction/MM.hpp"
 #include "alsutils/error/Exception.hpp"
 #include "alsutils/timer/Timer.hpp"
 
@@ -106,6 +107,8 @@ template class
 ReconstructionCPU<WENOF2<equation::euler::Euler<1>>, equation::euler::Euler<1>>;
 template class
 ReconstructionCPU<MC<equation::euler::Euler<1>>, equation::euler::Euler<1>>;
+template class
+ReconstructionCPU<MM<equation::euler::Euler<1>>, equation::euler::Euler<1>>;
 
 template class
 ReconstructionCPU<WENO2 <equation::euler::Euler<2>>, equation::euler::Euler<2>>;
@@ -113,6 +116,8 @@ template class
 ReconstructionCPU<WENOF2<equation::euler::Euler<2>>, equation::euler::Euler<2>>;
 template class
 ReconstructionCPU<MC<equation::euler::Euler<2>>, equation::euler::Euler<2>>;
+template class
+ReconstructionCPU<MM<equation::euler::Euler<2>>, equation::euler::Euler<2>>;
 
 template class
 ReconstructionCPU<WENO2 <equation::euler::Euler<3>>, equation::euler::Euler<3>>;
@@ -120,12 +125,15 @@ template class
 ReconstructionCPU<WENOF2<equation::euler::Euler<3>>, equation::euler::Euler<3>>;
 template class
 ReconstructionCPU<MC<equation::euler::Euler<3>>, equation::euler::Euler<3>>;
-
+template class
+ReconstructionCPU<MM<equation::euler::Euler<3>>, equation::euler::Euler<3>>;
 
 template class
 ReconstructionCPU<WENO2<equation::burgers::Burgers>, equation::burgers::Burgers>;
 template class
 ReconstructionCPU<MC<equation::burgers::Burgers>, equation::burgers::Burgers>;
+template class
+ReconstructionCPU<MM<equation::burgers::Burgers>, equation::burgers::Burgers>;
 
 
 }

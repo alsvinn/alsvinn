@@ -54,7 +54,11 @@ void NetCDFMPIWriter::write(const volume::Volume& conservedVariables,
     if (newFile) {
         ALSVINN_LOG(INFO, "Writing to new file " << filename << std::endl);
         NETCDF_SAFE_CALl(ncmpi_create(mpiCommunicator, filename.c_str(),
+<<<<<<< HEAD
                 NC_CLOBBER|NC_64BIT_DATA,
+=======
+				      NC_CLOBBER|NC_64BIT_DATA,
+>>>>>>> 284dc59164597933b9bd411ee937899879e8dbd9
                 mpiInfo, &file));
 
 
@@ -77,7 +81,11 @@ void NetCDFMPIWriter::write(const volume::Volume& conservedVariables,
     } else {
         ALSVINN_LOG(INFO, "Writing to old file " << filename << std::endl);
         NETCDF_SAFE_CALl(ncmpi_open(mpiCommunicator, filename.c_str(),
+<<<<<<< HEAD
                 NC_WRITE |NC_64BIT_DATA,
+=======
+                NC_WRITE|NC_64BIT_DATA,
+>>>>>>> 284dc59164597933b9bd411ee937899879e8dbd9
                 mpiInfo, &file));
         NETCDF_SAFE_CALl(ncmpi_redef(file));
     }
