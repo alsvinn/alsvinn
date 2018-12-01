@@ -52,7 +52,8 @@ void NetCDFMPIWriter::write(const volume::Volume& conservedVariables,
 
 
     if (newFile) {
-        ALSVINN_LOG(INFO, "Writing to new file " << filename << std::endl);
+        ALSVINN_LOG(INFO, "NetCDFMPIWriter: Writing to new file " << filename <<
+            std::endl);
         NETCDF_SAFE_CALl(ncmpi_create(mpiCommunicator, filename.c_str(),
                 NC_CLOBBER | NC_64BIT_DATA,
                 mpiInfo, &file));

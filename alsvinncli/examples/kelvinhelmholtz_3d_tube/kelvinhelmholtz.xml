@@ -6,8 +6,8 @@
   <platform>cuda</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
-    <upperCorner>1 1 0</upperCorner>
-    <dimension>128 128 128</dimension>
+    <upperCorner>1 1 1</upperCorner>
+    <dimension>256 256 256</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>hll3</flux>
