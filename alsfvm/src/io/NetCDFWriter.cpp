@@ -20,6 +20,7 @@
 #include "alsfvm/io/netcdf_write_report.hpp"
 #include "alsfvm/io/netcdf_write_attributes.hpp"
 #include "alsutils/timer/Timer.hpp"
+#include "alsutils/log.hpp"
 namespace alsfvm {
 namespace io {
 
@@ -35,6 +36,8 @@ void NetCDFWriter::write(const volume::Volume& conservedVariables,
     ALSVINN_TIME_BLOCK(alsvinn, fvm, io, netcdf);
     netcdf_raw_ptr file;
     auto filename = getFilename();
+    ALSVINN_LOG(INFO, "NetCDFWriter: Writing to new file " << filename <<
+        std::endl);
     NETCDF_SAFE_CALl(nc_create(filename.c_str(),  NC_CLOBBER | NC_NETCDF4, &file));
     netcdfWriteReport(file);
 
