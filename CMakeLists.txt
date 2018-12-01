@@ -108,8 +108,7 @@ endif()
 if(ALSVINN_USE_CUDA)
 	SET(CUDA_TURING_FLAGS "")
 	IF (${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 10.0.0)
-	   SET(CUDA_TURING_FLAGS "-gencode arch=compute_75,code=sm_75 -gencode
-	arch=compute_70,code=sm_70")
+	   SET(CUDA_TURING_FLAGS "-gencode arch=compute_75,code=sm_75 -gencode arch=compute_70,code=sm_70")
 	ENDIF()
 
         set(CMAKE_CUDA_FLAGS "--use_fast_math -Xptxas -warn-spills -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 ${CUDA_TURING_FLAGS} -gencode arch=compute_61,code=sm_61" )
