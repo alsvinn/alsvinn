@@ -136,7 +136,7 @@ DomainInformationPtr CartesianDecomposition::decompose(ConfigurationPtr
             startIndex,
             grid.getDimensions(),
             grid.getCellLengths(),
-            grid.getCellMidpoints());
+						   std::vector<rvec3>());
 
 
 

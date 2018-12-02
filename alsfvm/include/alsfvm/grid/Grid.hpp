@@ -224,7 +224,7 @@ private:
     rvec3 cellLengths;
 
     // A vector containing all cell midpoints
-    std::vector<rvec3> cellMidpoints;
+    mutable std::vector<rvec3> cellMidpoints;
 
     // For each side, states the boundary condition.
     std::array<boundary::Type, 6> boundaryConditions;
