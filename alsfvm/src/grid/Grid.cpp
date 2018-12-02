@@ -16,6 +16,7 @@
 #include "alsfvm/grid/Grid.hpp"
 #include <algorithm>
 #include <iostream>
+#include "alsutils/log.hpp"
 namespace alsfvm {
 namespace grid {
 
@@ -82,20 +83,7 @@ Grid::Grid(rvec3 origin,
 
 {
     // Create the cell midpoints
-    cellMidpoints.resize(dimensions.x * dimensions.y * dimensions.z);
 
-    for (int z = 0; z < dimensions.z; z++) {
-        for (int y = 0; y < dimensions.y; y++) {
-            for (int x = 0; x < dimensions.x; x++) {
-                rvec3 position = origin
-                    + rvec3(cellLengths.x * x, cellLengths.y * y, cellLengths.z * z)
-                    + cellLengths / real(2.0);
-
-                cellMidpoints[z * dimensions.x * dimensions.y + y * dimensions.x + x] =
-                    position;
-            }
-        }
-    }
 }
 
 Grid::Grid(rvec3 origin,
@@ -113,22 +101,6 @@ Grid::Grid(rvec3 origin,
       globalSize(globalSize)
 
 {
-    // Create the cell midpoints
-    cellMidpoints.resize(dimensions.x * dimensions.y * dimensions.z);
-
-    for (int z = 0; z < dimensions.z; z++) {
-        for (int y = 0; y < dimensions.y; y++) {
-            for (int x = 0; x < dimensions.x; x++) {
-                const int indexGlobal = (z + globalPosition.z) * globalSize.x * globalSize.y
-                    + (y + globalPosition.y) * globalSize.x
-                    + (x + globalPosition.x);
-                rvec3 position = cellMidpointsGlobal[indexGlobal];
-
-                cellMidpoints[z * dimensions.x * dimensions.y + y * dimensions.x + x] =
-                    position;
-            }
-        }
-    }
 
 }
 
@@ -174,6 +146,24 @@ rvec3 Grid::getCellLengths() const {
 }
 
 const std::vector<rvec3>& Grid::getCellMidpoints() const {
+  ALSVINN_LOG(WARNING, "Using depreacted functions getCellMidpoints()\n"<< dimensions);
+    if (cellMidpoints.size() == 0) {
+      // Create the cell midpoints
+      cellMidpoints.resize(dimensions.x * dimensions.y * dimensions.z);
+
+      for (int z = 0; z < dimensions.z; z++) {
+        for (int y = 0; y < dimensions.y; y++) {
+	  for (int x = 0; x < dimensions.x; x++) {
+                rvec3 position = origin
+		  + rvec3(cellLengths.x * x, cellLengths.y * y, cellLengths.z * z)
+		  + cellLengths / real(2.0);
+
+                cellMidpoints[z * dimensions.x * dimensions.y + y * dimensions.x + x] =
+		  position;
+	  }
+        }
+      }
+    }
     return cellMidpoints;
 }
 
