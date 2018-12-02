@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,7 +37,7 @@ bool CartesianCellExchanger::hasSide(int side) const {
 
 real CartesianCellExchanger::max(real value) {
     real maximum;
-    MPI_Allreduce(&value, &maximum, 1, MPI_DOUBLE,
+    MPI_Allreduce(&value, &maximum, 1, alsutils::mpi::MpiTypes<real>::MPI_Real,
         MPI_MAX, configuration->getCommunicator());
 
     return maximum;
@@ -125,7 +125,7 @@ void CartesianCellExchanger::createDataTypeSend(int side,
 
     datatypesSend.push_back(MpiIndexType::makeInstance(numberOfSegments, lengths,
             displacements,
-            MPI_DOUBLE));
+            alsutils::mpi::MpiTypes<real>::MPI_Real));
 }
 
 void CartesianCellExchanger::createDataTypeReceive(int side,
@@ -150,7 +150,7 @@ void CartesianCellExchanger::createDataTypeReceive(int side,
 
     datatypesReceive.push_back(MpiIndexType::makeInstance(numberOfSegments, lengths,
             displacements,
-            MPI_DOUBLE));
+            alsutils::mpi::MpiTypes<real>::MPI_Real));
 }
 
 void CartesianCellExchanger::createDataTypes(const volume::Volume& volume) {

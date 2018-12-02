@@ -16,6 +16,7 @@
 #include "alsfvm/mpi/CudaCartesianCellExchanger.hpp"
 #include "alsutils/mpi/safe_call.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
+#include "alsutils/mpi/mpi_types.hpp"
 namespace alsfvm {
 namespace mpi {
 
@@ -117,7 +118,7 @@ RequestContainer CudaCartesianCellExchanger::exchangeCells(
                 CUDA_SAFE_CALL(cudaStreamSynchronize(memoryStreams[var][side]));
                 sendRequests[var][side] = (Request::isend(cpuBuffersSend[var][side],
                             cpuBuffersSend[var][side].size(),
-                            MPI_DOUBLE, neighbours[side],
+                            alsutils::mpi::MpiTypes<real>::MPI_Real, neighbours[side],
                             var * 6 + side,
                             *configuration));
             }
@@ -126,7 +127,7 @@ RequestContainer CudaCartesianCellExchanger::exchangeCells(
                 receiveRequests[var][oppositeSide(side)] = Request::ireceive(
                         cpuBuffersReceive[var][oppositeSide(side)],
                         cpuBuffersReceive[var][oppositeSide(side)].size(),
-                        MPI_DOUBLE, neighbours[oppositeSide(side)],
+                        alsutils::mpi::MpiTypes<real>::MPI_Real, neighbours[oppositeSide(side)],
                         var * 6 + side,
                         *configuration);
             }
@@ -156,7 +157,7 @@ int CudaCartesianCellExchanger::getNumberOfActiveSides() const {
 
 real CudaCartesianCellExchanger::max(real number) {
     real max;
-    MPI_SAFE_CALL(MPI_Allreduce(&number, &max, 1, MPI_DOUBLE, MPI_MAX,
+    MPI_SAFE_CALL(MPI_Allreduce(&number, &max, 1, alsutils::mpi::MpiTypes<real>::MPI_Real, MPI_MAX,
             configuration->getCommunicator()));
     return max;
 }
