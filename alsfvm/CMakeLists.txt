@@ -66,8 +66,8 @@ target_link_libraries(alsfvm
   alsutils
   alsfvm_cuda
   Boost::filesystem
-  Boost::python
-  Boost::numpy
+  Boost::python27
+  Boost::numpy27
   MPI::MPI_C
   hdf5::HDF5_C
   python::PythonLibs

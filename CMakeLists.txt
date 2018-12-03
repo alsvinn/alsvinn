@@ -80,11 +80,11 @@ endif()
 
 # Python dependency could be made optional eventually, but for now it's
 # the only way of specify initial data
-find_package(PythonLibs REQUIRED)
+find_package(PythonLibs 2.7 REQUIRED)
 
 
 hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log)
-find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python numpy)
+find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python27 numpy27)
 
 
 if (NOT ALSVINN_USE_HUNTER)
@@ -106,7 +106,12 @@ if (ALSVINN_USE_CUDA)
 endif()
 
 if(ALSVINN_USE_CUDA)
-        set(CMAKE_CUDA_FLAGS "--use_fast_math -Xptxas -warn-spills -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61" )
+	SET(CUDA_TURING_FLAGS "")
+	IF (${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 10.0.0)
+	   SET(CUDA_TURING_FLAGS "-gencode arch=compute_75,code=sm_75 -gencode arch=compute_70,code=sm_70")
+	ENDIF()
+
+        set(CMAKE_CUDA_FLAGS "--use_fast_math -Xptxas -warn-spills -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 ${CUDA_TURING_FLAGS} -gencode arch=compute_61,code=sm_61" )
 	set(CMAKE_CUDA_FLAGS_DEBUG "-G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0")
 	set(ALSVINN_HAVE_CUDA On)
 	add_definitions(-DALSVINN_HAVE_CUDA)

@@ -167,11 +167,14 @@ int main(int argc, char** argv) {
             (timeEnd - timeStart).count() << " ms" << std::endl);
         ALSVINN_LOG(INFO, "Duration (wall time): " << (wallEnd - wallStart) <<
             std::endl);
-        alsutils::writeRunReport("alsuqcli", runner->getName(),
-            boost::chrono::duration_cast<boost::chrono::milliseconds>
-            (timeEnd - timeStart).count(),
-            (wallEnd - wallStart).total_milliseconds(),
-            runner->getTimestepsPerformedTotal(), argc, argv);
+
+        if (rank == 0) {
+            alsutils::writeRunReport("alsuqcli", runner->getName(),
+                boost::chrono::duration_cast<boost::chrono::milliseconds>
+                (timeEnd - timeStart).count(),
+                (wallEnd - wallStart).total_milliseconds(),
+                runner->getTimestepsPerformedTotal(), argc, argv);
+        }
 
     } catch (std::runtime_error& e) {
         ALSVINN_LOG(ERROR, "Error!");

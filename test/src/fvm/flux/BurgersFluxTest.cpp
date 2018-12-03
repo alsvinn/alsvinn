@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -143,8 +143,8 @@ struct BurgersFluxTest : public ::testing::TestWithParam <FluxTestParameters>  {
         const size_t startK = 10;
         const size_t endK = 20;
 
-        std::vector<double> differences;
-        std::vector<double> dx;
+        std::vector<real> differences;
+        std::vector<real> dx;
 
         for (size_t k = startK; k < endK; ++k) {
             const size_t N = 1 << k;
@@ -171,7 +171,7 @@ struct BurgersFluxTest : public ::testing::TestWithParam <FluxTestParameters>  {
             numericalFlux->computeFlux(*conservedVolumeIn, waveSpeed, false,
                 *conservedVolumeOut);
             conservedVolumeOut->copyTo(*conservedVolumeOutCPU);
-            double l1ErrorSum = 0.0;
+            real l1ErrorSum = 0.0;
 
             for (size_t i = 1; i < N + 1; ++i) {
                 l1ErrorSum += std::abs((std::pow(real(i + 1) / real(N),

@@ -168,7 +168,13 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
 
             functionStringStream << grid.getDimensions().x << ", "
                 << grid.getDimensions().y << ", "
-                << grid.getDimensions().z << ")"
+                << grid.getDimensions().z << ", "
+                << grid.getOrigin().x << ", "
+                << grid.getOrigin().y << ", "
+                << grid.getOrigin().z << ", "
+                << grid.getTop().x << ", "
+                << grid.getTop().y << ", "
+                << grid.getTop().z << ")"
                 << std::endl;
         }
 

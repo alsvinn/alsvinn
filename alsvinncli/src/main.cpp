@@ -249,11 +249,12 @@ int main(int argc, char** argv) {
         ALSVINN_LOG(INFO, "Duration (wall time): " << (wallEnd - wallStart));
 
 
-
-        alsutils::writeRunReport("alsvinncli", simulator->getName(),
-            boost::chrono::duration_cast<boost::chrono::milliseconds>
-            (timeEnd - timeStart).count(),
-            (wallEnd - wallStart).total_milliseconds(), timestepsPerformed, argc, argv);
+        if (mpiRank == 0) {
+            alsutils::writeRunReport("alsvinncli", simulator->getName(),
+                boost::chrono::duration_cast<boost::chrono::milliseconds>
+                (timeEnd - timeStart).count(),
+                (wallEnd - wallStart).total_milliseconds(), timestepsPerformed, argc, argv);
+        }
     } catch (std::runtime_error& e) {
         ALSVINN_LOG(ERROR, "Error!" << std::endl
             << e.what() << std::endl);

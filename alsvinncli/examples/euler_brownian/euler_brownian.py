@@ -68,7 +68,7 @@ def fBm(N, H, rand):
 #  On Fractional Gaussian Random Fields Simulations. Journal of Statistical Software, 23(1), 1–23.
 #  http://doi.org/http://dx.doi.org/10.18637/jss.v023.i01
 # in the section 2.3
-def init_global(rho, ux, uy, p, nx, ny, nz):
+def init_global(rho, ux, uy, p, nx, ny, nz, ax, ay, az, bx, by, bz):):
     dux = fBm(nx, 0.1, RandomVariable(X[:1024*1024]))
     duy= fBm(nx, 0.2, RandomVariable(X[1024*1024:]))
     rho[:,:,0] = 4*ones_like(rho[:,:,0])

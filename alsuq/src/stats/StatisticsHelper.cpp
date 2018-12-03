@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -17,7 +17,7 @@
 #include "alsuq/mpi/utils.hpp"
 #include "alsutils/mpi/cuda.hpp"
 #include "alsutils/log.hpp"
-
+#include "alsutils/mpi/mpi_types.hpp"
 namespace alsuq {
 namespace stats {
 StatisticsHelper::StatisticsHelper(const StatisticsParameters& parameters)
@@ -60,7 +60,8 @@ void StatisticsHelper::combineStatistics() {
                     dataReduced = statisticsDataToReduce->makeInstance();
                     //}
                     MPI_SAFE_CALL(MPI_Reduce(statisticsDataToReduce->data(), dataReduced->data(),
-                            statisticsDataToReduce->getSize(), MPI_DOUBLE, MPI_SUM, 0,
+                            statisticsDataToReduce->getSize(), alsutils::mpi::MpiTypes<real>::MPI_Real,
+                            MPI_SUM, 0,
                             mpiConfig->getCommunicator()));
 
                     if (mpiConfig->getRank() == 0) {
