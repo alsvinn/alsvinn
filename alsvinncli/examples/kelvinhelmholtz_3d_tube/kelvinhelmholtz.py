@@ -18,7 +18,7 @@ def init_global(rho, ux, uy, uz, p, nx, ny, nz, ax, ay, az, bx, by, bz):
     x = linspace(ax, bx, nx)
     y = linspace(ay, by, ny)
     z = linspace(az, bz, nz)
-    X, Y, Z = meshgrid(x, y, z)
+    Y, X, Z = meshgrid(y, x, z)
     X = X
     Y = Y
     Z = Z
@@ -34,7 +34,7 @@ def init_global(rho, ux, uy, uz, p, nx, ny, nz, ax, ay, az, bx, by, bz):
     middle = (R < 0.25 + perturbation_radius)
 
     rho[:, :, :] = 2.0 * middle + 1.0*(1-middle)
-    uy[:, :, :] = -0.5*middle + 0.5*(1-middle)
-    ux[:,:,:] = zeros_like(X)
+    ux[:, :, :] = -0.5*middle + 0.5*(1-middle)
+    uy[:,:,:] = zeros_like(X)
     uz[:,:,:] = zeros_like(X)
     p[:,:,:] = 2.5*ones_like(X)

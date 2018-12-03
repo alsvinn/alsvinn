@@ -204,11 +204,13 @@ void NetCDFMPIWriter::writeMemory(netcdf_raw_ptr baseGroup,
 
     // we need to exhcange the order since netcdf uses z major.
     if (grid.getActiveDimension() == 3) {
-        std::swap(globalPosition[2], globalPosition[1]);
-        std::swap(localSize[2], localSize[1]);
+        std::swap(globalPosition[0], globalPosition[2]);
+        std::swap(localSize[0], localSize[2]);
 
-        std::swap(globalPosition[0], globalPosition[1]);
-        std::swap(localSize[0], localSize[1]);
+        //std::swap(globalPosition[2], globalPosition[1]);
+        //std::swap(localSize[2], localSize[1]);
+
+
     }
 
     NETCDF_SAFE_CALl(ncmpi_put_vara_double_all(baseGroup, dataset,
