@@ -103,9 +103,11 @@ RequestContainer CudaCartesianCellExchanger::exchangeCells(
 
     extractSides(inputVolume);
 
-    auto oppositeSide = [&](int side) {
-        const int i = side % 2;
-        return (i + 1) % 2 + (side / 2) * 2;
+    auto oppositeSide = [&](int s) {
+        int d = s / 2;
+        int i = s % 2;
+
+        return (i + 1) % 2 + d * 2;
     };
 
     RequestContainer container;
