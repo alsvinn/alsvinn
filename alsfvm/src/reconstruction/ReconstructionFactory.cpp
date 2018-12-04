@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,8 +38,7 @@
 namespace alsfvm {
 namespace reconstruction {
 
-ReconstructionFactory::ReconstructionPtr
-ReconstructionFactory::createReconstruction(
+ReconstructionFactory::ReconstructionPtr ReconstructionFactory::createReconstruction(
     const std::string& name,
     const std::string& equation,
     const simulator::SimulatorParameters& simulatorParameters,
@@ -48,7 +47,8 @@ ReconstructionFactory::createReconstruction(
     alsfvm::shared_ptr<DeviceConfiguration>& deviceConfiguration) {
     if (equation != "euler1" && equation != "euler2" && equation != "euler3"
         && equation != "burgers" && equation != "buckleyleverett"
-        && equation != "cubic") {
+        && equation != "cubic"
+        && equation != "linear") {
         THROW("Unknown equation " << equation);
     }
 
@@ -134,7 +134,7 @@ ReconstructionFactory::createReconstruction(
                     reconstruction::ReconstructionCPU<reconstruction::MC<equation::burgers::Burgers>, equation::burgers::Burgers>
                     (simulatorParameters));
             }
-	} else if (name == "mm") {
+        } else if (name == "mm") {
 
             if (equation == "euler1") {
                 reconstructor.reset(new
@@ -150,7 +150,7 @@ ReconstructionFactory::createReconstruction(
                     (simulatorParameters));
             } else {
                 reconstructor.reset(new
-				    reconstruction::ReconstructionCPU<reconstruction::MM<equation::burgers::Burgers>, equation::burgers::Burgers>
+                    reconstruction::ReconstructionCPU<reconstruction::MM<equation::burgers::Burgers>, equation::burgers::Burgers>
                     (simulatorParameters));
             }
 
@@ -159,7 +159,7 @@ ReconstructionFactory::createReconstruction(
 
 
         else {
-            THROW("Unknown reconstruction \"" << name<<"\"");
+            THROW("Unknown reconstruction \"" << name << "\"");
         }
     }
 
@@ -340,7 +340,7 @@ ReconstructionFactory::createReconstruction(
             }
 
         } else {
-            THROW("Unknown reconstruction \"" << name<<"\"");
+            THROW("Unknown reconstruction \"" << name << "\"");
         }
 
     }

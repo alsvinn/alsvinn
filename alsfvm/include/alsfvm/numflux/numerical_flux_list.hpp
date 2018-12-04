@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,6 +26,9 @@
 #include "alsfvm/numflux/TecnoCombined4.hpp"
 #include "alsfvm/numflux/TecnoCombined6.hpp"
 #include "alsfvm/numflux/euler/Tecno1.hpp"
+#include "alsfvm/equation/linear/Linear.hpp"
+#include "alsfvm/numflux/linear/Upwind.hpp"
+
 
 ///
 /// This file provides the list of all available fluxes for each equation
@@ -92,6 +95,14 @@ boost::fusion::pair<equation::euler::Euler<1>,
       boost::fusion::vector <
       Central<equation::cubic::Cubic>,
       Rusanov<equation::cubic::Cubic>
+      > >,
+
+      // Linear
+      boost::fusion::pair < equation::linear::Linear,
+      boost::fusion::vector <
+      Central<equation::linear::Linear>,
+      Rusanov<equation::linear::Linear>,
+      linear::Upwind
       > >
       > NumericalFluxList;
 
@@ -203,7 +214,16 @@ void for_each_flux(Function f) {
     template class X< ::alsfvm::numflux::Central<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 3>; \
     template class X< ::alsfvm::numflux::Rusanov<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 1>; \
     template class X< ::alsfvm::numflux::Rusanov<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 2>; \
-    template class X< ::alsfvm::numflux::Rusanov<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 3>;
+    template class X< ::alsfvm::numflux::Rusanov<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 3>; \
+    template class X< ::alsfvm::numflux::Central<equation::linear::Linear>, ::alsfvm::equation::linear::Linear, 1>; \
+    template class X< ::alsfvm::numflux::Central<equation::linear::Linear>, ::alsfvm::equation::linear::Linear, 2>; \
+    template class X< ::alsfvm::numflux::Central<equation::linear::Linear>, ::alsfvm::equation::linear::Linear, 3>; \
+    template class X< ::alsfvm::numflux::Rusanov<equation::linear::Linear>, ::alsfvm::equation::linear::Linear, 1>; \
+    template class X< ::alsfvm::numflux::Rusanov<equation::linear::Linear>, ::alsfvm::equation::linear::Linear, 2>; \
+    template class X< ::alsfvm::numflux::Rusanov<equation::linear::Linear>, ::alsfvm::equation::linear::Linear, 3>; \
+    template class X< ::alsfvm::numflux::linear::Upwind, ::alsfvm::equation::linear::Linear, 1>; \
+    template class X< ::alsfvm::numflux::linear::Upwind, ::alsfvm::equation::linear::Linear, 2>; \
+    template class X< ::alsfvm::numflux::linear::Upwind, ::alsfvm::equation::linear::Linear, 3>;
 
 
 

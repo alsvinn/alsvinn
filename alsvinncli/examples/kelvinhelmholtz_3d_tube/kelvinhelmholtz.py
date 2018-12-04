@@ -15,10 +15,14 @@ def init_global(rho, ux, uy, uz, p, nx, ny, nz, ax, ay, az, bx, by, bz):
     if abs(normalization2) < 1e-10:
         normalization2 = 1
 
+    print("nx = %d" % nx)
+    print("ny = %d" % ny)
+    print("nz = %d" % nz)
     x = linspace(ax, bx, nx)
     y = linspace(ay, by, ny)
     z = linspace(az, bz, nz)
-    X, Y, Z = meshgrid(x, y, z)
+    Y, X, Z = meshgrid(y, x, z)
+    print(X.shape)
     X = X
     Y = Y
     Z = Z

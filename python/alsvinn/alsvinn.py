@@ -5,7 +5,7 @@ it does not contain any alsvinn logic. You can obtain all the results by just ru
 This file is meant for scripting purposes (integrates well with jupyter notebook for instance)
 
 """
-import alsvinn.config
+from alsvinn.config import *
 import xml.dom.minidom
 import numpy
 import os
@@ -19,9 +19,9 @@ import subprocess
 
 class Alsvinn(object):
     def __init__(self, xml_file=None, configuration=None,
-                 alsvinncli=alsvinn.config.ALSVINNCLI_PATH,
+                 alsvinncli=ALSVINNCLI_PATH,
                  prepend_alsvinncli='',
-                 alsuqcli=alsvinn.config.ALSUQCLI_PATH,
+                 alsuqcli=ALSUQCLI_PATH,
                  omp_num_threads=None, data_path=''):
         self.settings = {"fvm" : {}, "uq" : {}}
         self.fvmSettings = self.settings["fvm"]
@@ -405,8 +405,8 @@ def run(name=None, equation=None,
         base_xml=None,
         equation_parameters=None,
         platform=None,
-        alsvinncli=alsvinn.config.ALSVINNCLI_PATH,
-        alsuqcli=alsvinn.config.ALSUQCLI_PATH,
+        alsvinncli=ALSVINNCLI_PATH,
+        alsuqcli=ALSUQCLI_PATH,
         prepend_alsvinncli='',
         omp_num_threads=None,
         multix=1,
@@ -453,7 +453,7 @@ def run(name=None, equation=None,
             number_of_saves = 1
 
         if initial_data_file is None:
-            initial_data_file = "%s/sodshocktube/sodshocktube.py" % alsvinn.config.ALSVINN_EXAMPLES_PATH
+            initial_data_file = "%s/sodshocktube/sodshocktube.py" % ALSVINN_EXAMPLES_PATH
 
         if equation_parameters is None:
             equation_parameters = {"gamma": 1.4}

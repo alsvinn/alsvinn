@@ -13,16 +13,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "alsfvm/numflux/Rusanov.hpp"
-#include "alsfvm/equation/equation_list.hpp"
-namespace alsfvm {
-namespace numflux {
-template<class Equation>
-const std::string Rusanov<Equation>::name = "rusanov";
+#pragma once
 
-template class Rusanov<equation::burgers::Burgers>;
-template class Rusanov<equation::buckleyleverett::BuckleyLeverett>;
-template class Rusanov<equation::cubic::Cubic>;
-template class Rusanov<equation::linear::Linear>;
-}
-}
+namespace alsfvm {
+namespace equation {
+namespace linear {
+
+class ExtraVariables {
+public:
+    // No extra variables for linear
+};
+} // namespace alsfvm
+} // namespace equation
+} // namespace linear

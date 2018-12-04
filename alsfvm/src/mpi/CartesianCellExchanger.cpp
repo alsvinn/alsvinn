@@ -118,6 +118,7 @@ void CartesianCellExchanger::createDataTypeSend(int side,
             numberOfCellsPerDirection,
             ghostCells,
             ghostCells);
+
     std::vector<int> lengths = cartesian::computeLengths(side, dimensions,
             numberOfCellsPerDirection,
             ghostCells);
