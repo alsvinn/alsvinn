@@ -46,12 +46,12 @@ void ConservedSystem::operator()( volume::Volume& conservedVariables,
                 conservedVariables).waitForAll();
         }
     });
-    cellExchangeThread.join();
+
     numericalFlux->computeFlux(conservedVariables, waveSpeed, computeWaveSpeed,
         output, ghostCells, -1 * ghostCells);
 
 
-
+    cellExchangeThread.join();
 
     // Now compute the sides
     for (int d = 0; d < dimensions; ++d) {

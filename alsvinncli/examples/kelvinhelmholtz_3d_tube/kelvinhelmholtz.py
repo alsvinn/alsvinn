@@ -15,14 +15,10 @@ def init_global(rho, ux, uy, uz, p, nx, ny, nz, ax, ay, az, bx, by, bz):
     if abs(normalization2) < 1e-10:
         normalization2 = 1
 
-    print("nx = %d" % nx)
-    print("ny = %d" % ny)
-    print("nz = %d" % nz)
     x = linspace(ax, bx, nx)
     y = linspace(ay, by, ny)
     z = linspace(az, bz, nz)
     Y, X, Z = meshgrid(y, x, z)
-    print(X.shape)
     X = X
     Y = Y
     Z = Z
@@ -38,7 +34,7 @@ def init_global(rho, ux, uy, uz, p, nx, ny, nz, ax, ay, az, bx, by, bz):
     middle = (R < 0.25 + perturbation_radius)
 
     rho[:, :, :] = 2.0 * middle + 1.0*(1-middle)
-    uy[:, :, :] = -0.5*middle + 0.5*(1-middle)
-    ux[:,:,:] = zeros_like(X)
+    ux[:, :, :] = -0.5*middle + 0.5*(1-middle)
+    uy[:,:,:] = zeros_like(X)
     uz[:,:,:] = zeros_like(X)
     p[:,:,:] = 2.5*ones_like(X)
