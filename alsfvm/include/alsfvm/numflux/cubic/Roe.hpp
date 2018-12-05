@@ -43,10 +43,10 @@ public:
         using namespace equation::cubic;
 
         ConservedVariables fluxLeft;
-        eq.computePointFlux<direction>(AllVariables(fmax(left.u, real(0.0))), fluxLeft);
+        eq.computePointFlux<direction>(left, fluxLeft);
 
         ConservedVariables fluxRight;
-        eq.computePointFlux<direction>(AllVariables(fmin(right.u, real(0.0))),
+        eq.computePointFlux<direction>(right,
             fluxRight);
 
         real A = 0;
@@ -54,7 +54,7 @@ public:
         if (left.u != right.u) {
             A = (fluxLeft.u - fluxRight.u) / (left.u - right.u);
         } else {
-            A = 3 * left.u * left.u;
+            A = left.u * left.u;
         }
 
         if (A >= 0) {
