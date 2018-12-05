@@ -7,6 +7,8 @@ It also supports cluster configurations consisting of either CPUs or GPUs. It ex
 
 Alsvinn is maintained by [Kjetil Olsen Lye](https://github.com/kjetil-lye/) at ETH Zurich. We want Alsvinn to be easy to use, so if you have issues compiling or running it, please don't hesitate to leave an issue.
 
+Alsvinn is also [available as a Docker container.](https://cloud.docker.com/u/alsvinn/)
+
 ## Supported equations
 
   * The Compressible Euler Equations
