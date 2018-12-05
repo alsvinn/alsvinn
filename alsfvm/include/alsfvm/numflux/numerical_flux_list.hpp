@@ -28,6 +28,9 @@
 #include "alsfvm/numflux/euler/Tecno1.hpp"
 #include "alsfvm/equation/linear/Linear.hpp"
 #include "alsfvm/numflux/linear/Upwind.hpp"
+#include "alsfvm/numflux/linear/Roe.hpp"
+#include "alsfvm/numflux/cubic/Roe.hpp"
+#include "alsfvm/numflux/burgers/Roe.hpp"
 
 
 ///
@@ -75,6 +78,7 @@ boost::fusion::pair<equation::euler::Euler<1>,
       Central<equation::burgers::Burgers>,
       Rusanov<equation::burgers::Burgers>,
       burgers::Godunov,
+      burgers::Roe,
       ScalarEntropyConservativeFlux<equation::burgers::Burgers>,
       TecnoCombined4<equation::burgers::Burgers, ScalarEntropyConservativeFlux<equation::burgers::Burgers> >,
       TecnoCombined4<::alsfvm::equation::burgers::Burgers, burgers::Godunov>,
@@ -94,6 +98,7 @@ boost::fusion::pair<equation::euler::Euler<1>,
       boost::fusion::pair < equation::cubic::Cubic,
       boost::fusion::vector <
       Central<equation::cubic::Cubic>,
+      cubic::Roe,
       Rusanov<equation::cubic::Cubic>
       > >,
 
@@ -102,6 +107,7 @@ boost::fusion::pair<equation::euler::Euler<1>,
       boost::fusion::vector <
       Central<equation::linear::Linear>,
       Rusanov<equation::linear::Linear>,
+      linear::Roe,
       linear::Upwind
       > >
       > NumericalFluxList;
@@ -158,6 +164,9 @@ void for_each_flux(Function f) {
     template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 1>; \
     template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 2>; \
     template class X< ::alsfvm::numflux::burgers::Godunov, ::alsfvm::equation::burgers::Burgers, 3>; \
+    template class X< ::alsfvm::numflux::burgers::Roe, ::alsfvm::equation::burgers::Burgers, 1>; \
+    template class X< ::alsfvm::numflux::burgers::Roe, ::alsfvm::equation::burgers::Burgers, 2>; \
+    template class X< ::alsfvm::numflux::burgers::Roe, ::alsfvm::equation::burgers::Burgers, 3>; \
     template class X< ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 1>; \
     template class X< ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 2>; \
     template class X< ::alsfvm::numflux::ScalarEntropyConservativeFlux<::alsfvm::equation::burgers::Burgers>, ::alsfvm::equation::burgers::Burgers, 3>; \
@@ -215,6 +224,9 @@ void for_each_flux(Function f) {
     template class X< ::alsfvm::numflux::Rusanov<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 1>; \
     template class X< ::alsfvm::numflux::Rusanov<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 2>; \
     template class X< ::alsfvm::numflux::Rusanov<equation::cubic::Cubic>, ::alsfvm::equation::cubic::Cubic, 3>; \
+    template class X< ::alsfvm::numflux::cubic::Roe, ::alsfvm::equation::cubic::Cubic, 1>; \
+    template class X< ::alsfvm::numflux::cubic::Roe, ::alsfvm::equation::cubic::Cubic, 2>; \
+    template class X< ::alsfvm::numflux::cubic::Roe, ::alsfvm::equation::cubic::Cubic, 3>; \
     template class X< ::alsfvm::numflux::Central<equation::linear::Linear>, ::alsfvm::equation::linear::Linear, 1>; \
     template class X< ::alsfvm::numflux::Central<equation::linear::Linear>, ::alsfvm::equation::linear::Linear, 2>; \
     template class X< ::alsfvm::numflux::Central<equation::linear::Linear>, ::alsfvm::equation::linear::Linear, 3>; \
@@ -223,7 +235,10 @@ void for_each_flux(Function f) {
     template class X< ::alsfvm::numflux::Rusanov<equation::linear::Linear>, ::alsfvm::equation::linear::Linear, 3>; \
     template class X< ::alsfvm::numflux::linear::Upwind, ::alsfvm::equation::linear::Linear, 1>; \
     template class X< ::alsfvm::numflux::linear::Upwind, ::alsfvm::equation::linear::Linear, 2>; \
-    template class X< ::alsfvm::numflux::linear::Upwind, ::alsfvm::equation::linear::Linear, 3>;
+    template class X< ::alsfvm::numflux::linear::Upwind, ::alsfvm::equation::linear::Linear, 3>; \
+    template class X< ::alsfvm::numflux::linear::Roe, ::alsfvm::equation::linear::Linear, 1>; \
+    template class X< ::alsfvm::numflux::linear::Roe, ::alsfvm::equation::linear::Linear, 2>; \
+    template class X< ::alsfvm::numflux::linear::Roe, ::alsfvm::equation::linear::Linear, 3>;
 
 
 
