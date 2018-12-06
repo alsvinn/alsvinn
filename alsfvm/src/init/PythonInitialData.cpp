@@ -179,8 +179,10 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
         }
 
         //ALSVINN_LOG(INFO, "Python program: \n" << functionStringStream.str());
-
-        boost::python::exec(functionStringStream.str().c_str(), mainNamespace);
+	{
+	    ALSVINN_TIME_BLOCK(alsvinn, fvm, init, python, program);
+	    boost::python::exec(functionStringStream.str().c_str(), mainNamespace);
+	}
         ALSVINN_LOG(INFO, "Pythonprogram executed");
 
         auto initialValueFunction = mainNamespace["initial_data"];
@@ -194,7 +196,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
             [&](real x, real y, real z, size_t index,
         size_t i, size_t j, size_t k) {
 
-
+	      ALSVINN_TIME_BLOCK(alsvinn, fvm, init, python, extract);
 
             boost::python::dict outputMap;
 
