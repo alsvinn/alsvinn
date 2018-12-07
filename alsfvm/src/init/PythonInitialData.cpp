@@ -73,6 +73,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     grid::Grid& grid) {
 
     ALSVINN_TIME_BLOCK(alsvinn, fvm, init, python);
+    primitiveVolume.makeZero();
 
     try {
 
@@ -95,12 +96,15 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
         functionStringStream << "from math import *" << std::endl;
         functionStringStream << "try:\n    from numpy import *\nexcept:\n    pass" <<
             std::endl;
-        functionStringStream << "def initial_data(x, y, z, i, j, k, output):\n";
 
-        // Now we need to add the variables we need to write:
-        for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
-            // We set them to None, that way we can check at the end if they are checked.
-            addIndent(primitiveVolume.getName(i) + " = 0.0", functionStringStream);
+        if (snippet) {
+            functionStringStream << "def initial_data(x, y, z, i, j, k, output):\n";
+
+            // Now we need to add the variables we need to write:
+            for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
+                // We set them to None, that way we can check at the end if they are checked.
+                addIndent(primitiveVolume.getName(i) + " = 0.0", functionStringStream);
+            }
         }
 
         // Then we add the parameters
@@ -125,6 +129,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
         }
 
         if (snippet) {
+
             addIndent(programString, functionStringStream);
 
 
@@ -135,83 +140,122 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
                 addIndent(std::string("output['") + name + "'] = " + name,
                     functionStringStream);
             }
-        } else {
-            // Add code to store the variables:
-            for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
-                // We set them to None, that way we can check at the end if they are checked.
-                const auto& name = primitiveVolume.getName(i);
-                addIndent(std::string("output['") + name + "'] = " + name + "_global[i,j,k]",
-                    functionStringStream);
-            }
         }
 
         if (!snippet) {
             for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
-                // We set them to None, that way we can check at the end if they are checked.
+
                 const auto& name = primitiveVolume.getName(i);
-                functionStringStream << name << "_global = zeros(("
-                    << grid.getDimensions().x << ", "
-                    << grid.getDimensions().y << ", "
-                    << grid.getDimensions().z << "))"
-                    << std::endl;
+                const auto outputArrayName = name + "_global";
+                boost::python::tuple shape = boost::python::make_tuple(grid.getDimensions().x,
+                        grid.getDimensions().y,
+                        grid.getDimensions().z);
+
+                boost::python::tuple stride = boost::python::make_tuple(
+                        sizeof(real),
+                        sizeof(real) * (primitiveVolume.getTotalNumberOfXCells()),
+                        sizeof(real) * (primitiveVolume.getTotalNumberOfXCells()) *
+                        (primitiveVolume.getTotalNumberOfYCells()));
+
+                auto type = boost::python::numpy::dtype::get_builtin<real>();
+
+                // We need to start at the first real element.
+                auto startPointer = primitiveVolume.getScalarMemoryArea(i)->getPointer()
+                    + primitiveVolume.getNumberOfXGhostCells()
+                    + primitiveVolume.getNumberOfYGhostCells() *
+                    primitiveVolume.getTotalNumberOfXCells()
+                    + primitiveVolume.getNumberOfZGhostCells() *
+                    primitiveVolume.getTotalNumberOfYCells() *
+                    primitiveVolume.getTotalNumberOfXCells();
+
+                auto array = boost::python::numpy::from_data(
+                        startPointer,
+                        type, shape, stride,
+                        mainModule);
+
+                mainModule.attr(outputArrayName.c_str()) = boost::python::object(array);
             }
 
             functionStringStream << programString << std::endl;
 
-            functionStringStream << "init_global(";
+            // We now make a function to call the init global function,
+            // this function will take all our numerical values
+            // (we don't want to pass any numeric value, especially floating point
+            // numbers as text)
+            // However, for ease of multiple variable names, we actually pass those
+            // names as text
+            functionStringStream <<
+                "def call_init_global(nx, ny, nz, ax, ay, az, bx, by, bz):\n";
+
+
+
+            functionStringStream << "    init_global(";
+
 
             for (size_t i = 0; i < primitiveVolume.getNumberOfVariables(); ++i) {
                 // We set them to None, that way we can check at the end if they are checked.
                 const auto& name = primitiveVolume.getName(i);
-                functionStringStream << name << "_global, ";
+                functionStringStream << name + "_global, ";
             }
 
-            functionStringStream << grid.getDimensions().x << ", "
-                << grid.getDimensions().y << ", "
-                << grid.getDimensions().z << ", "
-                << grid.getOrigin().x << ", "
-                << grid.getOrigin().y << ", "
-                << grid.getOrigin().z << ", "
-                << grid.getTop().x << ", "
-                << grid.getTop().y << ", "
-                << grid.getTop().z << ")"
-                << std::endl;
+
+            functionStringStream << "nx, ny, nz, ax, ay, az, bx, by, bz)\n";
         }
 
-        //ALSVINN_LOG(INFO, "Python program: \n" << functionStringStream.str());
-	{
-	    ALSVINN_TIME_BLOCK(alsvinn, fvm, init, python, program);
-	    boost::python::exec(functionStringStream.str().c_str(), mainNamespace);
-	}
-        ALSVINN_LOG(INFO, "Pythonprogram executed");
+        ALSVINN_LOG(INFO, "Python program: \n########################\n" <<
+            functionStringStream.str() << "########################");
+        {
+            ALSVINN_TIME_BLOCK(alsvinn, fvm, init, python, evaluation);
+            boost::python::exec(functionStringStream.str().c_str(), mainNamespace);
+        }
+        ALSVINN_LOG(INFO, "Pythonprogram evaluated");
 
-        auto initialValueFunction = mainNamespace["initial_data"];
+        if (!snippet) {
+            ALSVINN_TIME_BLOCK(alsvinn, fvm, init, python, init_global);
+            auto initGlobalFunction = mainNamespace["call_init_global"];
+
+
+            initGlobalFunction(grid.getDimensions().x,
+                grid.getDimensions().y,
+                grid.getDimensions().z,
+                grid.getOrigin().x,
+                grid.getOrigin().y,
+                grid.getOrigin().z,
+                grid.getTop().x,
+                grid.getTop().y,
+                grid.getTop().z);
+        }
 
 
 
         ALSVINN_LOG(INFO, "InitialData grid sizes" << grid.getDimensions());
 
-        // loop through the map and set the initial values
-        volume::for_each_midpoint(primitiveVolume, grid,
-            [&](real x, real y, real z, size_t index,
-        size_t i, size_t j, size_t k) {
+        if (snippet) {
+            auto initialValueFunction = mainNamespace["initial_data"];
+            // loop through the map and set the initial values
+            volume::for_each_midpoint(primitiveVolume, grid,
+                [&](real x, real y, real z, size_t index,
+            size_t i, size_t j, size_t k) {
 
-	      ALSVINN_TIME_BLOCK(alsvinn, fvm, init, python, extract);
+                ALSVINN_TIME_BLOCK(alsvinn, fvm, init, python, extract);
 
-            boost::python::dict outputMap;
+                boost::python::dict outputMap;
 
-            initialValueFunction(x, y, z, i, j, k, outputMap);
+                initialValueFunction(x, y, z, i, j, k, outputMap);
 
-            // Loop through each variable and set it in the primitive variables:
-            for (size_t var = 0; var <  primitiveVolume.getNumberOfVariables(); ++var) {
-                const auto& name = primitiveVolume.getName(var);
+                // Loop through each variable and set it in the primitive variables:
+                for (size_t var = 0; var <  primitiveVolume.getNumberOfVariables(); ++var) {
+                    const auto& name = primitiveVolume.getName(var);
 
-                const double value = boost::python::extract<double>(outputMap[name]);
+                    const double value = boost::python::extract<double>(outputMap[name]);
 
-                primitiveVolume.getScalarMemoryArea(var)->getPointer()[index] = value;
-            }
+                    primitiveVolume.getScalarMemoryArea(var)->getPointer()[index] = value;
+                }
 
-        });
+            });
+        }
+
+
 
         ALSVINN_LOG(INFO, "Done setting initial data");
         cellComputer.computeFromPrimitive(primitiveVolume, conservedVolume,
