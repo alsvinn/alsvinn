@@ -1,4 +1,4 @@
-def init_global(rho, ux, uy, p, nx, ny, nz):
+def init_global(rho, ux, uy, p, nx, ny, nz, ax, ay, az, bx, by, bz):
 	N = len(a)/4
 	a1 = a[:10]
 	a2 = a[10:20]
@@ -12,8 +12,8 @@ def init_global(rho, ux, uy, p, nx, ny, nz):
 	if abs(normalization2) < 1e-10:
 		normalization2 = 1
 
-	x = linspace(0, 1, nx)
-	y = linspace(0,1, ny)
+	x = linspace(ax, ay, nx)
+	y = linspace(bx, by, ny)
 
 	X, Y = meshgrid(x, y)
         X = X.T
