@@ -14,11 +14,11 @@ SET(HUNTER_ROOT ${CMAKE_BINARY_DIR}/hunter_root)
 
 IF(${ALSVINN_USE_HUNTER})
 	include("cmake/HunterGate.cmake")
-
 	HunterGate(
-		URL "https://github.com/ruslo/hunter/archive/v0.15.0.tar.gz"
-		SHA1 "5ce8ae8627d94315c47a0acf246de1c0aae2b4b9"
+	    URL "https://github.com/ruslo/hunter/archive/v0.23.123.tar.gz"
+            SHA1 "e28cbf2464e922bbeaec0c7d9ad35bc45670435d"
 	)
+
 ELSE()
 	MACRO(hunter_add_package args)
 		# do nothing
@@ -83,7 +83,7 @@ endif()
 find_package(PythonLibs 2.7 REQUIRED)
 
 
-hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log)
+hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log python)
 find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python27 numpy27)
 
 
