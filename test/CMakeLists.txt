@@ -30,4 +30,9 @@ target_include_directories(alstest PUBLIC
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
 
-TARGET_LINK_LIBRARIES(alstest  alsfvm alsuq GTest::GTest GTest::Main)
+TARGET_LINK_LIBRARIES(alstest  alsfvm alsuq 
+  Boost::program_options 
+  Boost::system
+  Boost::chrono
+  Boost::thread
+  GTest::GTest GTest::Main)
