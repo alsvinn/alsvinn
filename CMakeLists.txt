@@ -125,7 +125,7 @@ endif()
 if(ALSVINN_USE_FLOAT)
 	ADD_DEFINITIONS(-DALSVINN_USE_FLOAT)
 endif()
-
+#hunter_add_package(hdf5)
 find_package(HDF5 REQUIRED)
 
 
