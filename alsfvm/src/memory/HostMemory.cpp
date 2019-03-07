@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,6 +19,8 @@
 #include <algorithm>
 #include "alsutils/error/Exception.hpp"
 #include "alsutils/log.hpp"
+#include "alsutils/debug/stacktrace.hpp"
+#include "alsutils/config.hpp"
 
 #define CHECK_SIZE_AND_HOST(x) { \
     if (!x.isOnHost()) {\
@@ -33,6 +35,12 @@ namespace memory {
 
 template<class T> HostMemory<T>::HostMemory(size_t nx, size_t ny, size_t nz)
     : Memory<T>(nx, ny, nz), data(nx * ny * nz, 42) {
+#ifdef ALSVINN_PRINT_MEMORY_ALLOCATIONS
+    const  size_t size = nx * ny * nz * sizeof(T);
+    const double sizeGb = size / 1000000000.;
+    ALSVINN_LOG(INFO, "CPU allocating " << size << " bytes (" << sizeGb <<
+        " GB), in " << alsutils::debug::getShortStacktrace());
+#endif
 
 }
 

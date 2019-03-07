@@ -61,6 +61,8 @@ SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 SET(ALSVINN_USE_TIMERS ON CACHE BOOL "Enable profiling timings (should not hurt performance)")
 SET(ALSVINN_USE_CUDA_TIMERS OFF CACHE BOOL "Enable CUDA profiling timings (hurts performance)")
 
+SET(ALSVINN_PRINT_MEMORY_ALLOCATIONS OFF CACHE BOOL "Log every memory allocation")
+
 
 SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
 SET(ALSVINN_PROFILE OFF CACHE BOOL "Add profiling information")
@@ -89,7 +91,11 @@ endif()
 find_package(PythonLibs 2.7 REQUIRED)
 
 hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log python)
-find_package(Boost CONFIG REQUIRED filesystem thread system chrono date_time program_options log log_setup python27 numpy27)
+if(ALSVINN_USE_HUNTER)
+    find_package(Boost CONFIG REQUIRED filesystem thread system chrono date_time program_options log log_setup python27 numpy27)
+else()
+    find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python27 numpy27)
+ endif()
 
 
 if (NOT ALSVINN_USE_HUNTER)
