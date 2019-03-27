@@ -1,29 +1,35 @@
-cmake_minimum_required (VERSION 3.1.0)
+cmake_minimum_required (VERSION 3.10.0)
+
+
+SET(ALSVINN_USE_HUNTER OFF CACHE BOOL "Use Hunter for automatic compiling of additional packages")
+SET(HUNTER_ROOT ${CMAKE_BINARY_DIR}/hunter_root)
+
+IF(${ALSVINN_USE_HUNTER})
+	include("cmake/HunterGate.cmake")
+	HunterGate(
+	    URL "https://github.com/ruslo/hunter/archive/v0.23.123.tar.gz"
+            SHA1 "e28cbf2464e922bbeaec0c7d9ad35bc45670435d"
+	    LOCAL
+	)
+
+ELSE()
+	MACRO(hunter_add_package args)
+		# do nothing
+	ENDMACRO()
+ENDIF()
+
 project (alsvinn VERSION 0.2.1 LANGUAGES C CXX )
 SET(ALSVINN_USE_FLOAT OFF CACHE BOOL "Do all computations with 32 bits
 floating point numbers, instead of 64 bit double precision")
 SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
-SET(ALSVINN_USE_HUNTER OFF CACHE BOOL "Use Hunter for automatic compiling of additional packages")
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CUDA_STANDARD 11)
 
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CUDA_STANDARD_REQUIRED TRUE)
 
-SET(HUNTER_ROOT ${CMAKE_BINARY_DIR}/hunter_root)
 
-IF(${ALSVINN_USE_HUNTER})
-	include("cmake/HunterGate.cmake")
-
-	HunterGate(
-		URL "https://github.com/ruslo/hunter/archive/v0.15.0.tar.gz"
-		SHA1 "5ce8ae8627d94315c47a0acf246de1c0aae2b4b9"
-	)
-ELSE()
-	MACRO(hunter_add_package args)
-		# do nothing
-	ENDMACRO()
-ENDIF()
 if(${ALSVINN_USE_CUDA})
         enable_language(CUDA)
 	find_package(CUDA REQUIRED)
@@ -55,6 +61,8 @@ SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 SET(ALSVINN_USE_TIMERS ON CACHE BOOL "Enable profiling timings (should not hurt performance)")
 SET(ALSVINN_USE_CUDA_TIMERS OFF CACHE BOOL "Enable CUDA profiling timings (hurts performance)")
 
+SET(ALSVINN_PRINT_MEMORY_ALLOCATIONS OFF CACHE BOOL "Log every memory allocation")
+
 
 SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
 SET(ALSVINN_PROFILE OFF CACHE BOOL "Add profiling information")
@@ -82,9 +90,12 @@ endif()
 # the only way of specify initial data
 find_package(PythonLibs 2.7 REQUIRED)
 
-
-hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log)
-find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python27 numpy27)
+hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log python)
+if(ALSVINN_USE_HUNTER)
+    find_package(Boost CONFIG REQUIRED filesystem thread system chrono date_time program_options log log_setup python27 numpy27)
+else()
+    find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python27 numpy27)
+ endif()
 
 
 if (NOT ALSVINN_USE_HUNTER)
@@ -120,7 +131,7 @@ endif()
 if(ALSVINN_USE_FLOAT)
 	ADD_DEFINITIONS(-DALSVINN_USE_FLOAT)
 endif()
-
+#hunter_add_package(hdf5)
 find_package(HDF5 REQUIRED)
 
 

@@ -16,6 +16,8 @@
 #include "alsfvm/simulator/ConservedSystem.hpp"
 #include <algorithm>
 #include <thread>
+#include "alsutils/timer/Timer.hpp"
+
 namespace alsfvm {
 namespace simulator {
 
@@ -42,8 +44,15 @@ void ConservedSystem::operator()( volume::Volume& conservedVariables,
 
     std::thread cellExchangeThread([&]() {
         if (cellExchanger) {
-            cellExchanger->exchangeCells(conservedVariables,
-                conservedVariables).waitForAll();
+
+            ALSVINN_TIME_BLOCK(alsvinn, mpi, exchange);
+            auto request = cellExchanger->exchangeCells(conservedVariables,
+                    conservedVariables);
+            {
+                ALSVINN_TIME_BLOCK(alsvinn, mpi, exchange, wait);
+                request.waitForAll();
+            }
+
         }
     });
 
