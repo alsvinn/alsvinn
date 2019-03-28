@@ -35,4 +35,5 @@ TARGET_LINK_LIBRARIES(alstest  alsfvm alsuq
   Boost::system
   Boost::chrono
   Boost::thread
+  Boost::date_time	
   GTest::GTest GTest::Main)

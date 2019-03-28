@@ -46,6 +46,7 @@ TARGET_LINK_LIBRARIES(alsuq
    alsutils alsuq_cuda
   MPI::MPI_C
   Boost::filesystem
+  Boost::date_time	
   hdf5::HDF5_C
   python::PythonLibs
   netcdf::NetCDF4_c

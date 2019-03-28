@@ -31,6 +31,6 @@ target_include_directories(alstest_mpi PUBLIC
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
 
-TARGET_LINK_LIBRARIES(alstest_mpi alsfvm alsuq GTest::GTest GTest::Main)
+TARGET_LINK_LIBRARIES(alstest_mpi alsfvm alsuq GTest::GTest GTest::Main   Boost::date_time)
 
 configure_file(run_mpi_tests.sh.in ${CMAKE_BINARY_DIR}/run_mpi_tests.sh)

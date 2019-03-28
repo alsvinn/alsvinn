@@ -19,6 +19,8 @@ endif()
 TARGET_LINK_LIBRARIES(alsvinncli alsfvm
   ${CUDARTLIB}
   ${OpenMP_CXX_LIB_NAMES}
+
+  Boost::date_time
   Boost::program_options 
   Boost::system
   Boost::chrono
