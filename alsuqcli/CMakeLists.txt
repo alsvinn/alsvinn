@@ -13,6 +13,7 @@ TARGET_LINK_LIBRARIES(alsuqcli alsuq
    Boost::system
    Boost::chrono
    Boost::thread
+   Boost::date_time	
    ${OpenMP_CXX_LIB_NAMES})
 
 INSTALL(TARGETS

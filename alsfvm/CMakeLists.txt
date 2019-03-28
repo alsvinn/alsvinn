@@ -69,6 +69,7 @@ target_link_libraries(alsfvm
   Boost::python27
   Boost::numpy27
   MPI::MPI_C
+  Boost::date_time	
   hdf5::HDF5_C
   python::PythonLibs
   ${CUDA_LIBRARIES}
