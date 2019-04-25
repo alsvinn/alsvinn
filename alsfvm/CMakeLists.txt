@@ -66,8 +66,8 @@ target_link_libraries(alsfvm
   alsutils
   alsfvm_cuda
   Boost::filesystem
-  Boost::python27
-  Boost::numpy27
+  Boost::${ALSVINN_BOOST_PYTHON} 
+  Boost::${ALSVINN_BOOST_NUMPY}
   MPI::MPI_C
   Boost::date_time	
   hdf5::HDF5_C
