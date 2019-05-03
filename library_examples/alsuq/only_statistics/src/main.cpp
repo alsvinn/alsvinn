@@ -22,12 +22,14 @@ void addWriters(alsuq::stats::StatisticsFactory::StatisticsPointer
     const std::string& outputName,
     const std::string& writerType) {
     alsfvm::io::WriterFactory factory;
+    boost::property_tree::ptree tree;
+    alsfvm::io::Parameters parameters(tree);
 
     // this is a general routine, some statistics have more than one output
     // (eg. meanvar saves mean and var), we need to supply a writer for each output
     for (auto statsName :
         statisticsPointer->getStatisticsNames()) { // loop through each output
-        auto writer = factory.createWriter(writerType, outputName + "_" + statsName);
+      auto writer = factory.createWriter(writerType, outputName + "_" + statsName, parameters);
         // It is a good idea to add some attributes to the writer to
         // know mark the data
         boost::property_tree::ptree attributes;
