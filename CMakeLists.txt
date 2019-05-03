@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.10.0)
 
 
 SET(ALSVINN_USE_HUNTER OFF CACHE BOOL "Use Hunter for automatic compiling of additional packages")
-SET(ALSVINN_USE_HUNTER_FOR_BOOST ALSVINN_USE_HUNTER CACHE BOOL "Use hunter to build boost")
+SET(ALSVINN_USE_HUNTER_FOR_BOOST ON CACHE BOOL "Use hunter to build boost")
 SET(HUNTER_ROOT ${CMAKE_BINARY_DIR}/hunter_root)
 
 IF(${ALSVINN_USE_HUNTER})
@@ -105,7 +105,7 @@ endif()
 # the only way of specify initial data
 find_package(PythonLibs ${ALSVINN_PYTHON_VERSION} REQUIRED)
 
-if(ALSVINN_USE_HUNTER_BOOST AND ALSVINN_USE_HUNTER)
+if(ALSVINN_USE_HUNTER_FOR_BOOST AND ALSVINN_USE_HUNTER)
    hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log python)
    find_package(Boost CONFIG REQUIRED filesystem thread system chrono date_time program_options log log_setup ${ALSVINN_BOOST_PYTHON} ${ALSVINN_BOOST_NUMPY})
 

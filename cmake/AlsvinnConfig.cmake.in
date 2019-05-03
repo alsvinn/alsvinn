@@ -1,7 +1,27 @@
 get_filename_component(alsvinn_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 list(APPEND CMAKE_MODULE_PATH ${alsvinn_CMAKE_DIR})
 include(CMakeFindDependencyMacro)
-find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python numpy)
+
+SET(ALSVINN_USE_HUNTER_BOOST "@ALSVINN_USE_HUNTER_BOOST@" STREQUAL "ON")
+SET(ALSVINN_USE_HUNTER "@ALSVINN_USE_HUNTER@" STREQUAL "ON")
+SET(ALSVINN_PYTHON_VERSION "@ALSVINN_PYTHON_VERSION@")
+SET(ALSVINN_BOOST_PYTHON "@ALSVINN_BOOST_PYTHON@")
+SET(ALSVINN_BOOST_NUMPY "@ALSVINN_BOOST_NUMPY@")
+
+find_package(PythonLibs ${ALSVINN_PYTHON_VERSION} REQUIRED)
+
+if(ALSVINN_USE_HUNTER_BOOST AND ALSVINN_USE_HUNTER)
+   hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log python)
+   find_package(Boost CONFIG REQUIRED filesystem thread system chrono date_time program_options log log_setup ${ALSVINN_BOOST_PYTHON} ${ALSVINN_BOOST_NUMPY})
+
+else()
+    message(STATUS "Not using hunter to build boost")
+    find_package(Boost REQUIRED COMPONENTS filesystem thread system chrono date_time program_options log log_setup ${ALSVINN_BOOST_PYTHON} ${ALSVINN_BOOST_NUMPY})
+endif()
+
+
+
+
 find_package(PythonLibs REQUIRED)
 if ("@ALSVINN_USE_MPI@" STREQUAL "ON")
     find_package(MPI REQUIRED)

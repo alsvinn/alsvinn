@@ -8,13 +8,18 @@ ADD_EXECUTABLE(alsuqcli ${SRC} ${EXAMPLES})
 
 
 
-TARGET_LINK_LIBRARIES(alsuqcli alsuq 
+TARGET_LINK_LIBRARIES(alsuqcli alsuq
+  ${OpenMP_CXX_LIB_NAMES}
    Boost::program_options 
+   Boost::chrono
+   Boost::thread
+   Boost::system
+   Boost::date_time
+   Boost::log
    Boost::system
    Boost::chrono
    Boost::thread
-   Boost::date_time	
-   ${OpenMP_CXX_LIB_NAMES})
+)
 
 INSTALL(TARGETS
     alsuqcli

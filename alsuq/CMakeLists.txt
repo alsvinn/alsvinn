@@ -43,10 +43,13 @@ target_include_directories(alsuq PUBLIC
 TARGET_LINK_LIBRARIES(alsuq
   PUBLIC
   alsfvm
-   alsutils alsuq_cuda
-  MPI::MPI_C
+  alsutils
+  alsuq_cuda
   Boost::filesystem
+  Boost::system
+  Boost::log
   Boost::date_time	
+  MPI::MPI_C
   hdf5::HDF5_C
   python::PythonLibs
   netcdf::NetCDF4_c
