@@ -2,15 +2,16 @@ cmake_minimum_required (VERSION 3.10.0)
 
 
 SET(ALSVINN_USE_HUNTER OFF CACHE BOOL "Use Hunter for automatic compiling of additional packages")
+SET(ALSVINN_USE_HUNTER_FOR_BOOST ON CACHE BOOL "Use hunter to build boost")
 SET(HUNTER_ROOT ${CMAKE_BINARY_DIR}/hunter_root)
 
 IF(${ALSVINN_USE_HUNTER})
 	include("cmake/HunterGate.cmake")
-	HunterGate(
-	    URL "https://github.com/ruslo/hunter/archive/v0.23.123.tar.gz"
-            SHA1 "e28cbf2464e922bbeaec0c7d9ad35bc45670435d"
-	    LOCAL
-	)
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/v0.23.163.tar.gz"
+    SHA1 "e4a6bc5a951806f285bb7e09f845a600f7285193"
+    LOCAL
+)
 
 ELSE()
 	MACRO(hunter_add_package args)
@@ -68,6 +69,20 @@ SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
 SET(ALSVINN_PROFILE OFF CACHE BOOL "Add profiling information")
 SET(ALSVINN_MPI_GPU_DIRECT OFF CACHE BOOL "Use NVidia's GPU direct to do MPI transfers (this is faster, but not only available)")
 
+SET(ALSVINN_PYTHON_VERSION "2.7" CACHE STRING "Python version to use (either 2.7 or 3.6, 3.7, etc)")
+
+STRING(REPLACE "." "" ALSVINN_PYTHON_VERSION_PURE ${ALSVINN_PYTHON_VERSION})
+
+
+MARK_AS_ADVANCED(ALSVINN_PYTHON_VERSION_PURE)
+
+SET(ALSVINN_BOOST_PYTHON "python${ALSVINN_PYTHON_VERSION_PURE}")
+MARK_AS_ADVANCED(ALSVINN_BOOST_PYTHON)
+
+SET(ALSVINN_BOOST_NUMPY "numpy${ALSVINN_PYTHON_VERSION_PURE}")
+MARK_AS_ADVANCED(ALSVINN_BOOST_NUMPY)
+
+
 ADD_DEFINITIONS(-DMPICH_RDMA_ENABLED_CUDA=1)
 FIND_PACKAGE(OpenMP REQUIRED)
 
@@ -88,14 +103,16 @@ endif()
 
 # Python dependency could be made optional eventually, but for now it's
 # the only way of specify initial data
-find_package(PythonLibs 2.7 REQUIRED)
+find_package(PythonLibs ${ALSVINN_PYTHON_VERSION} REQUIRED)
 
-hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log python)
-if(ALSVINN_USE_HUNTER)
-    find_package(Boost CONFIG REQUIRED filesystem thread system chrono date_time program_options log log_setup python27 numpy27)
+if(ALSVINN_USE_HUNTER_FOR_BOOST AND ALSVINN_USE_HUNTER)
+   hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log python)
+   find_package(Boost CONFIG REQUIRED filesystem thread system chrono date_time program_options log log_setup ${ALSVINN_BOOST_PYTHON} ${ALSVINN_BOOST_NUMPY})
+
 else()
-    find_package(Boost REQUIRED filesystem thread system chrono date_time program_options log log_setup python27 numpy27)
- endif()
+    message(STATUS "Not using hunter to build boost")
+    find_package(Boost REQUIRED COMPONENTS filesystem thread system chrono date_time program_options log log_setup ${ALSVINN_BOOST_PYTHON} ${ALSVINN_BOOST_NUMPY})
+endif()
 
 
 if (NOT ALSVINN_USE_HUNTER)
