@@ -2,12 +2,14 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include <mpi.h>
+
 int main(int argc, char** argv) {
   if (argc != 3) {
     std::cout << "Usage:\n\t"<<argv[0] << " path/to/xml_file.xml output_basename" << std::endl;
     return 1;
   }
-
+  MPI_Init(&argc, &argv);
   std::string inputFilename = argv[1];
   std::string outputFilename = argv[2];
   alsuq::config::Setup setup;
