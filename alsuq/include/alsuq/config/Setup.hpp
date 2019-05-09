@@ -44,6 +44,14 @@ public:
         mpi::ConfigurationPtr mpiConfigurationWorld,
         int multiSample, ivec3 multiSpatial);
 
+
+    std::shared_ptr<samples::SampleGenerator> makeSampleGenerator(
+        const std::string& inputFilename);
+
+    size_t readNumberOfSamples(const std::string& inputFilename);
+
+    size_t readSampleStart(const std::string& inputFilename);
+
 private:
 
     std::shared_ptr<samples::SampleGenerator> makeSampleGenerator(

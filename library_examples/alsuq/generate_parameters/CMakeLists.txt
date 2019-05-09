@@ -16,9 +16,9 @@ ELSE()
 	# do nothing
 	ENDMACRO()
 ENDIF()
-project (structure_functions LANGUAGES C CXX CUDA)
+project (generate_parameters LANGUAGES C CXX CUDA)
 
 find_package(Alsvinn REQUIRED)
-add_executable(structure_functions src/main.cpp)
+add_executable(generate_parameters src/main.cpp)
 
-target_link_libraries(structure_functions alsvinn::alsuq)
+target_link_libraries(generate_parameters alsvinn::alsuq)

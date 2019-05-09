@@ -104,6 +104,36 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string& inputFilename,
 }
 
 std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(
+    const std::string& inputFilename) {
+    std::ifstream stream(inputFilename);
+    ptree configurationBase;
+    boost::property_tree::read_xml(stream, configurationBase);
+    auto configuration = configurationBase.get_child("config");
+    auto sampleGenerator = makeSampleGenerator(configuration);
+
+    return sampleGenerator;
+
+}
+
+size_t Setup::readNumberOfSamples(const std::string& inputFilename) {
+    std::ifstream stream(inputFilename);
+    ptree configurationBase;
+    boost::property_tree::read_xml(stream, configurationBase);
+    auto configuration = configurationBase.get_child("config");
+
+    return readNumberOfSamples(configuration);
+}
+
+size_t Setup::readSampleStart(const std::string& inputFilename) {
+    std::ifstream stream(inputFilename);
+    ptree configurationBase;
+    boost::property_tree::read_xml(stream, configurationBase);
+    auto configuration = configurationBase.get_child("config");
+
+    return readSampleStart(configuration);
+}
+
+std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(
     Setup::ptree& configuration) {
     auto numberOfSamples = readNumberOfSamples(configuration);
 
