@@ -153,6 +153,46 @@ but the two can intertwine in one or several of: include directories, libraries 
 
 
 ## Installing necessary software
+
+### Ubuntu 19.04
+
+Simply run
+
+    sudo apt-get update
+    sudo apt-get install libnetcdf-mpi-dev 
+    	cmake python3 python3-matplotlib python3-numpy python3-scipy git \
+	libopenmpi-dev gcc g++ libgtest-dev libboost-all-dev doxygen \
+        build-essential graphviz libhdf5-mpi-dev libpnetcdf-dev
+
+if you want CUDA (GPU) support, you have to install the CUDA packages as well
+
+    sudo apt-get install nvidia-cuda-dev nvidia-cuda-toolkit
+
+#### Compiling with CUDA
+
+Compile with
+
+    cd alsvinn/
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DALSVINN_PYTHON_VERSION=3.7
+    make
+
+(If you are using a different python version, replace 3.7 with whatever python version you are using.)
+
+#### Compiling without CUDA
+
+Compile with
+
+    cd alsvinn/
+    mkdir build
+    cd build
+    cmake .. -DALSVINN_USE_CUDA=OFF -DCMAKE_BUILD_TYPE=Release \
+        -DALSVINN_PYTHON_VERSION=3.7
+    make
+    
+(If you are using a different python version, replace 3.7 with whatever python version you are using.)
+
 ### Arch Linux
 Pacman should have all needed packages, simply install
 
@@ -160,7 +200,7 @@ Pacman should have all needed packages, simply install
 
 ### Manually installing parallel-netcdf
 
-On Fedora and Ubuntu, you have to compile parallel-netcdf yourself. You can [download the latest version from the webpage](https://trac.mcs.anl.gov/projects/parallel-netcdf/wiki/Download) and install using autotools. Notice that you should compile with the CFLAG ```-fPIC```. A quick way to install parallel-netcdf would be
+On some old distributions, you have to manually compile parallel-netcdf. You can [download the latest version from the webpage](https://trac.mcs.anl.gov/projects/parallel-netcdf/wiki/Download) and install using autotools. Notice that you should compile with the CFLAG ```-fPIC```. A quick way to install parallel-netcdf would be
 
     wget http://cucis.ece.northwestern.edu/projects/PnetCDF/Release/parallel-netcdf-1.9.0.tar.gz
     tar xvf parallel-netcdf-1.9.0.tar.gz
@@ -173,3 +213,4 @@ remember to specify ```<some location>``` to ```-DCMAKE_PREFIX_PATH``` afterward
 
 # Using alsvinn as a library
 While it is not recommend, there are [guides available on how to run alsvinn as a standalone library](library_examples/README.md).
+
