@@ -12,9 +12,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "alsutils/config.hpp"
+#ifdef ALSVINN_HAS_PARALLEL_HDF
+#include "alsfvm/io/HDF5MPIWriter.hpp"
+#endif
 
 #include "alsuq/io/MPIWriterFactory.hpp"
-#include "alsfvm/io/HDF5MPIWriter.hpp"
+
 #include "alsfvm/io/NetCDFMPIWriter.hpp"
 #include "alsfvm/io/PythonScript.hpp"
 #include "alsuq/mpi/Configuration.hpp"
@@ -49,9 +53,13 @@ alsfvm::shared_ptr<alsfvm::io::Writer> MPIWriterFactory::createWriter(
     parameterCopy.addIntegerParameter("group_index", groupIndex);
 
     if (name == "hdf5") {
+#ifdef ALSVINN_HAS_PARALLEL_HDF
         writer.reset(new alsfvm::io::HDF5MPIWriter(baseFilename, groupNames,
                 groupIndex, createFile, mpiCommunicator,
                 mpiInfo));
+#else
+	THROW("Parallel HDF5 not supported in this build, use NetCDF instead (<type>netcdf</type>)");
+#endif
     } else if (name == "netcdf") {
         writer.reset(new alsfvm::io::NetCDFMPIWriter(baseFilename, groupNames,
                 groupIndex, createFile, mpiCommunicator,

@@ -19,7 +19,7 @@
 #cmakedefine ALSVINN_USE_TIMERS 1
 #cmakedefine ALSVINN_USE_CUDA_TIMERS 1
 #cmakedefine ALSVINN_PRINT_MEMORY_ALLOCATIONS 1
-
+#cmakedefine ALSVINN_HAS_PARALLEL_HDF5 1
 
 namespace alsutils {\
   std::string getAlsvinnVersion();
