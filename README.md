@@ -159,7 +159,7 @@ but the two can intertwine in one or several of: include directories, libraries 
 Simply run
 
     sudo apt-get update
-    sudo apt-get install libnetcdf-mpi-dev 
+    sudo apt-get install libnetcdf-mpi-dev libnetcdf-dev
     	cmake python3 python3-matplotlib python3-numpy python3-scipy git \
 	libopenmpi-dev gcc g++ libgtest-dev libboost-all-dev doxygen \
         build-essential graphviz libhdf5-mpi-dev libpnetcdf-dev
