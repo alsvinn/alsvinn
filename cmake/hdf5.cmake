@@ -1,5 +1,12 @@
 SET(HDF5_NO_FIND_PACKAGE_CONFIG_FILE ON)
-find_package(HDF5 REQUIRED)
+if (ALSVINN_USE_HUNTER)
+   hunter_add_package(hdf5)
+   find_package(ZLIB CONFIG REQUIRED)
+   find_package(szip CONFIG REQUIRED)
+   find_package(hdf5 CONFIG REQUIRED)	
+else()
+    find_package(HDF5 REQUIRED)
+endif()		  
 
 # This gets a bit complicated, but basically, if
 # the compile wrapper includes HDF5, we only want to
@@ -34,4 +41,10 @@ elseif(HDF5_INCLUDE_DIR)
 else()
     # Dummy library
     add_library(hdf5::HDF5_C INTERFACE IMPORTED)
+endif()
+
+if(HDF5_IS_PARALLEL)
+   SET(ALSVINN_HAS_PARALLEL_HDF5 ON)
+else()
+   SET(ALSVINN_HAS_PARALLEL_HDF5 OFF)
 endif()
