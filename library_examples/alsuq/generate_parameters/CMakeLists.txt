@@ -16,7 +16,7 @@ ELSE()
 	# do nothing
 	ENDMACRO()
 ENDIF()
-project (generate_parameters LANGUAGES C CXX CUDA)
+project (generate_parameters LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 11)
 find_package(Alsvinn REQUIRED)
 add_executable(generate_parameters src/main.cpp)
