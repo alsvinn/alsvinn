@@ -16,7 +16,7 @@ ELSE()
 	# do nothing
 	ENDMACRO()
 ENDIF()
-project (structure_functions LANGUAGES C CXX CUDA)
+project (structure_functions LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 11)
 find_package(Alsvinn REQUIRED)
 add_executable(structure_functions src/main.cpp)
