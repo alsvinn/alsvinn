@@ -39,18 +39,21 @@ install:
     # Boost
   - cd $DEPS_DIR
   - travis_retry wget https://dl.bintray.com/boostorg/release/${BOOST_MAJOR_VERSION}.${BOOST_MINOR_VERSION}.${BOOST_RELEASE_VERSION}/source/boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}.tar.bz2
-  - tar xvf boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}.tar.bz2 && cd boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION} && ./bootstrap.sh --with-python=`which python` --prefix=$INSTALL_PREFIX &&  ./b2 --build type=complete --toolset=$CC --layout=tagged install
+  - tar xvf boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}.tar.bz2 &>/dev/null
+  - cd boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION} && ./bootstrap.sh --with-python=`which python` --prefix=$INSTALL_PREFIX &&  ./b2 -d0 --build type=complete --toolset=$CC --layout=tagged install
 
   # pnetcdf
   ##### PNETCDF
   - cd $DEPS_DIR
   - travis_retry wget https://parallel-netcdf.github.io/Release/pnetcdf-${PNETCDF_VERSION}.tar.gz
-  - tar xvf pnetcdf-${PNETCDF_VERSION}.tar.gz && cd pnetcdf-${PNETCDF_VERSION} && export CFLAGS='-fPIC' &&CC=`which mpicc` ./configure --prefix=$INSTALL_PREFIX && make install
+  - tar xvf pnetcdf-${PNETCDF_VERSION}.tar.gz &> /dev/null
+  - cd pnetcdf-${PNETCDF_VERSION} && export CFLAGS='-fPIC' &&CC=`which mpicc` ./configure --prefix=$INSTALL_PREFIX && make install
 
   # gtest
   - cd $DEPS_DIR
   - travis_retry wget https://github.com/google/googletest/archive/release-${GTEST_VERSION}.zip
-  - unzip release-${GTEST_VERSION}.zip && cd googletest-release-${GTEST_VERSION} && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_C_COMPILER=`which $CC` -DCMAKE_CXX_COMPILER=`which $CXX`&&\
+  - unzip release-${GTEST_VERSION}.zip &> /dev/null
+  - cd googletest-release-${GTEST_VERSION} && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_C_COMPILER=`which $CC` -DCMAKE_CXX_COMPILER=`which $CXX`&&\
     make install && find . -iname '*.a' -exec cp {} ${INSTALL_PREFIX}/lib/ \;
 
 script:
