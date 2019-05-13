@@ -41,7 +41,7 @@ install:
   - cd $DEPS_DIR
   - travis_retry wget https://dl.bintray.com/boostorg/release/${BOOST_MAJOR_VERSION}.${BOOST_MINOR_VERSION}.${BOOST_RELEASE_VERSION}/source/boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}.tar.bz2
   - tar xvf boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}.tar.bz2 &>/dev/null
-  - cd boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION} && ./bootstrap.sh --with-python=`which python` --with-libraries=program_options,filesystem,system,python,regex,thread,chrono,date_time,log --prefix=$INSTALL_PREFIX &&  ./b2 --link=shared threading=multi --toolset=$CC --layout=tagged install
+  - cd boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION} && ./bootstrap.sh --with-python=`which python` --with-libraries=program_options,filesystem,system,python,regex,thread,chrono,date_time,log --prefix=$INSTALL_PREFIX &&  ./b2 -d0 --link=shared threading=multi --toolset=$CC --layout=tagged install
 
   # pnetcdf
   ##### PNETCDF
@@ -57,6 +57,8 @@ install:
   - cd googletest-release-${GTEST_VERSION} && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_C_COMPILER=`which $CC` -DCMAKE_CXX_COMPILER=`which $CXX`&& make install && find . -iname '*.a' -exec cp {} ${INSTALL_PREFIX}/lib/ \;
 
 script:
+  - cd ${TRAVIS_BUILD_DIR}
+  -
   - mkdir build
   - cd build
   - cmake .. -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE} -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DALSVINN_USE_CUDA=OFF
