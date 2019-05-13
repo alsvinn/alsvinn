@@ -43,7 +43,9 @@ install:
   - tar xvf boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}.tar.bz2 &>/dev/null
   - cd boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}
   - ./bootstrap.sh --with-python=`which python` --with-libraries=program_options,filesystem,system,python,regex,thread,chrono,date_time,log --prefix=$INSTALL_PREFIX
-  - travis_wait 30 ./b2 -d0 --link=shared threading=multi --toolset=$CC --layout=tagged install
+  - travis_wait 30 ./b2 -d0 --link=static threading=multi --toolset=$CC --layout=tagged install
+  
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${INSTALL_PREFIX}/lib::${INSTALL_PREFIX}/lib64
 
   # pnetcdf
   ##### PNETCDF
