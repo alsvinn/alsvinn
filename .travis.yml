@@ -12,6 +12,7 @@ env:
   - ALSVINN_GCC_VERSION=6 ALSVINN_BUILD_TYPE=Debug BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=67 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
   - ALSVINN_GCC_VERSION=7 ALSVINN_BUILD_TYPE=Debug BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=67 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
 
+packages:
 
 
 
@@ -33,7 +34,7 @@ install:
   - sudo apt-get update -qq
   # See https://stackoverflow.com/a/22270645
   - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq -y g++-${ALSVINN_GCC_VERSION}; export CXX="g++-${ALSVINN_GCC_VERSION}"; fi
-  - sudo apt-get install -y cmake git build-essential wget doxygen libomp-dev libopenmpi-dev m4 unzip python python-numpy python-scipy python-dev libcurl4-openssl-dev zlib1g-dev libhdf5-dev curl libnetcdf-dev libgtest-dev
+  - sudo apt-get install -y make cmake git build-essential wget doxygen libomp-dev libopenmpi-dev m4 unzip python python-numpy python-scipy python-dev libcurl4-openssl-dev zlib1g-dev libhdf5-dev curl libnetcdf-dev libgtest-dev
 
     #
     # Boost
