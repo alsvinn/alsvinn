@@ -32,7 +32,7 @@ install:
   - sudo apt-get update -qq
   # See https://stackoverflow.com/a/22270645
   - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq -y g++-${ALSVINN_GCC_VERSION}; export CXX="g++-${ALSVINN_GCC_VERSION}"; fi
-  - if [ "$CXX" == "clang++" ]; then sudo apt-get install -y --allow-unauthenticated -qq clang++-${ALSVINN_CLANG_VERSION}; export CXX="clang++-${ALSVINN_CLANG_VERSION}"; fi
+  - if [ "$CXX" == "clang++" ]; then sudo apt-get install -y --allow-unauthenticated -qq clang++-${ALSVINN_CLANG_VERSION}; export CXX="clang++-${ALSVINN_CLANG_VERSION//.0/}"; fi
   -
   - sudo apt-get install -y make cmake git build-essential wget doxygen libomp-dev libopenmpi-dev m4 unzip python python-numpy python-scipy python-dev libcurl4-openssl-dev zlib1g-dev libhdf5-dev curl libnetcdf-dev libgtest-dev
 
