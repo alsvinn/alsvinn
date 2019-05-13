@@ -26,7 +26,7 @@ before_install:
   - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
 
   # cmake
-  - add-apt-repository -y ppa:andrew-fuller/cmake
+  - sudo add-apt-repository -y ppa:andrew-fuller/cmake
 install:
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir ${DEPS_DIR}
