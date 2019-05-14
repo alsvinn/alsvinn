@@ -31,8 +31,10 @@ install:
   - mkdir ${INSTALL_PREFIX}
   - travis_retry sudo apt-get update -qq
   # See https://stackoverflow.com/a/22270645
-  - if [ "$CXX" == *"g++"* ]; then sudo apt-get install -qq -y g++-${ALSVINN_GCC_VERSION}; export CXX="g++-${ALSVINN_GCC_VERSION}"; fi
-  - if [ "$CXX" == *"clang++"* ]; then sudo apt-get install -y --allow-unauthenticated -qq clang++-${ALSVINN_CLANG_VERSION}; export CXX="clang++-${ALSVINN_CLANG_VERSION}"; fi
+  - if [ "$CXX" == *"g++"* ]; then sudo apt-get install -qq -y g++-${ALSVINN_GCC_VERSION}; export COMPILER_CP="g++-${ALSVINN_GCC_VERSION}"; fi
+  - if [ "$CXX" == *"clang++"* ]; then sudo apt-get install -y --allow-unauthenticated -qq clang++-${ALSVINN_CLANG_VERSION}; export COMPILER_CPP="clang++-${ALSVINN_CLANG_VERSION}"; fi
+  - if [ "$CXX" == *"g++"* ]; then export COMPILER_CPP="g++-${ALSVINN_GCC_VERSION}"; fi
+  - if [ "$CXX" == *"clang++"* ]; then export COMPILER_CPP="clang++-${ALSVINN_CLANG_VERSION}"; fi
   - export CXX_FOR_BUILD=${CXX}
   -
   - sudo apt-get install -y make cmake git build-essential wget doxygen libomp-dev libopenmpi-dev m4 unzip python python-numpy python-scipy python-dev libcurl4-openssl-dev zlib1g-dev libhdf5-dev curl libnetcdf-dev libgtest-dev
@@ -59,18 +61,18 @@ install:
   - cd $DEPS_DIR
   - travis_retry wget https://github.com/google/googletest/archive/release-${GTEST_VERSION}.zip
   - unzip release-${GTEST_VERSION}.zip &> /dev/null
-  - cd googletest-release-${GTEST_VERSION} && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_C_COMPILER=`which $CC` -DCMAKE_CXX_COMPILER=`which $CXX`&& make install && find . -iname '*.a' -exec cp {} ${INSTALL_PREFIX}/lib/ \;
+  - cd googletest-release-${GTEST_VERSION} && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_C_COMPILER=`which $CC` -DCMAKE_CXX_COMPILER=`which $COMPILER_CPP`&& make install && find . -iname '*.a' -exec cp {} ${INSTALL_PREFIX}/lib/ \;
 
 script:
-  - if [ "$CXX" == *"g++"* ]; then export CXX="g++-${ALSVINN_GCC_VERSION}"; fi
-  - if [ "$CXX" == *"clang++"* ]; then export CXX="clang++-${ALSVINN_CLANG_VERSION}"; fi
+  - if [ "$CXX" == *"g++"* ]; then export COMPILER_CPP="g++-${ALSVINN_GCC_VERSION}"; fi
+  - if [ "$CXX" == *"clang++"* ]; then export COMPILER_CPP="clang++-${ALSVINN_CLANG_VERSION}"; fi
   - export CXX_FOR_BUILD=${CXX}
   - echo ${CXX}
   - cd ${TRAVIS_BUILD_DIR}
   -
   - mkdir build
   - cd build
-  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE} -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DALSVINN_USE_CUDA=OFF -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
+  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${COMPILER_CPP}) -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE} -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DALSVINN_USE_CUDA=OFF -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
   - make install
   # test
   - ./test/alstest
@@ -78,10 +80,10 @@ script:
   - cd ${TRAVIS_BUILD_DIR}/library_examples/alsuq/only_statistics
   - mkdir build
   - cd build
-  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE}
+  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${COMPILER_CPP}) -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE}
   - make
   - cd ${TRAVIS_BUILD_DIR}/library_examples/alsuq/generate_parameters
   - mkdir build
   - cd build
-  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE}
+  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${COMPILER_CPP}) -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE}
   - make
