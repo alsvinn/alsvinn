@@ -3,40 +3,18 @@ dist: xenial
 os: linux
 matrix:
   include:
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-6.0
-
-          packages:
-            - clang-6.0
-      env:
-        - COMPILER="CC=clang-6.0 && CXX=clang++-6.0"
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-5.0
-
-          packages:
-            - clang-5.0
-      env:
-        - COMPILER="CC=clang-5.0 && CXX=clang++-5.0"
 
     - compiler: clang
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-7.0
+
 
           packages:
-            - clang-7.0
+            - clang-7
       env:
-        - COMPILER="CC=clang-7.0 && CXX=clang++-7.0"
+        - COMPILER="CC=clang-7 && CXX=clang++-7" ALSVINN_BUILD_TYPE=Release BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=67 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
+
 
     - compiler: gcc
       addons:
@@ -47,7 +25,7 @@ matrix:
             - g++-7
 
       env:
-           COMPILER="CC=gcc-7 && CXX=g++-7"
+           COMPILER="CC=gcc-7 && CXX=g++-7" ALSVINN_BUILD_TYPE=Release BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=67 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
 
 
     - compiler: gcc
@@ -59,7 +37,7 @@ matrix:
             - g++-6
 
       env:
-           COMPILER="CC=gcc-6 && CXX=g++-6"
+           COMPILER="CC=gcc-6 && CXX=g++-6" ALSVINN_BUILD_TYPE=Release BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=67 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
 
 
     - compiler: gcc
@@ -71,7 +49,7 @@ matrix:
             - g++-5
 
       env:
-           COMPILER="CC=gcc-5 && CXX=g++-5"
+           COMPILER="CC=gcc-5 && CXX=g++-5" ALSVINN_BUILD_TYPE=Release BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=67 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
 
 
 
