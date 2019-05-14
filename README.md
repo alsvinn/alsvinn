@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/alsvinn/alsvinn.svg?branch=master)](https://travis-ci.org/alsvinn/alsvinn)
+
 ![Alsvinn](https://github.com/kjetil-lye/alsvinn/raw/master/documentation/images/kh.png "Kelvin-Helmholtz simulation")
 # Alsvinn
 
