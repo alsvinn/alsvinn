@@ -1,0 +1,118 @@
+language: cpp
+dist: xenial
+os: linux
+matrix:
+  include:
+
+    - compiler: clang
+      addons:
+        apt:
+          sources:
+
+
+          packages:
+            - clang
+      env:
+        - COMPILER="CC=clang && CXX=clang++" ALSVINN_BUILD_TYPE=Release BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=67 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
+
+
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+
+      env:
+           COMPILER="CC=gcc-7 && CXX=g++-7" ALSVINN_BUILD_TYPE=Release BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=67 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
+
+
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+
+      env:
+           COMPILER="CC=gcc-6 && CXX=g++-6" ALSVINN_BUILD_TYPE=Release BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=67 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
+
+
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+
+      env:
+           COMPILER="CC=gcc-5 && CXX=g++-5" ALSVINN_BUILD_TYPE=Release BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=67 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
+
+
+
+
+before_install:
+  - eval ${COMPILER}
+  # cmake
+  - travis_retry sudo add-apt-repository -y ppa:andrew-fuller/cmake
+install:
+  # https://stackoverflow.com/a/32127147 on how to set the compiler!
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir ${DEPS_DIR}
+  - INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/prefix
+  - mkdir ${INSTALL_PREFIX}
+  - travis_retry sudo apt-get update -qq
+
+  - sudo apt-get install -y make cmake git build-essential wget doxygen libomp-dev libopenmpi-dev m4 unzip python python-numpy python-scipy python-dev libcurl4-openssl-dev zlib1g-dev libhdf5-dev curl libnetcdf-dev libgtest-dev
+
+    #
+    # Boost
+  - cd $DEPS_DIR
+  - travis_retry wget https://dl.bintray.com/boostorg/release/${BOOST_MAJOR_VERSION}.${BOOST_MINOR_VERSION}.${BOOST_RELEASE_VERSION}/source/boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}.tar.bz2
+  - tar xvf boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}.tar.bz2 &>/dev/null
+  - cd boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}
+  - CXX=${COMPILER_CPP} ./bootstrap.sh --with-python=`which python` --with-libraries=program_options,filesystem,system,python,regex,thread,chrono,date_time,log --prefix=$INSTALL_PREFIX
+  - travis_wait 30 ./b2 -d0 --link=static threading=multi --toolset=$CC --layout=tagged install
+
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${INSTALL_PREFIX}/lib::${INSTALL_PREFIX}/lib64
+
+  # pnetcdf
+  ##### PNETCDF
+  - cd $DEPS_DIR
+  - travis_retry wget https://parallel-netcdf.github.io/Release/pnetcdf-${PNETCDF_VERSION}.tar.gz
+  - tar xvf pnetcdf-${PNETCDF_VERSION}.tar.gz &> /dev/null
+  - cd pnetcdf-${PNETCDF_VERSION} && export CFLAGS='-fPIC' &&CC=`which mpicc` ./configure --prefix=$INSTALL_PREFIX && make install
+
+  # gtest
+  - cd $DEPS_DIR
+  - travis_retry wget https://github.com/google/googletest/archive/release-${GTEST_VERSION}.zip
+  - unzip release-${GTEST_VERSION}.zip &> /dev/null
+  - cd googletest-release-${GTEST_VERSION} && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_C_COMPILER=`which $CC` -DCMAKE_CXX_COMPILER=`which $CXX`&& make install && find . -iname '*.a' -exec cp {} ${INSTALL_PREFIX}/lib/ \;
+
+script:
+  - if [ "$CXX" == *"g++"* ]; then export COMPILER_CPP="g++-${ALSVINN_GCC_VERSION}"; fi
+  - if [ "$CXX" == *"clang++"* ]; then export COMPILER_CPP="clang++-${ALSVINN_CLANG_VERSION}"; fi
+  - export CXX_FOR_BUILD=${CXX}
+  - echo ${CXX}
+  - cd ${TRAVIS_BUILD_DIR}
+  -
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE} -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DALSVINN_USE_CUDA=OFF -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
+  - make install
+  # test
+  - ./test/alstest
+  # make sure we can build examples
+  - cd ${TRAVIS_BUILD_DIR}/library_examples/alsuq/only_statistics
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE}
+  - make
+  - cd ${TRAVIS_BUILD_DIR}/library_examples/alsuq/generate_parameters
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE}
+  - make
