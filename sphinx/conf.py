@@ -55,6 +55,7 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 
 import subprocess
-subprocess.call('cd ../doxygen ; echo $(pwd); find .. -iname \'*.cpp\'; doxygen', shell=True)
+subprocess.call('echo $(pwd); doxygen; ls documentation/html', shell=True,
+                cwd='../doxygen')
 
 html_extra_path = ['../doxygen/documentation/html']
