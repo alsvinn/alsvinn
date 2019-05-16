@@ -793,11 +793,11 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  =  ../README.md \
-		         ../alsuq \
-                         ../alsutils \
-                         ../alsfvm \
-                         ../library_examples
+INPUT                  =  ../README.md
+INPUT += ../alsuq 
+INPUT += ../alsutils
+INPUT += ../alsfvm
+INPUT += ../library_examples
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -822,12 +822,12 @@ INPUT_ENCODING         = UTF-8
 # *.m, *.markdown, *.md, *.mm, *.dox, *.py, *.pyw, *.f90, *.f95, *.f03, *.f08,
 # *.f, *.for, *.tcl, *.vhd, *.vhdl, *.ucf and *.qsf.
 
-FILE_PATTERNS          = *.cpp \
-		         *.hpp \
-			 *.cu \
-			 *.h \
-			 *.md \
-			 *.c
+FILE_PATTERNS          = *.cpp
+FILE_PATTERNS          += *.hpp
+FILE_PATTERNS          += *.cu
+FILE_PATTERNS          += *.h
+FILE_PATTERNS          += *.md
+FILE_PATTERNS          += *.c
 			 
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
