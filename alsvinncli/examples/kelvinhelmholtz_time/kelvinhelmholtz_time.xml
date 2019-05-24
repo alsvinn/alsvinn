@@ -21,7 +21,7 @@
   <integrator>auto</integrator>
 
   <initialData>
-    <python>kelvinhelmholtz.py</python>
+    <python>kelvinhelmholtz_time.py</python>
     <parameters>
       <parameter>
         <name>a</name>

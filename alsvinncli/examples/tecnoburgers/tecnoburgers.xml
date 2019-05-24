@@ -1,14 +1,14 @@
 <?xml version="1.0" ?>
 <config>
-<fvm>
-<name>
-        tecnoburgers
+  <fvm>
+    <name>
+      tecnoburgers
     </name>
     <platform>cpu</platform>
     <grid>
-        <lowerCorner>-1 0 0</lowerCorner>
-        <upperCorner>1 0 0</upperCorner>
-        <dimension>64 1 1</dimension>
+      <lowerCorner>-1 0 0</lowerCorner>
+      <upperCorner>1 0 0</upperCorner>
+      <dimension>64 1 1</dimension>
     </grid>
     <boundary>periodic</boundary>
     <flux>tecno1</flux>
@@ -17,17 +17,52 @@
     <reconstruction>none</reconstruction>
     <cfl>0.2</cfl>
     <diffusion>
-        <name>tecnoroe</name>
-        <reconstruction>eno2</reconstruction>
+      <name>tecnoroe</name>
+      <reconstruction>eno2</reconstruction>
     </diffusion>
     <integrator>rungekutta4</integrator>
     <initialData>
-        <python>tecnoburgers.py</python>
+      <python>tecnoburgers.py</python>
+      
+      <parameters>
+	<parameter>
+          <name>X</name>
+          <length>1</length>
+          <value>0</value>
+	</parameter>
+      </parameters>
+
     </initialData>
     <writer>
-        <type>hdf5</type>
-        <basename>tecnoburgers</basename>
-        <numberOfSaves>10</numberOfSaves>
+      <type>netcdf</type>
+      <basename>tecnoburgers</basename>
+      <numberOfSaves>10</numberOfSaves>
     </writer>
-</fvm>
+    </fvm><uq>
+    <samples>1024</samples>
+    <generator>auto</generator>
+    <parameters>
+      <parameter>
+	<name>X</name>
+	<length>1</length>
+	<type>uniform</type>
+      </parameter>
+    </parameters>
+    <stats>
+      <stat>
+	<name>
+	  meanvar
+	</name>
+	<numberOfSaves>1</numberOfSaves>
+	<writer>
+	  <type>netcdf</type>
+	  <basename>tecnoburgers</basename>
+	</writer>
+      </stat>
+
+
+    </stats>
+
+  </uq>
+
 </config>

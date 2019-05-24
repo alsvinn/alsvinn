@@ -1,7 +1,7 @@
 <config>
 <fvm>
     <name>
-        shockvortex
+        shockvortex_uniform
     </name>
     <platform>cpu</platform>
     <grid>
@@ -20,7 +20,7 @@
     <cfl>auto</cfl>
     <integrator>auto</integrator>
     <initialData>
-        <python>shockvortex.py</python>
+        <python>shockvortex_uniform.py</python>
 	<parameters>
 	  <parameter>
             <name>a</name>
@@ -35,7 +35,7 @@
     </diffusion>
     <writer>
         <type>netcdf</type>
-        <basename>shockvortex</basename>
+        <basename>shockvortex_uniform</basename>
         <numberOfSaves>1</numberOfSaves>
     </writer>
 </fvm>
@@ -50,9 +50,6 @@
     </parameter>
   </parameters>
   <stats>
-    <stat>
-      meanvar
-    </stat>
   </stats>
 </uq>
 </config>

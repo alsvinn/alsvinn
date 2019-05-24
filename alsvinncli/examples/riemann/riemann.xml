@@ -44,9 +44,7 @@
     </parameter>
   </parameters>
   <stats>
-    <stat>
-      meanvar
-    </stat>
+
   </stats>
 </uq>
 </config>

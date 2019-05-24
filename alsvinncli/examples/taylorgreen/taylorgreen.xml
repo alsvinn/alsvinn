@@ -18,6 +18,15 @@
   <integrator>auto</integrator>
   <initialData>
     <python>taylorgreen.py</python>
+    
+    <parameters>
+      <parameter>
+        <name>X</name>
+        <length>1</length>
+        <value>0</value>
+      </parameter>
+    </parameters>
+
   </initialData>
   <writer>
     <type>netcdf</type>
@@ -25,4 +34,28 @@
     <numberOfSaves>10</numberOfSaves>
   </writer>
 </fvm>
+<uq>
+  <samples>1024</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>X</name>
+      <length>1</length>
+      <type>uniform</type>
+    </parameter>
+  </parameters>
+  <stats>
+    <stat>
+    <name>
+      meanvar
+      </name>
+      <numberOfSaves>1</numberOfSaves>
+      <writer>
+      <type>netcdf</type>
+      <basename>taylorgreen</basename>
+      </writer>
+    </stat>
+
+  </stats>
+  </uq>
 </config>

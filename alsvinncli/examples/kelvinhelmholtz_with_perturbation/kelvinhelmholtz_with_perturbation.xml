@@ -21,7 +21,7 @@
     <integrator>auto</integrator>
 
     <initialData>
-      <python>kelvinhelmholtz.py</python>
+      <python>kelvinhelmholtz_with_perturbation.py</python>
       <parameters>
 	<parameter>
           <name>a</name>
@@ -92,9 +92,6 @@
       </parameter>
     </parameters>
     <stats>
-      <stat>
-	meanvar
-      </stat>
     </stats>
   </uq>
 </config>

@@ -6,29 +6,26 @@
   <platform>cuda</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
-    <upperCorner>1 1 1</upperCorner>
-    <dimension>128 128 128</dimension>
+    <upperCorner>1 1 0</upperCorner>
+    <dimension>512 512 1</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>hll3</flux>
   <endTime>2</endTime>
-  <equation>euler3</equation>
+  <equation>euler2</equation>
   <equationParameters>
     <gamma>1.4</gamma>
   </equationParameters>
   <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>
-  <functionals>
 
-
-  </functionals>
   <initialData>
-    <python>kelvinhelmholtz.py</python>
+    <python>kelvinhelmholtz_gaussian.py</python>
     <parameters>
       <parameter>
         <name>a</name>
-        <length>80</length>
+        <length>40</length>
         <values><value>0</value></values>
       </parameter>
     </parameters>
@@ -40,17 +37,17 @@
   <writer>
     <type>netcdf</type>
     <basename>kh</basename>
-    <numberOfSaves>10</numberOfSaves>
+    <numberOfSaves>1</numberOfSaves>
   </writer>
 </fvm>
 <uq>
-  <samples>1</samples>
+  <samples>2</samples>
   <generator>auto</generator>
   <parameters>
     <parameter>
       <name>a</name>
-      <length>80</length>
-      <type>uniform</type>
+      <length>40</length>
+      <type>normal</type>
     </parameter>
   </parameters>
   <stats>
@@ -64,7 +61,47 @@
       <basename>kh</basename>
     </writer>
     </stat>
-    
+
+<stat>
+  <name>
+    structure_basic
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <direction>0</direction>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>kh_x</basename>
+  </writer>
+  </stat>
+
+<stat>
+  <name>
+    structure_basic
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <direction>1</direction>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>kh_y</basename>
+  </writer>
+  </stat>
+
+<stat>
+  <name>
+    structure_cube
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <numberOfH>32</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>kh_cube</basename>
+  </writer>
+  </stat>
   </stats>
 </uq>
 </config>
