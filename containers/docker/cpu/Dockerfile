@@ -24,7 +24,8 @@ RUN cd /alsvinn &&\
     make install
     
 # Examples easily accesable
-RUN cp -r alsvinn/alsvinncli/examples /examples
+RUN cp -r alsvinn/alsvinncli/examples /examples &&\
+    find /examples -name '*.xml' -exec sed -i 's/platform>cuda/platform>cpu/g' {} \;
 
 # We also want to compile the examples
 RUN cd /alsvinn &&\
