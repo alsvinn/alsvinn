@@ -17,7 +17,7 @@
   <cfl>auto</cfl>
   <integrator>auto</integrator>
   <initialData>
-    <python>shock_location.py</python>
+    <python>mixed_shock.py</python>
 
     <parameters>
       <parameter>
@@ -30,7 +30,7 @@
   <writer>
     <type>netcdf</type>
     <numberOfSaves>300</numberOfSaves>
-    <basename>shock_location</basename>
+    <basename>mixed_shock</basename>
   </writer>
 </fvm>
 <uq>
@@ -51,7 +51,7 @@
       <numberOfSaves>1</numberOfSaves>
       <writer>
       <type>netcdf</type>
-      <basename>shock_location</basename>
+      <basename>mixed_shock</basename>
       </writer>
     </stat>
 
@@ -64,7 +64,7 @@
   <numberOfSaves>1</numberOfSaves>
   <writer>
   <type>netcdf</type>
-  <basename>shock_location</basename>
+  <basename>mixed_shock</basename>
   </writer>
 </stat>
   </stats>

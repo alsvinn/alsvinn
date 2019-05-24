@@ -1,13 +1,13 @@
 <config>
 <fvm>
   <name>
-    kh
+    cloudshock
   </name>
   <platform>cpu</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>1024 1024 1</dimension>
+    <dimension>128 128 1</dimension>
   </grid>
   <boundary>neumann</boundary>
   <flux>hll3</flux>

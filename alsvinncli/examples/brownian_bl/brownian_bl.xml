@@ -7,7 +7,7 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 0 0</upperCorner>
-    <dimension>1024 1 1</dimension>
+    <dimension>128 1 1</dimension>
   </grid>
   <boundary>neumann</boundary>
   <flux>godunov</flux>
@@ -17,7 +17,7 @@
   <cfl>auto</cfl>
   <integrator>auto</integrator>
   <initialData>
-    <python>brownian.py</python>
+    <python>brownian_bl.py</python>
 
     <parameters>
       <parameter>
@@ -30,7 +30,7 @@
 
 </fvm>
 <uq>
-<samples>1024</samples>
+<samples>16</samples>
   <generator>auto</generator>
   <parameters>
     <parameter>

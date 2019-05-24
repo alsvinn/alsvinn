@@ -1,7 +1,7 @@
 \page stats_alsuq_standalone Using the statistics
 This example is meant as a minimal example of how to use only the statistics component of ```alsvinn::alsuq```.
 
-\tableofcontents
+
 
 # Prerequisites
 First you need too build alsvinn, see the documentation.

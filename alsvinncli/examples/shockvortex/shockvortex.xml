@@ -1,7 +1,7 @@
 <config>
 <fvm>
     <name>
-        riemann
+      shockvortex
     </name>
     <platform>cpu</platform>
     <grid>
@@ -12,7 +12,7 @@
     <boundary>neumann</boundary>
     <flux>HLL3</flux>
     <endTime>0.0035</endTime>
-    <equation>euler</equation>
+    <equation>euler2</equation>
     <equationParameters>
         <gamma>1.66666666666667</gamma>
     </equationParameters>
@@ -20,16 +20,47 @@
     <cfl>auto</cfl>
     <integrator>auto</integrator>
     <initialData>
-        <python>shockvortex.py</python>
+      <python>shockvortex.py</python>
+      <parameters>
+	<parameter>
+          <name>X</name>
+          <length>1</length>
+          <value>0</value>
+	</parameter>
+      </parameters>
+
     </initialData>
     <diffusion>
         <name>none</name>
         <reconstruction>none</reconstruction>
     </diffusion>
     <writer>
-        <type>hdf5</type>
+        <type>netcdf</type>
         <basename>shockvortex</basename>
         <numberOfSaves>10</numberOfSaves>
     </writer>
 </fvm>
+<uq>
+  <samples>1024</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>X</name>
+      <length>1</length>
+      <type>uniform</type>
+    </parameter>
+  </parameters>
+  <stats>
+    <stat>
+    <name>
+      meanvar
+      </name>
+      <numberOfSaves>1</numberOfSaves>
+      <writer>
+      <type>netcdf</type>
+      <basename>shockvortex</basename>
+      </writer>
+    </stat>
+  </stats>
+  </uq>
 </config>

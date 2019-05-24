@@ -3,11 +3,11 @@
   <name>
     kh
   </name>
-  <platform>cuda</platform>
+  <platform>cpu</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 0</upperCorner>
-    <dimension>128 128 1</dimension>
+    <dimension>64 64 1</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>hll3</flux>
@@ -19,14 +19,17 @@
   <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>
+  <functionals>
 
+
+  </functionals>
   <initialData>
-    <python>kelvinhelmholtz.py</python>
+    <python>kelvinhelmholtz_plot_python.py</python>
     <parameters>
       <parameter>
         <name>a</name>
-        <length>1</length>
-        <value>0</value>
+        <length>40</length>
+        <values><value>0</value></values>
       </parameter>
     </parameters>
   </initialData>
@@ -34,15 +37,22 @@
     <name>none</name>
     <reconstruction>none</reconstruction>
   </diffusion>
+  <writer>
+    <type>python</type>
+    <basename>kh</basename>
+    <pythonCode>load:plotting.py</pythonCode>
+    <pythonClass>PlotKH</pythonClass>
+    <numberOfSaves>10</numberOfSaves>
+  </writer>
 </fvm>
 <uq>
-  <samples>128</samples>
+  <samples>1</samples>
   <generator>auto</generator>
   <parameters>
     <parameter>
       <name>a</name>
-      <length>1</length>
-      <type>uniform1d</type>
+      <length>40</length>
+      <type>uniform</type>
     </parameter>
   </parameters>
   <stats>
@@ -56,6 +66,7 @@
       <basename>kh</basename>
     </writer>
     </stat>
+    
   </stats>
 </uq>
 </config>

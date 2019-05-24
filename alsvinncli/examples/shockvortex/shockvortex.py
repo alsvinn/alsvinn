@@ -10,7 +10,7 @@ M = 1.1
 
 
 # shock part
-if  x < 0.5:
+if  x < 0.5 + epsilon * X: 
     rho = 1.0;
     ux = sqrt(GAMMA);
     uy = 0.0;

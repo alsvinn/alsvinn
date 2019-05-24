@@ -7,7 +7,7 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 1</upperCorner>
-    <dimension>64 64 64</dimension>
+    <dimension>128 128 128</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>hll3</flux>
@@ -16,7 +16,7 @@
   <equationParameters>
     <gamma>1.4</gamma>
   </equationParameters>
-  <reconstruction>none</reconstruction>
+  <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>
   <functionals>
@@ -24,11 +24,11 @@
 
   </functionals>
   <initialData>
-    <python>kelvinhelmholtz.py</python>
+    <python>kelvinhelmholtz_3d.py</python>
     <parameters>
       <parameter>
         <name>a</name>
-        <length>40</length>
+        <length>80</length>
         <values><value>0</value></values>
       </parameter>
     </parameters>
@@ -49,7 +49,7 @@
   <parameters>
     <parameter>
       <name>a</name>
-      <length>60</length>
+      <length>80</length>
       <type>uniform</type>
     </parameter>
   </parameters>
@@ -58,13 +58,13 @@
     <name>
       meanvar
     </name>
-    <numberOfSaves>4</numberOfSaves>
+    <numberOfSaves>1</numberOfSaves>
     <writer>
       <type>netcdf</type>
       <basename>kh</basename>
     </writer>
     </stat>
-
+    
   </stats>
 </uq>
 </config>

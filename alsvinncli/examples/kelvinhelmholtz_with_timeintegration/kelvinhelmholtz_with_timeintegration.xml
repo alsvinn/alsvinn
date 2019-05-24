@@ -53,7 +53,7 @@
 
   </functionals>
   <initialData>
-    <python>kelvinhelmholtz.py</python>
+    <python>kelvinhelmholtz_with_timeintegration.py</python>
     <parameters>
       <parameter>
         <name>a</name>

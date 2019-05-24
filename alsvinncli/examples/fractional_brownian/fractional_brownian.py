@@ -3,7 +3,7 @@
 #  On Fractional Gaussian Random Fields Simulations. Journal of Statistical Software, 23(1), 1–23.
 #  http://doi.org/http://dx.doi.org/10.18637/jss.v023.i01
 # in the section 2.3
-def init_global(u, nx, ny, nz, ax, ay, az, bx, by, bz):):
+def init_global(u, nx, ny, nz, ax, ay, az, bx, by, bz):
     H = 0.5
     M = u.shape[0]
     N = M+1

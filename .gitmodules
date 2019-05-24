@@ -1,3 +1,6 @@
 [submodule "cmake/git_find"]
 	path = cmake/git_find
 	url = https://github.com/rpavlik/cmake-modules.git
+[submodule "doxygen/doxygen-bootstrapped"]
+	path = doxygen/doxygen-bootstrapped
+	url = https://github.com/Velron/doxygen-bootstrapped.git
