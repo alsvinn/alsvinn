@@ -266,9 +266,12 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
     }
 }
 
-void PythonInitialData::setParameters(const Parameters& parameters) {
+void PythonInitialData::setParameters(const Parameters& newParameters) {
 
-    this->parameters = parameters;
+    for (const auto& parameterName : newParameters.getParameterNames()) {
+        parameters.setOrAddParameter(parameterName,
+            newParameters.getParameter(parameterName));
+    }
 
 }
 
