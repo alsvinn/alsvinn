@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/alsvinn/alsvinn.svg?branch=master)](https://travis-ci.org/alsvinn/alsvinn)
 
 ![Alsvinn](https://github.com/kjetil-lye/alsvinn/raw/master/documentation/images/kh.png "Kelvin-Helmholtz simulation")
-# Alsvinn # {#mainpage}
+# Alsvinn 
 
 Alsvinn is a toolset consisting of a finite volume simulator (FVM) and modules for uncertaintity quantifications (UQ).
 All the major operations can be computed on either a multi-core CPU or an NVIDIA GPU (through CUDA).
@@ -9,7 +9,26 @@ It also supports cluster configurations consisting of either CPUs or GPUs. It ex
 
 Alsvinn is maintained by [Kjetil Olsen Lye](https://github.com/kjetil-lye/) at ETH Zurich. We want Alsvinn to be easy to use, so if you have issues compiling or running it, please don't hesitate to leave an issue.
 
-Alsvinn is also [available as a Docker container.](https://cloud.docker.com/u/alsvinn/)
+Alsvinn is also [available as a Docker container.](https://hub.docker.com/r/alsvinn/). To run alsvinn using Docker and get the output to the current directory, all you have to do is
+
+    docker run --rm -v $(pwd):$(pwd) -w $(pwd) alsvinn/alsvinn_cuda /examples/kelvinhelmholtz/kelvinhelmholtz.xml
+
+*NOTE* Replace ```alsvinn_cuda``` with ```alsvinn_cpu``` if you are running a CPU only setup.
+
+*NOTE* You can also make your own configuration files and specify them instead of ```/examples/kelvinhelmholtz/kelvinhelmholtz.xml```
+
+On LSF systems with singularity installed, Alsvinn can be run as 
+
+    # Cluster WITHOUT GPUs
+    bsub -R singularity singularity run -B $(pwd):$(pwd) \
+         docker://alsvinn/alsvinn_cpu 
+         /examples/kelvinhelmholtz/kelvinhelmholtz.xml
+	 
+    # Clusters WITH GPUs:
+    bsub <other options to get GPU> \
+         -R singularity singularity run --nv -B $(pwd):$(pwd) \
+         docker://alsvinn/alsvinn_cuda \
+         /examples/kelvinhelmholtz/kelvinhelmholtz.xml
 
 ## Supported equations
 
