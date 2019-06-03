@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "alsutils/config.hpp"
-//#ifdef ALSVINN_HAVE_CUDA
+#ifdef ALSVINN_HAVE_CUDA
 
 #include "alsfvm/volume/VolumeFactory.hpp"
 #include "alsuq/stats/StatisticsFactory.hpp"
@@ -279,4 +279,4 @@ TEST_F(StructureTestCPUvsCUDA, TestIndex) {
 
 }
 
-//#endif
+#endif
