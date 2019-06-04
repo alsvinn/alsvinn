@@ -16,9 +16,10 @@ RUN cd /alsvinn &&\
     export PATH=$HOME/local/bin:$PATH:$HOME/local/bin &&\
     mkdir build_docker &&\
     cd build_docker &&\
-    $INSTALL_PREFIX/bin/cmake ..\
+    cmake ..\
     	  -DCMAKE_BUILD_TYPE=Release \
 	  -DALSVINN_PYTHON_VERSION=3.7 \
+	  -DCMAKE_PREFIX_PATH=$INSTALL_PREFIX \
 	  -DALSVINN_USE_CUDA=OFF && \
     make && \
     make install
@@ -33,13 +34,13 @@ RUN cd /alsvinn &&\
     cd only_statistics &&\
     mkdir build_docker && \
     cd build_docker && \
-    cmake .. -DCMAKE_BUILD_TYPE=Release &&\
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} &&\
     make && \
     cd ../.. && \
     cd generate_parameters && \
     mkdir build_docker && \
     cd build_docker && \
-    cmake .. -DCMAKE_BUILD_TYPE=Release &&\
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} &&\
     make &&\
     cp generate_parameters /usr/local/bin/
     
