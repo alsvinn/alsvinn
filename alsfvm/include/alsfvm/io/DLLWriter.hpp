@@ -17,7 +17,7 @@ namespace io {
 //!
 //! <tr><td>create_function  </td><td> name of the create/init function, should have the following signature<br />
 //!                           \code{.cpp}
-//!                              void* create_function(const char* simular_name, const char* simulator_version, void* parameters);
+//!                              void* create_function(const char* simulator_name, const char* simulator_version, void* parameters);
 //!                           \endcode
 //!                           use NONE if it is not supplied</td></tr>
 //!
@@ -31,7 +31,7 @@ namespace io {
 //! <tr><td>write_function </td><td> the name of the write function
 //!                            assumes signature
 //!                            \code{.cpp}
-//!                               real write_function(void* data, void* parameters, real time, const char* variable_name, const real* variable_data, int nx, int ny, int nz, int ngx, int ngy, int ngz, real ax, real ay, real az, real bx, real by, real bz, int gpu_number );
+//!                               void write_function(void* data, void* parameters, real time, const char* variable_name, const real* variable_data, int nx, int ny, int nz, int ngx, int ngy, int ngz, real ax, real ay, real az, real bx, real by, real bz, int gpu_number );
 //!                            \endcode
 //! where gpu_number is the gpu id where the data lives (-1 if the data is on the CPU).
 //!
@@ -77,7 +77,7 @@ namespace io {
 //!                            \endcode</td></tr>
 //! <tr><td>end_timestep_function </td><td> called when at the end of a new timestep after all variables have been written
 //!                            \code{.cpp}
-//!                                void new_timestep_function(void* data, void* parameters, real time, int timestep_number);
+//!                                void end_timestep_function(void* data, void* parameters, real time, int timestep_number);
 //!                            \endcode</td></tr>
 //! </table>
 class DLLWriter : public Writer {
@@ -119,7 +119,7 @@ private:
     std::function<void(DLLData, DLLData, real, int)>
     endTimestepFunction;
 
-    using create_function_t = void(void* /*data*/,
+    using write_function_t = void(void* /*data*/,
             void* /*parameters*/,
             real /*time*/,
             const char* /*variable_name*/,
@@ -137,7 +137,7 @@ private:
             real /*by*/,
             real /*bz*/,
             int /*gpu_number*/ );
-    std::function<create_function_t>
+    std::function<write_function_t>
     writeFunction;
     std::function<void(DLLData)> deleteFunction;
     std::function<void(DLLData)> deleteParametersFunction;
