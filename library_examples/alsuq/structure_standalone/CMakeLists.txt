@@ -17,7 +17,7 @@ ELSE()
 	ENDMACRO()
 ENDIF()
 project (structure_functions LANGUAGES C CXX)
-
+set(CMAKE_CXX_STANDARD 11)
 find_package(Alsvinn REQUIRED)
 add_executable(structure_standalone src/main.cpp)
 
