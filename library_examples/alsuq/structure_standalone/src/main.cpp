@@ -210,7 +210,7 @@ int main(int argc, char** argv) {
 
 
     const alsfvm::rvec3 lower = {0, 0, 0};
-    const alsfvm::rvec3 upper = {1, ny>1, nz>1};
+    const alsfvm::rvec3 upper = {1, static_cast<double>(ny>1), static_cast<double>(nz>1)};
 
 
     
