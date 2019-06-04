@@ -6,6 +6,8 @@
 #include "alsuq/stats/StatisticsFactory.hpp"
 #include "alsfvm/volume/make_volume.hpp"
 
+#include <random>
+
 class TestWriter : public alsfvm::io::Writer {
 public:
 
@@ -278,5 +280,69 @@ TEST_F(StructureTestCPUvsCUDA, TestIndex) {
 
 
 }
+
+
+
+TEST_F(StructureTestCPUvsCUDA, TestRandom) {
+    // Generates ten random samples and checks that the output becomes the same
+    // on both cpu and gpu
+    const int numberOfSamples = 10;
+    std::random_device randomDevice;
+    std::mt19937 genenerator(
+        randomDevice()); //Standard mersenne_twister_engine seeded with rd()
+    std::uniform_real_distribution<> distribution(1.0, 2.0);
+
+    for (int sample = 0; sample < numberOfSamples; ++sample) {
+        for (size_t volumeIndex = 0; volumeIndex < volumes.size(); ++volumeIndex) {
+            for (size_t var = 0; var < volumes[volumeIndex]->getNumberOfVariables();
+                ++var) {
+
+                std::vector<double> input(volumeConservedCPU->getTotalNumberOfXCells()
+                    *volumeConservedCPU->getTotalNumberOfYCells()
+                    *volumeConservedCPU->getTotalNumberOfZCells(), 0.0);
+
+
+                for (size_t k = ghostCells; k < innerSize.z + ghostCells; ++k) {
+                    for (size_t j = ghostCells; j < innerSize.y + ghostCells; ++j) {
+                        for (size_t i = ghostCells; i < innerSize.z + ghostCells; ++i) {
+                            size_t index = k * conservedOutputCPU->getTotalNumberOfXCells() *
+                                conservedOutputCPU->getTotalNumberOfYCells() +
+                                j * conservedOutputCPU->getTotalNumberOfXCells() + i;
+
+                            input[index] = distribution(genenerator);
+                        }
+                    }
+                }
+
+
+
+                volumes[volumeIndex]->getScalarMemoryArea(var)->copyFromHost(input.data(),
+                    input.size());
+            }
+        }
+
+
+        structureCPU->write(*volumeConservedCPU, *volumeExtraCPU, grid,
+            timestepInformation);
+
+        structureCUDA->write(*volumeConservedCUDA, *volumeExtraCUDA, grid,
+            timestepInformation);
+
+    }
+
+
+    structureCPU->combineStatistics();
+    structureCPU->finalizeStatistics();
+    structureCPU->writeStatistics(grid);
+
+
+    structureCUDA->combineStatistics();
+    structureCUDA->finalizeStatistics();
+    structureCUDA->writeStatistics(grid);
+
+
+    checkCPUVolumeEqualToCUDAVolume();
+}
+
 
 #endif
