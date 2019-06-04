@@ -6,13 +6,13 @@ To compile, run
 
     mkdir build
     cd build
-    cmake .. -DCMAKE_BUILD_TYPE
+    cmake .. -DCMAKE_BUILD_TYPE=Release
     make
 
 To run
 
     # from the build folder where dll_writer_example.so existsd
-    <path to alsuqcli>/alsuqcli ../examples/1d/sodshocktube.xml
+    <path to alsuqcli>/alsuqcli ../examples/1d/sodshocktube/sodshocktube.xml
 
 The DLL is rather simple and just writes the output to text file (readable by ```numpy.loadtxt``` in Python/numpy)
 
