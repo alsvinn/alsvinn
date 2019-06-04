@@ -25,7 +25,7 @@ DLL_WRITER_EXPORT bool needs_data_on_host(void* data, void* parameters);
 DLL_WRITER_EXPORT void set_parameter(void* parameters, const char* key,
     const char* value);
 
-DLL_WRITER_EXPORT void set_mpi_comm(void* parameters, void* data,
+DLL_WRITER_EXPORT void set_mpi_comm(void* data, void* parameters,
     MPI_Comm communicator);
 
 DLL_WRITER_EXPORT void new_timestep(void* data, void* parameters, double time,

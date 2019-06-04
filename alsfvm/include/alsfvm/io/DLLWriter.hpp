@@ -66,7 +66,7 @@ namespace io {
 //!
 //! <tr><td>set_mpi_comm_function </td><td> set mpi communicator, assumes the signature
 //!                            \code{.cpp}
-//!                                void set_mpi_comm_function(void* parameters, void* data, MPI_Comm communicator);
+//!                                void set_mpi_comm_function(void* data, void* parameters, MPI_Comm communicator);
 //!                            \endcode
 //!                             can be set to NONE
 //!                            </td></tr>
