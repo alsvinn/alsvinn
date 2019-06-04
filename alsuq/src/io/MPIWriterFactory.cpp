@@ -14,13 +14,14 @@
  */
 #include "alsutils/config.hpp"
 #ifdef ALSVINN_HAS_PARALLEL_HDF
-#include "alsfvm/io/HDF5MPIWriter.hpp"
+    #include "alsfvm/io/HDF5MPIWriter.hpp"
 #endif
 
 #include "alsuq/io/MPIWriterFactory.hpp"
 
 #include "alsfvm/io/NetCDFMPIWriter.hpp"
 #include "alsfvm/io/PythonScript.hpp"
+#include "alsfvm/io/DLLWriter.hpp"
 #include "alsuq/mpi/Configuration.hpp"
 namespace alsuq {
 namespace io {
@@ -58,7 +59,7 @@ alsfvm::shared_ptr<alsfvm::io::Writer> MPIWriterFactory::createWriter(
                 groupIndex, createFile, mpiCommunicator,
                 mpiInfo));
 #else
-	THROW("Parallel HDF5 not supported in this build, use NetCDF instead (<type>netcdf</type>)");
+        THROW("Parallel HDF5 not supported in this build, use NetCDF instead (<type>netcdf</type>)");
 #endif
     } else if (name == "netcdf") {
         writer.reset(new alsfvm::io::NetCDFMPIWriter(baseFilename, groupNames,
@@ -67,6 +68,10 @@ alsfvm::shared_ptr<alsfvm::io::Writer> MPIWriterFactory::createWriter(
 
     } else if (name == "python") {
         writer.reset(new alsfvm::io::PythonScript(baseFilename, parameterCopy,
+                configuration));
+
+    } else if (name == "dll") {
+        writer.reset(new alsfvm::io::DLLWriter(baseFilename, parameterCopy,
                 configuration));
     } else {
         THROW("Unknown writer " << name);

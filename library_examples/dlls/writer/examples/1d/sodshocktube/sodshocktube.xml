@@ -1,0 +1,82 @@
+<config>
+<fvm>
+  <name>
+    sodtube
+  </name>
+  <platform>cpu</platform>
+  <grid>
+    <lowerCorner>-5 0 0</lowerCorner>
+    <upperCorner>5 0 0</upperCorner>
+    <dimension>128 1 1</dimension>
+  </grid>
+  <boundary>neumann</boundary>
+  <flux>hll3</flux>
+  <endTime>1.3</endTime>
+  <equation>euler1</equation>
+  <reconstruction>none</reconstruction>
+  <cfl>0.45</cfl>
+  <integrator>rungekutta2</integrator>
+  <equationParameters>
+      <gamma>1.4</gamma>
+  </equationParameters>
+  <initialData>
+    <python>sodshocktube.py</python>
+        <parameters>
+      <parameter>
+        <name>X</name>
+        <length>1</length>
+        <value>0</value>
+      </parameter>
+    </parameters>
+
+  </initialData>
+    <diffusion>
+        <name>none</name>
+        <reconstruction>none</reconstruction>
+    </diffusion>
+  <writer>
+    <type>dll</type>
+    <library>libdll_writer_example.so</library>
+    <create_function>create</create_function>
+    <delete_function>delete_data</delete_function>
+    <write_function>write</write_function>
+    <make_parameters_function>make_parameters</make_parameters_function>
+    <delete_parameters_function>delete_parameters</delete_parameters_function>
+    <needs_data_on_host_function>needs_data_on_host</needs_data_on_host_function>
+    <set_parameter_function>set_parameter</set_parameter_function>
+    <set_mpi_comm_function>set_mpi_comm</set_mpi_comm_function>
+    <new_timestep_function>new_timestep</new_timestep_function>
+    <end_timestep_function>end_timestep</end_timestep_function>
+        
+    <basename>sodshocktube</basename>
+    <numberOfSaves>10</numberOfSaves>
+  </writer>
+</fvm>
+<uq>
+  <samples>1</samples>
+  <generator>auto</generator>
+  <parameters>
+    <parameter>
+      <name>X</name>
+      <length>1</length>
+      <type>uniform</type>
+    </parameter>
+  </parameters>
+  <stats>
+    <stat>
+    <name>
+      meanvar
+      </name>
+      <numberOfSaves>1</numberOfSaves>
+      <writer>
+      <type>netcdf</type>
+      <basename>sodshocktube</basename>
+      </writer>
+    </stat>
+
+
+  </stats>
+
+</uq>
+
+</config>
