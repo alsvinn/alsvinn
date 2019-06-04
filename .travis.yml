@@ -124,6 +124,6 @@ script:
   - cd ${TRAVIS_BUILD_DIR}/library_examples/dlls/writer
   - mkdir build
   - cd build
-  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE}
+  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_C_COMPILER=$(which ${CC}) -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE}
   - make
   - ${TRAVIS_BUILD_DIR}/build/alsuqcli/alsuqcli ../examples/1d/sodshocktube/sodshocktube.xml
