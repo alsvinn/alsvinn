@@ -11,7 +11,7 @@ DLL_WRITER_EXPORT void* create(const char* simulator_name,
 
 DLL_WRITER_EXPORT void delete_data(void* data);
 
-DLL_WRITER_EXPORT void write(void* data, void* parameters, double time,
+DLL_WRITER_EXPORT void write_data(void* data, void* parameters, double time,
     const char* variable_name, const double* variable_data, int nx, int ny, int nz,
     int ngx, int ngy, int ngz, double ax, double ay, double az, double bx,
     double by, double bz, int gpu_number );
