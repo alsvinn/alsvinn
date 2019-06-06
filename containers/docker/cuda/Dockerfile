@@ -47,7 +47,7 @@ RUN cd /alsvinn &&\
     cd build_docker && \
     cmake .. -DCMAKE_BUILD_TYPE=Release &&\
     make &&\
-    cp generate_parameters /usr/local/bin/
+    cp generate_parameters /usr/local/bin/ &&\
     cd ../.. && \
     cd structure_standalone && \
     mkdir build_docker && \
