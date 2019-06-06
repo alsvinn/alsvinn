@@ -1,13 +1,13 @@
 <config>
 <fvm>
   <name>
-    kh
+    kh_512
   </name>
-  <platform>cuda</platform>
+  <platform>cpu</platform>
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 1 1</upperCorner>
-    <dimension>64 64 64</dimension>
+    <dimension>128 128 128</dimension>
   </grid>
   <boundary>periodic</boundary>
   <flux>hll3</flux>
@@ -16,7 +16,7 @@
   <equationParameters>
     <gamma>1.4</gamma>
   </equationParameters>
-  <reconstruction>none</reconstruction>
+  <reconstruction>weno2</reconstruction>
   <cfl>auto</cfl>
   <integrator>auto</integrator>
   <functionals>
@@ -28,7 +28,7 @@
     <parameters>
       <parameter>
         <name>a</name>
-        <length>40</length>
+        <length>60</length>
         <values><value>0</value></values>
       </parameter>
     </parameters>
@@ -38,9 +38,9 @@
     <reconstruction>none</reconstruction>
   </diffusion>
   <writer>
-    <type>netcdf</type>
     <basename>kh</basename>
-    <numberOfSaves>10</numberOfSaves>
+    <type>netcdf</type>
+    <numberOfSaves>1</numberOfSaves>
   </writer>
 </fvm>
 <uq>
@@ -58,12 +58,54 @@
     <name>
       meanvar
     </name>
-    <numberOfSaves>4</numberOfSaves>
+    <numberOfSaves>1</numberOfSaves>
     <writer>
       <type>netcdf</type>
       <basename>kh</basename>
     </writer>
     </stat>
+    <stat>
+  <name>
+    structure_cube
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <numberOfH>16</numberOfH>
+  <p>1</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>kh_cube</basename>
+  </writer>
+  </stat>
+  
+
+
+<stat>
+  <name>
+    structure_cube
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <numberOfH>16</numberOfH>
+  <p>2</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>kh_cube</basename>
+  </writer>
+  </stat>
+
+
+
+<stat>
+  <name>
+    structure_cube
+  </name>
+  <numberOfSaves>1</numberOfSaves>
+  <numberOfH>16</numberOfH>
+  <p>3</p>
+  <writer>
+    <type>netcdf</type>
+    <basename>kh_cube</basename>
+  </writer>
+  </stat>
 
   </stats>
 </uq>

@@ -42,7 +42,15 @@ RUN cd /alsvinn &&\
     cd build_docker && \
     cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} &&\
     make &&\
-    cp generate_parameters /usr/local/bin/
+    cp generate_parameters /usr/local/bin/ &&\
+    cd ../.. && \
+    cd structure_standalone && \
+    mkdir build_docker && \
+    cd build_docker && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release &&\
+    make &&\
+    cp structure_standalone /usr/local/bin/
+    
     
 
 RUN rm /etc/ld.so.cache && ldconfig
