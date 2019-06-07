@@ -39,7 +39,7 @@
     <library>libdll_writer_example.so</library>
     <create_function>create</create_function>
     <delete_function>delete_data</delete_function>
-    <write_function>write</write_function>
+    <write_function>write_data</write_function>
     <make_parameters_function>make_parameters</make_parameters_function>
     <delete_parameters_function>delete_parameters</delete_parameters_function>
     <needs_data_on_host_function>needs_data_on_host</needs_data_on_host_function>

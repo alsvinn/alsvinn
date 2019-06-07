@@ -9,26 +9,7 @@ It also supports cluster configurations consisting of either CPUs or GPUs. It ex
 
 Alsvinn is maintained by [Kjetil Olsen Lye](https://github.com/kjetil-lye/) at ETH Zurich. We want Alsvinn to be easy to use, so if you have issues compiling or running it, please don't hesitate to leave an issue.
 
-Alsvinn is also [available as a Docker container.](https://hub.docker.com/r/alsvinn/). To run alsvinn using Docker and get the output to the current directory, all you have to do is
-
-    docker run --rm -v $(pwd):$(pwd) -w $(pwd) alsvinn/alsvinn_cuda /examples/kelvinhelmholtz/kelvinhelmholtz.xml
-
-*NOTE* Replace ```alsvinn_cuda``` with ```alsvinn_cpu``` if you are running a CPU only setup.
-
-*NOTE* You can also make your own configuration files and specify them instead of ```/examples/kelvinhelmholtz/kelvinhelmholtz.xml```
-
-On LSF systems with singularity installed, Alsvinn can be run as 
-
-    # Cluster WITHOUT GPUs
-    bsub -R singularity singularity run -B $(pwd):$(pwd) \
-         docker://alsvinn/alsvinn_cpu 
-         /examples/kelvinhelmholtz/kelvinhelmholtz.xml
-	 
-    # Clusters WITH GPUs:
-    bsub <other options to get GPU> \
-         -R singularity singularity run --nv -B $(pwd):$(pwd) \
-         docker://alsvinn/alsvinn_cuda \
-         /examples/kelvinhelmholtz/kelvinhelmholtz.xml
+Alsvinn is also [available as a Docker container.](https://hub.docker.com/r/alsvinn/). See below for [how to run with Docker or Singularity without any installation needed.](#running-in-docker-or-singularity)
 
 ## Supported equations
 
@@ -142,6 +123,52 @@ Most output is saved as a NetCDF file. These can easily be read in programming l
 ## Python scripts
 
 There is a simple python API for running alsvinn under the ```python``` folder. Check out the readme file there for more information.
+
+
+## Running in Docker or Singularity
+To run alsvinn using Docker and get the output to the current directory, all you have to do is
+
+    docker run --rm -v $(pwd):$(pwd) -w $(pwd) alsvinn/alsvinn_cuda /examples/kelvinhelmholtz/kelvinhelmholtz.xml
+
+*NOTE* Replace ```alsvinn_cuda``` with ```alsvinn_cpu``` if you are running a CPU only setup.
+
+*NOTE* You can also make your own configuration files and specify them instead of ```/examples/kelvinhelmholtz/kelvinhelmholtz.xml```
+
+### Running with Singularity
+On LSF systems with Singularity installed, Alsvinn can be run as 
+
+    # Cluster WITHOUT GPUs
+    bsub -R singularity singularity run -B $(pwd):$(pwd) \
+         docker://alsvinn/alsvinn_cpu 
+         /examples/kelvinhelmholtz/kelvinhelmholtz.xml
+	 
+    # Clusters WITH GPUs:
+    bsub <other options to get GPU> \
+         -R singularity singularity run --nv -B $(pwd):$(pwd) \
+         docker://alsvinn/alsvinn_cuda \
+         /examples/kelvinhelmholtz/kelvinhelmholtz.xml
+
+Note that it is probably a good idea to pull the image first and then run the downloaded image, eg.
+
+     bsub -R light -J downloading_image -R singularity \
+         singularity pull docker://alsvinn/alsvinn_cuda
+         
+     bsub -R singularity -w "done(downloading_image)" \
+         singularity run --nv -B $(pwd):$(pwd) \
+         alsvinn_cuda.simg \
+         /examples/kelvinhelmholtz/kelvinhelmholtz.xml
+         
+To run with MPI, we strongly recommend using MVAPICH2 (or any mpich ABI compatible implementation) on the cluster. On a lot of cluster, you would do something like:
+
+    # Or whatver the mvapich2 module is called
+    module load mvapich2
+    bsub -R light -J downloading_image -R singularity \
+         singularity pull docker://alsvinn/alsvinn_cuda
+         
+     bsub -R singularity -w "done(downloading_image)" \
+         mpirun -np <number of cores> singularity run --nv -B $(pwd):$(pwd) \
+         alsvinn_cuda.simg  --multi-y <number of cores> \
+         /examples/kelvinhelmholtz/kelvinhelmholtz.xml
 
 ## Note about Boost and Python
 
