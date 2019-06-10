@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -16,6 +16,7 @@
 #pragma once
 #include "alsuq/types.hpp"
 #include "alsfvm/memory/Memory.hpp"
+#include <functional>
 
 namespace alsuq {
 namespace stats {
@@ -29,11 +30,13 @@ __device__ __host__ int makePositive(int position, int N) {
 
 }
 
-__device__ __host__ void computeStructureCube(alsfvm::memory::View<real>&
-    output,
+
+template<class Function>
+__device__ __host__ void forEachPointInComputeStructureCube(
+    Function f,
     const alsfvm::memory::View<const real>& input,
     int i, int j, int k, int h, int nx, int ny, int nz,
-    int ngx, int ngy, int ngz, int dimensions, real p) {
+    int ngx, int ngy, int ngz, int dimensions) {
     const auto u = input.at(i + ngx, j + ngy, k + ngz);
 
     for (int d = 0; d < dimensions; d++) {
@@ -44,7 +47,7 @@ __device__ __host__ void computeStructureCube(alsfvm::memory::View<real>&
             const bool xDir = (d == 0);
             // Either we start on the left (i == 0), or on the right(i==1)
             const int zStart = zDir ?
-                (side == 0 ? k - h + 1 : k + h) : (dimensions > 2 ? k - h + 1 : 0);
+                (side == 0 ? k - h : k + h + 1) : (dimensions > 2 ? k - h + 1 : 0);
 
             const int zEnd = zDir ?
                 (zStart + 1) : (dimensions > 2 ? k + h : 1);
@@ -67,12 +70,25 @@ __device__ __host__ void computeStructureCube(alsfvm::memory::View<real>&
                         const auto u_h = input.at(makePositive(x, nx) % nx + ngx,
                                 makePositive(y, ny) % ny + ngy,
                                 makePositive(z, nz) % nz + ngz);
-                        output.at(h) += pow(fabs(u_h - u), p) / (nx * ny * nz);
+                        f(u, u_h);
                     }
                 }
             }
         }
     }
 }
+
+__device__ __host__ void computeStructureCube(alsfvm::memory::View<real>&
+    output,
+    const alsfvm::memory::View<const real>& input,
+    int i, int j, int k, int h, int nx, int ny, int nz,
+    int ngx, int ngy, int ngz, int dimensions, real p) {
+
+    forEachPointInComputeStructureCube([&](double u, double u_h) {
+        output.at(h) += pow(fabs(u - u_h), p);
+    }, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions);
+
 }
 }
+}
+
