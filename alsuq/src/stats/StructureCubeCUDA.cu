@@ -78,7 +78,7 @@ __global__ void computeStructureCube(real* output,
                         const auto u_h = input.at(makePositive(x, nx) % nx + ngx,
                                 makePositive(y, ny) % ny + ngy,
                                 makePositive(z, nz) % nz + ngz);
-                        output[index] += powf(fabs(u_h - u), p);
+                        output[index] += pow(fabs(u_h - u), p);
                     }
                 }
             }
