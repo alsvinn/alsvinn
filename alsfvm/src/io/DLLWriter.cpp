@@ -15,7 +15,7 @@ DLLWriter::DLLWriter(const std::string& basename,
     auto filename = parameters.getString("library");
     auto createFunctionName = parameters.getString("create_function");
     auto makeParametersName = parameters.getString("make_parameters_function");
-    auto setMpiCommName = parameters.getString("set_mpi_comm_funtion");
+    auto setMpiCommName = parameters.getString("set_mpi_comm_function");
 
     if (boost::algorithm::to_lower_copy(makeParametersName) != "none") {
         auto makeParametersFunction = boost::dll::import <void* ()>(filename,
@@ -53,7 +53,7 @@ DLLWriter::DLLWriter(const std::string& basename,
         );
 
     auto newTimestepFunctionName =
-        parameters.getString("new_timestep_function_name");
+        parameters.getString("new_timestep_function");
 
     if (boost::algorithm::to_lower_copy(newTimestepFunctionName) != "none") {
         newTimestepFunction = boost::dll::import<void(DLLData, DLLData, real, int)>
@@ -62,7 +62,7 @@ DLLWriter::DLLWriter(const std::string& basename,
     }
 
     auto endTimestepFunctionName =
-        parameters.getString("end_timestep_function_name");
+        parameters.getString("end_timestep_function");
 
 
     if (boost::algorithm::to_lower_copy(endTimestepFunctionName) != "none") {
@@ -91,6 +91,10 @@ DLLWriter::DLLWriter(const std::string& basename,
 
         needsDataOnHost = needsDataOnHostFunction(dllData, parametersStruct);
     }
+
+    const auto writeFunctionName = parameters.getString("write_function");
+    writeFunction = boost::dll::import<write_function_t>(filename,
+            writeFunctionName);
 }
 
 void DLLWriter::write(const volume::Volume& conservedVariables,

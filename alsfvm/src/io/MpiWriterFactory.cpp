@@ -14,6 +14,7 @@
  */
 #include "alsfvm/io/MpiWriterFactory.hpp"
 #include "alsfvm/io/NetCDFMPIWriter.hpp"
+#include "alsfvm/io/DLLWriter.hpp"
 #include "alsfvm/io/PythonScript.hpp"
 #include "alsutils/error/Exception.hpp"
 
@@ -41,6 +42,8 @@ alsfvm::shared_ptr<Writer> MpiWriterFactory::createWriter(
                 configuration->getInfo()));
     } else if (name == "python") {
         writer.reset(new PythonScript(baseFilename, parameters, configuration));
+    } else if (name == "dll") {
+        writer.reset(new DLLWriter(baseFilename, parameters, configuration));
     } else {
         THROW("Unknown writer " << name << std::endl << "Does not have MPI support.");
     }

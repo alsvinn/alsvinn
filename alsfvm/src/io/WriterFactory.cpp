@@ -17,6 +17,7 @@
 #include "alsfvm/io/HDF5Writer.hpp"
 #include "alsfvm/io/NetCDFWriter.hpp"
 #include "alsfvm/io/PythonScript.hpp"
+#include "alsfvm/io/DLLWriter.hpp"
 
 namespace alsfvm {
 namespace io {
@@ -33,6 +34,8 @@ alsfvm::shared_ptr<Writer> WriterFactory::createWriter(const std::string& name,
         writer.reset(new NetCDFWriter(baseFilename));
     } else if (name == "python") {
         writer.reset(new PythonScript(baseFilename, parameters));
+    } else if (name == "dll") {
+        writer.reset(new DLLWriter(baseFilename, parameters));
     } else {
         THROW("Unknown writer type " << name);
     }
