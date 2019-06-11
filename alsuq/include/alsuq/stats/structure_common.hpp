@@ -85,7 +85,7 @@ __device__ __host__ void computeStructureCube(alsfvm::memory::View<real>&
     int ngx, int ngy, int ngz, int dimensions, real p) {
 
     forEachPointInComputeStructureCube([&](double u, double u_h) {
-        output.at(h) += pow(fabs(u - u_h), p);
+        output.at(h) += pow(fabs(u - u_h), p) / (nx * ny * nz);
     }, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions);
 
 }
