@@ -27,7 +27,7 @@ void parallelNetcdfWriteAttributes(netcdf_raw_ptr varid,
 
     if (propertyTree.empty()) {
         std::string data = propertyTree.data();
-        NETCDF_SAFE_CALl(ncmpi_put_att_text(varid, NC_GLOBAL, basename.c_str(),
+        NETCDF_SAFE_CALL(ncmpi_put_att_text(varid, NC_GLOBAL, basename.c_str(),
                 data.size(), data.c_str()));
     } else {
         for (auto& node : propertyTree) {

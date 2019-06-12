@@ -20,6 +20,7 @@
 #include <netcdf.h>
 #include "alsutils/log.hpp"
 using namespace alsfvm;
+using namespace alsfvm::io;
 
 TEST(NetCDFTest, TestSimpleVolume) {
     auto deviceConfiguration = alsfvm::make_shared<DeviceConfiguration>("cpu");
@@ -79,7 +80,7 @@ TEST(NetCDFTest, TestSimpleVolume) {
     // Now we read it back in
     std::cout << "done writing" << std::endl;
     netcdf_raw_ptr file;
-    NETCDF_SAFE_CALl(nc_open((basename + "_0.nc").c_str(), NC_NOWRITE, &file));
+    NETCDF_SAFE_CALL(nc_open((basename + "_0.nc").c_str(), NC_NOWRITE, &file));
 
 
 
@@ -87,11 +88,11 @@ TEST(NetCDFTest, TestSimpleVolume) {
 
     for (size_t var = 0; var < conservedVolume->getNumberOfVariables(); ++var) {
         netcdf_raw_ptr varId;
-        NETCDF_SAFE_CALl(nc_inq_varid(file, conservedVolume->getName(var).c_str(),
+        NETCDF_SAFE_CALL(nc_inq_varid(file, conservedVolume->getName(var).c_str(),
                 &varId));
         std::vector<double> data(nx * ny * nz, 0);
 
-        NETCDF_SAFE_CALl(nc_get_var_double(file, varId, data.data()));
+        NETCDF_SAFE_CALL(nc_get_var_double(file, varId, data.data()));
 
         for (size_t z = 0; z < nz; ++z) {
             for (size_t y = 0; y < ny; ++y) {
@@ -107,10 +108,10 @@ TEST(NetCDFTest, TestSimpleVolume) {
 
     for (size_t var = 0; var < extraVolume->getNumberOfVariables(); ++var) {
         netcdf_raw_ptr varId;
-        NETCDF_SAFE_CALl(nc_inq_varid(file, extraVolume->getName(var).c_str(), &varId));
+        NETCDF_SAFE_CALL(nc_inq_varid(file, extraVolume->getName(var).c_str(), &varId));
         std::vector<double> data(nx * ny * nz, 0);
 
-        NETCDF_SAFE_CALl(nc_get_var_double(file, varId, data.data()));
+        NETCDF_SAFE_CALL(nc_get_var_double(file, varId, data.data()));
 
 
         for (size_t z = 0; z < nz; ++z) {
@@ -125,6 +126,6 @@ TEST(NetCDFTest, TestSimpleVolume) {
     }
 
 
-    NETCDF_SAFE_CALl(nc_close(file));
+    NETCDF_SAFE_CALL(nc_close(file));
 
 }
