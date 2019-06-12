@@ -28,6 +28,7 @@
 #include "alsutils/log.hpp"
 
 #include <chrono>
+#include "alsutils/mpi/set_cuda_device.hpp"
 
 void addWriters(alsuq::stats::StatisticsFactory::StatisticsPointer
     statisticsPointer,
@@ -41,7 +42,8 @@ void addWriters(alsuq::stats::StatisticsFactory::StatisticsPointer
     // (eg. meanvar saves mean and var), we need to supply a writer for each output
     for (auto statsName :
         statisticsPointer->getStatisticsNames()) { // loop through each output
-      auto writer = factory.createWriter(writerType, outputName + "_" + statsName, parameters);
+        auto writer = factory.createWriter(writerType, outputName + "_" + statsName,
+                parameters);
         // It is a good idea to add some attributes to the writer to
         // know mark the data
         boost::property_tree::ptree attributes;
@@ -62,100 +64,106 @@ void addWriters(alsuq::stats::StatisticsFactory::StatisticsPointer
 alsuq::stats::StatisticsFactory::StatisticsPointer makeStructureFunction(
     double p, int numberOfH, int numberOfSamples, const std::string& platform,
     const alsuq::mpi::ConfigurationPtr mpiConfiguration) {
-/** [makeStructureFunction]*/
-/** [factoryInstance]*/
+    /** [makeStructureFunction]*/
+    /** [factoryInstance]*/
     alsuq::stats::StatisticsFactory statisticsFactory;
-/** [factoryInstance]*/
+    /** [factoryInstance]*/
 
-/** [parameters]*/
+    /** [parameters]*/
     boost::property_tree::ptree properties;
     properties.put("p", p);
     properties.put("numberOfH", numberOfH);
     alsuq::stats::StatisticsParameters parameters(properties);
     parameters.setNumberOfSamples(numberOfSamples);
     parameters.setMpiConfiguration(mpiConfiguration);
-/** [parameters]*/
+    /** [parameters]*/
 
-/** [createStatistics]*/
+    /** [createStatistics]*/
     auto statistics = statisticsFactory.makeStatistics(platform, "structure_cube",
             parameters);
 
     return statistics;
-/** [createStatistics]*/
+    /** [createStatistics]*/
 }
 
 
-alsfvm::simulator::TimestepInformation getTimestepInformation(const std::string& filename) {
+alsfvm::simulator::TimestepInformation getTimestepInformation(
+    const std::string& filename) {
 
-  return alsfvm::simulator::TimestepInformation(0, 0);
+    return alsfvm::simulator::TimestepInformation(0, 0);
 }
 
 alsfvm::volume::VolumePair getSample(const std::string& platform,
-				     const std::string& equation,
-				     int sample,
-				     const std::string& filename,
-				     int nx, int ny, int nz) {
-  auto start = std::chrono::high_resolution_clock::now();
-  using namespace alsfvm;
-  netcdf_raw_ptr file;
+    const std::string& equation,
+    int sample,
+    const std::string& filename,
+    int nx, int ny, int nz) {
+    auto start = std::chrono::high_resolution_clock::now();
+    using namespace alsfvm;
+    netcdf_raw_ptr file;
 
-  NETCDF_SAFE_CALl(nc_open(filename.c_str(), NC_NOWRITE, &file));
+    NETCDF_SAFE_CALl(nc_open(filename.c_str(), NC_NOWRITE, &file));
 
-  auto conservedVolume = alsfvm::volume::makeConservedVolume(platform, equation, {nx, ny, nz},
+    auto conservedVolume = alsfvm::volume::makeConservedVolume(platform, equation, {nx, ny, nz},
             0);
 
-  auto extraVolume = alsfvm::volume::makeExtraVolume(platform, equation, {nx, ny, nz},
+    auto extraVolume = alsfvm::volume::makeExtraVolume(platform, equation, {nx, ny, nz},
             0);
 
-  for (int var = 0; var < conservedVolume->getNumberOfVariables(); ++var) {
-    auto name = conservedVolume->getName(var);
-    auto variableName = std::string("sample_") + std::to_string(sample) + "_" + name;
+    for (int var = 0; var < conservedVolume->getNumberOfVariables(); ++var) {
+        auto name = conservedVolume->getName(var);
+        auto variableName = std::string("sample_") + std::to_string(
+                sample) + "_" + name;
 
 
-    netcdf_raw_ptr varid;
-    NETCDF_SAFE_CALl(nc_inq_varid(file, variableName.c_str(), &varid));
+        netcdf_raw_ptr varid;
+        NETCDF_SAFE_CALl(nc_inq_varid(file, variableName.c_str(), &varid));
 
-    std::vector<double> buffer(nx*ny*nz);
+        std::vector<double> buffer(nx * ny * nz);
 
-    NETCDF_SAFE_CALl(nc_get_var_double(file, varid, buffer.data()));
+        NETCDF_SAFE_CALl(nc_get_var_double(file, varid, buffer.data()));
 
-    conservedVolume->getScalarMemoryArea(var)->copyFromHost(buffer.data(), buffer.size());
-  }
+        conservedVolume->getScalarMemoryArea(var)->copyFromHost(buffer.data(),
+            buffer.size());
+    }
 
-  for (int var = 0; var < extraVolume->getNumberOfVariables(); ++var) {
-    auto name = extraVolume->getName(var);
-    auto variableName = std::string("sample_") + std::to_string(sample) + "_" + name;
+    for (int var = 0; var < extraVolume->getNumberOfVariables(); ++var) {
+        auto name = extraVolume->getName(var);
+        auto variableName = std::string("sample_") + std::to_string(
+                sample) + "_" + name;
 
-    netcdf_raw_ptr varid;
-    NETCDF_SAFE_CALl(nc_inq_varid(file, variableName.c_str(), &varid));
+        netcdf_raw_ptr varid;
+        NETCDF_SAFE_CALl(nc_inq_varid(file, variableName.c_str(), &varid));
 
-    std::vector<double> buffer(nx*ny*nz);
+        std::vector<double> buffer(nx * ny * nz);
 
-    NETCDF_SAFE_CALl(nc_get_var_double(file, varid, buffer.data()));
+        NETCDF_SAFE_CALl(nc_get_var_double(file, varid, buffer.data()));
 
-    extraVolume->getScalarMemoryArea(var)->copyFromHost(buffer.data(), buffer.size());
-  }
+        extraVolume->getScalarMemoryArea(var)->copyFromHost(buffer.data(),
+            buffer.size());
+    }
 
-  NETCDF_SAFE_CALl(nc_close(file));
+    NETCDF_SAFE_CALl(nc_close(file));
 
-  std::cout << "Read sample" << std::endl;
+    std::cout << "Read sample" << std::endl;
 
-  auto end = std::chrono::high_resolution_clock::now();
+    auto end = std::chrono::high_resolution_clock::now();
 
-  std::cout << "Reading sample took: " << (end-start).count() << " s" << std::endl;
-  return alsfvm::volume::VolumePair(conservedVolume, extraVolume);
+    std::cout << "Reading sample took: " << (end - start).count() << " s" <<
+        std::endl;
+    return alsfvm::volume::VolumePair(conservedVolume, extraVolume);
 
 }
 
 int main(int argc, char** argv) {
-
+    alsutils::mpi::setCudaDevice();
     MPI_Init(&argc, &argv);
 
     using namespace boost::program_options;
     options_description description;
     std::string filenameInput;
     std::string filenameOutput;
-    
+
     std::string equation;
     int nx, ny, nz;
     int numberOfH;
@@ -167,54 +175,58 @@ int main(int argc, char** argv) {
     // See http://www.boost.org/doc/libs/1_58_0/doc/html/program_options/tutorial.html
     // especially for "positional arguments"
     description.add_options()
-        ("help", "Produces this help message")
-      
-      ("input-filename,i", value<std::string>(&filenameInput)->required(),
-       "Input filename (only supports NetCDF)")
-      ("output-filename,o", value<std::string>(&filenameOutput)->required(),
-       "Output filename (only supports NetCDF)")
-      ("samples", value<int>(&numberOfSamples)->default_value(1), "Number of samples")
-      ("equation", value<std::string>(&equation)->default_value("euler3"), "Equation to use")
-      ("p", value<int>(&p)->default_value(1), "Value of p")
-      ("number-of-h", value<int>(&numberOfH)->default_value(1), "Number of h values to use")
-      ("nx", value<int>(&nx)->required(), "Resolution x direction")
-      ("ny", value<int>(&ny)->required(), "Resolution y direction")
-      ("nz", value<int>(&nz)->required(), "Resolution z direction")
-      ("boundary-condition", value<std::string>(&bc)->default_value("periodic"), "Boundary condition")
-      ("platform", value<std::string>(&platform)->default_value("cpu"), "Platform to use (either cpu or cuda)");
+    ("help", "Produces this help message")
+
+    ("input-filename,i", value<std::string>(&filenameInput)->required(),
+        "Input filename (only supports NetCDF)")
+    ("output-filename,o", value<std::string>(&filenameOutput)->required(),
+        "Output filename (only supports NetCDF)")
+    ("samples", value<int>(&numberOfSamples)->default_value(1), "Number of samples")
+    ("equation", value<std::string>(&equation)->default_value("euler3"),
+        "Equation to use")
+    ("p", value<int>(&p)->default_value(1), "Value of p")
+    ("number-of-h", value<int>(&numberOfH)->default_value(1),
+        "Number of h values to use")
+    ("nx", value<int>(&nx)->required(), "Resolution x direction")
+    ("ny", value<int>(&ny)->required(), "Resolution y direction")
+    ("nz", value<int>(&nz)->required(), "Resolution z direction")
+    ("boundary-condition", value<std::string>(&bc)->default_value("periodic"),
+        "Boundary condition")
+    ("platform", value<std::string>(&platform)->default_value("cpu"),
+        "Platform to use (either cpu or cuda)");
 
     variables_map vm;
 
     try {
-      store(command_line_parser(argc, argv).options(description).run(),
-	    vm);
-      notify(vm);
-    }
-    catch (std::runtime_error& error) {
-      std::cout << error.what() << std::endl;
-      std::cout << "Usage:\n\t" << argv[0] << " <options>" <<
-	std::endl << std::endl;
-      
-      std::cout << description << std::endl;
-      
-      std::exit(EXIT_FAILURE);
-      
+        store(command_line_parser(argc, argv).options(description).run(),
+            vm);
+        notify(vm);
+    } catch (std::runtime_error& error) {
+        std::cout << error.what() << std::endl;
+        std::cout << "Usage:\n\t" << argv[0] << " <options>" <<
+            std::endl << std::endl;
+
+        std::cout << description << std::endl;
+
+        std::exit(EXIT_FAILURE);
+
     } catch (...) {
-      std::cout << "Usage:\n\t" << argv[0] << " <options>" <<
-	std::endl << std::endl;
-      
-      std::cout << description << std::endl;
-      
-      std::exit(EXIT_FAILURE);
-    }      
+        std::cout << "Usage:\n\t" << argv[0] << " <options>" <<
+            std::endl << std::endl;
+
+        std::cout << description << std::endl;
+
+        std::exit(EXIT_FAILURE);
+    }
 
 
     const alsfvm::rvec3 lower = {0, 0, 0};
-    const alsfvm::rvec3 upper = {1, static_cast<double>(ny>1), static_cast<double>(nz>1)};
+    const alsfvm::rvec3 upper = {1, static_cast<alsfvm::real>(ny > 1), static_cast<alsfvm::real>(nz > 1)};
 
 
-    
-    const alsfvm::simulator::TimestepInformation timestepInformation = getTimestepInformation(filenameInput);
+
+    const alsfvm::simulator::TimestepInformation timestepInformation =
+        getTimestepInformation(filenameInput);
 
     // Output
     const std::string writerType = "netcdf";
@@ -228,21 +240,22 @@ int main(int argc, char** argv) {
     auto numberOfProcessors = mpiConfiguration->getNumberOfProcesses();
 
     if (numberOfSamples % numberOfProcessors != 0) {
-      std::cerr << "Number of processors must be a factor in number of samples" << std::endl;
-      std::cerr << "Given\n"
-		<< "\tnumberOfSamples = " << numberOfSamples <<"\n"
-		<< "\tNumberOfProcessors = " << numberOfProcessors << "\n"
-		<<std::endl;
+        std::cerr << "Number of processors must be a factor in number of samples" <<
+            std::endl;
+        std::cerr << "Given\n"
+            << "\tnumberOfSamples = " << numberOfSamples << "\n"
+            << "\tNumberOfProcessors = " << numberOfProcessors << "\n"
+            << std::endl;
     }
 
     if (numberOfSamples < numberOfProcessors) {
-      std::cerr << "Number of processors larger than number of samples" << std::endl;
-      std::cerr << "Given\n"
-		<< "\tnumberOfSamples = " << numberOfSamples <<"\n"
-		<< "\tNumberOfProcessors = " << numberOfProcessors << "\n"
-		<<std::endl;
-    }      
-    
+        std::cerr << "Number of processors larger than number of samples" << std::endl;
+        std::cerr << "Given\n"
+            << "\tnumberOfSamples = " << numberOfSamples << "\n"
+            << "\tNumberOfProcessors = " << numberOfProcessors << "\n"
+            << std::endl;
+    }
+
     auto samplesPerProcessor = numberOfSamples / numberOfProcessors;
 
 
@@ -255,27 +268,30 @@ int main(int argc, char** argv) {
 
     const auto sampleStart = rank * samplesPerProcessor;
     const auto sampleEnd = (rank + 1) * samplesPerProcessor;
-    for (int sample = sampleStart; sample < sampleEnd; ++sample) {
-      auto start = std::chrono::high_resolution_clock::now();
-      std::cout << sample << std::endl;
-      //ALSVINN_LOG(INFO, "Computing for sample: " << sample);
-      auto volumes = getSample(platform, equation, sample, filenameInput, nx, ny, nz);
 
-      statistics->write(*volumes.getConservedVolume(),
-			  *volumes.getExtraVolume(),
-			  grid,
-			timestepInformation);
-      auto end = std::chrono::high_resolution_clock::now();
-      std::cout << "Computing sample took: " << (end-start).count() << " s" << std::endl;
+    for (int sample = sampleStart; sample < sampleEnd; ++sample) {
+        auto start = std::chrono::high_resolution_clock::now();
+        std::cout << sample << std::endl;
+        //ALSVINN_LOG(INFO, "Computing for sample: " << sample);
+        auto volumes = getSample(platform, equation, sample, filenameInput, nx, ny, nz);
+
+        statistics->write(*volumes.getConservedVolume(),
+            *volumes.getExtraVolume(),
+            grid,
+            timestepInformation);
+        auto end = std::chrono::high_resolution_clock::now();
+        std::cout << "Computing sample took: " << (end - start).count() << " s" <<
+            std::endl;
     }
 
     statistics->combineStatistics();
 
     if (rank == 0) {
-      statistics->finalizeStatistics();
+        statistics->finalizeStatistics();
 
-      statistics->writeStatistics(grid);
+        statistics->writeStatistics(grid);
     }
+
     MPI_Finalize();
 
 }
