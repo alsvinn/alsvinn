@@ -84,7 +84,8 @@ void addWriters(alsuq::stats::StatisticsFactory::StatisticsPointer
     statisticsPointer,
     const std::string& outputName,
     const std::string& writerType,
-    boost::property_tree::ptree extraAttributes) {
+    boost::property_tree::ptree extraAttributes,
+    const std::string& allCommandLineArguments) {
     alsfvm::io::WriterFactory factory;
     boost::property_tree::ptree tree;
     alsfvm::io::Parameters parameters(tree);
@@ -99,6 +100,7 @@ void addWriters(alsuq::stats::StatisticsFactory::StatisticsPointer
         // know mark the data
         boost::property_tree::ptree attributes;
         attributes.put("generatedBy", "alsvinn/library_examples/strcture_standalone");
+        attributes.put("commandLineArguments", allCommandLineArguments);
         writer->addAttributes("standAloneProgramInformation", attributes);
 
         writer->addAttributes("fromFile", extraAttributes);
@@ -287,6 +289,12 @@ int main(int argc, char** argv) {
         std::exit(EXIT_FAILURE);
     }
 
+    std::stringstream allCommandLineArguments;
+
+    for (int arg = 0; arg < argc; ++arg) {
+        allCommandLineArguments << argv[arg] << " ";
+    }
+
 
     const alsfvm::rvec3 lower = {0, 0, 0};
     const alsfvm::rvec3 upper = {1, static_cast<alsfvm::real>(ny > 1), static_cast<alsfvm::real>(nz > 1)};
@@ -331,7 +339,8 @@ int main(int argc, char** argv) {
     auto attributes = getAttributes(filenameInput);
     auto statistics = makeStructureFunction(p, numberOfH, numberOfSamples, platform,
             mpiConfiguration);
-    addWriters(statistics, filenameOutput, writerType, attributes);
+    addWriters(statistics, filenameOutput, writerType, attributes,
+        allCommandLineArguments.str());
 
     alsfvm::grid::Grid grid(lower, upper, {nx, ny, nz});
 
