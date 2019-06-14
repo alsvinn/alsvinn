@@ -4,3 +4,6 @@
 [submodule "doxygen/doxygen-bootstrapped"]
 	path = doxygen/doxygen-bootstrapped
 	url = https://github.com/Velron/doxygen-bootstrapped.git
+[submodule "addons/fbm/fractional_brownian_motion"]
+	path = addons/fbm/fractional_brownian_motion
+	url = https://github.com/alsvinn/fractional_brownian_motion
