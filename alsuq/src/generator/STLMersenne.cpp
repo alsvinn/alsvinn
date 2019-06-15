@@ -15,6 +15,7 @@
 
 #include "alsuq/generator/STLMersenne.hpp"
 #include "alsutils/error/Exception.hpp"
+#include "alsutils/log.hpp"
 
 namespace alsuq {
 namespace generator {
@@ -43,17 +44,29 @@ real STLMersenne::generate(size_t component, size_t sample) {
     }
 
     if (generator.second / long(dimension) < long(sample) - 1) {
+
         //distribution(generator.first);
-        const auto samples_to_be_added = (long(sample) - 1) * dimension -
+        const auto samplesToBeAdded = (long(sample) - 1) * dimension -
             generator.second;
-        generator.first.discard(samples_to_be_added);
-        generator.second += samples_to_be_added;
+
+        ALSVINN_LOG(INFO, "Discarding " << samplesToBeAdded << " samples");
+        generator.first.discard(samplesToBeAdded);
+        ALSVINN_LOG(INFO, "Done discarding " << samplesToBeAdded
+            << " samples (sample = " << sample
+            << ", component = " << component
+            << ", dimension = " << dimension << ")");
+        generator.second += samplesToBeAdded;
     }
 
     if (generator.second % dimension < long(component) - 1) {
-        const auto samples_to_be_added = long(component) - 1 - long(generator.second %
+        const auto samplesToBeAdded = long(component) - 1 - long(generator.second %
                 dimension);
-        generator.first.discard(samples_to_be_added);
+        ALSVINN_LOG(INFO, "Discarding " << samplesToBeAdded << " samples");
+        generator.first.discard(samplesToBeAdded);
+        ALSVINN_LOG(INFO, "Done discarding " << samplesToBeAdded
+            << " samples (sample = " << sample
+            << ", component = " << component
+            << ", dimension = " << dimension << ")");
     }
 
     generator.second++;
