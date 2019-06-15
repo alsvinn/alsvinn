@@ -239,7 +239,7 @@ TEST_F(StructureTestCPUvsCUDA, TestIndex) {
 
     for (size_t k = ghostCells; k < innerSize.z + ghostCells; ++k) {
         for (size_t j = ghostCells; j < innerSize.y + ghostCells; ++j) {
-            for (size_t i = ghostCells; i < innerSize.z + ghostCells; ++i) {
+            for (size_t i = ghostCells; i < innerSize.x + ghostCells; ++i) {
                 size_t index = k * conservedOutputCPU->getTotalNumberOfXCells() *
                     conservedOutputCPU->getTotalNumberOfYCells() +
                     j * conservedOutputCPU->getTotalNumberOfXCells() + i;
@@ -304,7 +304,7 @@ TEST_F(StructureTestCPUvsCUDA, TestRandom) {
 
                 for (size_t k = ghostCells; k < innerSize.z + ghostCells; ++k) {
                     for (size_t j = ghostCells; j < innerSize.y + ghostCells; ++j) {
-                        for (size_t i = ghostCells; i < innerSize.z + ghostCells; ++i) {
+                        for (size_t i = ghostCells; i < innerSize.x + ghostCells; ++i) {
                             size_t index = k * conservedOutputCPU->getTotalNumberOfXCells() *
                                 conservedOutputCPU->getTotalNumberOfYCells() +
                                 j * conservedOutputCPU->getTotalNumberOfXCells() + i;

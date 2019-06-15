@@ -38,7 +38,7 @@ void NetCDFWriter::write(const volume::Volume& conservedVariables,
     auto filename = getFilename();
     ALSVINN_LOG(INFO, "NetCDFWriter: Writing to new file " << filename <<
         std::endl);
-    NETCDF_SAFE_CALl(nc_create(filename.c_str(),  NC_CLOBBER | NC_NETCDF4, &file));
+    NETCDF_SAFE_CALL(nc_create(filename.c_str(),  NC_CLOBBER | NC_NETCDF4, &file));
     netcdfWriteReport(file);
 
     for (auto attribute : attributesMap) {
@@ -47,7 +47,7 @@ void NetCDFWriter::write(const volume::Volume& conservedVariables,
 
     writeToFile(file, conservedVariables, extraVariables, grid,
         timestepInformation);
-    NETCDF_SAFE_CALl(nc_close(file));
+    NETCDF_SAFE_CALL(nc_close(file));
 }
 
 void NetCDFWriter::writeToFile(netcdf_raw_ptr file,
@@ -68,11 +68,11 @@ std::array<netcdf_raw_ptr, 3> NetCDFWriter::createDimensions(
     netcdf_raw_ptr xdim, ydim, zdim;
 
 
-    NETCDF_SAFE_CALl(nc_def_dim(baseGroup, "x", volume.getNumberOfXCells(),
+    NETCDF_SAFE_CALL(nc_def_dim(baseGroup, "x", volume.getNumberOfXCells(),
             &xdim));
-    NETCDF_SAFE_CALl(nc_def_dim(baseGroup, "y", volume.getNumberOfYCells(),
+    NETCDF_SAFE_CALL(nc_def_dim(baseGroup, "y", volume.getNumberOfYCells(),
             &ydim));
-    NETCDF_SAFE_CALl(nc_def_dim(baseGroup, "z", volume.getNumberOfZCells(),
+    NETCDF_SAFE_CALL(nc_def_dim(baseGroup, "z", volume.getNumberOfZCells(),
             &zdim));
 
     dimensions[0] = xdim;
@@ -93,7 +93,7 @@ void NetCDFWriter::writeMemory(netcdf_raw_ptr baseGroup, netcdf_raw_ptr dataset,
     std::vector<double> data(dataTmp.size());
     std::copy(dataTmp.begin(), dataTmp.end(), data.begin());
 
-    NETCDF_SAFE_CALl(nc_put_var_double(baseGroup, dataset, data.data()));
+    NETCDF_SAFE_CALL(nc_put_var_double(baseGroup, dataset, data.data()));
 }
 
 
@@ -115,7 +115,7 @@ std::pair<netcdf_raw_ptr, netcdf_raw_ptr> NetCDFWriter::makeDataset(
     std::array<netcdf_raw_ptr, 3> dimensions) {
 
     netcdf_raw_ptr datasetId;
-    NETCDF_SAFE_CALl(nc_def_var(baseGroup, volume.getName(memoryIndex).c_str(),
+    NETCDF_SAFE_CALL(nc_def_var(baseGroup, volume.getName(memoryIndex).c_str(),
             NC_DOUBLE, 3, dimensions.data(), &datasetId));
     return std::make_pair(baseGroup, datasetId);
 

@@ -24,6 +24,10 @@
     #include <Python.h>
 #endif
 
+#include "alsutils/config.hpp"
+
+
+
 #include "alsfvm/types.hpp"
 #include <iostream>
 #include <sstream>
@@ -40,11 +44,22 @@
             THROW("Python error occured"); \
         }
 
+
+#ifdef ALSVINN_BUILD_FBM
+    #include <fbmpy/fbmstruct.hpp>
+
+#endif
 using namespace alsfvm::python;
 namespace alsfvm {
 namespace init {
 
 namespace {
+
+void addAddons(boost::python::object& module) {
+#ifdef ALSVINN_BUILD_FBM
+    fbmpy::addFBMToPython(module);
+#endif
+}
 
 
 // Adds indent to each line, eg transfer
@@ -79,6 +94,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
 
         PythonInterpreter::getInstance();
         boost::python::object mainModule = boost::python::import("__main__");
+        addAddons(mainModule);
         boost::python::object mainNamespace = mainModule.attr("__dict__");
 
         // Now we declare the wrappers around the function.

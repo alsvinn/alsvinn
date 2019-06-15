@@ -86,7 +86,10 @@ target_link_libraries(alsfvm
   ${CUDA_LIBRARIES}
   ${OpenMP_CXX_LIB_NAMES}
   netcdf::NetCDF4_c
-  netcdf::parallel_NetCDF4_c)
+  netcdf::parallel_NetCDF4_c
+  PRIVATE
+  FBM::fbm
+  FBM::fbmpy)
 
 install(TARGETS alsfvm_cuda
     EXPORT alsvinn-targets

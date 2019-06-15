@@ -61,6 +61,7 @@ SET(ALSVINN_USE_MPI ON CACHE BOOL "Build with MPI")
 SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 SET(ALSVINN_USE_TIMERS ON CACHE BOOL "Enable profiling timings (should not hurt performance)")
 SET(ALSVINN_USE_CUDA_TIMERS OFF CACHE BOOL "Enable CUDA profiling timings (hurts performance)")
+set(ALSVINN_BUILD_FBM ON CACHE BOOL "Build the fast Fractional Brownian Motion addon for python initial data")
 
 SET(ALSVINN_PRINT_MEMORY_ALLOCATIONS OFF CACHE BOOL "Log every memory allocation")
 
@@ -160,7 +161,7 @@ endif()
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/alsvinn)
 
-
+add_subdirectory("addons")
 add_subdirectory("alsutils")
 
 add_subdirectory("alsfvm")

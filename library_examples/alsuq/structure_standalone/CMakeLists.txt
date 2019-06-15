@@ -24,6 +24,7 @@ add_executable(structure_standalone src/main.cpp)
 target_link_libraries(structure_standalone
 	alsvinn::alsutils
 	alsvinn::alsuq
+        Boost::log
 	Boost::program_options
 	Boost::date_time
 	Boost::system

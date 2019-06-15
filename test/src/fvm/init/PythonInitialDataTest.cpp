@@ -20,7 +20,7 @@
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "alsfvm/init/PythonInitialData.hpp"
 #include "alsfvm/equation/CellComputerFactory.hpp"
-
+#include "alsutils/config.hpp"
 using namespace alsfvm;
 using namespace alsfvm::memory;
 using namespace alsfvm::volume;
@@ -528,6 +528,8 @@ TEST(PythonInitialDataTest, Index1D) {
     const auto ngy = volumePrimitive->getNumberOfYGhostCells();
     const auto ngz = volumePrimitive->getNumberOfZGhostCells();
 
+
+
     for (size_t var = 0; var < volumePrimitive->getNumberOfVariables(); ++var) {
         for (size_t k = 0; k < nz; ++k) {
             for (size_t j = 0; j < ny; ++j) {
@@ -546,3 +548,392 @@ TEST(PythonInitialDataTest, Index1D) {
     }
 }
 
+
+#ifdef ALSVINN_BUILD_FBM
+TEST(PythonInitialDataTest, FBM1D) {
+
+
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(
+        new DeviceConfiguration);
+    auto simulatorParameters =
+        alsfvm::make_shared<simulator::SimulatorParameters>("burgers", "cpu");
+    equation::CellComputerFactory cellComputerFactory(simulatorParameters,
+        deviceConfiguration);
+    auto cellComputer = cellComputerFactory.createComputer();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
+    volume::VolumeFactory volumeFactory("burgers", memoryFactory);
+    size_t nx = 16;
+    size_t ny = 1;
+    size_t nz = 1;
+
+    grid::Grid grid({0., 0., 0.}, {1, 1, 1}, {int(nx), int(ny), int(nz)});
+
+
+    auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
+    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
+    auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
+
+    // Call the fbm module
+    const std::string pythonCode =
+        "def init_global(u, nx, ny, nz, ax, ay, az, bx, by, bz):\n"
+        "    X = ones(nx)\n"
+        "    print(fbmpy.__dict__)\n"
+        "    u[:,0,0] = fbmpy.fractional_brownian_motion_1d(0.5, nx, X)[:-1]\n";
+    PythonInitialData initialData(pythonCode, Parameters());
+
+    initialData.setInitialData(*volumeConserved,
+        *volumeExtra,
+        *volumePrimitive,
+        *cellComputer,
+        grid);
+
+    const auto ngx = volumePrimitive->getNumberOfXGhostCells();
+    const auto ngy = volumePrimitive->getNumberOfYGhostCells();
+    const auto ngz = volumePrimitive->getNumberOfZGhostCells();
+
+    ASSERT_EQ(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[ngx]);
+
+    for (size_t i = 1; i < nx; ++i) {
+        ASSERT_LT(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[ngx + i]);
+    }
+
+
+}
+
+
+TEST(PythonInitialDataTest, FBB1D) {
+
+
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(
+        new DeviceConfiguration);
+    auto simulatorParameters =
+        alsfvm::make_shared<simulator::SimulatorParameters>("burgers", "cpu");
+    equation::CellComputerFactory cellComputerFactory(simulatorParameters,
+        deviceConfiguration);
+    auto cellComputer = cellComputerFactory.createComputer();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
+    volume::VolumeFactory volumeFactory("burgers", memoryFactory);
+    size_t nx = 16;
+    size_t ny = 1;
+    size_t nz = 1;
+
+    grid::Grid grid({0., 0., 0.}, {1, 1, 1}, {int(nx), int(ny), int(nz)});
+
+
+    auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
+    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
+    auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
+
+    // Call the fbm module
+    const std::string pythonCode =
+        "def init_global(u, nx, ny, nz, ax, ay, az, bx, by, bz):\n"
+        "    X = ones(nx-1)\n"
+        "    print(fbmpy.__dict__)\n"
+        "    B = fbmpy.fractional_brownian_bridge_1d(0.5, nx, X)\n"
+        "    u[:,0,0] = B[:-1]\n"
+        "    u[-1,0,0] = B[-1]\n";
+
+    PythonInitialData initialData(pythonCode, Parameters());
+
+    initialData.setInitialData(*volumeConserved,
+        *volumeExtra,
+        *volumePrimitive,
+        *cellComputer,
+        grid);
+
+    const auto ngx = volumePrimitive->getNumberOfXGhostCells();
+    const auto ngy = volumePrimitive->getNumberOfYGhostCells();
+    const auto ngz = volumePrimitive->getNumberOfZGhostCells();
+
+    ASSERT_EQ(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[ngx]);
+    ASSERT_EQ(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[ngx + nx -
+                1]);
+
+    for (size_t i = 1; i < nx - 1; ++i) {
+        ASSERT_LT(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[ngx + i]);
+    }
+
+
+}
+
+
+
+
+TEST(PythonInitialDataTest, FBB2D) {
+
+
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(
+        new DeviceConfiguration);
+    auto simulatorParameters =
+        alsfvm::make_shared<simulator::SimulatorParameters>("burgers", "cpu");
+    equation::CellComputerFactory cellComputerFactory(simulatorParameters,
+        deviceConfiguration);
+    auto cellComputer = cellComputerFactory.createComputer();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
+    volume::VolumeFactory volumeFactory("burgers", memoryFactory);
+    size_t nx = 16;
+    size_t ny = 16;
+    size_t nz = 1;
+
+    grid::Grid grid({0., 0., 0.}, {1, 1, 1}, {int(nx), int(ny), int(nz)});
+
+
+    auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 0);
+    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 0);
+    auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 0);
+
+    // Call the fbm module
+    const std::string pythonCode =
+        "def init_global(u, nx, ny, nz, ax, ay, az, bx, by, bz):\n"
+        "    X = ones((nx-1)*(nx-1))\n"
+        "    print(fbmpy.__dict__)\n"
+        "    B = fbmpy.fractional_brownian_bridge_2d(0.5, nx, X).reshape(nx+1, nx+1)\n"
+        "    u[:,:,0] = B[:-1,:-1]\n"
+        "    u[-1,:,0] = B[-1,:-1]\n"
+        "    u[:,-1,0] = B[:-1,-1]\n";
+
+    PythonInitialData initialData(pythonCode, Parameters());
+
+    initialData.setInitialData(*volumeConserved,
+        *volumeExtra,
+        *volumePrimitive,
+        *cellComputer,
+        grid);
+
+    const auto ngx = volumePrimitive->getNumberOfXGhostCells();
+    const auto ngy = volumePrimitive->getNumberOfYGhostCells();
+    const auto ngz = volumePrimitive->getNumberOfZGhostCells();
+    ASSERT_EQ(0, ngx);
+    ASSERT_EQ(0, ngy);
+    ASSERT_EQ(0, ngz);
+
+    for (size_t i = 1; i < nx - 1; ++i) {
+        ASSERT_EQ(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[i]);
+        ASSERT_EQ(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[i +
+                  (nx - 1)*nx]);
+    }
+
+    for (size_t i = 1; i < nx - 1; ++i) {
+        for (size_t j = 1; j < nx - 1; ++j) {
+            ASSERT_LT(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[i * nx +
+                      j]);
+        }
+    }
+
+
+}
+
+
+TEST(PythonInitialDataTest, FBM2D) {
+
+
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(
+        new DeviceConfiguration);
+    auto simulatorParameters =
+        alsfvm::make_shared<simulator::SimulatorParameters>("burgers", "cpu");
+    equation::CellComputerFactory cellComputerFactory(simulatorParameters,
+        deviceConfiguration);
+    auto cellComputer = cellComputerFactory.createComputer();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
+    volume::VolumeFactory volumeFactory("burgers", memoryFactory);
+    size_t nx = 16;
+    size_t ny = 16;
+    size_t nz = 1;
+
+    grid::Grid grid({0., 0., 0.}, {1, 1, 1}, {int(nx), int(ny), int(nz)});
+
+
+    auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 0);
+    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 0);
+    auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 0);
+
+    // Call the fbm module
+    const std::string pythonCode =
+        "def init_global(u, nx, ny, nz, ax, ay, az, bx, by, bz):\n"
+        "    X = ones((nx)*(nx))\n"
+        "    print(fbmpy.__dict__)\n"
+        "    B = fbmpy.fractional_brownian_motion_2d(0.5, nx, X).reshape(nx+1, nx+1)\n"
+        "    u[:,:,0] = B[:-1,:-1]\n"
+        "    u[-1,:,0] = B[-1,:-1]\n"
+        "    u[:,-1,0] = B[:-1,-1]\n";
+
+    PythonInitialData initialData(pythonCode, Parameters());
+
+    initialData.setInitialData(*volumeConserved,
+        *volumeExtra,
+        *volumePrimitive,
+        *cellComputer,
+        grid);
+
+    const auto ngx = volumePrimitive->getNumberOfXGhostCells();
+    const auto ngy = volumePrimitive->getNumberOfYGhostCells();
+    const auto ngz = volumePrimitive->getNumberOfZGhostCells();
+    ASSERT_EQ(0, ngx);
+    ASSERT_EQ(0, ngy);
+    ASSERT_EQ(0, ngz);
+
+
+    for (size_t i = 1; i < nx - 1; ++i) {
+        for (size_t j = 1; j < nx - 1; ++j) {
+            ASSERT_LT(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[i * nx +
+                      j]);
+        }
+    }
+
+
+}
+
+
+
+TEST(PythonInitialDataTest, FBB3D) {
+
+
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(
+        new DeviceConfiguration);
+    auto simulatorParameters =
+        alsfvm::make_shared<simulator::SimulatorParameters>("burgers", "cpu");
+    equation::CellComputerFactory cellComputerFactory(simulatorParameters,
+        deviceConfiguration);
+    auto cellComputer = cellComputerFactory.createComputer();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
+    volume::VolumeFactory volumeFactory("burgers", memoryFactory);
+    size_t nx = 16;
+    size_t ny = 16;
+    size_t nz = 16;
+
+    grid::Grid grid({0., 0., 0.}, {1, 1, 1}, {int(nx), int(ny), int(nz)});
+
+
+    auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 0);
+    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 0);
+    auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 0);
+
+    // Call the fbm module
+    const std::string pythonCode =
+        "def init_global(u, nx, ny, nz, ax, ay, az, bx, by, bz):\n"
+        "    X = ones((nx-1)*(nx-1)*(nx-1))\n"
+        "    print(fbmpy.__dict__)\n"
+        "    B = fbmpy.fractional_brownian_bridge_3d(0.5, nx, X).reshape(nx+1, nx+1, nx+1)\n"
+        "    u[:,:,:] = B[:-1,:-1,:-1]\n"
+        "    u[-1,:,:] = B[-1,:-1,:-1]\n"
+        "    u[:,-1,:] = B[:-1,-1,:-1]\n"
+        "    u[:,:,-1] = B[:-1,:-1,-1]\n";
+
+    PythonInitialData initialData(pythonCode, Parameters());
+
+    initialData.setInitialData(*volumeConserved,
+        *volumeExtra,
+        *volumePrimitive,
+        *cellComputer,
+        grid);
+
+    const auto ngx = volumePrimitive->getNumberOfXGhostCells();
+    const auto ngy = volumePrimitive->getNumberOfYGhostCells();
+    const auto ngz = volumePrimitive->getNumberOfZGhostCells();
+    ASSERT_EQ(0, ngx);
+    ASSERT_EQ(0, ngy);
+    ASSERT_EQ(0, ngz);
+
+    for (size_t i = 1; i < nx - 1; ++i) {
+        for (size_t j = 1; j < nx - 1; ++j) {
+            ASSERT_EQ(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[i + j*
+                      nx]);
+            ASSERT_EQ(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[i + j * nx
+                      + (nx - 1)*nx * nx]);
+
+            ASSERT_EQ(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[i * nx * nx
+                      + j*
+                      nx]);
+            ASSERT_EQ(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[i * nx * nx
+                      + j * nx
+                      + (nx - 1)]);
+
+            ASSERT_EQ(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[i * nx * nx
+                      + j]);
+            ASSERT_EQ(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[i * nx * nx
+                      + j
+                      + nx * (nx - 1)]);
+        }
+    }
+
+
+    for (size_t i = 1; i < nx - 1; ++i) {
+        for (size_t j = 1; j < nx - 1; ++j) {
+            for (size_t k = 1; k < nx - 1; ++k) {
+                ASSERT_LT(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[i * nx * nx
+                          +
+                          j * nx + k]);
+            }
+        }
+    }
+
+
+}
+
+
+
+
+TEST(PythonInitialDataTest, FBM3D) {
+
+
+    alsfvm::shared_ptr<DeviceConfiguration> deviceConfiguration(
+        new DeviceConfiguration);
+    auto simulatorParameters =
+        alsfvm::make_shared<simulator::SimulatorParameters>("burgers", "cpu");
+    equation::CellComputerFactory cellComputerFactory(simulatorParameters,
+        deviceConfiguration);
+    auto cellComputer = cellComputerFactory.createComputer();
+    auto memoryFactory = alsfvm::make_shared<MemoryFactory>(deviceConfiguration);
+    volume::VolumeFactory volumeFactory("burgers", memoryFactory);
+    size_t nx = 16;
+    size_t ny = 16;
+    size_t nz = 16;
+
+    grid::Grid grid({0., 0., 0.}, {1, 1, 1}, {int(nx), int(ny), int(nz)});
+
+
+    auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 0);
+    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 0);
+    auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 0);
+
+    // Call the fbm module
+    const std::string pythonCode =
+        "def init_global(u, nx, ny, nz, ax, ay, az, bx, by, bz):\n"
+        "    X = ones((nx)*(nx)*(nx))\n"
+        "    print(fbmpy.__dict__)\n"
+        "    B = fbmpy.fractional_brownian_motion_3d(0.5, nx, X).reshape(nx+1, nx+1, nx+1)\n"
+        "    u[:,:,:] = B[:-1,:-1,:-1]\n"
+        "    u[-1,:,:] = B[-1,:-1,:-1]\n"
+        "    u[:,-1,:] = B[:-1,-1,:-1]\n"
+        "    u[:,:,-1] = B[:-1,:-1,-1]\n";
+
+    PythonInitialData initialData(pythonCode, Parameters());
+
+    initialData.setInitialData(*volumeConserved,
+        *volumeExtra,
+        *volumePrimitive,
+        *cellComputer,
+        grid);
+
+    const auto ngx = volumePrimitive->getNumberOfXGhostCells();
+    const auto ngy = volumePrimitive->getNumberOfYGhostCells();
+    const auto ngz = volumePrimitive->getNumberOfZGhostCells();
+    ASSERT_EQ(0, ngx);
+    ASSERT_EQ(0, ngy);
+    ASSERT_EQ(0, ngz);
+
+
+    for (size_t i = 1; i < nx - 1; ++i) {
+        for (size_t j = 1; j < nx - 1; ++j) {
+            for (size_t k = 1; k < nx - 1; ++k) {
+                ASSERT_LT(0, volumePrimitive->getScalarMemoryArea("u")->getPointer()[i * nx * nx
+                          +
+                          j * nx + k]);
+            }
+        }
+    }
+
+
+}
+
+#endif
