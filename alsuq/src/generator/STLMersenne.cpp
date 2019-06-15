@@ -43,14 +43,18 @@ real STLMersenne::generate(size_t component, size_t sample) {
             << component << ", dimension = " << dimension);
     }
 
+
     if (generator.second / long(dimension) < long(sample) - 1) {
+        ALSVINN_LOG(INFO, "generator.second / long(dimension) = " << generator.second /
+            long(dimension));
 
         //distribution(generator.first);
         const auto samplesToBeAdded = (long(sample) - 1) * dimension -
             generator.second;
 
         ALSVINN_LOG(INFO, "Discarding (not matching sample)" << samplesToBeAdded <<
-            " samples");
+            " samples"
+            << ", generatedSamples = " << generator.second);
         generator.first.discard(samplesToBeAdded);
         ALSVINN_LOG(INFO, "Done discarding " << samplesToBeAdded
             << " samples (sample = " << sample
@@ -59,18 +63,21 @@ real STLMersenne::generate(size_t component, size_t sample) {
         generator.second += samplesToBeAdded;
     }
 
-    if (generator.second % dimension < long(component) - 1) {
+    if (generator.second % long(dimension) < long(component) - 1) {
+        ALSVINN_LOG(INFO, "generator.second % long(dimension) = " << generator.second %
+            long(dimension));
         const auto samplesToBeAdded = long(component) - 1 - long(generator.second %
                 dimension);
         ALSVINN_LOG(INFO, "Discarding (not matching component)" << samplesToBeAdded <<
-            " samples");
+            " samples"
+            << ", generatedSamples = " << generator.second);
         generator.first.discard(samplesToBeAdded);
         ALSVINN_LOG(INFO, "Done discarding " << samplesToBeAdded
             << " samples (sample = " << sample
             << ", component = " << component
             << ", dimension = " << dimension << ")");
 
-        generator.second += samplesToBeAdded
+        generator.second += samplesToBeAdded;
     }
 
     generator.second++;
