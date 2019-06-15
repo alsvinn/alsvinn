@@ -37,12 +37,12 @@ STLMersenne::STLMersenne(size_t dimension)
 real STLMersenne::generate(size_t component, size_t sample) {
 
 
-    if (int(component) >= dimension) {
+    if (long(component) >= long(dimension)) {
         THROW("Component given higher than dimension. component = "
             << component << ", dimension = " << dimension);
     }
 
-    if (generator.second / dimension < long(sample) - 1) {
+    if (generator.second / long(dimension) < long(sample) - 1) {
         //distribution(generator.first);
         const auto samples_to_be_added = (long(sample) - 1) * dimension -
             generator.second;
