@@ -21,8 +21,8 @@ namespace generator {
 namespace {
 // We need to make sure we have a single generator
 // so that we generate independent samples
-std::pair<std::mt19937_64, int>& getGeneratorInstance() {
-    static std::pair<std::mt19937_64, int> generator;
+std::pair<std::mt19937_64, long>& getGeneratorInstance() {
+    static std::pair<std::mt19937_64, long> generator;
 
     return generator;
 }
@@ -42,14 +42,18 @@ real STLMersenne::generate(size_t component, size_t sample) {
             << component << ", dimension = " << dimension);
     }
 
-    while (generator.second / dimension < int(sample) - 1) {
-        distribution(generator.first);
-        generator.second++;
+    if (generator.second / dimension < long(sample) - 1) {
+        //distribution(generator.first);
+        const auto samples_to_be_added = (long(sample) - 1) * dimension -
+            generator.second;
+        generator.first.discard(samples_to_be_added);
+        generator.second += samples_to_be_added;
     }
 
-    while (generator.second % dimension < int(component) - 1) {
-        distribution(generator.first);
-        generator.second++;
+    if (generator.second % dimension < long(component) - 1) {
+        const auto samples_to_be_added = long(component) - 1 - long(generator.second %
+                dimension);
+        generator.first.discard(samples_to_be_added);
     }
 
     generator.second++;

@@ -33,10 +33,10 @@ public:
 private:
 
 
-    std::pair<std::mt19937_64, int>& generator;
+    std::pair<std::mt19937_64, long>& generator;
     std::uniform_real_distribution<real> distribution{0.0, 1.0};
 
-    const int dimension;
+    const size_t dimension;
 };
 } // namespace generator
 } // namespace alsuq
