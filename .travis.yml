@@ -136,6 +136,6 @@ script:
   - rm -rf cmake/git_find
   - mkdir build_without_git_find
   - cd build_without_git_find
-  - cmake .. -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE} -DALSVINN_USE_CUDA=OFF
+  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE} -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DALSVINN_USE_CUDA=OFF -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
   - make
   - ./test/alstest
