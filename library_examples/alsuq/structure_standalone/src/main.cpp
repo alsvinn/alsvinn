@@ -29,6 +29,7 @@
 
 #include <chrono>
 #include "alsutils/mpi/set_cuda_device.hpp"
+#include "git_config.hpp"
 
 
 
@@ -101,6 +102,10 @@ void addWriters(alsuq::stats::StatisticsFactory::StatisticsPointer
         boost::property_tree::ptree attributes;
         attributes.put("generatedBy", "alsvinn/library_examples/strcture_standalone");
         attributes.put("commandLineArguments", allCommandLineArguments);
+        attributes.put("structureGitCommit", getGitCommit());
+        attributes.put("structureGitVersionStatus", getGitVersionStatus());
+
+
         writer->addAttributes("standAloneProgramInformation", attributes);
 
         writer->addAttributes("fromFile", extraAttributes);
@@ -219,7 +224,9 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
 
     auto end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "Reading sample took: " << (end - start).count() << " s" <<
+    std::cout << "Reading sample took: " <<
+        std::chrono::duration_cast<std::chrono::duration<double>>
+        (end - start).count() << " s" <<
         std::endl;
     return alsfvm::volume::VolumePair(conservedVolume, extraVolume);
 
@@ -358,7 +365,9 @@ int main(int argc, char** argv) {
             grid,
             timestepInformation);
         auto end = std::chrono::high_resolution_clock::now();
-        std::cout << "Computing sample took: " << (end - start).count() << " s" <<
+        std::cout << "Computing sample took: " <<
+            std::chrono::duration_cast<std::chrono::duration<double>>
+            (end - start).count() << " s" <<
             std::endl;
     }
 

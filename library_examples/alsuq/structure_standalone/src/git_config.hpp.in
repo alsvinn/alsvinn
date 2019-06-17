@@ -1,0 +1,10 @@
+#pragma once
+#include <string>
+
+inline std::string getGitCommit() {
+  return "@GIT_SHA1@";
+}
+
+inline std::string getGitVersionStatus() {
+  return "@GIT_VERSION_STATUS@";
+}

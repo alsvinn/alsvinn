@@ -127,3 +127,11 @@ script:
   - cmake .. -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_C_COMPILER=$(which ${CC}) -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE}
   - make
   - ${TRAVIS_BUILD_DIR}/build/alsuqcli/alsuqcli ../examples/1d/sodshocktube/sodshocktube.xml > /dev/null
+  # Now make sure we can build without the git submodule
+  - cd ${TRAVIS_BUILD_DIR}
+  - rm -rf cmake/git_find
+  - mkdir build_without_git_find
+  - cd build_without_git_find
+  - cmake .. -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE} -ALSVINN_USE_CUDA=OFF
+  - make
+  - ./test/alstest
