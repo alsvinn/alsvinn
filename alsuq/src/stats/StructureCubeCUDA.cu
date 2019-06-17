@@ -46,7 +46,7 @@ __device__ __host__  double FastPower<1>::power_internal(double x) {
 
 struct PowfPower {
     __device__ __host__ static double power(double x, double p) {
-        return powf(x, p);
+        return pow(x, p);
     }
 };
 
