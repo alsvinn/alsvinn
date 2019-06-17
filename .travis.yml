@@ -68,6 +68,7 @@ install:
 
   - sudo apt-get install -y make cmake git build-essential wget doxygen libomp-dev libopenmpi-dev m4 unzip python python-numpy python-scipy python-dev libcurl4-openssl-dev zlib1g-dev libhdf5-dev curl libnetcdf-dev libgtest-dev
 
+  - sudo pip install gitpython
     #
     # Boost
   - cd $DEPS_DIR
@@ -105,6 +106,9 @@ script:
   - make install
   # test
   - ./test/alstest
+  # Test python
+  - PYTHONPATH=$PYTHONPATH:./python python ../python/test/test_python_interface.py
+  - PYTHONPATH=$PYTHONPATH:./python python ../python/test/test_commit_sha.py
   # make sure we can build examples
   - cd ${TRAVIS_BUILD_DIR}/library_examples/alsuq/only_statistics
   - mkdir build
