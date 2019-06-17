@@ -37,7 +37,6 @@ STLMersenne::STLMersenne(size_t dimension)
 
 real STLMersenne::generate(size_t component, size_t sample) {
 
-
     if (long(component) >= long(dimension)) {
         THROW("Component given higher than dimension. component = "
             << component << ", dimension = " << dimension);
@@ -45,37 +44,37 @@ real STLMersenne::generate(size_t component, size_t sample) {
 
 
     if (generator.second / long(dimension) < long(sample) - 1) {
-        ALSVINN_LOG(INFO, "generator.second / long(dimension) = " << generator.second /
-            long(dimension));
 
-        //distribution(generator.first);
+
         const auto samplesToBeAdded = (long(sample) - 1) * dimension -
             generator.second;
 
-        ALSVINN_LOG(INFO, "Discarding (not matching sample)" << samplesToBeAdded <<
+        ALSVINN_LOG(INFO, "(not matching sample) Discarding " << samplesToBeAdded <<
             " samples"
             << ", generatedSamples = " << generator.second);
         generator.first.discard(samplesToBeAdded);
         ALSVINN_LOG(INFO, "Done discarding " << samplesToBeAdded
-            << " samples (sample = " << sample
-            << ", component = " << component
-            << ", dimension = " << dimension << ")");
+            << " samples:(\n\tsample = " << sample
+            << "\n\tcomponent = " << component
+            << "\n\tdimension = " << dimension
+            << "\n\tgenerator.second / long(dimension) = " << generator.second /
+            long(dimension) << "\n)");
         generator.second += samplesToBeAdded;
     }
 
     if (generator.second % long(dimension) < long(component) - 1) {
-        ALSVINN_LOG(INFO, "generator.second % long(dimension) = " << generator.second %
-            long(dimension));
         const auto samplesToBeAdded = long(component) - 1 - long(generator.second %
                 dimension);
-        ALSVINN_LOG(INFO, "Discarding (not matching component)" << samplesToBeAdded <<
+        ALSVINN_LOG(INFO, "(not matching component) Discarding " << samplesToBeAdded <<
             " samples"
             << ", generatedSamples = " << generator.second);
         generator.first.discard(samplesToBeAdded);
         ALSVINN_LOG(INFO, "Done discarding " << samplesToBeAdded
-            << " samples (sample = " << sample
-            << ", component = " << component
-            << ", dimension = " << dimension << ")");
+            << " samples (\n\tsample = " << sample
+            << "\n\tcomponent = " << component
+            << "\n\tdimension = " << dimension
+            << "\n\tgenerator.second % long(dimension) = " << (generator.second %
+                long(dimension)) << "\n)");
 
         generator.second += samplesToBeAdded;
     }
