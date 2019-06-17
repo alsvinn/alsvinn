@@ -16,6 +16,7 @@ import netCDF4
 import matplotlib
 import matplotlib.pyplot
 import subprocess
+import tempfile
 
 class Alsvinn(object):
     def __init__(self, xml_file=None, configuration=None,
@@ -422,10 +423,13 @@ def run(name=None, equation=None,
 	functionals=None
         ):
 
+    initial_data_file_is_temporary = False
+
 
     if base_xml is not None:
         alsvinn_object = Alsvinn(base_xml, alsvinncli=alsvinncli, alsuqcli=alsuqcli,prepend_alsvinncli=prepend_alsvinncli, omp_num_threads=omp_num_threads)
     else:
+
         alsvinn_object = Alsvinn(alsvinncli=alsvinncli, alsuqcli=alsuqcli, prepend_alsvinncli=prepend_alsvinncli, omp_num_threads=omp_num_threads)
         if lower_corner is None:
             lower_corner = [-5, 0, 0]
@@ -453,11 +457,28 @@ def run(name=None, equation=None,
             number_of_saves = 1
 
         if initial_data_file is None:
-            initial_data_file = "%s/sodshocktube/sodshocktube.py" % ALSVINN_EXAMPLES_PATH
+            with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix='.py') as f: 
+                initial_data_file = f.name
+                initial_data_file_is_temporary = True
+
+                f.write("""
+# Sod shock tube
+if x < 0.0:
+    rho = 1.
+    ux = 0.
+    p = 1.0
+else:
+    rho = .125
+    ux = 0.
+    p = 0.1
+"""
+                        )
 
         if equation_parameters is None:
             equation_parameters = {"gamma": 1.4}
 
+        if equation is None:
+            equation = "euler1"
         if platform is None:
             platform = "cpu"
         if samples is None:
@@ -538,6 +559,9 @@ def run(name=None, equation=None,
     if diffusion_operator is not None:
         alsvinn_object.set_diffusion(diffusion_operator, diffusion_reconstruction)
     alsvinn_object.run(multix=multix, multiy=multiy,multiz=multiz, uq=uq, multiSample=multiSample)
+
+    if initial_data_file_is_temporary:
+        os.remove(initial_data_file)
     return alsvinn_object
 
 
