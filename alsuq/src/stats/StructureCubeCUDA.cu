@@ -23,11 +23,39 @@ namespace stats {
 
 namespace {
 
+// This will be nicer when we can finally upgrade to C++14
+template<int p>
+struct FastPower {
+    __device__ __host__  static double power(double x, double) {
+        return power_internal(x);
+    }
+
+    __device__ __host__ static double power_internal(double x);
+};
+
+template<int p>
+__device__ __host__  double FastPower<p>::power_internal(double x){
+    return x*FastPower<p-1>::power_internal(x);
+}
+
+template<>
+__device__ __host__  double FastPower<1>::power_internal(double x) {
+    return x;
+}
+
+
+struct PowfPower {
+    __device__ __host__ static double power(double x, double p) {
+        return pow(x, p);
+    }
+};
 
 //! Computes the structure function for FIXED h
 //!
 //! The goal is to compute the structure function, then reduce (sum) over space
 //! then go on to next h
+//!
+template<class PowerClass>
 __global__ void computeStructureCube(real* output,
     alsfvm::memory::View<const real> input,
     int h,
@@ -46,7 +74,7 @@ __global__ void computeStructureCube(real* output,
 
     output[index] = 0;
     forEachPointInComputeStructureCube([&] (double u, double u_h) {
-        output[index] += pow(fabs(u - u_h), p);
+        output[index] += PowerClass::power(fabs(u - u_h), p);
     }, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions);
 
 }
@@ -78,16 +106,45 @@ void StructureCubeCUDA::computeStatistics(const alsfvm::volume::Volume&
             numberOfH, 1, 1, "cpu");
 
 
-    computeStructure(*structure.getVolumes().getConservedVolume(),
+    if (p == 1) {
+        computeStructure<FastPower<1>>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
-    computeStructure(*structure.getVolumes().getExtraVolume(),
+        computeStructure<FastPower<1>>(*structure.getVolumes().getExtraVolume(),
         extraVariables);
+    } else if (p == 2) {
+        computeStructure<FastPower<2>>(*structure.getVolumes().getConservedVolume(),
+        conservedVariables);
+        computeStructure<FastPower<2>>(*structure.getVolumes().getExtraVolume(),
+        extraVariables);
+    } else if (p==3) {
+        computeStructure<FastPower<3>>(*structure.getVolumes().getConservedVolume(),
+        conservedVariables);
+        computeStructure<FastPower<3>>(*structure.getVolumes().getExtraVolume(),
+        extraVariables);
+    } else if (p==4) {
+        computeStructure<FastPower<4>>(*structure.getVolumes().getConservedVolume(),
+        conservedVariables);
+        computeStructure<FastPower<4>>(*structure.getVolumes().getExtraVolume(),
+        extraVariables);
+    } else  if (p ==5) {
+        computeStructure<FastPower<5>>(*structure.getVolumes().getConservedVolume(),
+        conservedVariables);
+        computeStructure<FastPower<5>>(*structure.getVolumes().getExtraVolume(),
+        extraVariables);
+    } else {
+        computeStructure<PowfPower>(*structure.getVolumes().getConservedVolume(),
+        conservedVariables);
+        computeStructure<PowfPower>(*structure.getVolumes().getExtraVolume(),
+        extraVariables);
+    }
+
 }
 
 void StructureCubeCUDA::finalizeStatistics() {
 
 }
 
+template<class PowerClass>
 void StructureCubeCUDA::computeStructure(alsfvm::volume::Volume& output,
     const alsfvm::volume::Volume& input) {
     for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
@@ -110,7 +167,8 @@ void StructureCubeCUDA::computeStructure(alsfvm::volume::Volume& output,
             const int size = nx * ny * nz;
             const int blockNumber = (size + threads - 1) / threads;
 
-            computeStructureCube <<< blockNumber, threads>>>(thrust::raw_pointer_cast(
+
+            computeStructureCube<PowerClass> <<< blockNumber, threads>>>(thrust::raw_pointer_cast(
                     structureOutput.data()),
                 inputView,
                 h, nx, ny, nz, ngx, ngy, ngz, p, dimensions);

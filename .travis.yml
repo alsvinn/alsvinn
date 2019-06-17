@@ -66,15 +66,22 @@ install:
   - mkdir ${INSTALL_PREFIX}
   - travis_retry sudo apt-get update -qq
 
-  - sudo apt-get install -y make cmake git build-essential wget doxygen libomp-dev libopenmpi-dev m4 unzip python python-numpy python-scipy python-dev libcurl4-openssl-dev zlib1g-dev libhdf5-dev curl libnetcdf-dev libgtest-dev
+  - sudo apt-get install -y make cmake git build-essential wget doxygen libomp-dev libopenmpi-dev m4 unzip  libcurl4-openssl-dev zlib1g-dev libhdf5-dev curl libnetcdf-dev libgtest-dev
 
+  # Python 3.7
+  - sudo add-apt-repository -y ppa:deadsnakes/ppa
+  - travis_retry sudo apt-get update -qq
+  - sudo apt-get install -y python3.7 python3.7-dev
+  - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+  - sudo python3.7 get-pip.py
+  - sudo pip3.7 install numpy gitpython dicttoxml scipy netcdf4 matplotlib
     #
     # Boost
   - cd $DEPS_DIR
   - travis_retry wget https://dl.bintray.com/boostorg/release/${BOOST_MAJOR_VERSION}.${BOOST_MINOR_VERSION}.${BOOST_RELEASE_VERSION}/source/boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}.tar.bz2
   - tar xvf boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}.tar.bz2 &>/dev/null
   - cd boost_${BOOST_MAJOR_VERSION}_${BOOST_MINOR_VERSION}_${BOOST_RELEASE_VERSION}
-  - CXX=${COMPILER_CPP} ./bootstrap.sh --with-python=`which python` --with-libraries=program_options,filesystem,system,python,regex,thread,chrono,date_time,log --prefix=$INSTALL_PREFIX
+  - CXX=${COMPILER_CPP} ./bootstrap.sh --with-python=`which python3.7` --with-libraries=program_options,filesystem,system,python,regex,thread,chrono,date_time,log --prefix=$INSTALL_PREFIX
   - travis_wait 30 ./b2 -d0 --link=static threading=multi --toolset=$CC --layout=tagged install
 
   - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${INSTALL_PREFIX}/lib::${INSTALL_PREFIX}/lib64
@@ -101,10 +108,13 @@ script:
   -
   - mkdir build
   - cd build
-  - cmake .. -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE} -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DALSVINN_USE_CUDA=OFF -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
+  - cmake .. -DALSVINN_PYTHON_VERSION=3.7 -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE} -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DALSVINN_USE_CUDA=OFF -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
   - make install
   # test
   - ./test/alstest
+  # Test python
+  - PYTHONPATH=$PYTHONPATH:./python python3.7 ../python/test/test_python_interface.py
+  - PYTHONPATH=$PYTHONPATH:./python python3.7 ../python/test/test_commit_sha.py
   # make sure we can build examples
   - cd ${TRAVIS_BUILD_DIR}/library_examples/alsuq/only_statistics
   - mkdir build
@@ -127,3 +137,11 @@ script:
   - cmake .. -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_C_COMPILER=$(which ${CC}) -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE}
   - make
   - ${TRAVIS_BUILD_DIR}/build/alsuqcli/alsuqcli ../examples/1d/sodshocktube/sodshocktube.xml > /dev/null
+  # Now make sure we can build without the git submodule
+  - cd ${TRAVIS_BUILD_DIR}
+  - rm -rf cmake/git_find
+  - mkdir build_without_git_find
+  - cd build_without_git_find
+  - cmake .. -DALSVINN_PYTHON_VERSION=3.7 -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE} -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DALSVINN_USE_CUDA=OFF -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
+  - make
+  - ./test/alstest

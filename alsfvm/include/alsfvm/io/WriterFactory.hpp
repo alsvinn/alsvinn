@@ -26,6 +26,7 @@ namespace io {
 //! mpi writers, and sometimes not.
 class WriterFactory {
 public:
+    virtual ~WriterFactory() {}
     typedef alsutils::base::Factory<Writer, const std::string&, const Parameters&>::CreatorType
     CreatorType;
 

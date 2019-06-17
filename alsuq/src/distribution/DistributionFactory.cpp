@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,7 +32,9 @@ std::shared_ptr<Distribution> DistributionFactory::createDistribution(
     std::shared_ptr<Distribution> distribution;
 
     if (name == "normal") {
-        distribution.reset(new Normal(parameters));
+        THROW("Normal variables are not supported in the current implementation."
+            << " Use Uniform and scipy.stats.norm.ppf(X) where X is the random viriable.");
+        //distribution.reset(new Normal(parameters));
     } else if (name == "uniform") {
         distribution.reset(new Uniform(parameters));
     } else if (name == "uniform1d") {

@@ -142,8 +142,8 @@ TEST_P(MeanVarTest, MeanVarTest) {
 INSTANTIATE_TEST_CASE_P(MeanVarConvergenceTests,
     MeanVarTest,
     ::testing::Values(
-        MeanVarTestParameters("stlmersenne", "normal", 0, 1, {"mean", "sd"}, {0, 1},
-            40), MeanVarTestParameters("stlmersenne", "uniform", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+        //MeanVarTestParameters("stlmersenne", "normal", 0, 1, {"mean", "sd"}, {0, 1},40),
+        MeanVarTestParameters("stlmersenne", "uniform", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
             40)
 
     ));

@@ -28,6 +28,7 @@ namespace run {
 //!
 class SimulatorCreator {
 public:
+    virtual ~SimulatorCreator() {}
 
     virtual alsfvm::shared_ptr<alsfvm::simulator::AbstractSimulator>
     createSimulator(const alsfvm::init::Parameters& initialDataParameters,

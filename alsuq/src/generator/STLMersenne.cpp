@@ -15,14 +15,15 @@
 
 #include "alsuq/generator/STLMersenne.hpp"
 #include "alsutils/error/Exception.hpp"
+#include "alsutils/log.hpp"
 
 namespace alsuq {
 namespace generator {
 namespace {
 // We need to make sure we have a single generator
 // so that we generate independent samples
-std::pair<std::mt19937_64, int>& getGeneratorInstance() {
-    static std::pair<std::mt19937_64, int> generator;
+std::pair<std::mt19937_64, long>& getGeneratorInstance() {
+    static std::pair<std::mt19937_64, long> generator;
 
     return generator;
 }
@@ -36,20 +37,46 @@ STLMersenne::STLMersenne(size_t dimension)
 
 real STLMersenne::generate(size_t component, size_t sample) {
 
-
-    if (int(component) >= dimension) {
+    if (long(component) >= long(dimension)) {
         THROW("Component given higher than dimension. component = "
             << component << ", dimension = " << dimension);
     }
 
-    while (generator.second / dimension < int(sample) - 1) {
-        distribution(generator.first);
-        generator.second++;
+
+    if (generator.second / long(dimension) < long(sample) - 1) {
+
+
+        const auto samplesToBeAdded = (long(sample) - 1) * dimension -
+            generator.second;
+
+        ALSVINN_LOG(INFO, "(not matching sample) Discarding " << samplesToBeAdded <<
+            " samples"
+            << ", generatedSamples = " << generator.second);
+        generator.first.discard(samplesToBeAdded);
+        ALSVINN_LOG(INFO, "Done discarding " << samplesToBeAdded
+            << " samples:(\n\tsample = " << sample
+            << "\n\tcomponent = " << component
+            << "\n\tdimension = " << dimension
+            << "\n\tgenerator.second / long(dimension) = " << generator.second /
+            long(dimension) << "\n)");
+        generator.second += samplesToBeAdded;
     }
 
-    while (generator.second % dimension < int(component) - 1) {
-        distribution(generator.first);
-        generator.second++;
+    if (generator.second % long(dimension) < long(component) - 1) {
+        const auto samplesToBeAdded = long(component) - 1 - long(generator.second %
+                dimension);
+        ALSVINN_LOG(INFO, "(not matching component) Discarding " << samplesToBeAdded <<
+            " samples"
+            << ", generatedSamples = " << generator.second);
+        generator.first.discard(samplesToBeAdded);
+        ALSVINN_LOG(INFO, "Done discarding " << samplesToBeAdded
+            << " samples (\n\tsample = " << sample
+            << "\n\tcomponent = " << component
+            << "\n\tdimension = " << dimension
+            << "\n\tgenerator.second % long(dimension) = " << (generator.second %
+                long(dimension)) << "\n)");
+
+        generator.second += samplesToBeAdded;
     }
 
     generator.second++;

@@ -14,17 +14,28 @@
  */
 
 #include "alsuq/distribution/Normal.hpp"
+#include "alsutils/error/Exception.hpp"
 
 namespace alsuq {
 namespace distribution {
 Normal::Normal(const Parameters& parameters)
     : mean(parameters.getParameter("mean")),
       standardDeviation(parameters.getParameter("sd")) {
+    // The problem with normal distribution is that it needs to regenerate the samples
+    // which does not combine well with how we generate samples at the moment (see alsuq/src/generator/STLMersenne.cpp)
+    //
+    // We could do the ppf (inverse of normal PDF), but it is difficult to implement in  C++,
+    // therefore, we just let users do the heavy lifting in Python. (will be faster than calling the python function from C++)
+    THROW("Normal variables are not supported in the current implementation."
+        << " Use Uniform and scipy.stats.norm.ppf(X) where X is the random viriable.");
 
 }
 
 real Normal::generate(generator::Generator& generator, size_t component,
     size_t sample) {
+    THROW("Normal variables are not supported in the current implementation."
+        << " Use Uniform and scipy.stats.norm.ppf(X) where X is the random viriable.");
+
     if (hasBuffer) {
 
         hasBuffer = false;

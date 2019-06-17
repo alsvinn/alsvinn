@@ -51,7 +51,7 @@ While it's easy to implement new configurations, we already have a wide variety 
   * C++11 compiler (tested with clang and gcc)
   * [gtest](https://github.com/google/googletest) (optional)
   * [boost](https://www.boost.org/) (including boost-numpy)
-  * [python](https://www.python.org)
+  * [python](https://www.python.org) Tested with 3.7, should work with 2.7
   * [hdf5](https://support.hdfgroup.org/HDF5/),
   * [netcdf](https://www.unidata.ucar.edu/software/netcdf/)
   * [parallel-netcdf](https://trac.mcs.anl.gov/projects/parallel-netcdf) *NOTE*: This is *not* the same as building netcdf with parallel support
