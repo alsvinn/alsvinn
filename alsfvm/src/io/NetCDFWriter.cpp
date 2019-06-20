@@ -44,6 +44,18 @@ void NetCDFWriter::write(const volume::Volume& conservedVariables,
         netcdfWriteAttributes(file, attribute.first, attribute.second);
     }
 
+    // write current time
+    netcdf_raw_ptr timeDim;
+    NETCDF_SAFE_CALL(nc_def_dim(file, "t", 1, &timeDim));
+
+    netcdf_raw_ptr timeVar;
+    NETCDF_SAFE_CALL(nc_def_var(file, "time", NC_DOUBLE, 1, &timeDim,
+            &timeVar));
+
+    double currentTime = timestepInformation.getCurrentTime();
+    NETCDF_SAFE_CALL(nc_put_var_double(file, timeVar, &currentTime));
+
+
     writeToFile(file, conservedVariables, grid,
         timestepInformation);
     NETCDF_SAFE_CALL(nc_close(file));
