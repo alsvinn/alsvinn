@@ -15,7 +15,8 @@
 
 #include "alsfvm/types.hpp"
 #include "alsfvm/config/SimulatorSetup.hpp"
-#include <fstream>
+#include <sstream>
+#include "alsutils/io/TextFileCache.hpp"
 #include "alsfvm/config/XMLParser.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -90,7 +91,8 @@ const std::string& filename) {
 
     basePath = boost::filesystem::path(boost::filesystem::absolute(
                 filename)).parent_path().string();
-    std::ifstream file(filename);
+    auto& textCache = alsutils::io::TextFileCache::getInstance();
+    std::stringstream file(textCache.loadTextFile(filename));
     XMLParser parser;
 
 
@@ -322,16 +324,10 @@ alsfvm::shared_ptr<init::InitialData> SimulatorSetup::createInitialData(
 
     if (initialDataNode.find("python") !=  initialDataNode.not_found()) {
         auto pythonFile = basePath + "/" + initialDataNode.get<std::string>("python");
-        std::ifstream file( pythonFile);
 
 
-        if (! file.good()) {
-            THROW("Could not open file: " << pythonFile);
-        }
-
-        std::string pythonProgram((std::istreambuf_iterator<char>(file)),
-            std::istreambuf_iterator<char>());
-
+        auto& textCache = alsutils::io::TextFileCache::getInstance();
+        std::string pythonProgram = textCache.loadTextFile(pythonFile);
         auto parameters = readParameters(configuration);
         return alsfvm::shared_ptr<init::InitialData>(new init::PythonInitialData(
                     pythonProgram, parameters));
@@ -620,16 +616,8 @@ void SimulatorSetup::loadFiles(boost::property_tree::ptree& configuration) {
             if (data.substr(0, 5) == "load:") {
                 std::string filename = data.substr(5);
                 auto filenameFull = basePath + "/" + filename;
-                std::ifstream file( filenameFull);
-
-
-                if (! file.good()) {
-                    THROW("Could not open file: " << filenameFull);
-                }
-
-                std::string content((std::istreambuf_iterator<char>(file)),
-                    std::istreambuf_iterator<char>());
-
+                auto& textCache = alsutils::io::TextFileCache::getInstance();
+                auto content = textCache.loadTextFile(filenameFull);
                 node.second.put_value(content);
 
             }
