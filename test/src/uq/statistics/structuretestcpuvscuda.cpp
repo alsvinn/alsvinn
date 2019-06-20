@@ -11,33 +11,28 @@
 class TestWriter : public alsfvm::io::Writer {
 public:
 
-    TestWriter(alsfvm::volume::Volume& conservedVariablesSaved,
-        alsfvm::volume::Volume& extraVariablesSaved) :
-        conservedVariablesSaved(conservedVariablesSaved),
-        extraVariablesSaved(extraVariablesSaved) {
+    TestWriter(alsfvm::volume::Volume& conservedVariablesSaved) :
+        conservedVariablesSaved(conservedVariablesSaved) {
 
     }
 
 
     static std::shared_ptr<alsfvm::io::Writer> makeInstance(
-        alsfvm::volume::Volume& conservedVariablesSaved,
-        alsfvm::volume::Volume& extraVariablesSaved) {
+        alsfvm::volume::Volume& conservedVariablesSaved) {
         std::shared_ptr<alsfvm::io::Writer> pointer;
-        pointer.reset(new TestWriter(conservedVariablesSaved, extraVariablesSaved));
+        pointer.reset(new TestWriter(conservedVariablesSaved));
         return pointer;
     }
 
 
 
     alsfvm::volume::Volume& conservedVariablesSaved;
-    alsfvm::volume::Volume& extraVariablesSaved;
 
     void write(const alsfvm::volume::Volume& conservedVariables,
-        const alsfvm::volume::Volume& extraVariables, const alsfvm::grid::Grid&,
+        const alsfvm::grid::Grid&,
         const alsfvm::simulator::TimestepInformation&) override  {
 
         conservedVariables.copyTo(conservedVariablesSaved);
-        extraVariables.copyTo(extraVariablesSaved);
     }
 };
 
@@ -73,18 +68,11 @@ public:
 
     std::shared_ptr<alsfvm::volume::Volume> volumeConservedCPU =
         alsfvm::volume::makeConservedVolume("cpu", equation, innerSize, ghostCells);
-    std::shared_ptr<alsfvm::volume::Volume> volumeExtraCPU =
-        alsfvm::volume::makeExtraVolume("cpu", equation, innerSize, ghostCells);
 
     std::shared_ptr<alsfvm::volume::Volume> volumeConservedCUDA =
         alsfvm::volume::makeConservedVolume("cuda", equation, innerSize, ghostCells);
-    std::shared_ptr<alsfvm::volume::Volume> volumeExtraCUDA =
-        alsfvm::volume::makeExtraVolume("cuda", equation, innerSize, ghostCells);
 
     std::shared_ptr<alsfvm::volume::Volume> conservedOutputCPU =
-        alsfvm::volume::makeConservedVolume("cpu", equation, {numberOfH, 1, 1},
-            0);
-    std::shared_ptr<alsfvm::volume::Volume> extraOutputCPU =
         alsfvm::volume::makeConservedVolume("cpu", equation, {numberOfH, 1, 1},
             0);
 
@@ -92,40 +80,31 @@ public:
     std::shared_ptr<alsfvm::volume::Volume> conservedOutputCUDA =
         alsfvm::volume::makeConservedVolume("cpu", equation, {numberOfH, 1, 1},
             0);
-    std::shared_ptr<alsfvm::volume::Volume> extraOutputCUDA =
-        alsfvm::volume::makeConservedVolume("cpu", equation, {numberOfH, 1, 1},
-            0);
 
     std::shared_ptr<alsfvm::io::Writer> cpuWriter = TestWriter::makeInstance(
-            *conservedOutputCPU, *extraOutputCPU);
+            *conservedOutputCPU);
     std::shared_ptr<alsfvm::io::Writer> cudaWriter = TestWriter::makeInstance(
-            *conservedOutputCUDA, *extraOutputCUDA);
+            *conservedOutputCUDA);
 
     std::vector<std::shared_ptr<alsfvm::volume::Volume>> volumes = {
         volumeConservedCPU,
-        volumeExtraCPU,
         volumeConservedCUDA,
-        volumeExtraCUDA
     };
 
     std::vector<std::shared_ptr<alsfvm::volume::Volume>> volumesCPU = {
         volumeConservedCPU,
-        volumeExtraCPU,
     };
 
     std::vector<std::shared_ptr<alsfvm::volume::Volume>> volumesCUDA = {
         volumeConservedCUDA,
-        volumeExtraCUDA
     };
 
     std::vector<std::shared_ptr<alsfvm::volume::Volume>> volumesOutputCPU = {
         conservedOutputCPU,
-        extraOutputCPU,
     };
 
     std::vector<std::shared_ptr<alsfvm::volume::Volume>> volumesOutputCUDA = {
         conservedOutputCUDA,
-        extraOutputCUDA
     };
 
     alsuq::stats::StatisticsFactory statisticsFactory;
@@ -209,14 +188,14 @@ public:
 
 TEST_F(StructureTestCPUvsCUDA, TestConstant) {
 
-    structureCPU->write(*volumeConservedCPU, *volumeExtraCPU, grid,
+    structureCPU->write(*volumeConservedCPU, grid,
         timestepInformation);
 
     structureCPU->combineStatistics();
     structureCPU->finalizeStatistics();
     structureCPU->writeStatistics(grid);
 
-    structureCUDA->write(*volumeConservedCUDA, *volumeExtraCUDA, grid,
+    structureCUDA->write(*volumeConservedCUDA, grid,
         timestepInformation);
 
 
@@ -259,14 +238,14 @@ TEST_F(StructureTestCPUvsCUDA, TestIndex) {
     }
 
 
-    structureCPU->write(*volumeConservedCPU, *volumeExtraCPU, grid,
+    structureCPU->write(*volumeConservedCPU, grid,
         timestepInformation);
 
     structureCPU->combineStatistics();
     structureCPU->finalizeStatistics();
     structureCPU->writeStatistics(grid);
 
-    structureCUDA->write(*volumeConservedCUDA, *volumeExtraCUDA, grid,
+    structureCUDA->write(*volumeConservedCUDA, grid,
         timestepInformation);
 
 
@@ -322,10 +301,10 @@ TEST_F(StructureTestCPUvsCUDA, TestRandom) {
         }
 
 
-        structureCPU->write(*volumeConservedCPU, *volumeExtraCPU, grid,
+        structureCPU->write(*volumeConservedCPU, grid,
             timestepInformation);
 
-        structureCUDA->write(*volumeConservedCUDA, *volumeExtraCUDA, grid,
+        structureCUDA->write(*volumeConservedCUDA, grid,
             timestepInformation);
 
     }

@@ -48,19 +48,13 @@ IdentityCUDA::IdentityCUDA(const Functional::Parameters& parameters) {
 }
 
 void IdentityCUDA::operator()(volume::Volume& conservedVolumeOut,
-    volume::Volume& extraVolumeOut,
     const volume::Volume& conservedVolumeIn,
-    const volume::Volume& extraVolumeIn,
     const real weight,
     const grid::Grid& ) {
 
     if (variables.size() == 0) {
         for (size_t var = 0; var < conservedVolumeIn.getNumberOfVariables(); ++var) {
             variables.push_back(conservedVolumeIn.getName(var));
-        }
-
-        for (size_t var = 0; var < extraVolumeIn.getNumberOfVariables(); ++var) {
-            variables.push_back(extraVolumeIn.getName(var));
         }
 
     }
@@ -83,18 +77,6 @@ void IdentityCUDA::operator()(volume::Volume& conservedVolumeOut,
                                                                     ghostCells.z,
                                                                     weight);
 
-        } else if (extraVolumeIn.hasVariable(variableName)) {
-
-            auto viewIn = extraVolumeIn.getScalarMemoryArea(variableName)->getView();
-            auto viewOut = extraVolumeOut.getScalarMemoryArea(variableName)->getView();
-
-            const size_t threads = 1024;
-            const size_t size = viewOut.size();
-            addInnerKernel<<<(size + threads -1)/threads, threads>>>(viewOut, viewIn,
-                                                                    ghostCells.x,
-                                                                    ghostCells.y,
-                                                                    ghostCells.z,
-                                                                    weight);
 
         } else {
             THROW("Unknown variable name given to IdentityCUDA functional: " <<

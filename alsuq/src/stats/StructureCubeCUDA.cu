@@ -97,45 +97,38 @@ std::vector<std::string> StructureCubeCUDA::getStatisticsNames() const {
 
 void StructureCubeCUDA::computeStatistics(const alsfvm::volume::Volume&
     conservedVariables,
-    const alsfvm::volume::Volume& extraVariables,
     const alsfvm::grid::Grid& grid,
     const alsfvm::simulator::TimestepInformation& timestepInformation) {
     auto& structure = this->findOrCreateSnapshot(statisticsName,
             timestepInformation,
-            conservedVariables, extraVariables,
+            conservedVariables,
             numberOfH, 1, 1, "cpu");
 
 
     if (p == 1) {
         computeStructure<FastPower<1>>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
-        computeStructure<FastPower<1>>(*structure.getVolumes().getExtraVolume(),
-        extraVariables);
+
     } else if (p == 2) {
         computeStructure<FastPower<2>>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
-        computeStructure<FastPower<2>>(*structure.getVolumes().getExtraVolume(),
-        extraVariables);
+
     } else if (p==3) {
         computeStructure<FastPower<3>>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
-        computeStructure<FastPower<3>>(*structure.getVolumes().getExtraVolume(),
-        extraVariables);
+
     } else if (p==4) {
         computeStructure<FastPower<4>>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
-        computeStructure<FastPower<4>>(*structure.getVolumes().getExtraVolume(),
-        extraVariables);
+
     } else  if (p ==5) {
         computeStructure<FastPower<5>>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
-        computeStructure<FastPower<5>>(*structure.getVolumes().getExtraVolume(),
-        extraVariables);
+
     } else {
         computeStructure<PowfPower>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
-        computeStructure<PowfPower>(*structure.getVolumes().getExtraVolume(),
-        extraVariables);
+
     }
 
 }

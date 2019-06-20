@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,9 +36,7 @@ public:
     alsfvm::shared_ptr<alsfvm::DeviceConfiguration> deviceConfiguration;
     alsfvm::shared_ptr<MemoryFactory> memoryFactory;
     std::vector<std::string> namesConserved;
-    std::vector<std::string> namesExtra;
     Volume conservedVariables;
-    Volume extraVariables;
     HDF5Writer writer;
     alsfvm::grid::Grid grid;
     HDF5WriterTest()
@@ -46,9 +44,7 @@ public:
           deviceConfiguration(new alsfvm::DeviceConfiguration("cpu")),
           memoryFactory(new MemoryFactory(deviceConfiguration)),
           namesConserved({"alpha", "beta", "gamma"}),
-    namesExtra({"rho", "phi"}),
     conservedVariables(namesConserved, memoryFactory, nx, ny, nz),
-    extraVariables(namesExtra, memoryFactory, nx, ny, nz),
     writer(basename), grid(rvec3(0, 0, 0), rvec3(12.5, 13.5, 10.25), ivec3(nx, nx,
             nx)) {
 
@@ -56,7 +52,7 @@ public:
 };
 
 TEST_F(HDF5WriterTest, ConstructTest) {
-    writer.write(conservedVariables, extraVariables, grid,  info);
+    writer.write(conservedVariables, grid,  info);
 }
 
 TEST_F(HDF5WriterTest, WriteAndReadTest) {
@@ -70,16 +66,7 @@ TEST_F(HDF5WriterTest, WriteAndReadTest) {
         }
     }
 
-    // Write some dummy data
-    for (size_t i = 0; i < namesExtra.size(); i++) {
-        auto memoryArea = extraVariables.getScalarMemoryArea(i);
-
-        for (size_t j = 0; j < memoryArea->getSize(); j++) {
-            memoryArea->getPointer()[j] = (2 << i) + j;
-        }
-    }
-
-    writer.write(conservedVariables, extraVariables, grid, info);
+    writer.write(conservedVariables, grid, info);
 
     // Now we will read back
     const std::string outputFilename = alsfvm::io::getOutputname(basename, 0)
@@ -94,10 +81,6 @@ TEST_F(HDF5WriterTest, WriteAndReadTest) {
             -1);
     }
 
-    for (size_t i = 0; i < namesExtra.size(); i++) {
-        ASSERT_GT(H5Oexists_by_name(file.hid(), namesExtra[i].c_str(), H5P_DEFAULT),
-            -1);
-    }
 
 
     for (size_t i = 0; i < namesConserved.size(); i++) {
@@ -113,18 +96,6 @@ TEST_F(HDF5WriterTest, WriteAndReadTest) {
         }
     }
 
-    for (size_t i = 0; i < namesExtra.size(); i++) {
-        std::vector<double> data(nx * ny * nz);
-        HDF5Resource dataset(H5Dopen2(file.hid(), namesExtra[i].c_str(), H5P_DEFAULT),
-            H5Dclose);
-        HDF5_SAFE_CALL(H5Dread(dataset.hid(), H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
-                H5P_DEFAULT,
-                data.data()));
-
-        for (size_t j = 0; j < data.size(); j++) {
-            ASSERT_EQ((2 << i) + j, data[j]);
-        }
-    }
 
     // We need to check the grid
     HDF5Resource gridGroup(H5Gopen2(file.hid(), "grid", H5P_DEFAULT), H5Gclose);

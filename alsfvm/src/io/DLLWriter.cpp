@@ -98,7 +98,7 @@ DLLWriter::DLLWriter(const std::string& basename,
 }
 
 void DLLWriter::write(const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables, const grid::Grid& grid,
+    const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
 
     if (needsDataOnHost && !conservedVariables.getScalarMemoryArea(0)->isOnHost()) {
@@ -139,18 +139,6 @@ void DLLWriter::write(const volume::Volume& conservedVariables,
             ax, ay, az,
             bx, by, bz,
             int(!conservedVariables.getScalarMemoryArea(var)->isOnHost()) - 1);
-    }
-
-    for (size_t var = 0; var < extraVariables.getNumberOfVariables(); ++var) {
-        writeFunction(dllData, parametersStruct,
-            timestepInformation.getCurrentTime(),
-            extraVariables.getName(var).c_str(),
-            extraVariables.getScalarMemoryArea(var)->getPointer(),
-            nx, ny, nz,
-            ngx, ngy, ngz,
-            ax, ay, az,
-            bx, by, bz,
-            int(!extraVariables.getScalarMemoryArea(var)->isOnHost()) - 1);
     }
 
     if (endTimestepFunction) {

@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -97,23 +97,21 @@ TEST_F(TestExtraComputation, CheckMaximumWaveSpeed) {
     cellComputer->computeExtraVariables(*conservedVolume, *extraVolume);
     {
         real maxWaveSpeed = cellComputer->computeMaxWaveSpeed(*conservedVolume,
-                *extraVolume, 0);
+                0);
 
         ASSERT_EQ(maxWaveSpeed, 2 + sqrt(gamma * (gamma - 1) * (4.4 - 0.5 * 3 / 0.5) /
                 0.5));
     }
 
     {
-        real maxWaveSpeed = cellComputer->computeMaxWaveSpeed(*conservedVolume,
-                *extraVolume, 1);
+        real maxWaveSpeed = cellComputer->computeMaxWaveSpeed(*conservedVolume, 1);
 
         ASSERT_EQ(maxWaveSpeed, 2 + sqrt(gamma * (gamma - 1) * (4.4 - 0.5 * 3 / 0.5) /
                 0.5));
     }
 
     {
-        real maxWaveSpeed = cellComputer->computeMaxWaveSpeed(*conservedVolume,
-                *extraVolume, 2);
+        real maxWaveSpeed = cellComputer->computeMaxWaveSpeed(*conservedVolume, 2);
 
         ASSERT_EQ(maxWaveSpeed, 2 + sqrt(gamma * (gamma - 1) * (4.4 - 0.5 * 3 / 0.5) /
                 0.5));
@@ -131,31 +129,16 @@ TEST_F(TestExtraComputation, CheckConstraints) {
         return euler::ConservedVariables<3>(0.5, rvec3{ 1, 1, 1 }, 4.4);
     });
 
-    cellComputer->computeExtraVariables(*conservedVolume, *extraVolume);
 
     // This should be fine
-    ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolume, *extraVolume));
+    ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolume));
 
     // Now we fill it with something that cancels the constraints
     conservedVolume->getScalarMemoryArea("rho")->getPointer()[4] = -0.4;
 
-    ASSERT_FALSE(cellComputer->obeysConstraints(*conservedVolume, *extraVolume));
-
-    // and some extra
-    extraVolume->getScalarMemoryArea("p")->getPointer()[8] = -0.4;
-    ASSERT_FALSE(cellComputer->obeysConstraints(*conservedVolume, *extraVolume));
-
-    // And fix the first one, then we should still get something false
-    conservedVolume->getScalarMemoryArea("rho")->getPointer()[4] = 2;
-    ASSERT_FALSE(cellComputer->obeysConstraints(*conservedVolume, *extraVolume));
-
-    // check that it can be fixed again
-    extraVolume->getScalarMemoryArea("p")->getPointer()[8] = 0.4;
-    ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolume, *extraVolume));
+    ASSERT_FALSE(cellComputer->obeysConstraints(*conservedVolume));
 
 
-    // Add an inf
-    extraVolume->getScalarMemoryArea("p")->getPointer()[8] = INFINITY;
-    ASSERT_FALSE(cellComputer->obeysConstraints(*conservedVolume, *extraVolume));
+
 
 }

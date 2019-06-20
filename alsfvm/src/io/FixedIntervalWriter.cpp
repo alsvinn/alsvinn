@@ -27,12 +27,12 @@ FixedIntervalWriter::FixedIntervalWriter(alsfvm::shared_ptr<Writer>& writer,
 }
 
 void FixedIntervalWriter::write(const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables, const grid::Grid& grid,
+    const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
     const real currentTime = timestepInformation.getCurrentTime();
 
     if (currentTime >= numberSaved * timeInterval) {
-        writer->write(conservedVariables, extraVariables, grid, timestepInformation);
+        writer->write(conservedVariables, grid, timestepInformation);
         numberSaved++;
     }
 

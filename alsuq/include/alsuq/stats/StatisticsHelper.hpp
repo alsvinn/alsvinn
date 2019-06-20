@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -56,8 +56,7 @@ protected:
     //! \note Uses the size of the given volume
     StatisticsSnapshot& findOrCreateSnapshot(const std::string& name,
         const alsfvm::simulator::TimestepInformation& timestepInformation,
-        const alsfvm::volume::Volume& conservedVariables,
-        const alsfvm::volume::Volume& extraVariables);
+        const alsfvm::volume::Volume& conservedVariables);
 
     //! Utility function.
     //!
@@ -66,7 +65,6 @@ protected:
     StatisticsSnapshot& findOrCreateSnapshot(const std::string& name,
         const alsfvm::simulator::TimestepInformation& timestepInformation,
         const alsfvm::volume::Volume& conservedVariables,
-        const alsfvm::volume::Volume& extraVariables,
         size_t nx, size_t ny, size_t nz, const std::string& platform = "default");
 private:
     size_t samples;

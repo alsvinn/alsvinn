@@ -82,7 +82,6 @@ PythonInitialData::PythonInitialData(const std::string& programString,
 }
 
 void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
-    volume::Volume& extraVolume,
     volume::Volume& primitiveVolume,
     equation::CellComputer& cellComputer,
     grid::Grid& grid) {
@@ -274,8 +273,7 @@ void PythonInitialData::setInitialData(volume::Volume& conservedVolume,
 
 
         ALSVINN_LOG(INFO, "Done setting initial data");
-        cellComputer.computeFromPrimitive(primitiveVolume, conservedVolume,
-            extraVolume);
+        cellComputer.computeFromPrimitive(primitiveVolume, conservedVolume);
 
     } catch (boost::python::error_already_set&) {
         HANDLE_PYTHON_EXCEPTION

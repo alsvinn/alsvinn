@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -61,12 +61,6 @@ Simulator::Simulator(const SimulatorParameters& simulatorParameters,
             volumeFactory.createConservedVolume(nx, ny, nz,
                 system->getNumberOfGhostCells()));
     }
-
-    extraVolume = volumeFactory.createExtraVolume(nx, ny, nz,
-            system->getNumberOfGhostCells());
-
-
-
 }
 
 Simulator::~Simulator() {
@@ -141,8 +135,7 @@ void Simulator::setInitialValue(alsfvm::shared_ptr<init::InitialData>&
                 system->getNumberOfGhostCells());
         auto conservedVolumeCPU = volumeFactoryCPU.createConservedVolume(nx, ny, nz,
                 system->getNumberOfGhostCells());
-        auto extraVolumeCPU = volumeFactoryCPU.createExtraVolume(nx, ny, nz,
-                system->getNumberOfGhostCells());
+
 
         auto simulatorParametersCPU = alsfvm::make_shared<SimulatorParameters>
             (simulatorParameters);
@@ -150,27 +143,22 @@ void Simulator::setInitialValue(alsfvm::shared_ptr<init::InitialData>&
         equation::CellComputerFactory cellComputerFactoryCPU(simulatorParametersCPU,
             deviceConfigurationCPU);
         auto cellComputerCPU = cellComputerFactoryCPU.createComputer();
-        initialData->setInitialData(*conservedVolumeCPU, *extraVolumeCPU,
+
+        initialData->setInitialData(*conservedVolumeCPU,
             *primitiveVolume, *cellComputerCPU, *grid);
 
         conservedVolumeCPU->copyTo(*conservedVolumes[0]);
-        extraVolumeCPU->copyTo(*extraVolume);
 
     } else {
         auto primitiveVolume = volumeFactory.createPrimitiveVolume(nx, ny, nz,
                 system->getNumberOfGhostCells());
-        initialData->setInitialData(*conservedVolumes[0], *extraVolume,
+        initialData->setInitialData(*conservedVolumes[0],
             *primitiveVolume, *cellComputer, *grid);
     }
 
 
     boundary->applyBoundaryConditions(*conservedVolumes[0], *grid);
 
-
-
-
-
-    cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
 }
 
 const std::shared_ptr<grid::Grid>& Simulator::getGrid() const {
@@ -184,15 +172,13 @@ std::shared_ptr<grid::Grid>& Simulator::getGrid() {
 void Simulator::callWriters() {
     for (auto writer : writers) {
         writer->write(*conservedVolumes[0],
-            *extraVolume,
             *grid,
             timestepInformation);
     }
 }
 
 void Simulator::checkConstraints() {
-    const bool obeys = cellComputer->obeysConstraints(*conservedVolumes[0],
-            *extraVolume);
+    const bool obeys = cellComputer->obeysConstraints(*conservedVolumes[0]);
 
     if (!obeys) {
         THROW("Simulation state does not obey constraints! "
@@ -224,7 +210,6 @@ void Simulator::incrementSolution() {
 
     conservedVolumes[0].swap(conservedVolumes.back());
 
-    cellComputer->computeExtraVariables(*conservedVolumes[0], *extraVolume);
     timestepInformation.incrementTime(dt);
 }
 

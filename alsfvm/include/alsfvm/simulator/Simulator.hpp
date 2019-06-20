@@ -176,7 +176,6 @@ private:
     alsfvm::shared_ptr<integrator::Integrator> integrator;
     alsfvm::shared_ptr<boundary::Boundary> boundary;
     std::vector<alsfvm::shared_ptr<volume::Volume> > conservedVolumes;
-    alsfvm::shared_ptr<volume::Volume> extraVolume;
     alsfvm::shared_ptr<equation::CellComputer> cellComputer;
 
     alsfvm::shared_ptr<alsfvm::diffusion::DiffusionOperator> diffusionOperator;

@@ -71,13 +71,13 @@ PythonScript::PythonScript(const std::string& basename,
 }
 
 void PythonScript::write(const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables, const grid::Grid& grid,
+    const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
 
     try {
-        copyToDatasets(conservedVariables, extraVariables);
+        copyToDatasets(conservedVariables);
         classInstance.attr("write")(datasetsConserved,
-            datasetsExtra, makeGrid(grid));
+            makeGrid(grid));
 
 
 #ifdef ALSVINN_USE_MPI
@@ -101,10 +101,8 @@ void PythonScript::finalize(const grid::Grid& grid,
     classInstance.attr("finalize")();
 }
 
-void PythonScript::makeDatasets(const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables) {
+void PythonScript::makeDatasets(const volume::Volume& conservedVariables) {
     rawPointersConserved.resize(0);
-    rawPointersExtra.resize(0);
     auto size = conservedVariables.getInnerSize();
 
     boost::python::tuple shape = boost::python::make_tuple(size.x * size.y *
@@ -122,21 +120,13 @@ void PythonScript::makeDatasets(const volume::Volume& conservedVariables,
 
     }
 
-    for (size_t var = 0; var < extraVariables.getNumberOfVariables(); ++var) {
-        auto array = boost::python::numpy::zeros(shape, type);
-        rawPointersExtra.push_back((real*)array.get_data());
-        datasetsExtra[extraVariables.getName(var)] = array;
-
-    }
-
     datasetsInitialized = true;
 }
 
-void PythonScript::copyToDatasets(const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables) {
+void PythonScript::copyToDatasets(const volume::Volume& conservedVariables) {
 
     if (!datasetsInitialized) {
-        makeDatasets(conservedVariables, extraVariables);
+        makeDatasets(conservedVariables);
     }
 
     const auto size = conservedVariables.getInnerSize();
@@ -150,11 +140,6 @@ void PythonScript::copyToDatasets(const volume::Volume& conservedVariables,
 
     }
 
-    for (size_t var = 0; var < extraVariables.getNumberOfVariables(); ++var) {
-        extraVariables.copyInternalCells(var,
-            rawPointersExtra[var], totalSize);
-
-    }
 }
 
 boost::python::api::object PythonScript::makeGrid(const grid::Grid& grid) {

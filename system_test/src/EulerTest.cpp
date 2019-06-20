@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -112,7 +112,7 @@ void runTest(
     real t = 0;
 
     io::HDF5Writer writer(name);
-    writer.write(*conservedVolumes[0], *extra1, grid,
+    writer.write(*conservedVolumes[0], grid,
         simulator::TimestepInformation());
 
 
@@ -124,9 +124,9 @@ void runTest(
 
     boundary->applyBoundaryConditions(*conservedVolumes[0], grid);
     cellComputer->computeExtraVariables(*conservedVolumes[0], *extra1);
-    ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolumes[0], *extra1));
+    ASSERT_TRUE(cellComputer->obeysConstraints(*conservedVolumes[0]));
 
-    writer.write(*conservedVolumes[0], *extra1, grid,
+    writer.write(*conservedVolumes[0], grid,
         simulator::TimestepInformation());
     simulator::TimestepInformation timestepInformation;
 
@@ -205,7 +205,7 @@ void runTest(
 
 
 
-            ASSERT_TRUE(cellComputer->obeysConstraints(*conservedNext, *extra1));
+            ASSERT_TRUE(cellComputer->obeysConstraints(*conservedNext));
 
 
 
@@ -222,7 +222,7 @@ void runTest(
 
             std::cout << "saving at t " << t << " (nsaves * saveInterval = " << nsaves*
                 saveInterval << ")" << std::endl;
-            writer.write(*conservedVolumes[0], *extra1, grid,
+            writer.write(*conservedVolumes[0], grid,
                 simulator::TimestepInformation());
         }
 
@@ -232,7 +232,7 @@ void runTest(
     }
 
     std::cout << "Number of timesteps used: " << numberOfTimesteps << std::endl;
-    writer.write(*conservedVolumes[0], *extra1, grid,
+    writer.write(*conservedVolumes[0], grid,
         simulator::TimestepInformation());
 }
 TEST(EulerTest, ShockTubeTest) {

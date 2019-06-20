@@ -57,13 +57,12 @@ std::vector<std::string> StatisticsTimer::getStatisticsNames() const {
 
 void StatisticsTimer::computeStatistics(const alsfvm::volume::Volume&
     conservedVariables,
-    const alsfvm::volume::Volume& extraVariables,
     const alsfvm::grid::Grid& grid,
     const alsfvm::simulator::TimestepInformation& timestepInformation) {
     ALSVINN_TIME_BLOCK(alsvinn, uq, stats, compute);
 
     auto startTime = std::chrono::high_resolution_clock::now();
-    statistics->computeStatistics(conservedVariables, extraVariables, grid,
+    statistics->computeStatistics(conservedVariables, grid,
         timestepInformation);
     auto endTime = std::chrono::high_resolution_clock::now();
 

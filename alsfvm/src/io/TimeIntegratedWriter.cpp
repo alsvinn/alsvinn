@@ -26,7 +26,6 @@ TimeIntegratedWriter::TimeIntegratedWriter(alsfvm::shared_ptr<Writer>& writer,
 }
 
 void TimeIntegratedWriter::write(const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables,
     const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
 
@@ -38,8 +37,6 @@ void TimeIntegratedWriter::write(const volume::Volume& conservedVariables,
             integratedConservedVariables = conservedVariables.makeInstance();
             integratedConservedVariables->makeZero();
 
-            integratedExtraVariables = extraVariables.makeInstance();
-            integratedExtraVariables->makeZero();
         }
 
         const real dt = currentTime - lastTime;
@@ -53,12 +50,6 @@ void TimeIntegratedWriter::write(const volume::Volume& conservedVariables,
             0, conservedVariables,
             0, conservedVariables);
 
-        integratedExtraVariables->addLinearCombination(1,
-            dt, extraVariables,
-            0, extraVariables,
-            0, extraVariables,
-            0, extraVariables);
-
 
     }
 
@@ -66,8 +57,7 @@ void TimeIntegratedWriter::write(const volume::Volume& conservedVariables,
 
         simulator::TimestepInformation newTime(time, 0);
         *integratedConservedVariables *= 0.5 / timeRadius;
-        *integratedExtraVariables *= 0.5 / timeRadius;
-        writer->write(*integratedConservedVariables, *integratedExtraVariables, grid,
+        writer->write(*integratedConservedVariables, grid,
             newTime);
         written = true;
     }

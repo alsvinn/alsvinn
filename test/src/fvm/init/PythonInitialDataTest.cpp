@@ -47,7 +47,6 @@ TEST(PythonInitialDataTest, AnswerToEverything) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
 
     // Fill every variable with 42
@@ -56,7 +55,6 @@ TEST(PythonInitialDataTest, AnswerToEverything) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -90,7 +88,6 @@ TEST(PythonInitialDataTest, ParameterTest) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
     Parameters parameters;
     parameters.addParameter("nonVector", { 43. });
@@ -102,7 +99,6 @@ TEST(PythonInitialDataTest, ParameterTest) {
     PythonInitialData initialData(pythonCode, parameters);
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -141,7 +137,6 @@ TEST(PythonInitialDataTest, RiemannProblem) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
 
     // Fill every variable with 42
@@ -162,7 +157,6 @@ TEST(PythonInitialDataTest, RiemannProblem) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -200,7 +194,6 @@ TEST(PythonInitialDataTest, SineCosineExp) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
 
     // Fill every variable with 42
@@ -215,7 +208,6 @@ TEST(PythonInitialDataTest, SineCosineExp) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -258,7 +250,6 @@ TEST(PythonInitialDataTest, AnswerToEverythingInitGlobal) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
 
     // Fill every variable with 42
@@ -272,7 +263,6 @@ TEST(PythonInitialDataTest, AnswerToEverythingInitGlobal) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -312,7 +302,6 @@ TEST(PythonInitialDataTest, AnswerToEverythingInitGlobal3D) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
 
     // Fill every variable with 42
@@ -326,7 +315,6 @@ TEST(PythonInitialDataTest, AnswerToEverythingInitGlobal3D) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -364,7 +352,6 @@ TEST(PythonInitialDataTest, Index3D) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
 
     // Fill every variable with 42
@@ -382,7 +369,6 @@ TEST(PythonInitialDataTest, Index3D) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -432,7 +418,6 @@ TEST(PythonInitialDataTest, Index2D) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
 
     // Fill every variable with 42
@@ -450,7 +435,6 @@ TEST(PythonInitialDataTest, Index2D) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -500,7 +484,6 @@ TEST(PythonInitialDataTest, Index1D) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
 
     // Fill every variable with 42
@@ -518,7 +501,6 @@ TEST(PythonInitialDataTest, Index1D) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -570,7 +552,6 @@ TEST(PythonInitialDataTest, FBM1D) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
 
     // Call the fbm module
@@ -582,7 +563,6 @@ TEST(PythonInitialDataTest, FBM1D) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -621,7 +601,6 @@ TEST(PythonInitialDataTest, FBB1D) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 1);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 1);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 1);
 
     // Call the fbm module
@@ -636,7 +615,6 @@ TEST(PythonInitialDataTest, FBB1D) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -679,7 +657,6 @@ TEST(PythonInitialDataTest, FBB2D) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 0);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 0);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 0);
 
     // Call the fbm module
@@ -695,7 +672,6 @@ TEST(PythonInitialDataTest, FBB2D) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -744,7 +720,6 @@ TEST(PythonInitialDataTest, FBM2D) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 0);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 0);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 0);
 
     // Call the fbm module
@@ -760,7 +735,6 @@ TEST(PythonInitialDataTest, FBM2D) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -805,7 +779,6 @@ TEST(PythonInitialDataTest, FBB3D) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 0);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 0);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 0);
 
     // Call the fbm module
@@ -822,7 +795,6 @@ TEST(PythonInitialDataTest, FBB3D) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);
@@ -893,7 +865,6 @@ TEST(PythonInitialDataTest, FBM3D) {
 
 
     auto volumeConserved = volumeFactory.createConservedVolume(nx, ny, nz, 0);
-    auto volumeExtra = volumeFactory.createExtraVolume(nx, ny, nz, 0);
     auto volumePrimitive = volumeFactory.createPrimitiveVolume(nx, ny, nz, 0);
 
     // Call the fbm module
@@ -910,7 +881,6 @@ TEST(PythonInitialDataTest, FBM3D) {
     PythonInitialData initialData(pythonCode, Parameters());
 
     initialData.setInitialData(*volumeConserved,
-        *volumeExtra,
         *volumePrimitive,
         *cellComputer,
         grid);

@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,13 +33,11 @@ std::vector<std::string> BoundedVariation::getStatisticsNames() const {
 
 void BoundedVariation::computeStatistics(const alsfvm::volume::Volume&
     conservedVariables,
-    const alsfvm::volume::Volume& extraVariables,
     const alsfvm::grid::Grid& grid,
     const alsfvm::simulator::TimestepInformation& timestepInformation) {
     auto& bv = findOrCreateSnapshot(statisticsName,
             timestepInformation,
-            conservedVariables,
-            extraVariables, 1, 1, 1, "cpu");
+            conservedVariables, 1, 1, 1, "cpu");
 
     const ivec3 start = conservedVariables.getNumberOfGhostCells();
     const ivec3 end = conservedVariables.getSize() -
@@ -51,19 +49,6 @@ void BoundedVariation::computeStatistics(const alsfvm::volume::Volume&
                     start,
                     end);
     }
-
-    for (size_t var = 0; var < extraVariables.getNumberOfVariables(); ++var) {
-        bv.getVolumes().getExtraVolume()->getScalarMemoryArea(var)->getPointer()[0]
-            = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(p,
-                    start,
-                    end);
-    }
-
-
-
-
-
-
 }
 
 void BoundedVariation::finalizeStatistics() {

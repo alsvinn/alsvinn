@@ -34,7 +34,7 @@ CoarseGrainingIntervalWriter::CoarseGrainingIntervalWriter(
 }
 
 void CoarseGrainingIntervalWriter::write(const volume::Volume&
-    conservedVariables, const volume::Volume& extraVariables,
+    conservedVariables,
     const grid::Grid& grid, const simulator::TimestepInformation&
     timestepInformation) {
 
@@ -44,7 +44,7 @@ void CoarseGrainingIntervalWriter::write(const volume::Volume&
 
     if (currentTime >= numberSaved * timeInterval + (numberOfSkips + 1)*dx *
         (numberSmallSaved)) {
-        writer->write(conservedVariables, extraVariables, grid, timestepInformation);
+        writer->write(conservedVariables, grid, timestepInformation);
         ALSVINN_LOG(INFO, "Writing at " << timestepInformation.getCurrentTime()
             << "("
             << "\tnumberSaved = " << numberSaved << "\n"

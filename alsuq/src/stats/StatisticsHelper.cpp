@@ -84,7 +84,6 @@ void StatisticsHelper::writeStatistics(const alsfvm::grid::Grid& grid) {
                 auto& volumes = statistics.second.getVolumes();
                 auto& timestepInformation = statistics.second.getTimestepInformation();
                 writer->write(*volumes.getConservedVolume(),
-                    *volumes.getExtraVolume(),
                     grid, timestepInformation);
             }
         }
@@ -94,8 +93,7 @@ void StatisticsHelper::writeStatistics(const alsfvm::grid::Grid& grid) {
 StatisticsSnapshot& StatisticsHelper::findOrCreateSnapshot(
     const std::string& name,
     const alsfvm::simulator::TimestepInformation& timestepInformation,
-    const alsfvm::volume::Volume& conservedVariables,
-    const alsfvm::volume::Volume& extraVariables) {
+    const alsfvm::volume::Volume& conservedVariables) {
     auto currentTime = timestepInformation.getCurrentTime();
 
     if (snapshots.find(currentTime) != snapshots.end()
@@ -103,10 +101,9 @@ StatisticsSnapshot& StatisticsHelper::findOrCreateSnapshot(
         return snapshots[currentTime][name];
     } else {
         auto conservedVariablesClone = conservedVariables.makeInstance();
-        auto extraVariablesClone = extraVariables.makeInstance();
+
         snapshots[currentTime][name] = StatisticsSnapshot(timestepInformation,
-                alsfvm::volume::VolumePair(conservedVariablesClone,
-                    extraVariablesClone));
+                alsfvm::volume::VolumePair(conservedVariablesClone));
 
         for (auto& volume : snapshots[currentTime][name].getVolumes()) {
             volume->makeZero();
@@ -122,7 +119,6 @@ StatisticsSnapshot& StatisticsHelper::findOrCreateSnapshot(
     const std::string& name,
     const alsfvm::simulator::TimestepInformation& timestepInformation,
     const alsfvm::volume::Volume& conservedVariables,
-    const alsfvm::volume::Volume& extraVariables,
     size_t nx, size_t ny, size_t nz, const std::string& platform) {
     auto currentTime = timestepInformation.getCurrentTime();
 
@@ -132,10 +128,9 @@ StatisticsSnapshot& StatisticsHelper::findOrCreateSnapshot(
     } else {
         auto conservedVariablesClone = conservedVariables.makeInstance(nx, ny, nz,
                 platform);
-        auto extraVariablesClone = extraVariables.makeInstance(nx, ny, nz, platform);
+
         snapshots[currentTime][name] = StatisticsSnapshot(timestepInformation,
-                alsfvm::volume::VolumePair(conservedVariablesClone,
-                    extraVariablesClone));
+                alsfvm::volume::VolumePair(conservedVariablesClone));
 
         for (auto& volume : snapshots[currentTime][name].getVolumes()) {
             volume->makeZero();
