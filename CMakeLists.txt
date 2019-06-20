@@ -175,15 +175,12 @@ if(ALSVINN_BUILD_TESTS)
 	hunter_add_package(GTest)
 	find_package(GTest REQUIRED)
 	add_subdirectory("test")
-	add_subdirectory("system_test")
-	if(ALSVINN_USE_MPI)
-		add_subdirectory("mpi_test")
-	endif()
+
 
 endif()
 
 if(ALSVINN_BUILD_DOXYGEN)
-	add_subdirectory("doxygen")
+	add_subdirectory("documentation")
 endif()
 add_subdirectory("python")
 

@@ -31,7 +31,7 @@ RUN cd /alsvinn &&\
     make install
     
 # Examples easily accesable
-RUN cp -r alsvinn/alsvinncli/examples /examples
+RUN cp -r alsvinn/examples /examples
 
 # We also want to compile the examples
 RUN cd /alsvinn &&\

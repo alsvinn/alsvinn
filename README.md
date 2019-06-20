@@ -89,12 +89,12 @@ If you do not have a CUDA device on your computer, or if you do not have CUDA in
 
 Before you try to run the simulations, it's probably a good idea to validate that the build was successful by running the unittests. From the build folder, run
 
-    ./test/alstest
+    ./test/library_test/alstest
     bash run_mpi_tests.sh
 
 ## Running alsvinn
 
-The basic input of alsvinn are ```.xml```-files specifying the different options. You can view the different examples under ```alsvinncli/examples```. The initial data is usually specified in a ```.py```-file (named in the xml file).
+The basic input of alsvinn are ```.xml```-files specifying the different options. You can view the different examples under ```examples```. The initial data is usually specified in a ```.py```-file (named in the xml file).
 
 ### Deterministic runs
 
