@@ -19,7 +19,8 @@
 #include "alsuq/distribution/DistributionFactory.hpp"
 #include "alsuq/mpi/SimpleLoadBalancer.hpp"
 #include <boost/property_tree/xml_parser.hpp>
-#include <fstream>
+#include <sstream>
+#include "alsutils/io/TextFileCache.hpp"
 #include "alsuq/stats/StatisticsFactory.hpp"
 #include "alsfvm/io/WriterFactory.hpp"
 #include "alsfvm/io/MpiWriterFactory.hpp"
@@ -53,7 +54,10 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string& inputFilename,
     alsutils::mpi::ConfigurationPtr mpiConfigurationWorld,
     int multiSample, ivec3 multiSpatial) {
     ALSVINN_TIME_BLOCK(alsvinn, uq, init);
-    std::ifstream stream(inputFilename);
+    auto& textCache = alsutils::io::TextFileCache::getInstance();
+    auto configurationFileContent = textCache.loadTextFile(inputFilename);
+    std::stringstream stream(configurationFileContent);
+
     ptree configurationBase;
     boost::property_tree::read_xml(stream, configurationBase);
     auto configuration = configurationBase.get_child("config");
@@ -105,7 +109,9 @@ std::shared_ptr<run::Runner> Setup::makeRunner(const std::string& inputFilename,
 
 std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(
     const std::string& inputFilename) {
-    std::ifstream stream(inputFilename);
+    auto& textCache = alsutils::io::TextFileCache::getInstance();
+    auto configurationFileContent = textCache.loadTextFile(inputFilename);
+    std::stringstream stream(configurationFileContent);
     ptree configurationBase;
     boost::property_tree::read_xml(stream, configurationBase);
     auto configuration = configurationBase.get_child("config");
@@ -116,7 +122,9 @@ std::shared_ptr<samples::SampleGenerator> Setup::makeSampleGenerator(
 }
 
 size_t Setup::readNumberOfSamples(const std::string& inputFilename) {
-    std::ifstream stream(inputFilename);
+    auto& textCache = alsutils::io::TextFileCache::getInstance();
+    auto configurationFileContent = textCache.loadTextFile(inputFilename);
+    std::stringstream stream(configurationFileContent);
     ptree configurationBase;
     boost::property_tree::read_xml(stream, configurationBase);
     auto configuration = configurationBase.get_child("config");
@@ -125,7 +133,9 @@ size_t Setup::readNumberOfSamples(const std::string& inputFilename) {
 }
 
 size_t Setup::readSampleStart(const std::string& inputFilename) {
-    std::ifstream stream(inputFilename);
+    auto& textCache = alsutils::io::TextFileCache::getInstance();
+    auto configurationFileContent = textCache.loadTextFile(inputFilename);
+    std::stringstream stream(configurationFileContent);
     ptree configurationBase;
     boost::property_tree::read_xml(stream, configurationBase);
     auto configuration = configurationBase.get_child("config");

@@ -115,6 +115,7 @@ script:
   # Test python
   - PYTHONPATH=$PYTHONPATH:./python python3.7 ../python/test/test_python_interface.py
   - PYTHONPATH=$PYTHONPATH:./python python3.7 ../python/test/test_commit_sha.py
+  - PYTHONPATH=$PYTHONPATH:./python python3.7 ../python/test/test_text_cache.py
   # make sure we can build examples
   - cd ${TRAVIS_BUILD_DIR}/library_examples/alsuq/only_statistics
   - mkdir build
