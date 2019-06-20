@@ -31,9 +31,10 @@ public:
     /// \param writer the underlying writer to actually use.
     /// \param timeInterval the time interval (will save for every time n*timeInterval)
     /// \param endTime the final time for the simulation.
+    /// \param writeInitialTimestep write the first timestep
     ///
     FixedIntervalStatistics(alsfvm::shared_ptr<Statistics>& writer,
-        real timeInterval, real endTime);
+        real timeInterval, real endTime, bool writeInitialTimestep = true);
 
 
     virtual real adjustTimestep(real dt,
@@ -71,6 +72,7 @@ private:
     const real timeInterval;
     const real endTime;
     size_t numberSaved = 0;
+    const bool writeInitialTimestep;
 
 };
 } // namespace stats

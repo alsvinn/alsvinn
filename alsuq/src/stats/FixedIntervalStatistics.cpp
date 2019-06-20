@@ -20,8 +20,13 @@ namespace alsuq {
 namespace stats {
 
 FixedIntervalStatistics::FixedIntervalStatistics(alsfvm::shared_ptr<Statistics>&
-    statistics, real timeInterval, real endTime)
-    : statistics(statistics), timeInterval(timeInterval), endTime(endTime) {
+    statistics, real timeInterval, real endTime, bool writeInitialTimestep)
+    : statistics(statistics), timeInterval(timeInterval), endTime(endTime),
+      writeInitialTimestep(writeInitialTimestep) {
+
+    if (!writeInitialTimestep) {
+        numberSaved = 1;
+    }
 
 }
 
@@ -66,7 +71,7 @@ void FixedIntervalStatistics::computeStatistics(const alsfvm::volume::Volume&
 
     // First check if we have restarted
     if (currentTime == 0) {
-        numberSaved = 0;
+        numberSaved = size_t(!writeInitialTimestep);
     }
 
     if (currentTime >= numberSaved * timeInterval) {

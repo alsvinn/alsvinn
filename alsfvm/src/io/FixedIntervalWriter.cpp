@@ -21,8 +21,12 @@ namespace alsfvm {
 namespace io {
 
 FixedIntervalWriter::FixedIntervalWriter(alsfvm::shared_ptr<Writer>& writer,
-    real timeInterval, real )
-    : writer(writer), timeInterval(timeInterval), numberSaved(0) {
+    real timeInterval, real, bool writeInitialTimestep )
+    : writer(writer), timeInterval(timeInterval), numberSaved(0),
+      writeInitialTimestep(writeInitialTimestep) {
+    if (!writeInitialTimestep) {
+        numberSaved = 1;
+    }
 
 }
 
