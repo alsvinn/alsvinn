@@ -2,7 +2,7 @@
 	path = cmake/git_find
 	url = https://github.com/rpavlik/cmake-modules.git
 [submodule "doxygen/doxygen-bootstrapped"]
-	path = documentation/doxygen/doxygen-bootstrapped
+	path = documentation/doxygen-bootstrapped
 	url = https://github.com/Velron/doxygen-bootstrapped.git
 [submodule "addons/fbm/fractional_brownian_motion"]
 	path = addons/fbm/fractional_brownian_motion

@@ -180,7 +180,7 @@ if(ALSVINN_BUILD_TESTS)
 endif()
 
 if(ALSVINN_BUILD_DOXYGEN)
-	add_subdirectory("documentation")
+   add_subdirectory("documentation")
 endif()
 add_subdirectory("python")
 

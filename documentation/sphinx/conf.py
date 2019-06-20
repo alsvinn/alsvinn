@@ -56,7 +56,7 @@ html_static_path = ['_static']
 
 import subprocess
 subprocess.call(['doxygen', 'Doxyfile'],
-                cwd='../doxygen')
+                cwd='../')
 
 
-html_extra_path = ['../doxygen/documentation/html']
+html_extra_path = ['../documentation/html']
