@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/alsvinn/alsvinn.svg?branch=master)](https://travis-ci.org/alsvinn/alsvinn)
 
-![Alsvinn](https://github.com/kjetil-lye/alsvinn/raw/master/documentation/images/kh.png "Kelvin-Helmholtz simulation")
+![Alsvinn](https://github.com/alsvinn/alsvinn/raw/master/documentation/images/kh_small.png "Kelvin-Helmholtz simulation")
 # Alsvinn 
 
 Alsvinn is a toolset consisting of a finite volume simulator (FVM) and modules for uncertaintity quantifications (UQ).
