@@ -44,14 +44,40 @@ void StructureCube::computeStatistics(const alsfvm::volume::Volume&
             numberOfH, 1, 1);
 
 
-    computeStructure(*structure.getVolumes().getConservedVolume(),
-        conservedVariables);
+    if (p == 1.0) {
+        computeStructure < alsutils::math::FastPower<1>>
+            (*structure.getVolumes().getConservedVolume(),
+                conservedVariables);
+    } else if (p == 1.0) {
+        computeStructure < alsutils::math::FastPower<2>>
+            (*structure.getVolumes().getConservedVolume(),
+                conservedVariables);
+    }
+
+    else if (p == 3.0) {
+        computeStructure < alsutils::math::FastPower<3>>
+            (*structure.getVolumes().getConservedVolume(),
+                conservedVariables);
+    } else if (p == 4.0) {
+        computeStructure < alsutils::math::FastPower<4>>
+            (*structure.getVolumes().getConservedVolume(),
+                conservedVariables);
+    } else if (p == 5.0) {
+        computeStructure < alsutils::math::FastPower<5>>
+            (*structure.getVolumes().getConservedVolume(),
+                conservedVariables);
+    } else {
+        computeStructure < alsutils::math::PowPower>
+        (*structure.getVolumes().getConservedVolume(),
+            conservedVariables);
+    }
 }
 
 void StructureCube::finalizeStatistics() {
 
 }
 
+template<class PowerClass>
 void StructureCube::computeStructure(alsfvm::volume::Volume& output,
     const alsfvm::volume::Volume& input) {
     for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
@@ -71,7 +97,7 @@ void StructureCube::computeStructure(alsfvm::volume::Volume& output,
                 for (int i = 0; i < nx; ++i) {
                     for (int h = 1; h < numberOfH; ++h) {
 
-                        computeCube(outputView, inputView, i, j, k, h, nx, ny, nz,
+                        computeCube<PowerClass>(outputView, inputView, i, j, k, h, nx, ny, nz,
                             ngx, ngy, ngz, input.getDimensions());
 
                     }
@@ -83,12 +109,14 @@ void StructureCube::computeStructure(alsfvm::volume::Volume& output,
     }
 }
 
+template<class PowerClass>
 void StructureCube::computeCube(alsfvm::memory::View<real>& output,
     const alsfvm::memory::View<const real>& input,
     int i, int j, int k, int h, int nx, int ny, int nz,
     int ngx, int ngy, int ngz, int dimensions) {
 
-    computeStructureCube(output, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz,
+    computeStructureCube<PowerClass>(output, input, i, j, k, h, nx, ny, nz, ngx,
+        ngy, ngz,
         dimensions, p);
 }
 REGISTER_STATISTICS(cpu, structure_cube, StructureCube)

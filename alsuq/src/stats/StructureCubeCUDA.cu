@@ -18,37 +18,16 @@
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsuq/stats/stats_util.hpp"
 #include "alsuq/stats/structure_common.hpp"
+#include "alsutils/math/FastPower.hpp"
+#include "alsutils/math/PowPower.hpp"
 namespace alsuq {
 namespace stats {
 
 namespace {
 
-// This will be nicer when we can finally upgrade to C++14
-template<int p>
-struct FastPower {
-    __device__ __host__  static double power(double x, double) {
-        return power_internal(x);
-    }
-
-    __device__ __host__ static double power_internal(double x);
-};
-
-template<int p>
-__device__ __host__  double FastPower<p>::power_internal(double x){
-    return x*FastPower<p-1>::power_internal(x);
-}
-
-template<>
-__device__ __host__  double FastPower<1>::power_internal(double x) {
-    return x;
-}
 
 
-struct PowfPower {
-    __device__ __host__ static double power(double x, double p) {
-        return pow(x, p);
-    }
-};
+
 
 //! Computes the structure function for FIXED h
 //!
@@ -106,27 +85,27 @@ void StructureCubeCUDA::computeStatistics(const alsfvm::volume::Volume&
 
 
     if (p == 1) {
-        computeStructure<FastPower<1>>(*structure.getVolumes().getConservedVolume(),
+        computeStructure<alsutils::math::FastPower<1>>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
 
     } else if (p == 2) {
-        computeStructure<FastPower<2>>(*structure.getVolumes().getConservedVolume(),
+        computeStructure<alsutils::math::FastPower<2>>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
 
     } else if (p==3) {
-        computeStructure<FastPower<3>>(*structure.getVolumes().getConservedVolume(),
+        computeStructure<alsutils::math::FastPower<3>>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
 
     } else if (p==4) {
-        computeStructure<FastPower<4>>(*structure.getVolumes().getConservedVolume(),
+        computeStructure<alsutils::math::FastPower<4>>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
 
     } else  if (p ==5) {
-        computeStructure<FastPower<5>>(*structure.getVolumes().getConservedVolume(),
+        computeStructure<alsutils::math::FastPower<5>>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
 
     } else {
-        computeStructure<PowfPower>(*structure.getVolumes().getConservedVolume(),
+        computeStructure<alsutils::math::PowPower>(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
 
     }
