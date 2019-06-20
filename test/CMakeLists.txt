@@ -1,0 +1,5 @@
+add_subdirectory(library_tests)
+add_subdirectory(system_test)
+if(ALSVINN_USE_MPI)
+    add_subdirectory("mpi_test")
+endif()
