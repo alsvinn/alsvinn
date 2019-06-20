@@ -182,9 +182,6 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
     auto conservedVolume = alsfvm::volume::makeConservedVolume(platform, equation, {nx, ny, nz},
             0);
 
-    auto extraVolume = alsfvm::volume::makeExtraVolume(platform, equation, {nx, ny, nz},
-            0);
-
     for (int var = 0; var < conservedVolume->getNumberOfVariables(); ++var) {
         auto name = conservedVolume->getName(var);
         auto variableName = std::string("sample_") + std::to_string(
@@ -202,22 +199,6 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
             buffer.size());
     }
 
-    for (int var = 0; var < extraVolume->getNumberOfVariables(); ++var) {
-        auto name = extraVolume->getName(var);
-        auto variableName = std::string("sample_") + std::to_string(
-                sample) + "_" + name;
-
-        netcdf_raw_ptr varid;
-        NETCDF_SAFE_CALL(nc_inq_varid(file, variableName.c_str(), &varid));
-
-        std::vector<double> buffer(nx * ny * nz);
-
-        NETCDF_SAFE_CALL(nc_get_var_double(file, varid, buffer.data()));
-
-        extraVolume->getScalarMemoryArea(var)->copyFromHost(buffer.data(),
-            buffer.size());
-    }
-
     NETCDF_SAFE_CALL(nc_close(file));
 
     std::cout << "Read sample" << std::endl;
@@ -228,7 +209,7 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
         std::chrono::duration_cast<std::chrono::duration<double>>
         (end - start).count() << " s" <<
         std::endl;
-    return alsfvm::volume::VolumePair(conservedVolume, extraVolume);
+    return alsfvm::volume::VolumePair(conservedVolume);
 
 }
 
@@ -361,7 +342,6 @@ int main(int argc, char** argv) {
         auto volumes = getSample(platform, equation, sample, filenameInput, nx, ny, nz);
 
         statistics->write(*volumes.getConservedVolume(),
-            *volumes.getExtraVolume(),
             grid,
             timestepInformation);
         auto end = std::chrono::high_resolution_clock::now();
