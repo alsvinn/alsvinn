@@ -355,6 +355,12 @@ alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(
             real endTime = readEndTime(configuration);
             real timeInterval = endTime / numberOfSaves;
 
+            bool writeInitialTimestep = true;
+
+            if (writerNode.find("writeInitialTimestep") != writerNode.not_found()) {
+                writeInitialTimestep = writerNode.get<bool>("writeInitialTimestep");
+            }
+
             if (writerNode.find("numberOfCoarseSaves") != writerNode.not_found()) {
                 int numberOfCoarseSaves = writerNode.get<size_t>("numberOfCoarseSaves");
                 int numberOfSkips = writerNode.get<size_t>("numberOfSkips");
@@ -367,7 +373,7 @@ alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(
             }
 
             return alsfvm::shared_ptr<io::Writer>(new io::FixedIntervalWriter(baseWriter,
-                        timeInterval, endTime));
+                        timeInterval, endTime, writeInitialTimestep));
         } else if (writerNode.find("timeRadius") != writerNode.not_found()) {
 
             const real time = writerNode.get<size_t>("time");
@@ -471,7 +477,8 @@ void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree&
     }
 }
 
-alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion(
+alsfvm::shared_ptr<diffusion::DiffusionOperator>
+SimulatorSetup::createDiffusion(
     const SimulatorSetup::ptree& configuration,
     const grid::Grid& grid,
     const simulator::SimulatorParameters& simulatorParameters,

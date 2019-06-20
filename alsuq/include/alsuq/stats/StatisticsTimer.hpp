@@ -43,7 +43,6 @@ public:
 
 
     virtual void computeStatistics(const alsfvm::volume::Volume& conservedVariables,
-        const alsfvm::volume::Volume& extraVariables,
         const alsfvm::grid::Grid& grid,
         const alsfvm::simulator::TimestepInformation& timestepInformation) override;
 

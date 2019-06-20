@@ -122,9 +122,7 @@ LegendrePointWiseCUDA::LegendrePointWiseCUDA(const Functional::Parameters& param
 }
 
 void LegendrePointWiseCUDA::operator()(volume::Volume& conservedVolumeOut,
-    volume::Volume& extraVolumeOut,
     const volume::Volume& conservedVolumeIn,
-    const volume::Volume& extraVolumeIn,
     const real weight,
     const grid::Grid& grid) {
 
@@ -132,10 +130,6 @@ void LegendrePointWiseCUDA::operator()(volume::Volume& conservedVolumeOut,
     if (variables.size() == 0) {
         for (size_t var = 0; var < conservedVolumeIn.getNumberOfVariables(); ++var) {
             variables.push_back(conservedVolumeIn.getName(var));
-        }
-
-        for (size_t var = 0; var < extraVolumeIn.getNumberOfVariables(); ++var) {
-            variables.push_back(extraVolumeIn.getName(var));
         }
 
     }
@@ -156,15 +150,6 @@ void LegendrePointWiseCUDA::operator()(volume::Volume& conservedVolumeOut,
 
 
             runLegendre(viewOut, viewIn, ghostCells, weight, degree, minValue, maxValue);
-
-
-        } else if (extraVolumeIn.hasVariable(variableName)) {
-
-            auto viewIn = extraVolumeIn.getScalarMemoryArea(variableName)->getView();
-            auto viewOut = extraVolumeOut.getScalarMemoryArea(variableName)->getView();
-
-            runLegendre(viewOut, viewIn, ghostCells, weight, degree, minValue, maxValue);
-
 
 
         } else {

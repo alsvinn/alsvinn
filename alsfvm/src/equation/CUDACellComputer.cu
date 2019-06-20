@@ -31,7 +31,9 @@ namespace {
 template<class Equation>
 __global__ void computeExtraVariablesDevice(Equation eq,
     typename Equation::ConstViews conservedIn,
-    typename Equation::ViewsExtra extra, size_t size) {
+    typename Equation::ViewsExtra extraOut,
+    size_t size) {
+
     size_t index = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (index >= size) {
@@ -42,7 +44,7 @@ __global__ void computeExtraVariablesDevice(Equation eq,
         eq.fetchConservedVariables(conservedIn, index);
     typename Equation::ExtraVariables extraStruct = eq.computeExtra(
             conservedStruct);
-    eq.setExtraViewAt(extra, index, extraStruct);
+    eq.setExtraViewAt(extraOut, index, extraStruct);
 }
 
 
@@ -53,7 +55,6 @@ __global__ void computeExtraVariablesDevice(Equation eq,
 template<class Equation, size_t direction>
 __global__ void computeWaveSpeedDevice(Equation eq,
     typename Equation::ConstViews conserved,
-    typename Equation::ConstViewsExtra extra,
     size_t size, real* outputPointer) {
 
     const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -62,9 +63,10 @@ __global__ void computeWaveSpeedDevice(Equation eq,
         return;
     }
 
+    auto conservedStruct = eq.fetchConservedVariables(conserved, index);
+    auto extraStruct = eq.computeExtra(conservedStruct);
     outputPointer[index] = eq.template computeWaveSpeed < direction >
-        (eq.fetchConservedVariables(conserved, index),
-            eq.fetchExtraVariables(extra, index));
+        (conservedStruct, extraStruct);
 }
 
 ///
@@ -75,7 +77,6 @@ __global__ void computeWaveSpeedDevice(Equation eq,
 template<class Equation, size_t direction>
 real computeWaveSpeedAndReduce(const Equation& eq,
     const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables,
     thrust::device_vector<real>& deviceVector) {
     const size_t size = conservedVariables.getScalarMemoryArea(0)->getSize();
     const size_t blockSize = 1024;
@@ -83,7 +84,7 @@ real computeWaveSpeedAndReduce(const Equation& eq,
     computeWaveSpeedDevice<Equation, direction> << < (size + blockSize - 1) /
         blockSize, blockSize >> > (eq,
             typename Equation::ConstViews(conservedVariables),
-            typename Equation::ConstViewsExtra(extraVariables), size,
+             size,
             thrust::raw_pointer_cast(&deviceVector[0]));
     CUDA_SAFE_CALL(cudaStreamSynchronize(0));
     // For now we simply use thrust to reduce.
@@ -99,7 +100,6 @@ real computeWaveSpeedAndReduce(const Equation& eq,
 template<class Equation>
 __global__ void checkObeysConstraintsDevice(Equation eq,
     typename Equation::ConstViews conserved,
-    typename Equation::ConstViewsExtra extra,
     size_t size, size_t* outputPointer) {
     size_t index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -107,9 +107,10 @@ __global__ void checkObeysConstraintsDevice(Equation eq,
         return;
     }
 
-    outputPointer[index] = eq.obeysConstraints(eq.fetchConservedVariables(conserved,
-                index),
-            eq.fetchExtraVariables(extra, index));
+
+    auto conservedStruct = eq.fetchConservedVariables(conserved, index);
+    auto extraStruct = eq.computeExtra(conservedStruct);
+    outputPointer[index] = eq.obeysConstraints(conservedStruct, extraStruct);
 }
 
 
@@ -119,7 +120,6 @@ __global__ void checkObeysConstraintsDevice(Equation eq,
 template<class Equation>
 bool checkObeysConstraintsAndReduce(const Equation& equation,
     const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables,
     thrust::device_vector<size_t>& deviceVector) {
 
     const size_t size = conservedVariables.getScalarMemoryArea(0)->getSize();
@@ -128,7 +128,7 @@ bool checkObeysConstraintsAndReduce(const Equation& equation,
 
     checkObeysConstraintsDevice<Equation> << < (size + blockSize - 1) / blockSize,
                                 blockSize >> > (equation, typename Equation::ConstViews(conservedVariables),
-                                    typename Equation::ConstViewsExtra(extraVariables),
+
                                     size, thrust::raw_pointer_cast(&deviceVector[0]));
     CUDA_SAFE_CALL(cudaStreamSynchronize(0));
     // For now we simply use thrust to reduce.
@@ -155,8 +155,7 @@ void CUDACellComputer<Equation>::computeExtraVariables(const volume::Volume&
 
 template<class Equation>
 real CUDACellComputer<Equation>::computeMaxWaveSpeed(const volume::Volume&
-    conservedVariables,
-    const volume::Volume& extraVariables, size_t direction) {
+    conservedVariables, size_t direction) {
 
     // We declare this static to avoid having to reallocate it every time,
     // and to avoid having to expose it in the class interface.
@@ -166,17 +165,17 @@ real CUDACellComputer<Equation>::computeMaxWaveSpeed(const volume::Volume&
 
     if (direction == 0) {
         return computeWaveSpeedAndReduce<Equation, 0>(equation, conservedVariables,
-                extraVariables, deviceVector);
+                deviceVector);
     }
 
     if (direction == 1) {
         return computeWaveSpeedAndReduce<Equation, 1>(equation, conservedVariables,
-                extraVariables, deviceVector);
+                deviceVector);
     }
 
     if (direction == 2) {
         return computeWaveSpeedAndReduce<Equation, 2>(equation, conservedVariables,
-                extraVariables, deviceVector);
+                deviceVector);
     }
 
     THROW("Unknown direction: " << direction);
@@ -192,20 +191,18 @@ real CUDACellComputer<Equation>::computeMaxWaveSpeed(const volume::Volume&
 ///
 template<class Equation>
 bool CUDACellComputer<Equation>::obeysConstraints(const volume::Volume&
-    conservedVariables,
-    const volume::Volume& extraVariables) {
+    conservedVariables) {
     static thrust::device_vector<size_t> deviceVector;
     deviceVector.resize(conservedVariables.getScalarMemoryArea(0)->getSize(), 0);
 
     return checkObeysConstraintsAndReduce<Equation>(equation, conservedVariables,
-            extraVariables, deviceVector);
+             deviceVector);
 }
 
 template<class Equation>
 void CUDACellComputer<Equation>::computeFromPrimitive(const volume::Volume&
     primitiveVariables,
-    volume::Volume& conservedVariables,
-    volume::Volume& extraVariables) {
+    volume::Volume& conservedVariables) {
     THROW("Unsupported operation. We do not support calculating primitive variables on the GPU, this should be done on the CPU for now.")
 }
 

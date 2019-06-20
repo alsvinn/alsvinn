@@ -73,19 +73,16 @@ std::vector<std::string> StructureBasicCUDA::getStatisticsNames() const {
 
 void StructureBasicCUDA::computeStatistics(const alsfvm::volume::Volume&
     conservedVariables,
-    const alsfvm::volume::Volume& extraVariables,
     const alsfvm::grid::Grid& grid,
     const alsfvm::simulator::TimestepInformation& timestepInformation) {
     auto& structure = this->findOrCreateSnapshot(statisticsName,
             timestepInformation,
-            conservedVariables, extraVariables,
+            conservedVariables,
             numberOfH, 1, 1, "cpu");
 
 
     computeStructure(*structure.getVolumes().getConservedVolume(),
         conservedVariables);
-    computeStructure(*structure.getVolumes().getExtraVolume(),
-        extraVariables);
 }
 
 void StructureBasicCUDA::finalizeStatistics() {

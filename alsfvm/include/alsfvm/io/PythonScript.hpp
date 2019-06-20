@@ -28,12 +28,10 @@ public:
     ///
     /// \brief write writes the data to disk
     /// \param conservedVariables the conservedVariables to write
-    /// \param extraVariables the extra variables to write
     /// \param grid the grid that is used (describes the _whole_ domain)
     /// \param timestepInformation
     ///
     virtual void write(const volume::Volume& conservedVariables,
-        const volume::Volume& extraVariables,
         const grid::Grid& grid,
         const simulator::TimestepInformation& timestepInformation);
 
@@ -55,16 +53,12 @@ private:
     boost::python::object classInstance;
 
     boost::python::dict datasetsConserved;
-    boost::python::dict datasetsExtra;
 
     std::vector<real*> rawPointersConserved;
-    std::vector<real*> rawPointersExtra;
 
-    void makeDatasets(const volume::Volume& conservedVariables,
-        const volume::Volume& extraVariables);
+    void makeDatasets(const volume::Volume& conservedVariables);
 
-    void copyToDatasets( const volume::Volume& conservedVariables,
-        const volume::Volume& extraVariables);
+    void copyToDatasets( const volume::Volume& conservedVariables);
 
     boost::python::object makeGrid(const grid::Grid& grid);
 

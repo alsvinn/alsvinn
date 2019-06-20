@@ -16,6 +16,8 @@
 #pragma once
 #include "alsuq/types.hpp"
 #include "alsfvm/memory/Memory.hpp"
+#include "alsutils/math/FastPower.hpp"
+#include "alsutils/math/PowPower.hpp"
 #include <functional>
 
 namespace alsuq {
@@ -78,17 +80,18 @@ __device__ __host__ void forEachPointInComputeStructureCube(
     }
 }
 
-__device__ __host__ void computeStructureCube(alsfvm::memory::View<real>&
+template<class PowerClass>
+__device__ __host__ void computeStructureCube(
+    alsfvm::memory::View<real>&
     output,
     const alsfvm::memory::View<const real>& input,
     int i, int j, int k, int h, int nx, int ny, int nz,
     int ngx, int ngy, int ngz, int dimensions, real p) {
-
     forEachPointInComputeStructureCube([&](double u, double u_h) {
-        output.at(h) += pow(fabs(u - u_h), p) / (nx * ny * nz);
+        output.at(h) += PowerClass::power(fabs(u - u_h), p) / (nx * ny * nz);
     }, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions);
-
 }
+
 }
 }
 

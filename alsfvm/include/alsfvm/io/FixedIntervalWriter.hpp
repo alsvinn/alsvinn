@@ -34,25 +34,24 @@ public:
     /// \param writer the underlying writer to actually use.
     /// \param timeInterval the time interval (will save for every time n*timeInterval)
     /// \param endTime the final time for the simulation.
+    /// \param writeInitialTimestep write the initial timestep
     ///
     FixedIntervalWriter(alsfvm::shared_ptr<Writer>& writer, real timeInterval,
-        real endTime);
+        real endTime, bool writeInitialTimestep = true);
 
     virtual ~FixedIntervalWriter() {}
     ///
     /// \brief write writes the data to disk
     /// \param conservedVariables the conservedVariables to write
-    /// \param extraVariables the extra variables to write
     /// \param grid the grid that is used (describes the _whole_ domain)
     /// \param timestepInformation
     ///
     virtual void write(const volume::Volume& conservedVariables,
-        const volume::Volume& extraVariables,
         const grid::Grid& grid,
-        const simulator::TimestepInformation& timestepInformation);
+        const simulator::TimestepInformation& timestepInformation) override;
 
     virtual real adjustTimestep(real dt,
-        const simulator::TimestepInformation& timestepInformation) const;
+        const simulator::TimestepInformation& timestepInformation) const override;
 
     virtual void finalize(const grid::Grid& grid,
         const simulator::TimestepInformation& timestepInformation) override;
@@ -60,6 +59,7 @@ private:
     alsfvm::shared_ptr<Writer> writer;
     const real timeInterval;
     size_t numberSaved;
+    const bool writeInitialTimestep;
 
 };
 } // namespace alsfvm

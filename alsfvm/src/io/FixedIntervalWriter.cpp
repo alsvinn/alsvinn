@@ -21,18 +21,22 @@ namespace alsfvm {
 namespace io {
 
 FixedIntervalWriter::FixedIntervalWriter(alsfvm::shared_ptr<Writer>& writer,
-    real timeInterval, real )
-    : writer(writer), timeInterval(timeInterval), numberSaved(0) {
+    real timeInterval, real, bool writeInitialTimestep )
+    : writer(writer), timeInterval(timeInterval), numberSaved(0),
+      writeInitialTimestep(writeInitialTimestep) {
+    if (!writeInitialTimestep) {
+        numberSaved = 1;
+    }
 
 }
 
 void FixedIntervalWriter::write(const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables, const grid::Grid& grid,
+    const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
     const real currentTime = timestepInformation.getCurrentTime();
 
     if (currentTime >= numberSaved * timeInterval) {
-        writer->write(conservedVariables, extraVariables, grid, timestepInformation);
+        writer->write(conservedVariables, grid, timestepInformation);
         numberSaved++;
     }
 

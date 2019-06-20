@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -72,16 +72,11 @@ TEST(LegendreTest, ConstantTest) {
 
     auto extraOut = alsfvm::volume::makeExtraVolume("cpu", "euler2", {1, 1, 1}, 0);
     extraOut->makeZero();
-    functional->operator ()(*conservedOut, *extraOut, *conservedIn, *extraIn, 0.5,
+    functional->operator ()(*conservedOut, *conservedIn, 0.5,
         grid);
 
     for (size_t var = 0; var < conservedOut->getNumberOfVariables(); ++var) {
         ASSERT_DOUBLE_EQ(0.5, conservedOut->getScalarMemoryArea(var)->getPointer()[0]);
     }
-
-    for (size_t var = 0; var < extraOut->getNumberOfVariables(); ++var) {
-        ASSERT_DOUBLE_EQ(0.5, extraOut->getScalarMemoryArea(var)->getPointer()[0]);
-    }
-
 
 }

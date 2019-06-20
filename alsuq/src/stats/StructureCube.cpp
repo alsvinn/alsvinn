@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,25 +36,48 @@ std::vector<std::string> StructureCube::getStatisticsNames() const {
 
 void StructureCube::computeStatistics(const alsfvm::volume::Volume&
     conservedVariables,
-    const alsfvm::volume::Volume& extraVariables,
     const alsfvm::grid::Grid& grid,
     const alsfvm::simulator::TimestepInformation& timestepInformation) {
     auto& structure = this->findOrCreateSnapshot(statisticsName,
             timestepInformation,
-            conservedVariables, extraVariables,
+            conservedVariables,
             numberOfH, 1, 1);
 
 
-    computeStructure(*structure.getVolumes().getConservedVolume(),
-        conservedVariables);
-    computeStructure(*structure.getVolumes().getExtraVolume(),
-        extraVariables);
+    if (p == 1.0) {
+        computeStructure < alsutils::math::FastPower<1>>
+            (*structure.getVolumes().getConservedVolume(),
+                conservedVariables);
+    } else if (p == 1.0) {
+        computeStructure < alsutils::math::FastPower<2>>
+            (*structure.getVolumes().getConservedVolume(),
+                conservedVariables);
+    }
+
+    else if (p == 3.0) {
+        computeStructure < alsutils::math::FastPower<3>>
+            (*structure.getVolumes().getConservedVolume(),
+                conservedVariables);
+    } else if (p == 4.0) {
+        computeStructure < alsutils::math::FastPower<4>>
+            (*structure.getVolumes().getConservedVolume(),
+                conservedVariables);
+    } else if (p == 5.0) {
+        computeStructure < alsutils::math::FastPower<5>>
+            (*structure.getVolumes().getConservedVolume(),
+                conservedVariables);
+    } else {
+        computeStructure < alsutils::math::PowPower>
+        (*structure.getVolumes().getConservedVolume(),
+            conservedVariables);
+    }
 }
 
 void StructureCube::finalizeStatistics() {
 
 }
 
+template<class PowerClass>
 void StructureCube::computeStructure(alsfvm::volume::Volume& output,
     const alsfvm::volume::Volume& input) {
     for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
@@ -74,7 +97,7 @@ void StructureCube::computeStructure(alsfvm::volume::Volume& output,
                 for (int i = 0; i < nx; ++i) {
                     for (int h = 1; h < numberOfH; ++h) {
 
-                        computeCube(outputView, inputView, i, j, k, h, nx, ny, nz,
+                        computeCube<PowerClass>(outputView, inputView, i, j, k, h, nx, ny, nz,
                             ngx, ngy, ngz, input.getDimensions());
 
                     }
@@ -86,12 +109,14 @@ void StructureCube::computeStructure(alsfvm::volume::Volume& output,
     }
 }
 
+template<class PowerClass>
 void StructureCube::computeCube(alsfvm::memory::View<real>& output,
     const alsfvm::memory::View<const real>& input,
     int i, int j, int k, int h, int nx, int ny, int nz,
     int ngx, int ngy, int ngz, int dimensions) {
 
-    computeStructureCube(output, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz,
+    computeStructureCube<PowerClass>(output, input, i, j, k, h, nx, ny, nz, ngx,
+        ngy, ngz,
         dimensions, p);
 }
 REGISTER_STATISTICS(cpu, structure_cube, StructureCube)

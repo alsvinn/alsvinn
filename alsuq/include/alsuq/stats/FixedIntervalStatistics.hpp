@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,9 +31,10 @@ public:
     /// \param writer the underlying writer to actually use.
     /// \param timeInterval the time interval (will save for every time n*timeInterval)
     /// \param endTime the final time for the simulation.
+    /// \param writeInitialTimestep write the first timestep
     ///
     FixedIntervalStatistics(alsfvm::shared_ptr<Statistics>& writer,
-        real timeInterval, real endTime);
+        real timeInterval, real endTime, bool writeInitialTimestep = true);
 
 
     virtual real adjustTimestep(real dt,
@@ -63,7 +64,6 @@ public:
 
 protected:
     virtual void computeStatistics(const alsfvm::volume::Volume& conservedVariables,
-        const alsfvm::volume::Volume& extraVariables,
         const alsfvm::grid::Grid& grid,
         const alsfvm::simulator::TimestepInformation& timestepInformation) override;
 
@@ -72,6 +72,7 @@ private:
     const real timeInterval;
     const real endTime;
     size_t numberSaved = 0;
+    const bool writeInitialTimestep;
 
 };
 } // namespace stats

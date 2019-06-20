@@ -81,9 +81,6 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
     auto conservedVolume = alsfvm::volume::makeConservedVolume(platform, equation, {nx, ny, nz},
             0);
 
-    auto extraVolume = alsfvm::volume::makeExtraVolume(platform, equation, {nx, ny, nz},
-            0);
-
 
     // Fill conservedVolume with some junk
     std::default_random_engine generator;
@@ -97,7 +94,7 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
         }
     }
 
-    return alsfvm::volume::VolumePair(conservedVolume, extraVolume);
+    return alsfvm::volume::VolumePair(conservedVolume);
 }
 
 int main(int argc, char** argv) {
@@ -156,7 +153,6 @@ int main(int argc, char** argv) {
     for (int sample = 0; sample < numberOfSamples; ++sample) {
         auto volumes = getSample(platform, equation, sample, nx, ny, nz);
         statistics->write(*volumes.getConservedVolume(),
-            *volumes.getExtraVolume(),
             grid,
             timestepInformation);
     }

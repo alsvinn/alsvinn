@@ -41,7 +41,6 @@ NetCDFMPIWriter::NetCDFMPIWriter(const std::string& basefileName,
 }
 
 void NetCDFMPIWriter::write(const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables,
     const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
 
@@ -84,7 +83,7 @@ void NetCDFMPIWriter::write(const volume::Volume& conservedVariables,
         NETCDF_SAFE_CALL(ncmpi_redef(file));
     }
 
-    writeToFile(file, conservedVariables, extraVariables,
+    writeToFile(file, conservedVariables,
         grid, timestepInformation, newFile);
 
     if (newFile) {
@@ -160,7 +159,6 @@ std::vector<netcdf_raw_ptr> NetCDFMPIWriter::makeDataset(
 
 void NetCDFMPIWriter::writeToFile(netcdf_raw_ptr file,
     const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables,
     const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation,
     bool newFile) {
@@ -170,11 +168,9 @@ void NetCDFMPIWriter::writeToFile(netcdf_raw_ptr file,
 
 
     auto datasetsConserved = makeDataset(file, conservedVariables, dimensions);
-    auto datasetsExtra = makeDataset(file, extraVariables, dimensions);
 
     NETCDF_SAFE_CALL(ncmpi_enddef(file));
     writeVolume(file, conservedVariables, dimensions, datasetsConserved, grid);
-    writeVolume(file, extraVariables, dimensions, datasetsExtra, grid);
 
 }
 

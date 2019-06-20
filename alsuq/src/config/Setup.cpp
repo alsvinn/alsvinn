@@ -266,6 +266,12 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(
         if (statisticsNode.second.find("numberOfSaves") !=
             statisticsNode.second.not_found()) {
 
+            bool writeInitialTimestep = true;
+
+            if (statisticsNode.second.find("writeInitialTimestep") !=
+                statisticsNode.second.not_found()) {
+                writeInitialTimestep = statisticsNode.second.get<bool>("writeInitialTimestep");
+            }
 
 
             auto numberOfSaves = statisticsNode.second.get<size_t>("numberOfSaves");
@@ -275,7 +281,7 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(
             auto statisticsInterval =
                 std::shared_ptr<stats::Statistics>(
                     new stats::FixedIntervalStatistics(statistics, timeInterval,
-                        endTime));
+                        endTime, writeInitialTimestep));
             statisticsVector.push_back(statisticsInterval);
         } else if (statisticsNode.second.find("time") !=
             statisticsNode.second.not_found()) {

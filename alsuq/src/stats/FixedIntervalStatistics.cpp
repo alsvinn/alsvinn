@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,8 +20,13 @@ namespace alsuq {
 namespace stats {
 
 FixedIntervalStatistics::FixedIntervalStatistics(alsfvm::shared_ptr<Statistics>&
-    statistics, real timeInterval, real endTime)
-    : statistics(statistics), timeInterval(timeInterval), endTime(endTime) {
+    statistics, real timeInterval, real endTime, bool writeInitialTimestep)
+    : statistics(statistics), timeInterval(timeInterval), endTime(endTime),
+      writeInitialTimestep(writeInitialTimestep) {
+
+    if (!writeInitialTimestep) {
+        numberSaved = 1;
+    }
 
 }
 
@@ -58,7 +63,6 @@ void FixedIntervalStatistics::finalizeStatistics() {
 
 void FixedIntervalStatistics::computeStatistics(const alsfvm::volume::Volume&
     conservedVariables,
-    const alsfvm::volume::Volume& extraVariables,
     const alsfvm::grid::Grid& grid,
     const alsfvm::simulator::TimestepInformation& timestepInformation) {
 
@@ -67,7 +71,7 @@ void FixedIntervalStatistics::computeStatistics(const alsfvm::volume::Volume&
 
     // First check if we have restarted
     if (currentTime == 0) {
-        numberSaved = 0;
+        numberSaved = size_t(!writeInitialTimestep);
     }
 
     if (currentTime >= numberSaved * timeInterval) {
@@ -75,7 +79,7 @@ void FixedIntervalStatistics::computeStatistics(const alsfvm::volume::Volume&
             << "\n\tnumberSaves = " << numberSaved
             << "\n\ttimeInterval = " << timeInterval
             << "\n\tendTime = " << endTime);
-        statistics->computeStatistics(conservedVariables, extraVariables, grid,
+        statistics->computeStatistics(conservedVariables, grid,
             timestepInformation);
         numberSaved++;
     }

@@ -30,7 +30,6 @@ NetCDFWriter::NetCDFWriter(const std::string& basefileName)
 }
 
 void NetCDFWriter::write(const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables,
     const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
     ALSVINN_TIME_BLOCK(alsvinn, fvm, io, netcdf);
@@ -45,19 +44,29 @@ void NetCDFWriter::write(const volume::Volume& conservedVariables,
         netcdfWriteAttributes(file, attribute.first, attribute.second);
     }
 
-    writeToFile(file, conservedVariables, extraVariables, grid,
+    // write current time
+    netcdf_raw_ptr timeDim;
+    NETCDF_SAFE_CALL(nc_def_dim(file, "t", 1, &timeDim));
+
+    netcdf_raw_ptr timeVar;
+    NETCDF_SAFE_CALL(nc_def_var(file, "time", NC_DOUBLE, 1, &timeDim,
+            &timeVar));
+
+    double currentTime = timestepInformation.getCurrentTime();
+    NETCDF_SAFE_CALL(nc_put_var_double(file, timeVar, &currentTime));
+
+
+    writeToFile(file, conservedVariables, grid,
         timestepInformation);
     NETCDF_SAFE_CALL(nc_close(file));
 }
 
 void NetCDFWriter::writeToFile(netcdf_raw_ptr file,
     const volume::Volume& conservedVariables,
-    const volume::Volume& extraVariables,
     const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
     auto dimensions = createDimensions(file, conservedVariables);
     writeVolume(file, conservedVariables, dimensions);
-    writeVolume(file, extraVariables, dimensions);
 
 }
 

@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -45,16 +45,15 @@ void CPUCellComputer<Equation>::computeExtraVariables(const volume::Volume&
 
 template<class Equation>
 real CPUCellComputer<Equation>::computeMaxWaveSpeed(const volume::Volume&
-    conservedVariables,
-    const volume::Volume& extraVariables, size_t direction) {
+    conservedVariables, size_t direction) {
     Equation eq(parameters);
     real maxWaveSpeed = 0;
     assert(direction < 3);
-    volume::for_each_cell<typename Equation::ConservedVariables,
-           typename Equation::ExtraVariables>(conservedVariables,
-               extraVariables, [&maxWaveSpeed, direction,
-                                  &eq](const typename Equation::ConservedVariables & conserved,
-    const typename Equation::ExtraVariables & extra, size_t index) {
+    volume::for_each_cell<typename Equation::ConservedVariables>(conservedVariables,
+        [&maxWaveSpeed, direction,
+                   &eq](const typename Equation::ConservedVariables & conserved, size_t index) {
+        auto extra = eq.computeExtra(conserved);
+
         if (direction == 0) {
             const real waveSpeedX = eq.template computeWaveSpeed<0>(conserved, extra);
             maxWaveSpeed = std::max(maxWaveSpeed, waveSpeedX);
@@ -79,15 +78,16 @@ real CPUCellComputer<Equation>::computeMaxWaveSpeed(const volume::Volume&
 ///
 template<class Equation>
 bool CPUCellComputer<Equation>::obeysConstraints(const volume::Volume&
-    conservedVariables,
-    const volume::Volume& extraVariables) {
+    conservedVariables) {
 
     bool obeys = true;
     Equation eq(parameters);
-    volume::for_each_cell<typename Equation::ConservedVariables,
-           typename Equation::ExtraVariables>(conservedVariables, extraVariables, [&obeys,
-                   &eq](const typename Equation::ConservedVariables & conserved,
-    const typename Equation::ExtraVariables & extra, size_t index) {
+
+    volume::for_each_cell<typename Equation::ConservedVariables>(conservedVariables,
+        [&obeys,
+            &eq](const typename Equation::ConservedVariables & conserved,
+    size_t index) {
+        const auto extra = eq.computeExtra(conserved);
         // Check for nan and inf:
         const real* conservedAsRealPtr = (const real*)&conserved;
 
@@ -127,17 +127,8 @@ bool CPUCellComputer<Equation>::obeysConstraints(const volume::Volume&
 template<class Equation>
 void CPUCellComputer<Equation>::computeFromPrimitive(const volume::Volume&
     primitiveVariables,
-    volume::Volume& conservedVariables,
-    volume::Volume& extraVariables) {
+    volume::Volume& conservedVariables) {
     Equation eq(parameters);
-    volume::transform_volume<typename Equation::PrimitiveVariables,
-           typename Equation::ExtraVariables>(
-               primitiveVariables, extraVariables,
-               [&](const typename Equation::PrimitiveVariables & in)
-    -> typename Equation::ExtraVariables {
-        return eq.computeExtra(in);
-    });
-
 
     volume::transform_volume<typename Equation::PrimitiveVariables,
            typename Equation::ConservedVariables>(
