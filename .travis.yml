@@ -117,6 +117,20 @@ script:
   - PYTHONPATH=$PYTHONPATH:./python python3.7 ../python/test/test_commit_sha.py
   - PYTHONPATH=$PYTHONPATH:./python python3.7 ../python/test/test_text_cache.py
   - PYTHONPATH=$PYTHONPATH:./python python3.7 ../python/test/test_number_of_saves.py
+
+  # Make sure it compiles with single precisison
+  - mkdir build_float
+  - cd build_float
+  - cmake .. -DALSVINN_USE_FLOAT=ON -DALSVINN_PYTHON_VERSION=3.7 -DCMAKE_CXX_COMPILER=$(which ${CXX}) -DCMAKE_BUILD_TYPE=${ALSVINN_BUILD_TYPE} -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} -DALSVINN_USE_CUDA=OFF -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}
+  - make install
+  # test
+  - ./test/library_tests/alstest
+  # Test python
+  - PYTHONPATH=$PYTHONPATH:./python python3.7 ../python/test/test_python_interface.py
+  - PYTHONPATH=$PYTHONPATH:./python python3.7 ../python/test/test_commit_sha.py
+  - PYTHONPATH=$PYTHONPATH:./python python3.7 ../python/test/test_text_cache.py
+  - PYTHONPATH=$PYTHONPATH:./python python3.7 ../python/test/test_number_of_saves.py
+
   # make sure we can build examples
   - cd ${TRAVIS_BUILD_DIR}/library_examples/alsuq/only_statistics
   - mkdir build

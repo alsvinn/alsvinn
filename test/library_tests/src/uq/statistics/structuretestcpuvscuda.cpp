@@ -211,7 +211,7 @@ TEST_F(StructureTestCPUvsCUDA, TestConstant) {
 TEST_F(StructureTestCPUvsCUDA, TestIndex) {
     // Cell i,j,k gets the value k * nx * ny + j * nx + i
 
-    std::vector<double> input(volumeConservedCPU->getTotalNumberOfXCells()
+    std::vector<alsfvm::real> input(volumeConservedCPU->getTotalNumberOfXCells()
         *volumeConservedCPU->getTotalNumberOfYCells()
         *volumeConservedCPU->getTotalNumberOfZCells(), 0.0);
 
@@ -276,7 +276,7 @@ TEST_F(StructureTestCPUvsCUDA, TestRandom) {
             for (size_t var = 0; var < volumes[volumeIndex]->getNumberOfVariables();
                 ++var) {
 
-                std::vector<double> input(volumeConservedCPU->getTotalNumberOfXCells()
+                std::vector<alsfvm::real> input(volumeConservedCPU->getTotalNumberOfXCells()
                     *volumeConservedCPU->getTotalNumberOfYCells()
                     *volumeConservedCPU->getTotalNumberOfZCells(), 0.0);
 
