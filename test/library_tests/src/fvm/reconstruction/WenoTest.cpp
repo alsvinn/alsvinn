@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,6 +22,7 @@
 #include "alsfvm/reconstruction/WENOCoefficients.hpp"
 #include "alsfvm/reconstruction/ReconstructionFactory.hpp"
 
+#define TOLERANCE (std::is_same<alsfvm::real, float>::value ? 2e-6 : 1e-8)
 using namespace alsfvm;
 using namespace alsfvm::memory;
 using namespace alsfvm::volume;
@@ -158,17 +159,17 @@ TEST(WenoTest, ConstantOneTestSecondOrder) {
     const int ngy =  wenoCPU->getNumberOfGhostCells();
     const int ngz = 0;
     for_each_cell_index(*left, [&](size_t middle ) {
-        ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, left->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, left->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, left->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(10, left->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(1)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(2)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(3)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(10, left->getScalarMemoryArea(4)->getPointer()[middle], TOLERANCE);
 
-        ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, right->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(10, right->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(1)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(10, right->getScalarMemoryArea(4)->getPointer()[middle], TOLERANCE);
     }, {ngx - 1, ngy, ngz}, {ngx - 1, ngy, ngz});
 }
 
@@ -210,17 +211,17 @@ TEST(WenoTest, ConstantOneTestThirdOrder) {
     const int ngy =  wenoCPU->getNumberOfGhostCells();
     const int ngz = 0;
     for_each_cell_index(*left, [&](size_t middle ) {
-        ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, left->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, left->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, left->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(10, left->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(1)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(2)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(3)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(10, left->getScalarMemoryArea(4)->getPointer()[middle], TOLERANCE);
 
-        ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, right->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(10, right->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(1)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle], TOLERANCE);
+        ASSERT_NEAR(10, right->getScalarMemoryArea(4)->getPointer()[middle], TOLERANCE);
     }, {ngx - 1, ngy, ngz}, {ngx - 1, ngy, ngz});
 }
 
@@ -291,9 +292,9 @@ TEST(WenoTest, ReconstructionSimple) {
     const real omega1Tilde = alpha1Tilde / alphaTildeSum;
 
     ASSERT_NEAR(omega0 * right1 + omega1 * right2,
-        right->getScalarMemoryArea("rho")->getPointer()[2], 1e-8);
+        right->getScalarMemoryArea("rho")->getPointer()[2], TOLERANCE);
     ASSERT_NEAR(omega0Tilde * left1 + omega1Tilde * left2,
-        left->getScalarMemoryArea("rho")->getPointer()[2], 1e-8);
+        left->getScalarMemoryArea("rho")->getPointer()[2], TOLERANCE);
 
 }
 
@@ -366,9 +367,9 @@ TEST(WenoTest, ReconstructionSimpleYDirection) {
     const real omega1Tilde = alpha1Tilde / alphaTildeSum;
 
     ASSERT_NEAR(omega0 * right1 + omega1 * right2,
-        right->getScalarMemoryArea("rho")->getPointer()[3 + 2 * totalNx], 1e-8);
+        right->getScalarMemoryArea("rho")->getPointer()[3 + 2 * totalNx], TOLERANCE);
     ASSERT_NEAR(omega0Tilde * left1 + omega1Tilde * left2,
-        left->getScalarMemoryArea("rho")->getPointer()[3 + 2 * totalNx], 1e-8);
+        left->getScalarMemoryArea("rho")->getPointer()[3 + 2 * totalNx], TOLERANCE);
 
 }
 

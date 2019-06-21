@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,6 +24,7 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/lu.hpp>
 #include "utils/polyfit.hpp"
+#include "alsutils/config.hpp"
 using namespace alsfvm;
 using namespace alsfvm::memory;
 using namespace alsfvm::volume;
@@ -179,8 +180,8 @@ TEST_P(BurgersReconstructionConvergenceTest, ReconstructionTest) {
         return (-cos(2 * M_PI * b) + cos(2 * M_PI * a)) / (2 * M_PI * (b - a)) + 2;
     };
 
-    const size_t startK = 5;
-    const size_t endK = 15;
+    const size_t startK = std::is_same<real, float>::value ? 3 : 5;
+    const size_t endK = std::is_same<real, float>::value ? 9 : 15;
 
     const real expectedConvergenceRate = parameters.expectedConvergenceRate;
     const real expectedLInftyConvergenceRate =
@@ -188,11 +189,11 @@ TEST_P(BurgersReconstructionConvergenceTest, ReconstructionTest) {
 
 
 
-    std::vector<real> L1Left;
-    std::vector<real> L1Right;
-    std::vector<real> LInftyLeft;
-    std::vector<real> LInftyRight;
-    std::vector<real> resolutions;
+    std::vector<double> L1Left;
+    std::vector<double> L1Right;
+    std::vector<double> LInftyLeft;
+    std::vector<double> LInftyRight;
+    std::vector<double> resolutions;
 
     for (size_t k = startK; k < endK; ++k) {
 
@@ -231,25 +232,26 @@ TEST_P(BurgersReconstructionConvergenceTest, ReconstructionTest) {
         left->copyTo(*leftCPU);
         right->copyTo(*rightCPU);
 
-        real L1DifferenceLeft = 0.0;
-        real L1DifferenceRight = 0.0;
-        real LInftyDifferenceLeft = 0.0;
-        real LInftyDifferenceRight = 0.0;
+        double L1DifferenceLeft = 0.0;
+        double L1DifferenceRight = 0.0;
+        double LInftyDifferenceLeft = 0.0;
+        double LInftyDifferenceRight = 0.0;
 
         for (int x = 0; x < int(nx); ++x) {
-            const real a = x * dx;
-            const real b = (x + 1) * dx;
+            const double a = x * dx;
+            const double b = (x + 1) * dx;
 
             const size_t index = conservedView.index(x + numberOfGhostCells, 0, 0);
 
-            const real leftValue = leftCPU->getScalarMemoryArea("u")->getPointer()[index];
-            const real rightValue = rightCPU->getScalarMemoryArea("u")->getPointer()[index];
-            const real differenceLeft = std::abs(leftValue - f(a));
+            const double leftValue = leftCPU->getScalarMemoryArea("u")->getPointer()[index];
+            const double rightValue =
+                rightCPU->getScalarMemoryArea("u")->getPointer()[index];
+            const double differenceLeft = std::abs(leftValue - f(a));
 
             L1DifferenceLeft += differenceLeft;
             LInftyDifferenceLeft = std::max(LInftyDifferenceLeft, differenceLeft);
 
-            const real differenceRight = std::abs(rightValue - f(b));
+            const double differenceRight = std::abs(rightValue - f(b));
             L1DifferenceRight += differenceRight;
             LInftyDifferenceRight = std::max(LInftyDifferenceRight, differenceRight);
 
@@ -272,15 +274,32 @@ TEST_P(BurgersReconstructionConvergenceTest, ReconstructionTest) {
             LInftyRight)[0]);
 }
 
+#ifdef ALSVINN_USE_FLOAT
+
+INSTANTIATE_TEST_CASE_P(ReconstructionTests,
+    BurgersReconstructionConvergenceTest,
+    ::testing::Values(
+        ReconstructionParameters(2.5,  1.9, "weno2", "cuda"),
+        ReconstructionParameters(2.5,  1.9, "weno2", "cpu"),
+        ReconstructionParameters(1.9,  1.9, "eno2", "cpu"),
+        ReconstructionParameters(2.9,  2.7, "eno3", "cpu"),
+        ReconstructionParameters(1.9,  1.9, "eno2", "cuda"),
+        ReconstructionParameters(2.9,  2.7, "eno3", "cuda"),
+        ReconstructionParameters(0.9, .9, "none", "cpu"),
+        ReconstructionParameters(0.9, .9, "none", "cuda")
+    ));
+
+#else
 INSTANTIATE_TEST_CASE_P(ReconstructionTests,
     BurgersReconstructionConvergenceTest,
     ::testing::Values(
         ReconstructionParameters(2.99,  2.99, "weno2", "cuda"),
         ReconstructionParameters(2.99,  2.99, "weno2", "cpu"),
-        ReconstructionParameters(1.98,  1.99, "eno2", "cpu"),
-        ReconstructionParameters(2.95,  2.99, "eno3", "cpu"),
-        ReconstructionParameters(1.98,  1.99, "eno2", "cuda"),
-        ReconstructionParameters(2.95,  2.99, "eno3", "cuda"),
-        ReconstructionParameters(0.999, .999, "none", "cpu"),
-        ReconstructionParameters(0.999, .999, "none", "cuda")
+        ReconstructionParameters(1.99,  1.99, "eno2", "cpu"),
+        ReconstructionParameters(2.99,  2.99, "eno3", "cpu"),
+        ReconstructionParameters(1.99,  1.99, "eno2", "cuda"),
+        ReconstructionParameters(2.99,  2.99, "eno3", "cuda"),
+        ReconstructionParameters(0.99, .99, "none", "cpu"),
+        ReconstructionParameters(0.99, .99, "none", "cuda")
     ));
+#endif

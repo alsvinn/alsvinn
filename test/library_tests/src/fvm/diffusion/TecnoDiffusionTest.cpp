@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -179,8 +179,10 @@ TEST_P(TecnoDiffusionTest, OrderTest) {
     std::vector<std::vector<real>> errors;
     std::vector<std::vector<real>> resolutions;
 
-    const int minK = 5;
-    const int maxK = 14;
+
+    const int minK = std::is_same<real, float>::value ? 3 : 5;
+    const int maxK = std::is_same<real, float>::value ? 9 : 14;
+
 
     for (int k = minK; k < maxK; ++k) {
 

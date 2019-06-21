@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -17,6 +17,7 @@
 #include "alsfvm/integrator/IntegratorFactory.hpp"
 #include <cmath>
 #include "utils/polyfit.hpp"
+#include "alsutils/config.hpp"
 using namespace alsfvm;
 using namespace alsfvm::integrator;
 using namespace alsfvm::numflux;
@@ -93,12 +94,16 @@ TEST_P(IntegratorConvergenceTest, ConvergenceTest) {
         (configuration);
 
 
-    std::vector<real> errors;
-    std::vector<real> resolutions;
+    std::vector<double> errors;
+    std::vector<double> resolutions;
 
-    for (size_t k = 3; k < 9; ++k) {
+
+    const size_t startK = std::is_same<real, float>::value ? 3 : 5;
+    const size_t endK = std::is_same<real, float>::value ? 9 : 15;
+
+    for (size_t k = startK; k < endK; ++k) {
         const size_t N = (2 << k);
-        const real dt = real(1) / real(N);
+        const double dt = real(1) / real(N);
         alsfvm::shared_ptr<System> flux(new ODESystem(dt));
 
         IntegratorFactory integratorFactory(name);
@@ -147,7 +152,7 @@ TEST_P(IntegratorConvergenceTest, ConvergenceTest) {
     ASSERT_LE(expectedConvergenceRate, -linearFit(resolutions, errors)[0]);
 
 }
-
+#ifndef ALSVINN_USE_FLOAT
 INSTANTIATE_TEST_CASE_P(IntegratorConvergenceTests,
     IntegratorConvergenceTest,
     ::testing::Values(
@@ -155,5 +160,16 @@ INSTANTIATE_TEST_CASE_P(IntegratorConvergenceTests,
         IntegratorParameters("rungekutta2", 1.9),
         IntegratorParameters("rungekutta3", 2.9),
         IntegratorParameters("rungekutta4", 3.9)
+    ));
+#else
+INSTANTIATE_TEST_CASE_P(IntegratorConvergenceTests,
+    IntegratorConvergenceTest,
+    ::testing::Values(
+        IntegratorParameters("forwardeuler", 0.9),
+        IntegratorParameters("rungekutta2", 1.8)
+        // RK 3 and RK4 are just too accurate for float to be measured
 
     ));
+#endif
+
+
