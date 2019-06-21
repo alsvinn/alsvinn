@@ -184,6 +184,7 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
 
     for (int var = 0; var < conservedVolume->getNumberOfVariables(); ++var) {
         auto name = conservedVolume->getName(var);
+        std::cout << name << std::endl;
         auto variableName = std::string("sample_") + std::to_string(
                 sample) + "_" + name;
 
@@ -191,8 +192,15 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
         netcdf_raw_ptr varid;
         NETCDF_SAFE_CALL(nc_inq_varid(file, variableName.c_str(), &varid));
 
+        // nc_inq_typeid does not seem to work, so using this:
         netcdf_raw_ptr netcdftype;
-        NETCDF_SAFE_CALL(nc_inq_typeid(file, variableName.c_str(), &netcdftype));
+        NETCDF_SAFE_CALL(nc_inq_var (file,
+                varid,
+                nullptr,
+                &netcdftype,
+                NULL,
+                NULL,
+                NULL));
 
         std::vector<::alsfvm::real> buffer (nx * ny * nz);
 
