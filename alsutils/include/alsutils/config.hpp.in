@@ -7,7 +7,6 @@
 #ifndef COMPILING_ALSVINN
 #cmakedefine ALSVINN_HAVE_CUDA 1
 #cmakedefine ALSVINN_USE_MPI 1
-#cmakedefine ALSVINN_USE_FLOAT
 #endif
 
 #define ALSVINN_HAS_CONFIG 1
