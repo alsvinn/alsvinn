@@ -14,6 +14,7 @@
  */
 
 #pragma once
+#include "alsfvm/types.hpp"
 #include "alsutils/error/Exception.hpp"
 #include <netcdf.h>
 
@@ -29,7 +30,50 @@ namespace alsfvm {
 namespace io {
 typedef int netcdf_raw_ptr;
 
+
+
+template<class RealType>
+struct NetCDFType {
+    using type = double;
+};
+
+
+template<>
+struct NetCDFType<float> {
+    using type = float;
+};
+
+//! Gets the type corresponding to the alsfvm::real type
+inline netcdf_raw_ptr getNetcdfRealType() {
+    if (std::is_same<NetCDFType<real>::type, double>::value) {
+        return NC_DOUBLE;
+    } else if ((std::is_same<NetCDFType<real>::type, float>::value)) {
+        return NC_FLOAT;
+    }
+
+    return NC_DOUBLE;
+}
+
+//! Wrapper function for nc_put_var_double
+template<class RealType>
+typename std::enable_if<std::is_same<RealType, double>::value, int>::type
+nc_put_var_real(
+    int ncid, int varid, const RealType* op) {
+    return nc_put_var_double(ncid, varid, op);
+
+}
+
+//! Wrapper function for nc_put_var_double
+template<class RealType>
+typename std::enable_if<std::is_same<RealType, float>::value, int>::type
+nc_put_var_real(
+    int ncid, int varid, const RealType* op) {
+    return nc_put_var_float(ncid, varid, op);
+
+}
+
+}
+
 }
 
 
-}

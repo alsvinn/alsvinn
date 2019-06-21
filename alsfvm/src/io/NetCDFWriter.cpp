@@ -99,10 +99,11 @@ void NetCDFWriter::writeMemory(netcdf_raw_ptr baseGroup, netcdf_raw_ptr dataset,
 
     volume.copyInternalCells(memoryIndex, dataTmp.data(), dataTmp.size());
 
-    std::vector<double> data(dataTmp.size());
+    std::vector<NetCDFType<real>::type> data(dataTmp.size());
     std::copy(dataTmp.begin(), dataTmp.end(), data.begin());
 
-    NETCDF_SAFE_CALL(nc_put_var_double(baseGroup, dataset, data.data()));
+    NETCDF_SAFE_CALL(::alsfvm::io::nc_put_var_real(baseGroup, dataset,
+            data.data()));
 }
 
 
@@ -125,7 +126,7 @@ std::pair<netcdf_raw_ptr, netcdf_raw_ptr> NetCDFWriter::makeDataset(
 
     netcdf_raw_ptr datasetId;
     NETCDF_SAFE_CALL(nc_def_var(baseGroup, volume.getName(memoryIndex).c_str(),
-            NC_DOUBLE, 3, dimensions.data(), &datasetId));
+            getNetcdfRealType(), 3, dimensions.data(), &datasetId));
     return std::make_pair(baseGroup, datasetId);
 
 }

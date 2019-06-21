@@ -1,3 +1,4 @@
+ALSVINN_USE_FLOAT=("${ALSVINN_USE_FLOAT}".lower() == "on")
 ALSVINN_PATH="${CMAKE_SOURCE_DIR}"
 ALSVINNCLI_PATH="${CMAKE_BINARY_DIR}/alsvinncli/alsvinncli"
 ALSUQCLI_PATH="${CMAKE_BINARY_DIR}/alsuqcli/alsuqcli"
