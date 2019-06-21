@@ -55,7 +55,8 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 
 import subprocess
-subprocess.call(['doxygen', 'Doxyfile'],
+
+subprocess.call(['doxygen', 'Doxyfile_readthedocs'],
                 cwd='../')
 
 
