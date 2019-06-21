@@ -195,7 +195,6 @@ install(FILES
     ${CMAKE_CURRENT_LIST_DIR}/cmake/netcdf.cmake
     ${CMAKE_CURRENT_LIST_DIR}/cmake/hdf5.cmake
     ${CMAKE_CURRENT_LIST_DIR}/cmake/mpi.cmake
-    ${CMAKE_CURRENT_LIST_DIR}/cmake/python.cmake
     ${CMAKE_CURRENT_LIST_DIR}/cmake/cub.cmake
     ${CMAKE_CURRENT_LIST_DIR}/cmake/Modules/FindNetCDF.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/AlsvinnConfig.cmake
