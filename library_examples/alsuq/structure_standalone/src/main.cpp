@@ -184,10 +184,10 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
 
     for (int var = 0; var < conservedVolume->getNumberOfVariables(); ++var) {
         auto name = conservedVolume->getName(var);
-        std::cout << name << std::endl;
+
         auto variableName = std::string("sample_") + std::to_string(
                 sample) + "_" + name;
-
+        ALSVINN_LOG(INFO, "Reading " << variableName)
 
         netcdf_raw_ptr varid;
         NETCDF_SAFE_CALL(nc_inq_varid(file, variableName.c_str(), &varid));
