@@ -61,4 +61,4 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/alsutils/config.hpp.in
 ${CMAKE_CURRENT_BINARY_DIR}/include/alsutils/config.hpp ESCAPE_QUOTES)
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/alsutils/config.hpp
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/alsutils/config.hpp)
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/alsutils/)
