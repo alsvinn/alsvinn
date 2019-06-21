@@ -15,6 +15,7 @@
 
 #include "gtest/gtest.h"
 #include "alsfvm/grid/Grid.hpp"
+#define TOLERANCE (std::is_same<alsfvm::real, float>::value ? 1e-7 : 1e-8)
 using namespace alsfvm;
 
 TEST(GridTest, GetterTest) {
@@ -38,8 +39,8 @@ TEST(GridTest, CellLengthsTest) {
 
     grid::Grid grid(origin, top, dimensions);
 
-    ASSERT_EQ(1. / 30.0, grid.getCellLengths().x);
-    ASSERT_EQ(1. / 30.0, grid.getCellLengths().y);
+    ASSERT_EQ(real(1. / 30.0), grid.getCellLengths().x);
+    ASSERT_EQ(real(1. / 30.0), grid.getCellLengths().y);
 }
 
 TEST(GridTest, MidPointTest2D) {
@@ -58,8 +59,8 @@ TEST(GridTest, MidPointTest2D) {
 
             const size_t index = y * 30 + x;
 
-            ASSERT_NEAR(midpointX, midPoints[index].x, 1e-8);
-            ASSERT_NEAR(midpointY, midPoints[index].y, 1e-8);
+            ASSERT_NEAR(midpointX, midPoints[index].x, TOLERANCE);
+            ASSERT_NEAR(midpointY, midPoints[index].y, TOLERANCE);
         }
     }
 }
@@ -84,9 +85,9 @@ TEST(GridTest, MidPointTest3D) {
 
                 const size_t index = z * N * N + y * N  + x;
 
-                ASSERT_NEAR(midpointX, midPoints[index].x, 1e-8);
-                ASSERT_NEAR(midpointY, midPoints[index].y, 1e-8);
-                ASSERT_NEAR(midpointZ, midPoints[index].z, 1e-8);
+                ASSERT_NEAR(midpointX, midPoints[index].x, TOLERANCE);
+                ASSERT_NEAR(midpointY, midPoints[index].y, TOLERANCE);
+                ASSERT_NEAR(midpointZ, midPoints[index].z, TOLERANCE);
             }
         }
     }

@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,7 +40,7 @@ TEST(EnoTest, CoefficientsTest) {
         ASSERT_NEAR(1.0, ENOCoeffiecients<3>::coefficients[r][0]
             + ENOCoeffiecients<3>::coefficients[r][1]
             + ENOCoeffiecients<3>::coefficients[r][2],
-            1e-8) << " ENO Coefficients did not sum to 1 for r = " << r << ", order = 3";
+            2e-7) << " ENO Coefficients did not sum to 1 for r = " << r << ", order = 3";
     }
 }
 
@@ -201,17 +201,17 @@ TEST(EnoTest, ConstantOneTestThirdOrder) {
     const int ngz = 0;
 
     for_each_cell_index(*left, [&]( size_t middle ) {
-        ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, left->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, left->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, left->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(10, left->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle], 2e-6);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(1)->getPointer()[middle], 2e-6);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(2)->getPointer()[middle], 2e-6);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(3)->getPointer()[middle], 2e-6);
+        ASSERT_NEAR(10, left->getScalarMemoryArea(4)->getPointer()[middle], 2e-6);
 
-        ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, right->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(10, right->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle], 2e-6);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(1)->getPointer()[middle], 2e-6);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(2)->getPointer()[middle], 2e-6);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(3)->getPointer()[middle], 2e-6);
+        ASSERT_NEAR(10, right->getScalarMemoryArea(4)->getPointer()[middle], 2e-6);
     }, {ngx - 1, ngy, ngz}, {ngx - 1, ngy, ngz});
 }
 

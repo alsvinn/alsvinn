@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,8 +24,9 @@
 //! \note THIS IS ONLY FOR UNITTESTS!
 
 namespace alsfvm {
-inline std::array<real, 2> linearFit(const std::vector<real>& x,
-    const std::vector<real>& y) {
+template<class T>
+inline std::array<T, 2> linearFit(const std::vector<T>& x,
+    const std::vector<T>& y) {
     const size_t N = x.size();
 
     // We will solve Ab = c, where
@@ -37,8 +38,8 @@ inline std::array<real, 2> linearFit(const std::vector<real>& x,
     //    [y_1]
     // c= [...]
     //    [y_N]
-    boost::numeric::ublas::matrix<real> A(N, 1 + 1);
-    boost::numeric::ublas::matrix<real> c(N, 1);
+    boost::numeric::ublas::matrix<T> A(N, 1 + 1);
+    boost::numeric::ublas::matrix<T> c(N, 1);
 
     for (size_t i = 0; i < N; ++i) {
         c(i, 0) = y[i];
@@ -46,9 +47,9 @@ inline std::array<real, 2> linearFit(const std::vector<real>& x,
         A(i, 0) = x[i];
     }
 
-    boost::numeric::ublas::matrix<real> AT(trans(A));
-    boost::numeric::ublas::matrix<real> ATA(prec_prod(AT, A));
-    boost::numeric::ublas::matrix<real> ATc(prec_prod(AT, c));
+    boost::numeric::ublas::matrix<T> AT(trans(A));
+    boost::numeric::ublas::matrix<T> ATA(prec_prod(AT, A));
+    boost::numeric::ublas::matrix<T> ATc(prec_prod(AT, c));
 
     boost::numeric::ublas::permutation_matrix<int> permutationMatrix(ATA.size1());
 
@@ -58,6 +59,6 @@ inline std::array<real, 2> linearFit(const std::vector<real>& x,
 
     boost::numeric::ublas::lu_substitute(ATA, permutationMatrix, ATc);
 
-    return std::array < real, 1 + 1 > ({{ ATc(0, 0), ATc(1, 0) }});
+    return std::array < T, 1 + 1 > ({{ ATc(0, 0), ATc(1, 0) }});
 }
 }

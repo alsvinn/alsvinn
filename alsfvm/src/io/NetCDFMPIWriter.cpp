@@ -21,6 +21,7 @@
 #include "alsfvm/io/parallel_netcdf_write_attributes.hpp"
 #include <boost/filesystem.hpp>
 #include "alsutils/timer/Timer.hpp"
+#include "alsfvm/io/parallel_netcdf_utils.hpp"
 
 #include <fstream>
 
@@ -144,7 +145,8 @@ std::vector<netcdf_raw_ptr> NetCDFMPIWriter::makeDataset(
             auto memoryName = groupnamePrefix + volume.getName(memoryIndex) ;
 
 
-            NETCDF_SAFE_CALL(ncmpi_def_var(baseGroup, memoryName.c_str(), NC_DOUBLE, 3,
+            NETCDF_SAFE_CALL(ncmpi_def_var(baseGroup, memoryName.c_str(),
+                    getNetcdfRealType(), 3,
                     dimensions.data(), &dataset));
 
             if (groupName == groupNames[groupIndex]) {
@@ -185,7 +187,7 @@ void NetCDFMPIWriter::writeMemory(netcdf_raw_ptr baseGroup,
     //auto volumeCPU = const_cast<volume::Volume&>(volume).getCopyOnCPU();
     volume.copyInternalCells(memoryIndex, dataTmp.data(), dataTmp.size());
 
-    std::vector<double> data(dataTmp.size());
+    std::vector<::alsfvm::io::NetCDFType<real>::type> data(dataTmp.size());
     std::copy(dataTmp.begin(), dataTmp.end(), data.begin());
 
 
@@ -209,7 +211,7 @@ void NetCDFMPIWriter::writeMemory(netcdf_raw_ptr baseGroup,
 
     }
 
-    NETCDF_SAFE_CALL(ncmpi_put_vara_double_all(baseGroup, dataset,
+    NETCDF_SAFE_CALL(::alsfvm::io::ncmpi_put_vara_real_all(baseGroup, dataset,
             globalPosition.data(),
             localSize.data(),
             data.data()));

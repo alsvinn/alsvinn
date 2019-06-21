@@ -94,7 +94,7 @@ TEST(PythonInitialDataTest, ParameterTest) {
     parameters.addParameter("vectorParameter", { 44., 45., 45.5, 46 });
     // Fill every variable with 42
     const std::string pythonCode =
-        "rho = nonVector\nux=vectorParameter[0]\nuy=vectorParameter[1]\nuz=vectorParameter[2]\np=vectorParameter[3]+len(vectorParameter)";
+        "rho = float(nonVector)\nux=float(vectorParameter[0])\nuy=float(vectorParameter[1])\nuz=float(vectorParameter[2])\np=float(vectorParameter[3]+len(vectorParameter))";
 
     PythonInitialData initialData(pythonCode, parameters);
 
@@ -214,14 +214,16 @@ TEST(PythonInitialDataTest, SineCosineExp) {
 
     volume::for_each_midpoint(*volumePrimitive, grid, [&](real x, real y, real z,
     size_t index) {
-        ASSERT_EQ(std::sin(x),
+        ASSERT_FLOAT_EQ(std::sin(x),
             volumePrimitive->getScalarMemoryArea("rho")->getPointer()[index]);
-        ASSERT_EQ(std::cos(x),
+        ASSERT_FLOAT_EQ(std::cos(x),
             volumePrimitive->getScalarMemoryArea("ux")->getPointer()[index]);
-        ASSERT_EQ(std::exp(x),
+        ASSERT_FLOAT_EQ(std::exp(x),
             volumePrimitive->getScalarMemoryArea("uy")->getPointer()[index]);
-        ASSERT_EQ(x, volumePrimitive->getScalarMemoryArea("uz")->getPointer()[index]);
-        ASSERT_EQ(y, volumePrimitive->getScalarMemoryArea("p")->getPointer()[index]);
+        ASSERT_FLOAT_EQ(x,
+            volumePrimitive->getScalarMemoryArea("uz")->getPointer()[index]);
+        ASSERT_FLOAT_EQ(y,
+            volumePrimitive->getScalarMemoryArea("p")->getPointer()[index]);
 
     });
 

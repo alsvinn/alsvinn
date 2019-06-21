@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -140,9 +140,9 @@ TEST(BurgersWenoTest, ConstantOneTestSecondOrder) {
     const int ngy =  wenoCPU->getNumberOfGhostCells();
     const int ngz = 0;
     for_each_cell_index(*left, [&]( size_t middle ) {
-        ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle], 2e-7);
 
-        ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle], 2e-7);
 
     }, {ngx - 1, ngy, ngz}, {ngx - 1, ngy, ngz});
 }
@@ -181,9 +181,9 @@ TEST(BurgersWenoTest, ConstantOneTestThirdOrder) {
     const int ngy =  wenoCPU->getNumberOfGhostCells();
     const int ngz = 0;
     for_each_cell_index(*left, [&]( size_t middle ) {
-        ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, left->getScalarMemoryArea(0)->getPointer()[middle], 2e-7);
 
-        ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1, right->getScalarMemoryArea(0)->getPointer()[middle], 2e-7);
 
     }, {ngx - 1, ngy, ngz}, {ngx - 1, ngy, ngz});
 }
@@ -251,9 +251,9 @@ TEST(BurgersWenoTest, ReconstructionSimple) {
     const real omega1Tilde = alpha1Tilde / alphaTildeSum;
 
     ASSERT_NEAR(omega0 * right1 + omega1 * right2,
-        right->getScalarMemoryArea("u")->getPointer()[2], 1e-8);
+        right->getScalarMemoryArea("u")->getPointer()[2], 2e-7);
     ASSERT_NEAR(omega0Tilde * left1 + omega1Tilde * left2,
-        left->getScalarMemoryArea("u")->getPointer()[2], 1e-8);
+        left->getScalarMemoryArea("u")->getPointer()[2], 2e-7);
 
 }
 
@@ -322,9 +322,9 @@ TEST(BurgersWenoTest, ReconstructionSimpleYDirection) {
     const real omega1Tilde = alpha1Tilde / alphaTildeSum;
 
     ASSERT_NEAR(omega0 * right1 + omega1 * right2,
-        right->getScalarMemoryArea("u")->getPointer()[3 + 2 * totalNx], 1e-8);
+        right->getScalarMemoryArea("u")->getPointer()[3 + 2 * totalNx], 2e-7);
     ASSERT_NEAR(omega0Tilde * left1 + omega1Tilde * left2,
-        left->getScalarMemoryArea("u")->getPointer()[3 + 2 * totalNx], 1e-8);
+        left->getScalarMemoryArea("u")->getPointer()[3 + 2 * totalNx], 2e-7);
 
 }
 

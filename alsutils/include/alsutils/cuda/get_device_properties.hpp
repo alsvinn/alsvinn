@@ -14,6 +14,7 @@
  */
 
 #pragma once
+#include "alsutils/config.hpp"
 #ifdef ALSVINN_HAVE_CUDA
     #include <cuda_runtime.h>
 #endif

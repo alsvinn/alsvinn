@@ -77,7 +77,8 @@ TEST_F(TestExtraComputation, CheckExtraCalculation) {
     for_each_cell<euler::ExtraVariables<3>>(*extraVolume, [&](
     const euler::ExtraVariables<3>& in, size_t index) {
         ASSERT_EQ(in.u, rvec3(2, 2, 2));
-        ASSERT_EQ(in.p, (eulerParameters.getGamma() - 1) * (4.4 - 0.5 * 3 / 0.5));
+        ASSERT_FLOAT_EQ(in.p, real((eulerParameters.getGamma() - 1) *
+                (4.4 - 0.5 * 3 / 0.5)));
     });
 
 }
@@ -99,21 +100,24 @@ TEST_F(TestExtraComputation, CheckMaximumWaveSpeed) {
         real maxWaveSpeed = cellComputer->computeMaxWaveSpeed(*conservedVolume,
                 0);
 
-        ASSERT_EQ(maxWaveSpeed, 2 + sqrt(gamma * (gamma - 1) * (4.4 - 0.5 * 3 / 0.5) /
+        ASSERT_FLOAT_EQ(maxWaveSpeed,
+            2 + sqrt(gamma * (gamma - 1) * (4.4 - 0.5 * 3 / 0.5) /
                 0.5));
     }
 
     {
         real maxWaveSpeed = cellComputer->computeMaxWaveSpeed(*conservedVolume, 1);
 
-        ASSERT_EQ(maxWaveSpeed, 2 + sqrt(gamma * (gamma - 1) * (4.4 - 0.5 * 3 / 0.5) /
+        ASSERT_FLOAT_EQ(maxWaveSpeed,
+            2 + sqrt(gamma * (gamma - 1) * (4.4 - 0.5 * 3 / 0.5) /
                 0.5));
     }
 
     {
         real maxWaveSpeed = cellComputer->computeMaxWaveSpeed(*conservedVolume, 2);
 
-        ASSERT_EQ(maxWaveSpeed, 2 + sqrt(gamma * (gamma - 1) * (4.4 - 0.5 * 3 / 0.5) /
+        ASSERT_FLOAT_EQ(maxWaveSpeed,
+            2 + sqrt(gamma * (gamma - 1) * (4.4 - 0.5 * 3 / 0.5) /
                 0.5));
     }
 }

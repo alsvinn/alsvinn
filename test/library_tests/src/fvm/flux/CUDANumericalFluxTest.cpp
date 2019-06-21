@@ -26,6 +26,9 @@
 #include "alsfvm/boundary/BoundaryFactory.hpp"
 #include "alsfvm/cuda/cuda_utils.hpp"
 
+
+#define TOLERANCE (std::is_same<alsfvm::real, float>::value ? 2e-5 : 1e-8)
+
 using namespace alsfvm::numflux;
 using namespace alsfvm;
 using namespace alsfvm::volume;
@@ -336,7 +339,7 @@ TEST_P(CUDANumericalFluxTest, CompareAgainstCPU) {
                 for (size_t i = 2; i < nx - 1; i++) {
 
                     if (std::abs(outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k) -
-                            outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k)) > 1e-8) {
+                            outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k)) > TOLERANCE) {
                         for (size_t var = 0; var < output->getNumberOfVariables(); ++var) {
                             std::cout << "CPU(" << outputCPU->getName(var) << ") = " <<
                                 outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k) << std::endl;
@@ -350,7 +353,7 @@ TEST_P(CUDANumericalFluxTest, CompareAgainstCPU) {
                     }
 
                     ASSERT_NEAR(outputCPU->getScalarMemoryArea(n)->getView().at(i, j, k),
-                        outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k), 1e-8)
+                        outputCPUfromGPU->getScalarMemoryArea(n)->getView().at(i, j, k), TOLERANCE)
                             << "Consistency check failed at (" << i << ", " << j << ", " << k << ")";
                 }
             }

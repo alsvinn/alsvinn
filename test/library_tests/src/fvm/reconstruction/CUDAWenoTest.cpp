@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -153,17 +153,17 @@ TEST_F(CUDAWenoTest, ConstantOneTestSecondOrder) {
     right->copyTo(*rightCPU);
 
     for_each_cell_index(*left, [&](size_t middle) {
-        ASSERT_NEAR(1,  leftCPU->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1,  leftCPU->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1,  leftCPU->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1,  leftCPU->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(10, leftCPU->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1,  leftCPU->getScalarMemoryArea(0)->getPointer()[middle], 2e-7);
+        ASSERT_NEAR(1,  leftCPU->getScalarMemoryArea(1)->getPointer()[middle], 2e-7);
+        ASSERT_NEAR(1,  leftCPU->getScalarMemoryArea(2)->getPointer()[middle], 2e-7);
+        ASSERT_NEAR(1,  leftCPU->getScalarMemoryArea(3)->getPointer()[middle], 2e-7);
+        ASSERT_NEAR(10, leftCPU->getScalarMemoryArea(4)->getPointer()[middle], 2e-7);
 
-        ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(0)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(1)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(2)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(3)->getPointer()[middle], 1e-8);
-        ASSERT_NEAR(10, rightCPU->getScalarMemoryArea(4)->getPointer()[middle], 1e-8);
+        ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(0)->getPointer()[middle], 2e-7);
+        ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(1)->getPointer()[middle], 2e-7);
+        ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(2)->getPointer()[middle], 2e-7);
+        ASSERT_NEAR(1,  rightCPU->getScalarMemoryArea(3)->getPointer()[middle], 2e-7);
+        ASSERT_NEAR(10, rightCPU->getScalarMemoryArea(4)->getPointer()[middle], 2e-7);
     }, {ngx - 1, ngy, ngz}, {ngx - 1, ngy, ngz});
 }
 

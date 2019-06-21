@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -17,6 +17,7 @@
 #include "alsfvm/equation/euler/Euler.hpp"
 #include "utils/polyfit.hpp"
 #include "alsfvm/diffusion/RoeMatrix.hpp"
+#define TOLERANCE (std::is_same<alsfvm::real, float>::value ? 4e-6 : 1e-6)
 
 using namespace alsfvm;
 using namespace alsfvm::equation::euler;
@@ -83,13 +84,16 @@ struct EulerEigenVectorTest : public ::testing::Test {
     void testJacobian() {
         // Should converge with rate 1
 
-        std::vector<real> resolutions;
-        std::vector<real> errors;
+        std::vector<double> resolutions;
+        std::vector<double> errors;
 
-        for (int k = 3; k < 25; ++k) {
-            real error = 0;
+        const size_t startK = std::is_same<real, float>::value ? 3 : 3;
+        const size_t endK = std::is_same<real, float>::value ? 9 : 25;
+
+        for (int k = startK; k < endK; ++k) {
+            double error = 0;
             int N = 2 << k;
-            real h = 1.0 / N;
+            double h = 1.0 / N;
             state_matrix approx;
 
             for (int c = 0; c < d + 2; ++c) {
@@ -152,7 +156,8 @@ struct EulerEigenVectorTest : public ::testing::Test {
             }
 
             for (int j = 0; j < d + 2; ++j) {
-                EXPECT_NEAR(eigenValues[i] * eigenVector[j], eigenVectorMultipliedByA[j], 1e-6)
+                EXPECT_NEAR(eigenValues[i] * eigenVector[j], eigenVectorMultipliedByA[j],
+                    TOLERANCE)
                         << "Mismatch eigenvector " << i << ", component " << j << std::endl
                             << "\teigenVector = " << eigenVector.str() << std::endl
                             << "\teigenValue  = " << eigenValues[i] << std::endl

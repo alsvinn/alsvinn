@@ -36,7 +36,7 @@ if(${ALSVINN_USE_CUDA})
 	find_package(CUDA REQUIRED)
 endif()
 INCLUDE("cmake/version.cmake")      
-ADD_DEFINITIONS(-DCOMPILING_ALSVINN)
+
 
 MACRO(set_source_groups  folder_name directory source_files)
 	foreach(f ${source_files})
@@ -84,7 +84,7 @@ SET(ALSVINN_BOOST_NUMPY "numpy${ALSVINN_PYTHON_VERSION_PURE}")
 MARK_AS_ADVANCED(ALSVINN_BOOST_NUMPY)
 
 
-ADD_DEFINITIONS(-DMPICH_RDMA_ENABLED_CUDA=1)
+#ADD_DEFINITIONS(-DMPICH_RDMA_ENABLED_CUDA=1)
 FIND_PACKAGE(OpenMP REQUIRED)
 
 add_compile_options($<$<COMPILE_LANGUAGE:CXX>:${OpenMP_CXX_FLAGS}>)
@@ -115,17 +115,6 @@ else()
     find_package(Boost REQUIRED COMPONENTS filesystem thread system chrono date_time program_options log log_setup ${ALSVINN_BOOST_PYTHON} ${ALSVINN_BOOST_NUMPY})
 endif()
 
-
-if (NOT ALSVINN_USE_HUNTER)
-	add_definitions(-DBOOST_LOG_DYN_LINK)
-endif()
-
-IF(WIN32)
-	add_definitions(-DBOOST_ALL_NO_LIB=1)
-endif()
-
-
-
 find_package (Threads)
 include("cmake/hdf5.cmake")
 include("cmake/netcdf.cmake")
@@ -143,11 +132,6 @@ if(ALSVINN_USE_CUDA)
         set(CMAKE_CUDA_FLAGS "--use_fast_math -Xptxas -warn-spills -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 ${CUDA_TURING_FLAGS} -gencode arch=compute_61,code=sm_61" )
 	set(CMAKE_CUDA_FLAGS_DEBUG "-G -g -O0 -lineinfo -src-in-ptx -Xptxas --device-debug,-O0")
 	set(ALSVINN_HAVE_CUDA On)
-	add_definitions(-DALSVINN_HAVE_CUDA)
-endif()
-
-if(ALSVINN_USE_FLOAT)
-	ADD_DEFINITIONS(-DALSVINN_USE_FLOAT)
 endif()
 
 

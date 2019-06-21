@@ -13,6 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "alsutils/config.hpp"
 #include "alsutils/make_basic_report.hpp"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/chrono.hpp>

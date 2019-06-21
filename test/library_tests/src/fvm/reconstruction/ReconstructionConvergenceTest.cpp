@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,6 +22,7 @@
 #include "alsfvm/equation/euler/EulerParameters.hpp"
 #include "alsfvm/boundary/BoundaryFactory.hpp"
 #include "utils/polyfit.hpp"
+#include "alsutils/config.hpp"
 using namespace alsfvm;
 using namespace alsfvm::memory;
 using namespace alsfvm::volume;
@@ -166,30 +167,30 @@ TEST_P(ReconstructionConvergenceTest, ReconstructionTest) {
     // with values rho[x] = sin(x) + 2
     // (note: we add the + 2 to make sure we always have positive density)
 
-    auto f = [](real x) {
+    auto f = [](double x) {
         return sin(2 * M_PI * x) + 2;
     };
 
     // Integral of f / dx
     // where dx = b - a
-    auto averageIntegralF = [](real a, real b) {
+    auto averageIntegralF = [](double a, double b) {
         return (-cos(2 * M_PI * b) + cos(2 * M_PI * a)) / (2 * M_PI * (b - a)) + 2;
     };
 
-    const size_t startK = 5;
-    const size_t endK = 15;
+    const size_t startK = std::is_same<real, float>::value ? 3 : 5;
+    const size_t endK = std::is_same<real, float>::value ? 9 : 15;
 
-    const real expectedConvergenceRate = parameters.expectedConvergenceRate;
-    const real expectedLInftyConvergenceRate =
+    const double expectedConvergenceRate = parameters.expectedConvergenceRate;
+    const double expectedLInftyConvergenceRate =
         parameters.expectedLInftyConvergenceRate;
 
 
 
-    std::vector<real> L1Left;
-    std::vector<real> L1Right;
-    std::vector<real> LInftyLeft;
-    std::vector<real> LInftyRight;
-    std::vector<real> resolutions;
+    std::vector<double> L1Left;
+    std::vector<double> L1Right;
+    std::vector<double> LInftyLeft;
+    std::vector<double> LInftyRight;
+    std::vector<double> resolutions;
 
     for (size_t k = startK; k < endK; ++k) {
 
@@ -197,12 +198,12 @@ TEST_P(ReconstructionConvergenceTest, ReconstructionTest) {
         resolutions.push_back(std::log2(n));
         makeReconstruction(parameters.name, n);
         const size_t numberOfGhostCells = wenoCUDA->getNumberOfGhostCells();
-        const real dx = grid.getCellLengths().x;
+        const double dx = grid.getCellLengths().x;
         auto conservedView = conservedCPU->getScalarMemoryArea("rho")->getView();
 
         for (int x = 0; x < int(nx); ++x) {
-            const real a = x * dx;
-            const real b = (x + 1) * dx;
+            const double a = x * dx;
+            const double b = (x + 1) * dx;
 
             const size_t index = conservedView.index(x + numberOfGhostCells, 0, 0);
             equation::euler::PrimitiveVariables<3> primitiveVariables;
@@ -237,26 +238,27 @@ TEST_P(ReconstructionConvergenceTest, ReconstructionTest) {
         left->copyTo(*leftCPU);
         right->copyTo(*rightCPU);
 
-        real L1DifferenceLeft = 0.0;
-        real L1DifferenceRight = 0.0;
-        real LInftyDifferenceLeft = 0.0;
-        real LInftyDifferenceRight = 0.0;
+        double L1DifferenceLeft = 0.0;
+        double L1DifferenceRight = 0.0;
+        double LInftyDifferenceLeft = 0.0;
+        double LInftyDifferenceRight = 0.0;
 
         for (size_t x = 0; x < nx; ++x) {
-            const real a = x * dx;
-            const real b = (x + 1) * dx;
+            const double a = x * dx;
+            const double b = (x + 1) * dx;
 
             const size_t index = conservedView.index(x + numberOfGhostCells, 0, 0);
 
-            const real leftValue = leftCPU->getScalarMemoryArea("rho")->getPointer()[index];
-            const real rightValue =
+            const double leftValue =
+                leftCPU->getScalarMemoryArea("rho")->getPointer()[index];
+            const double rightValue =
                 rightCPU->getScalarMemoryArea("rho")->getPointer()[index];
-            const real differenceLeft = std::abs(leftValue - f(a));
+            const double differenceLeft = std::abs(leftValue - f(a));
 
             L1DifferenceLeft += differenceLeft;
             LInftyDifferenceLeft = std::max(LInftyDifferenceLeft, differenceLeft);
 
-            const real differenceRight = std::abs(rightValue - f(b));
+            const double differenceRight = std::abs(rightValue - f(b));
             L1DifferenceRight += differenceRight;
             LInftyDifferenceRight = std::max(LInftyDifferenceRight, differenceRight);
 
@@ -279,6 +281,26 @@ TEST_P(ReconstructionConvergenceTest, ReconstructionTest) {
             LInftyRight)[0]);
 }
 
+#ifdef ALSVINN_USE_FLOAT
+
+INSTANTIATE_TEST_CASE_P(ReconstructionTests,
+    ReconstructionConvergenceTest,
+    ::testing::Values(
+        ReconstructionParameters(1.9,  1.9, "weno2", "cuda"),
+        ReconstructionParameters(1.9,  1.9, "mc", "cuda"),
+        ReconstructionParameters(1.9,  1.9, "mc", "cpu"),
+        ReconstructionParameters(1.9,  1.9, "weno2", "cpu"),
+        ReconstructionParameters(1.9,  1.9, "wenof2", "cpu"),
+        ReconstructionParameters(1.9,   1.9, "wenof2", "cuda"),
+        ReconstructionParameters(1.9,  1.9, "eno2", "cpu"),
+        ReconstructionParameters(2.9,  2.7, "eno3", "cpu"),
+        ReconstructionParameters(1.9, 1.9, "eno2", "cuda"),
+        ReconstructionParameters(2.9, 2.7, "eno3", "cuda"),
+        ReconstructionParameters(0.9, .9, "none", "cpu"),
+        ReconstructionParameters(0.9, .9, "none", "cuda")
+    ));
+#else
+
 INSTANTIATE_TEST_CASE_P(ReconstructionTests,
     ReconstructionConvergenceTest,
     ::testing::Values(
@@ -295,3 +317,4 @@ INSTANTIATE_TEST_CASE_P(ReconstructionTests,
         ReconstructionParameters(0.999, .999, "none", "cpu"),
         ReconstructionParameters(0.999, .999, "none", "cuda")
     ));
+#endif

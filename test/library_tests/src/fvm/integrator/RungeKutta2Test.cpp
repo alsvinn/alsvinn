@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 #include "alsfvm/integrator/RungeKutta2.hpp"
 #include <cmath>
+#define TOLERANCE (std::is_same<alsfvm::real, float>::value ? 0.1 : 5e-2)
 using namespace alsfvm;
 using namespace alsfvm::integrator;
 using namespace alsfvm::numflux;
@@ -60,14 +61,16 @@ TEST(RungeKutta2Test, ConvergenceTest) {
         (configuration);
 
 
-    std::vector<real> errors;
+    std::vector<double> errors;
     std::vector<int> resolutions;
+    const size_t startK = std::is_same<real, float>::value ? 3 : 5;
+    const size_t endK = std::is_same<real, float>::value ? 7 : 14;
 
-    for (size_t k = 3; k < 14; ++k) {
+    for (size_t k = startK; k < endK; ++k) {
 
 
         const size_t N = (2 << k);
-        const real dt = real(1) / real(N);
+        const double dt = double(1) / real(N);
         alsfvm::shared_ptr<System> flux(new ODESystem(dt));
 
         RungeKutta2 integrator(flux);
@@ -114,7 +117,7 @@ TEST(RungeKutta2Test, ConvergenceTest) {
 
     for (size_t i = 1; i < errors.size(); ++i) {
         EXPECT_NEAR((std::log(errors[i]) - std::log(errors[i - 1])) / (std::log(
-                    resolutions[i]) - std::log(resolutions[i - 1])), -2, 5e-2);
+                    resolutions[i]) - std::log(resolutions[i - 1])), -2, TOLERANCE);
     }
 
 

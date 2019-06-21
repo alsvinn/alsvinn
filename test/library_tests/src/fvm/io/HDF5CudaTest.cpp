@@ -13,6 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "alsutils/config.hpp"
 #include "gtest/gtest.h"
 #ifdef ALSVINN_HAVE_CUDA
 #include <vector>
