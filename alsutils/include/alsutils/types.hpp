@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,6 +26,7 @@
 #include <complex>
 
 #include <memory>
+#include "alsutils/config.hpp"
 namespace alsfvm {
 using std::shared_ptr;
 using std::make_shared;
@@ -61,9 +62,9 @@ using std::dynamic_pointer_cast;
 
 namespace alsutils {
 #ifndef ALSVINN_USE_FLOAT
-typedef double real;
+    typedef double real;
 #else
-typedef float real;
+    typedef float real;
 #endif
 
 typedef vec1<real> rvec1;

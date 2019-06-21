@@ -13,6 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "alsutils/config.hpp"
 #include <gtest/gtest.h>
 #include "alsfvm/types.hpp"
 #include "alsfvm/diffusion/DiffusionFactory.hpp"
@@ -111,7 +112,8 @@ public:
 
     alsfvm::shared_ptr<boundary::BoundaryFactory> boundaryFactory;
     alsfvm::shared_ptr<alsfvm::equation::CellComputer> cellComputer;
-    std::tuple<grid::Grid, alsfvm::shared_ptr<volume::Volume>, alsfvm::shared_ptr<diffusion::DiffusionOperator> > makeSetup(
+    std::tuple<grid::Grid, alsfvm::shared_ptr<volume::Volume>, alsfvm::shared_ptr<diffusion::DiffusionOperator> >
+    makeSetup(
         size_t nx) {
         auto grid = grid::Grid(rvec3(0., 0., 0.), rvec3(1., 0., 0.), ivec3(nx, 1, 1));
 

@@ -13,6 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "alsutils/config.hpp"
 #include <gtest/gtest.h>
 #include "alsfvm/reconstruction/ReconstructionFactory.hpp"
 #include "alsfvm/volume/VolumeFactory.hpp"

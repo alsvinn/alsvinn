@@ -4,10 +4,7 @@
 #include <sstream>
 #include <fstream>
 
-#ifndef COMPILING_ALSVINN
-#cmakedefine ALSVINN_HAVE_CUDA 1
-#cmakedefine ALSVINN_USE_MPI 1
-#endif
+
 
 #define ALSVINN_HAS_CONFIG 1
 
@@ -15,6 +12,8 @@
 #define ALSVINN_MINOR_VERSION @ALSVINN_MINOR_VERSION@
 #define ALSVINN_PATCH_VERSION @ALSVINN_PATCH_VERSION@
 
+#cmakedefine ALSVINN_HAVE_CUDA 1
+#cmakedefine ALSVINN_USE_MPI 1
 #cmakedefine ALSVINN_USE_TIMERS 1
 #cmakedefine ALSVINN_USE_CUDA_TIMERS 1
 #cmakedefine ALSVINN_PRINT_MEMORY_ALLOCATIONS 1

@@ -161,7 +161,7 @@ alsfvm::simulator::TimestepInformation getTimestepInformation(
         if (variableType == NC_DOUBLE) {
             NETCDF_SAFE_CALL(nc_get_var_double(file, variableId, &time));
 
-            std::cout << "Time is " << time << std::endl;
+            ALSVINN_LOG(INFO, "Time is " << time)
         }
     }
 
@@ -191,9 +191,26 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
         netcdf_raw_ptr varid;
         NETCDF_SAFE_CALL(nc_inq_varid(file, variableName.c_str(), &varid));
 
-        std::vector<double> buffer(nx * ny * nz);
+        netcdf_raw_ptr netcdftype;
+        NETCDF_SAFE_CALL(nc_inq_typeid(file, variableName.c_str(), &netcdftype));
 
-        NETCDF_SAFE_CALL(nc_get_var_double(file, varid, buffer.data()));
+        std::vector<::alsfvm::real> buffer (nx * ny * nz);
+
+        if (netcdftype == NC_DOUBLE) {
+            std::vector<double> bufferTmp(nx * ny * nz);
+
+            NETCDF_SAFE_CALL(nc_get_var_double(file, varid, bufferTmp.data()));
+
+            std::copy(bufferTmp.begin(), bufferTmp.end(), buffer.begin());
+
+        } else if (netcdftype == NC_FLOAT) {
+            std::vector<float> bufferTmp(nx * ny * nz);
+
+            NETCDF_SAFE_CALL(nc_get_var_float(file, varid, bufferTmp.data()));
+
+            std::copy(bufferTmp.begin(), bufferTmp.end(), buffer.begin());
+
+        }
 
         conservedVolume->getScalarMemoryArea(var)->copyFromHost(buffer.data(),
             buffer.size());
@@ -201,14 +218,14 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
 
     NETCDF_SAFE_CALL(nc_close(file));
 
-    std::cout << "Read sample" << std::endl;
+    ALSVINN_LOG(INFO, "Read sample")
 
     auto end = std::chrono::high_resolution_clock::now();
 
-    std::cout << "Reading sample took: " <<
+    ALSVINN_LOG(INFO, "Reading sample took: " <<
         std::chrono::duration_cast<std::chrono::duration<double>>
-        (end - start).count() << " s" <<
-        std::endl;
+        (end - start).count() << " s")
+
     return alsfvm::volume::VolumePair(conservedVolume);
 
 }
@@ -216,6 +233,9 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
 int main(int argc, char** argv) {
     alsutils::mpi::setCudaDevice();
     MPI_Init(&argc, &argv);
+
+
+
 
     using namespace boost::program_options;
     options_description description;
@@ -336,19 +356,26 @@ int main(int argc, char** argv) {
     const auto sampleStart = rank * samplesPerProcessor;
     const auto sampleEnd = (rank + 1) * samplesPerProcessor;
 
+
+    alsutils::log::setLogFile("structure_standalone_mpi_log_"
+        + std::to_string(p) + "_"
+        + std::to_string(timestepInformation.getCurrentTime()) + "_"
+        + std::to_string(rank)
+        + ".txt");
+
     for (int sample = sampleStart; sample < sampleEnd; ++sample) {
         auto start = std::chrono::high_resolution_clock::now();
-        std::cout << "sample: " << sample << std::endl;
+        ALSVINN_LOG(INFO, "sample: " << sample)
         auto volumes = getSample(platform, equation, sample, filenameInput, nx, ny, nz);
 
         statistics->write(*volumes.getConservedVolume(),
             grid,
             timestepInformation);
         auto end = std::chrono::high_resolution_clock::now();
-        std::cout << "Computing sample took: " <<
+
+        ALSVINN_LOG(INFO, "Computing sample took: " <<
             std::chrono::duration_cast<std::chrono::duration<double>>
-            (end - start).count() << " s" <<
-            std::endl;
+            (end - start).count() << " s")
     }
 
     statistics->combineStatistics();
