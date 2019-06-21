@@ -20,7 +20,7 @@ endif()
 
 
 
-find_package(PythonLibs REQUIRED)
+find_package(Python  REQUIRED)
 if ("@ALSVINN_USE_MPI@" STREQUAL "ON")
     find_package(MPI REQUIRED)
     include("${alsvinn_CMAKE_DIR}/mpi.cmake")
@@ -28,7 +28,7 @@ endif()
 if("@ALSVINN_USE_CUDA@" STREQUAL "ON")
     include("${alsvinn_CMAKE_DIR}/cub.cmake")
 endif()
-
+find_package(Python "@ALSVINN_PYTHON_VERSION@" REQUIRED COMPONENTS Development)
 include("${alsvinn_CMAKE_DIR}/hdf5.cmake")
 
 include("${alsvinn_CMAKE_DIR}/netcdf.cmake")
