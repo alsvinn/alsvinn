@@ -5,8 +5,8 @@ include(CMakeFindDependencyMacro)
 SET(ALSVINN_PYTHON_VERSION "@ALSVINN_PYTHON_VERSION@")
 SET(ALSVINN_BOOST_PYTHON "@ALSVINN_BOOST_PYTHON@")
 SET(ALSVINN_BOOST_NUMPY "@ALSVINN_BOOST_NUMPY@")
+find_package(Python "${ALSVINN_PYTHON_VERSION}" REQUIRED COMPONENTS Development)
 
-find_package(PythonLibs ${ALSVINN_PYTHON_VERSION} REQUIRED)
 
 if("@ALSVINN_USE_HUNTER_FOR_BOOST@" STREQUAL "ON" AND "@ALSVINN_USE_HUNTER@" STREQUAL "ON")
    hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log python)
@@ -20,7 +20,7 @@ endif()
 
 
 
-find_package(Python  REQUIRED)
+
 if ("@ALSVINN_USE_MPI@" STREQUAL "ON")
     find_package(MPI REQUIRED)
     include("${alsvinn_CMAKE_DIR}/mpi.cmake")
@@ -28,12 +28,10 @@ endif()
 if("@ALSVINN_USE_CUDA@" STREQUAL "ON")
     include("${alsvinn_CMAKE_DIR}/cub.cmake")
 endif()
-find_package(Python "@ALSVINN_PYTHON_VERSION@" REQUIRED COMPONENTS Development)
+
 include("${alsvinn_CMAKE_DIR}/hdf5.cmake")
 
 include("${alsvinn_CMAKE_DIR}/netcdf.cmake")
-include("${alsvinn_CMAKE_DIR}/python.cmake")
-
 
 if(NOT TARGET alsvinn::alsutils)
     include("${alsvinn_CMAKE_DIR}/AlsvinnTargets.cmake")
