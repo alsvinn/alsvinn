@@ -99,7 +99,7 @@ TEST_P(IntegratorConvergenceTest, ConvergenceTest) {
 
 
     const size_t startK = std::is_same<real, float>::value ? 3 : 5;
-    const size_t endK = std::is_same<real, float>::value ? 9 : 15;
+    const size_t endK = std::is_same<real, float>::value ? 9 : 9;
 
     for (size_t k = startK; k < endK; ++k) {
         const size_t N = (2 << k);
