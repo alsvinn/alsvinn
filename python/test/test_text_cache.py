@@ -105,8 +105,8 @@ else:
         absolute_path_python = os.path.abspath(pythonname)
         absolute_path_xml = os.path.abspath(xmlname)
 
-        absolute_path_python_attr = absolute_path_python.replace("/", "_dash_")
-        absolute_path_xml_attr = absolute_path_xml.replace("/", "_dash_")
+        absolute_path_python_attr = absolute_path_python.replace("/", "_dash_").replace('.', '_DOT_')
+        absolute_path_xml_attr = absolute_path_xml.replace("/", "_dash_").replace('.', '_DOT_')
 
         python_key = f"alsvinn_report.loadedTextFiles.{absolute_path_python_attr}"
         xml_key = f"alsvinn_report.loadedTextFiles.{absolute_path_xml_attr}"
