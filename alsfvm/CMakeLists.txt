@@ -82,7 +82,7 @@ target_link_libraries(alsfvm
   MPI::MPI_C
   Boost::date_time	
   hdf5::HDF5_C
-  python::PythonLibs
+  Python::Python
   ${CUDA_LIBRARIES}
   ${OpenMP_CXX_LIB_NAMES}
   netcdf::NetCDF4_c

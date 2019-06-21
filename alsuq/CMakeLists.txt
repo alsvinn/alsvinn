@@ -51,7 +51,7 @@ TARGET_LINK_LIBRARIES(alsuq
   Boost::date_time	
   MPI::MPI_C
   hdf5::HDF5_C
-  python::PythonLibs
+  Python::Python
   netcdf::NetCDF4_c
   netcdf::parallel_NetCDF4_c
   ${CUDA_LIBRARIES})

@@ -30,6 +30,7 @@
 #include "alsutils/io/TextFileCache.hpp"
 #include <boost/filesystem.hpp>
 
+#include "alsutils/get_python_version.hpp"
 #ifdef ALSVINN_HAVE_CUDA
     #include "alsutils/cuda/get_device_properties.hpp"
 #endif
@@ -122,9 +123,15 @@ boost::property_tree::ptree makeBasicReport() {
         // We need to remove dashes in filename
         auto filenameWithoutDashes = boost::algorithm::replace_all_copy(filename, "/",
                 "_dash_");
-        propertyTree.put("report.loadedTextFiles." + filenameWithoutDashes,
+        auto filenameWithEscapedDots = boost::algorithm::replace_all_copy(
+                filenameWithoutDashes, ".",
+                "_DOT_");
+        propertyTree.put("report.loadedTextFiles." + filenameWithEscapedDots,
             textCache.loadTextFile(filename));
     }
+
+
+    propertyTree.put("report.pythonVersion", getPythonVersion());
 
     return propertyTree;
 }

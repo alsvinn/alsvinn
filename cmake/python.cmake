@@ -1,5 +1,0 @@
-find_package(PythonLibs REQUIRED)
-add_library(python::PythonLibs SHARED IMPORTED)
-set_property(TARGET python::PythonLibs PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${PYTHON_INCLUDE_DIRS})
-set_property(TARGET python::PythonLibs PROPERTY IMPORTED_LOCATION ${PYTHON_LIBRARY})
-set_property(TARGET python::PythonLibs  PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES ${PYTHON_LIBRARIES})

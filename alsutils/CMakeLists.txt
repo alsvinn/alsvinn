@@ -26,7 +26,7 @@ target_include_directories(alsutils_include INTERFACE
 
 add_library( alsutils SHARED ${SRC} ${HEADERS}  ${CMAKE_CURRENT_BINARY_DIR}/config.cpp)
 add_library(alsvinn::alsutils ALIAS alsutils)
-target_link_libraries(alsutils PUBLIC Boost::log   Boost::date_time MPI::MPI_C ${CUDA_LIBRARIES})
+target_link_libraries(alsutils PUBLIC Boost::log  Boost::date_time MPI::MPI_C ${CUDA_LIBRARIES} Python::Python)
 target_include_directories(alsutils PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
