@@ -228,11 +228,8 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(
     stats::StatisticsFactory statisticsFactory;
     std::shared_ptr<alsfvm::io::WriterFactory> writerFactory;
 
-    if (spatialConfiguration->getNumberOfProcesses() > 1) {
-        writerFactory.reset(new alsfvm::io::MpiWriterFactory(spatialConfiguration));
-    } else {
-        writerFactory.reset(new alsfvm::io::WriterFactory());
-    }
+
+    writerFactory.reset(new alsfvm::io::MpiWriterFactory(spatialConfiguration));
 
     auto platform = configuration.get<std::string>("fvm.platform");
     std::vector<std::shared_ptr<stats::Statistics> > statisticsVector;
