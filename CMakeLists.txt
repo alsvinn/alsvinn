@@ -104,7 +104,7 @@ endif()
 
 # Python dependency could be made optional eventually, but for now it's
 # the only way of specify initial data
-find_package(PythonLibs ${ALSVINN_PYTHON_VERSION} REQUIRED)
+find_package(Python ${ALSVINN_PYTHON_VERSION} REQUIRED COMPONENTS Development)
 
 if(ALSVINN_USE_HUNTER_FOR_BOOST AND ALSVINN_USE_HUNTER)
    hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log python)
@@ -118,7 +118,6 @@ endif()
 find_package (Threads)
 include("cmake/hdf5.cmake")
 include("cmake/netcdf.cmake")
-include("cmake/python.cmake")
 if (ALSVINN_USE_CUDA)
     include("cmake/cub.cmake")
 endif()
@@ -196,7 +195,6 @@ install(FILES
     ${CMAKE_CURRENT_LIST_DIR}/cmake/netcdf.cmake
     ${CMAKE_CURRENT_LIST_DIR}/cmake/hdf5.cmake
     ${CMAKE_CURRENT_LIST_DIR}/cmake/mpi.cmake
-    ${CMAKE_CURRENT_LIST_DIR}/cmake/python.cmake
     ${CMAKE_CURRENT_LIST_DIR}/cmake/cub.cmake
     ${CMAKE_CURRENT_LIST_DIR}/cmake/Modules/FindNetCDF.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/AlsvinnConfig.cmake
@@ -212,10 +210,6 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/netcdf.cmake
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/hdf5.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/hdf5.cmake
-    COPYONLY)
-
-configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/python.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/python.cmake
     COPYONLY)
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/cub.cmake
