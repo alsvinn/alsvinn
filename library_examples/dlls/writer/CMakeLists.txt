@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 PROJECT(dll_writer_example C CXX)
 include(GenerateExportHeader)
 find_package(MPI REQUIRED)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 add_library(dll_writer_example SHARED src/dll_writer_example.cpp)
 target_compile_definitions(dll_writer_example PUBLIC -DOMPI_SKIP_MPICXX -DMPICH_SKIP_MPICXX)
