@@ -4,7 +4,7 @@ os: linux
 matrix:
   include:
 
-      - compiler: clang
+    - compiler: clang
         addons:
           apt:
             sources:
@@ -64,16 +64,16 @@ matrix:
            COMPILER="CC=gcc-5 && CXX=g++-5" ALSVINN_BUILD_TYPE=Release BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=67 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
 
 
-  - compiler: gcc
-    addons:
-      apt:
-        sources:
-          - ubuntu-toolchain-r-test
-        packages:
-          - g++-5
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
 
-    env:
-         COMPILER="CC=gcc-5 && CXX=g++-5" ALSVINN_BUILD_TYPE=Release BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=70 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
+      env:
+           COMPILER="CC=gcc-5 && CXX=g++-5" ALSVINN_BUILD_TYPE=Release BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=70 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
 
 
 
