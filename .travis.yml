@@ -10,7 +10,7 @@ matrix:
           sources:
           packages:
               - clang
-        env:
+      env:
           - COMPILER="CC=clang && CXX=clang++" ALSVINN_BUILD_TYPE=Release BOOST_MAJOR_VERSION=1 BOOST_MINOR_VERSION=70 BOOST_RELEASE_VERSION=0 PNETCDF_VERSION=1.11.1 GTEST_VERSION=1.8.0
 
 
