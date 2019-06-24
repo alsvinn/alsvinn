@@ -74,9 +74,7 @@ matrix:
 
 
 before_install:
-  - eval ${COMPILER}
-  # cmake
-  - travis_retry sudo add-apt-repository -y ppa:andrew-fuller/cmake
+
 install:
   # https://stackoverflow.com/a/32127147 on how to set the compiler!
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
@@ -85,7 +83,7 @@ install:
   - mkdir ${INSTALL_PREFIX}
   - travis_retry sudo apt-get update -qq
 
-  - sudo apt-get install -y make cmake git build-essential wget doxygen libomp-dev libopenmpi-dev m4 unzip  libcurl4-openssl-dev zlib1g-dev libhdf5-dev curl libnetcdf-dev libgtest-dev
+  - sudo apt-get install -y make git build-essential wget doxygen libomp-dev libopenmpi-dev m4 unzip  libcurl4-openssl-dev zlib1g-dev libhdf5-dev curl libnetcdf-dev libgtest-dev
 
   # Python 3.7
   - sudo add-apt-repository -y ppa:deadsnakes/ppa
@@ -94,7 +92,7 @@ install:
   - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
   - sudo python3.7 get-pip.py
   - sudo pip3.7 install numpy gitpython dicttoxml scipy netcdf4 matplotlib
-  - sudo pip3.7 install cmake
+  - sudo pip3.7 install --upgrade cmake
     #
     # Boost
   - cd $DEPS_DIR
