@@ -129,7 +129,7 @@ else:
             xmlname],
                        check=True)
 
-        for timestep in range(2):
+        for timestep in range(1):
             with netCDF4.Dataset(f"{output_basename}_{timestep}.nc") as f:
                 python_from_dataset = f.getncattr(python_key)
                 self.assertEqual(python_content, python_from_dataset)
