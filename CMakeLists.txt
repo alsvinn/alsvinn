@@ -106,6 +106,9 @@ endif()
 # the only way of specify initial data
 find_package(Python ${ALSVINN_PYTHON_VERSION} REQUIRED COMPONENTS Development)
 
+# We want to specify python versions, which the cmake filees from boost do not allow us to
+set(Boost_NO_BOOST_CMAKE ON)
+
 if(ALSVINN_USE_HUNTER_FOR_BOOST AND ALSVINN_USE_HUNTER)
    hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log python)
    find_package(Boost CONFIG REQUIRED filesystem thread system chrono date_time program_options log log_setup ${ALSVINN_BOOST_PYTHON} ${ALSVINN_BOOST_NUMPY})
