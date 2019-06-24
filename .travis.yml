@@ -94,6 +94,7 @@ install:
   - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
   - sudo python3.7 get-pip.py
   - sudo pip3.7 install numpy gitpython dicttoxml scipy netcdf4 matplotlib
+  - sudo pip3.7 install cmake
     #
     # Boost
   - cd $DEPS_DIR
