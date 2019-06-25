@@ -263,7 +263,7 @@ std::vector<std::shared_ptr<stats::Statistics> > Setup::createStatistics(
         if (statisticsNode.second.find("numberOfSaves") !=
             statisticsNode.second.not_found()) {
 
-            bool writeInitialTimestep = true;
+            bool writeInitialTimestep = false;
 
             if (statisticsNode.second.find("writeInitialTimestep") !=
                 statisticsNode.second.not_found()) {

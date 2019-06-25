@@ -17,7 +17,7 @@ ELSE()
 	ENDMACRO()
 ENDIF()
 project (generate_parameters LANGUAGES C CXX)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 find_package(Alsvinn REQUIRED)
 add_executable(generate_parameters src/main.cpp)
 

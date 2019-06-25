@@ -65,11 +65,13 @@ class Alsvinn(object):
     def set_equation_parameters(self, parameters):
         self.fvmSettings["equationParameters"] = parameters
 
-    def set_fvm_writer(self, type, basename, number_of_saves):
+    def set_fvm_writer(self, type, basename, number_of_saves, write_initial_timestep):
         self.fvmSettings["writer"] = {}
         self.fvmSettings["writer"]["type"] = type
         self.fvmSettings["writer"]["basename"] = basename
         self.fvmSettings["writer"]["numberOfSaves"] = number_of_saves
+        self.fvmSettings["writer"]["writeInitialTimestep"] = int(write_initial_timestep)
+        
 
     def set_cartesian_grid(self, lower_corner, upper_corner, dimensions):
         self.fvmSettings["grid"] = {"lowerCorner" : lower_corner,
@@ -362,13 +364,14 @@ class Alsvinn(object):
     def set_uq_value(self, key, value):
         self.uqSettings[key] = value
 
-    def add_statistics(self, statisticsName, writer, basename, numberOfSaves):
+    def add_statistics(self, statisticsName, writer, basename, numberOfSaves, writeInitialTimestep):
         if 'stats' not in self.uqSettings.keys():
             self.uqSettings['stats']  = []
         elif type(self.uqSettings['stats']) is not list:
             self.uqSettings['stats'] = [self.uqSettings['statistics']['stat']]
         self.uqSettings['stats'].append({'name' : statisticsName,
                                                 'numberOfSaves' : numberOfSaves,
+                                                "writeInitialTimestep" : int(writeInitialTimestep),
                                                 'writer':{
                                                     'type' : writer,
                                                     'basename' : basename
@@ -420,7 +423,8 @@ def run(name=None, equation=None,
         generator=None,
         diffusion_operator=None,
         diffusion_reconstruction=None,
-	functionals=None
+        functionals=None,
+        write_initial_timestep=True
         ):
 
     initial_data_file_is_temporary = False
@@ -516,7 +520,7 @@ else:
     if integrator is not None:
         alsvinn_object.set_fvm_value("integrator", integrator)
     if number_of_saves is not None:
-        alsvinn_object.set_fvm_writer("netcdf", name, number_of_saves)
+        alsvinn_object.set_fvm_writer("netcdf", name, number_of_saves, write_initial_timestep)
 
     if dimension is not None and upper_corner is not None and lower_corner is not None:
         alsvinn_object.set_cartesian_grid(lower_corner, upper_corner, dimension)
@@ -544,7 +548,7 @@ else:
             number_of_saves = 1
         alsvinn_object.set_uq_value('stats',[])
         for stat in statistics:
-            alsvinn_object.add_statistics(stat, 'netcdf', name, number_of_saves)
+            alsvinn_object.add_statistics(stat, 'netcdf', name, number_of_saves, write_initial_timestep)
     if functionals is not None:
         if number_of_saves is None:
             number_of_saves = 1

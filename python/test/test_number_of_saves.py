@@ -11,8 +11,8 @@ else:
     PLACES = 15
         
 def make_xml_content(pythonname, output_basename, number_of_saves, samples=1, without_initial=False, endTime=1.3):
-    if without_initial:
-        without_initial_string = '<writeInitialTimestep>false</writeInitialTimestep>'
+    if not without_initial:
+        without_initial_string = '<writeInitialTimestep>true</writeInitialTimestep>'
     else:
         without_initial_string = ''
     return f"""

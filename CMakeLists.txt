@@ -19,13 +19,13 @@ ELSE()
 	ENDMACRO()
 ENDIF()
 
-project (alsvinn VERSION 0.5.0 LANGUAGES C CXX )
+project (alsvinn VERSION 0.5.1 LANGUAGES C CXX )
 SET(ALSVINN_USE_FLOAT OFF CACHE BOOL "Do all computations with 32 bits
 floating point numbers, instead of 64 bit double precision")
 SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CUDA_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CUDA_STANDARD 14)
 
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CUDA_STANDARD_REQUIRED TRUE)
@@ -105,6 +105,9 @@ endif()
 # Python dependency could be made optional eventually, but for now it's
 # the only way of specify initial data
 find_package(Python ${ALSVINN_PYTHON_VERSION} REQUIRED COMPONENTS Development)
+
+# We want to specify python versions, which the cmake filees from boost do not allow us to
+set(Boost_NO_BOOST_CMAKE ON)
 
 if(ALSVINN_USE_HUNTER_FOR_BOOST AND ALSVINN_USE_HUNTER)
    hunter_add_package(Boost COMPONENTS regex thread system filesystem chrono date_time program_options log python)
