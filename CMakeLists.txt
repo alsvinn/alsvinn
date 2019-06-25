@@ -62,6 +62,7 @@ SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 SET(ALSVINN_USE_TIMERS ON CACHE BOOL "Enable profiling timings (should not hurt performance)")
 SET(ALSVINN_USE_CUDA_TIMERS OFF CACHE BOOL "Enable CUDA profiling timings (hurts performance)")
 set(ALSVINN_BUILD_FBM ON CACHE BOOL "Build the fast Fractional Brownian Motion addon for python initial data")
+SET(ALSVINN_IN_DOCKER OFF CACHE BOOL "Only ON if Alsvinn is built within a docker container")
 
 SET(ALSVINN_PRINT_MEMORY_ALLOCATIONS OFF CACHE BOOL "Log every memory allocation")
 
