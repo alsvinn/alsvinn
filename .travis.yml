@@ -95,10 +95,6 @@ install:
   - cd googletest-release-${GTEST_VERSION} && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_C_COMPILER=`which $CC` -DCMAKE_CXX_COMPILER=`which $CXX`&& make install && find . -iname '*.a' -exec cp {} ${INSTALL_PREFIX}/lib/ \;
 
 script:
-  - if [ "$CXX" == *"g++"* ]; then export COMPILER_CPP="g++-${ALSVINN_GCC_VERSION}"; fi
-  - if [ "$CXX" == *"clang++"* ]; then export COMPILER_CPP="clang++-${ALSVINN_CLANG_VERSION}"; fi
-  - export CXX_FOR_BUILD=${CXX}
-  - echo ${CXX}
 #############################
   # Make sure it compiles with single precisison
   - cd ${TRAVIS_BUILD_DIR}
