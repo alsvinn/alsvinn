@@ -20,6 +20,7 @@
 #cmakedefine ALSVINN_HAS_PARALLEL_HDF5 1
 #cmakedefine ALSVINN_BUILD_FBM 1
 #cmakedefine ALSVINN_USE_FLOAT 1
+#cmakedefine ALSVINN_IN_DOCKER 1
 
 namespace alsutils {\
   std::string getAlsvinnVersion();

@@ -2,9 +2,13 @@ get_filename_component(alsvinn_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 list(APPEND CMAKE_MODULE_PATH ${alsvinn_CMAKE_DIR})
 include(CMakeFindDependencyMacro)
 
+# We don't want to use boost's cmake files
+SET(Boost_NO_BOOST_CMAKE ON)
+
 SET(ALSVINN_PYTHON_VERSION "@ALSVINN_PYTHON_VERSION@")
 SET(ALSVINN_BOOST_PYTHON "@ALSVINN_BOOST_PYTHON@")
 SET(ALSVINN_BOOST_NUMPY "@ALSVINN_BOOST_NUMPY@")
+
 find_package(Python "${ALSVINN_PYTHON_VERSION}" REQUIRED COMPONENTS Development)
 
 

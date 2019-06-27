@@ -62,6 +62,7 @@ SET(ALSVINN_CXX_FLAGS "" CACHE STRING "CXX flags to use")
 SET(ALSVINN_USE_TIMERS ON CACHE BOOL "Enable profiling timings (should not hurt performance)")
 SET(ALSVINN_USE_CUDA_TIMERS OFF CACHE BOOL "Enable CUDA profiling timings (hurts performance)")
 set(ALSVINN_BUILD_FBM ON CACHE BOOL "Build the fast Fractional Brownian Motion addon for python initial data")
+SET(ALSVINN_IN_DOCKER OFF CACHE BOOL "Only ON if Alsvinn is built within a docker container")
 
 SET(ALSVINN_PRINT_MEMORY_ALLOCATIONS OFF CACHE BOOL "Log every memory allocation")
 
@@ -70,7 +71,7 @@ SET(ALSVINN_BUILD_DOXYGEN ON CACHE BOOL "Build doxygen documentation")
 SET(ALSVINN_PROFILE OFF CACHE BOOL "Add profiling information")
 SET(ALSVINN_MPI_GPU_DIRECT OFF CACHE BOOL "Use NVidia's GPU direct to do MPI transfers (this is faster, but not only available)")
 
-SET(ALSVINN_PYTHON_VERSION "2.7" CACHE STRING "Python version to use (either 2.7 or 3.6, 3.7, etc)")
+SET(ALSVINN_PYTHON_VERSION "3.7" CACHE STRING "Python version to use (either 2.7 or 3.6, 3.7, etc)")
 
 STRING(REPLACE "." "" ALSVINN_PYTHON_VERSION_PURE ${ALSVINN_PYTHON_VERSION})
 
@@ -107,6 +108,7 @@ endif()
 find_package(Python ${ALSVINN_PYTHON_VERSION} REQUIRED COMPONENTS Development)
 
 # We want to specify python versions, which the cmake filees from boost do not allow us to
+
 set(Boost_NO_BOOST_CMAKE ON)
 
 if(ALSVINN_USE_HUNTER_FOR_BOOST AND ALSVINN_USE_HUNTER)
