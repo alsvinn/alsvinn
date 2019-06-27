@@ -6,7 +6,7 @@
 
 FROM alsvinn/cpu_base:release-v2.1.0
 
-
+ARGS ALSVINN_USE_FLOAT=OFF 
 ENV ALSVINN_IN_DOCKER 1
 
 COPY . /alsvinn
@@ -20,7 +20,10 @@ RUN cd /alsvinn &&\
     	  -DCMAKE_BUILD_TYPE=Release \
 	  -DALSVINN_PYTHON_VERSION=${ALSVINN_PYTHON_VERSION} \
 	  -DCMAKE_PREFIX_PATH=$INSTALL_PREFIX \
-	  -DALSVINN_USE_CUDA=OFF && \
+	  -DALSVINN_USE_CUDA=OFF\
+	  -DALSVINN_USE_FLOAT=${ALSVINN_USE_FLOAT}\
+	  -DALSVINN_IN_DOCKER=ON
+	  && \
     make && \
     make install
     

@@ -6,8 +6,10 @@
 
 FROM alsvinn/cuda_base:release-v2.1.0
 
+ARG ALSVINN_USE_FLOAT=OFF
 
 ENV ALSVINN_IN_DOCKER 1
+
 
 COPY . /alsvinn
 
@@ -24,7 +26,10 @@ RUN cd /alsvinn &&\
     	  -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX  \
     	  -DCMAKE_C_COMPILER=`which $CC` \
     	  -DCMAKE_CXX_COMPILER=`which $CXX` \
-	  -DALSVINN_PYTHON_VERSION=${ALSVINN_PYTHON_VERSION} && \
+	  -DALSVINN_PYTHON_VERSION=${ALSVINN_PYTHON_VERSION}
+	  -DALSVINN_USE_FLOAT=${ALSVINN_USE_FLOAT} \
+	  -DALSVINN_IN_DOCKER=ON && \
+	  
     make && \
     make install
     
