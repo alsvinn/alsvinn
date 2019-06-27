@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -76,7 +76,7 @@ public:
         dPLeft.p = fmax(-BOUND * inMiddle.p, fmin(BOUND * inMiddle.p, dPLeft.p));
 
         real LLLeft = 0.125 * inMiddle.rho * (dPLeft.u.dot(dPLeft.u)) -
-            0.5 * fmin(0.0, dPLeft.rho * (inMiddle.u.dot(dPLeft.u))) +
+            0.5 * fmin(real(0.0), dPLeft.rho * (inMiddle.u.dot(dPLeft.u))) +
             0.5 * dPLeft.rho * dPLeft.rho * dPLeft.u.dot(dPLeft.u) / inMiddle.rho;
 
 
@@ -100,7 +100,7 @@ public:
         dPRight.p = fmax(-BOUND * inMiddle.p, fmin(BOUND * inMiddle.p, dPRight.p));
 
         real LLRight = 0.125 * inMiddle.rho * (dPRight.u.dot(dPRight.u)) -
-            0.5 * fmin(0.0, dPRight.rho * (inMiddle.u.dot(dPRight.u))) +
+            0.5 * fmin(real(0.0), dPRight.rho * (inMiddle.u.dot(dPRight.u))) +
             0.5 * dPRight.rho * dPRight.rho * dPRight.u.dot(dPRight.u) / inMiddle.rho;
 
         real aijkRight = 0.5 * std::sqrt(R / fmax(R, LLRight));
