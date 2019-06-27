@@ -4,7 +4,7 @@
 #    docker build . -f containers/docker/cuda/Dockerfile -t <whatever tag>
 #
 
-FROM alsvinn/cuda_base
+FROM alsvinn/cuda_base:release-v2.1.0
 
 
 ENV ALSVINN_IN_DOCKER 1
@@ -21,12 +21,10 @@ RUN cd /alsvinn &&\
     	  -DCMAKE_BUILD_TYPE=Release \
     	  -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
     	  -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda	  \
-    	  -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython2.7.so.1 \
-    	  -DPYTHON_INCLUDE_DIR=/usr/include/python2.7 \
     	  -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX  \
     	  -DCMAKE_C_COMPILER=`which $CC` \
     	  -DCMAKE_CXX_COMPILER=`which $CXX` \
-	  -DALSVINN_PYTHON_VERSION=2.7 && \
+	  -DALSVINN_PYTHON_VERSION=${ALSVINN_PYTHON_VERSION} && \
     make && \
     make install
     
@@ -60,3 +58,4 @@ RUN cd /alsvinn &&\
 RUN rm /etc/ld.so.cache && ldconfig
 RUN ldconfig
 ENTRYPOINT ["alsuqcli"]
+ENV PYTHONPATH "${PYTHONPATH}:${INSTALL_PREFIX}/lib/python${ALSVINN_PYTHON_VERSION}/site-packages"
