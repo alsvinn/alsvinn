@@ -9,4 +9,5 @@ echo $ALSVINN_USE_FLOAT
 echo $DOCKERFILE_PATH
 echo $IMAGE_NAME
 echo $(pwd)
+printenv
 docker build --build-arg ALSVINN_USE_FLOAT=$ALSVINN_USE_FLOAT -f $DOCKERFILE_PATH -t $IMAGE_NAME .
