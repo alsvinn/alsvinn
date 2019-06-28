@@ -6,7 +6,7 @@
 
 FROM alsvinn/cpu_base:release-v2.1.0
 
-ARGS ALSVINN_USE_FLOAT=OFF 
+ARG ALSVINN_USE_FLOAT=OFF 
 ENV ALSVINN_IN_DOCKER 1
 
 COPY . /alsvinn
