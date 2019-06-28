@@ -1,2 +1,9 @@
 #!/bin/bash
+if [[ $DOCKER_TAG == "*float*" ]];
+then
+    ALSVINN_USE_FLOAT=ON
+else
+    ALSVINN_USE_FLOAT=OFF
+fi
+
 docker build --build-arg ALSVINN_USE_FLOAT=$ALSVINN_USE_FLOAT -f $DOCKERFILE_PATH -t $IMAGE_NAME .

@@ -22,8 +22,7 @@ RUN cd /alsvinn &&\
 	  -DCMAKE_PREFIX_PATH=$INSTALL_PREFIX \
 	  -DALSVINN_USE_CUDA=OFF\
 	  -DALSVINN_USE_FLOAT=${ALSVINN_USE_FLOAT}\
-	  -DALSVINN_IN_DOCKER=ON
-	  && \
+	  -DALSVINN_IN_DOCKER=ON && \
     make && \
     make install
     
