@@ -143,4 +143,7 @@ std::string getFloatingPointEpsilon() {
   return ss.str();
 }
 
+std::string getDockerContainerName() {
+  return "@ALSVINN_DOCKER_CONTAINER@";
+}
 }

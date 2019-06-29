@@ -68,4 +68,6 @@ namespace alsutils {\
   std::string getFloatingPointMaxValue();
   std::string getFloatingPointMinValue();
   std::string getFloatingPointEpsilon();
+
+  std::string getDockerContainerName();
 }

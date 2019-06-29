@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ $DOCKER_TAG == "*float*" ]];
+if [[ $DOCKER_TAG == *"float"* ]];
 then
     ALSVINN_USE_FLOAT=ON
 else
@@ -10,4 +10,4 @@ echo $DOCKERFILE_PATH
 echo $IMAGE_NAME
 cd ../../../
 echo $(pwd)
-docker build --build-arg ALSVINN_USE_FLOAT=$ALSVINN_USE_FLOAT -f $DOCKERFILE_PATH -t $IMAGE_NAME .
+docker build --build-arg ALSVINN_DOCKER_CONTAINER=$IMAGE_NAME --build-arg ALSVINN_USE_FLOAT=$ALSVINN_USE_FLOAT -f $DOCKERFILE_PATH -t $IMAGE_NAME .
