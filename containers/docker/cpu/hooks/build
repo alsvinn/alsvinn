@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ $DOCKER_TAG == "*float*" ]];
+if [[ $DOCKER_TAG == *"float"* ]];
 then
     ALSVINN_USE_FLOAT=ON
 else
