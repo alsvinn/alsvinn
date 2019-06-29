@@ -1,6 +1,6 @@
 #!/bin/bash
 # Tag specific git commit as well, but not release versions
-if [[ $DOCKER_TAG != "*release-v*"]];
+if [[ $DOCKER_TAG != *"release-v"* ]];
 then
     # we want tag commit on the form "commit_id-float"
     TAG_WITH_COMMIT=${DOCKER_TAG//latest/${SOURCE_COMMIT}}
