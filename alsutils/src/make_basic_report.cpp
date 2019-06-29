@@ -133,11 +133,12 @@ boost::property_tree::ptree makeBasicReport() {
 
     propertyTree.put("report.pythonVersion", getPythonVersion());
 
-    #ifdef ALSVINN_IN_DOCKER
+#ifdef ALSVINN_IN_DOCKER
     propertyTree.put("report.alsvinnInDocker", true);
-    #else
+    propertyTree.put("report.alsvinnDockerContainer", getDockerContainerName());
+#else
     propertyTree.put("report.alsvinnInDocker", false);
-    #endif
+#endif
     return propertyTree;
 }
 }
