@@ -329,6 +329,12 @@ int main(int argc, char** argv) {
 
     //ALSVINN_LOG(INFO, "Reading from " << filenameInput);
     auto rank = mpiConfiguration->getRank();
+
+    alsutils::log::setLogFile("structure_standalone_mpi_log_"
+        + std::to_string(p) + "_"
+        + filenameOutput +  "_"
+        + std::to_string(rank) + ".txt");
+
     auto numberOfProcessors = mpiConfiguration->getNumberOfProcesses();
 
     if (numberOfSamples % numberOfProcessors != 0) {
@@ -365,11 +371,6 @@ int main(int argc, char** argv) {
     const auto sampleEnd = (rank + 1) * samplesPerProcessor;
 
 
-    alsutils::log::setLogFile("structure_standalone_mpi_log_"
-        + std::to_string(p) + "_"
-        + std::to_string(timestepInformation.getCurrentTime()) + "_"
-        + std::to_string(rank)
-        + ".txt");
 
     for (int sample = sampleStart; sample < sampleEnd; ++sample) {
         auto start = std::chrono::high_resolution_clock::now();
