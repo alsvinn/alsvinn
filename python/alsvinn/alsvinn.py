@@ -417,6 +417,7 @@ def run(name=None, equation=None,
         multiy=1,
         multiz=1,
         uq=False,
+        sampleStart=None,
         multiSample=1,
         statistics=None,
         samples=None,
@@ -559,6 +560,9 @@ else:
         alsvinn_object.set_uq_value('samples', str(samples))
     if generator is not None:
         alsvinn_object.set_uq_value('generator', generator)
+
+    if sampleStart is not None:
+        alsvinn_object.set_uq_value('sampleStart', sampleStart)
 
     if diffusion_operator is not None:
         alsvinn_object.set_diffusion(diffusion_operator, diffusion_reconstruction)
