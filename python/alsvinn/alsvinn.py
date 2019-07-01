@@ -17,6 +17,7 @@ import matplotlib
 import matplotlib.pyplot
 import subprocess
 import tempfile
+import re
 
 class Alsvinn(object):
     def __init__(self, xml_file=None, configuration=None,
@@ -87,12 +88,13 @@ class Alsvinn(object):
         if len(configDocument.getElementsByTagName("uq")) > 0:
             uqDocument = configDocument.getElementsByTagName("uq")[0]
             self.__readValues(self.uqSettings, uqDocument)
-
+            
             if not self.uqSettings['parameters']:
                 self.uqSettings['parameters'] = self.fvmSettings['initialData']['parameters']
                 self.uqSettings['parameters']['parameter']['type'] = 'uniform'
                 del self.uqSettings['parameters']['values']
 
+                
         self.__readValues(self.fvmSettings, fvmDocument)
 
 
@@ -234,21 +236,36 @@ class Alsvinn(object):
             basename = self.fvmSettings["writer"]["basename"]
             type = self.fvmSettings["writer"]["type"]
         else:
-            
+
             # Loop through uq stats to find statistics:
             for s in self.uqSettings['stats']:
+
                 if isinstance(s, str):
+                    if len(s.strip()) == 0:
+                        continue
                     s = self.uqSettings['stats'][s]
-                    
+
                 if statistics == 'mean' or statistics == 'variance':
                     
                     if s['name'] == 'meanvar':
 
                         basename = s['writer']['basename']
                         type = s['writer']['type']
+                        break
+                elif re.match(r'm(\d+)', statistics):
+                    match = re.match(r'm(\d+)', statistics)
+                    p_wanted = int(match.group(1))
+
+                    if 'p' in s and int(s['p']) == p_wanted:
+                        basename = s['writer']['basename']
+                        type = s['writer']['type']
+                        break
                 elif s['name'] == statistics:
                     basename = s['writer']['basename']
                     type = s['writer']['type']
+                    break
+            else:
+                raise Exception(f"Statistics not found: {statistics}")
             
         if type == "netcdf":
             append = "nc"
@@ -329,6 +346,14 @@ class Alsvinn(object):
             raise Exception("We do not support 3d yet")
         matplotlib.pyplot.show()
 
+    def __isPureTextNode(self, node):
+
+        for k in node.childNodes:
+            if k.nodeType != node.TEXT_NODE:
+                return False
+
+        return True
+
     def __readValues(self, output, document):
 
         for child in document.childNodes:
@@ -358,7 +383,12 @@ class Alsvinn(object):
             else:
                 output[key] = []
                 for value in values:
-                    output[key].append(value.firstChild.nodeValue)
+                    if self.__isPureTextNode(value):
+                        output[key].append(value.firstChild.nodeValue)
+                    else:
+                        new_dict = {}
+                        self.__readValues(new_dict, value)
+                        output[key].append(new_dict)
 
 
     def set_uq_value(self, key, value):
