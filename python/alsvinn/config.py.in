@@ -13,3 +13,5 @@ else:
   ALSVINN_HAS_MPI=False
 
 ALSVINN_EXAMPLES_PATH="%s/alsvinncli/examples" % ALSVINN_PATH
+
+ALSVINN_GIT_COMMIT_SHA="${GIT_SHA1}"
