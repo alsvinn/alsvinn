@@ -49,7 +49,7 @@ While it's easy to implement new configurations, we already have a wide variety 
 
 ## Requirements
 
-  * C++11 compiler (tested with clang and gcc)
+  * C++14 compiler (tested with clang and gcc)
   * [gtest](https://github.com/google/googletest) (optional)
   * [boost](https://www.boost.org/) (including boost-numpy)
   * [python](https://www.python.org) Tested with 3.7, should work with 2.7

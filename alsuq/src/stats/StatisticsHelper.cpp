@@ -37,8 +37,14 @@ void StatisticsHelper::combineStatistics() {
     for (auto& snapshot : snapshots) {
         for (auto& statistics : snapshot.second) {
             for (auto& volume : statistics.second.getVolumes()) {
+
                 for (size_t variable = 0; variable < volume->getNumberOfVariables();
                     variable++) {
+
+                    std::cout << "Writing variable " << volume->getName(variable) << std::endl;
+                    std::cout << "Size: " << volume->getTotalNumberOfXCells() << ", "
+                        << volume->getTotalNumberOfYCells() << ", " << volume->getTotalNumberOfZCells()
+                        << std::endl;
 
                     auto statisticsData = volume->getScalarMemoryArea(variable);
                     auto statisticsDataToReduce = statisticsData;
@@ -83,8 +89,14 @@ void StatisticsHelper::writeStatistics(const alsfvm::grid::Grid& grid) {
             for (auto& writer : writers[statisticsName]) {
                 auto& volumes = statistics.second.getVolumes();
                 auto& timestepInformation = statistics.second.getTimestepInformation();
-                writer->write(*volumes.getConservedVolume(),
-                    grid, timestepInformation);
+
+                if (ownGrid) {
+                    writer->write(*volumes.getConservedVolume(),
+                        *ownGrid, timestepInformation);
+                } else {
+                    writer->write(*volumes.getConservedVolume(),
+                        grid, timestepInformation);
+                }
             }
         }
     }
@@ -122,6 +134,14 @@ StatisticsSnapshot& StatisticsHelper::findOrCreateSnapshot(
     size_t nx, size_t ny, size_t nz, const std::string& platform) {
     auto currentTime = timestepInformation.getCurrentTime();
 
+    if (nx != conservedVariables.getNumberOfXCells()
+        || ny != conservedVariables.getNumberOfYCells() ||
+        nz != conservedVariables.getNumberOfZCells()) {
+
+        ALSVINN_LOG(INFO, "Making new grid for saving statistics");
+        makeOwnGrid(nx, ny, nz);
+    }
+
     if (snapshots.find(currentTime) != snapshots.end()
         && snapshots[currentTime].find(name) != snapshots[currentTime].end()) {
         return snapshots[currentTime][name];
@@ -139,6 +159,12 @@ StatisticsSnapshot& StatisticsHelper::findOrCreateSnapshot(
         return snapshots[currentTime][name];
 
     }
+}
+
+void StatisticsHelper::makeOwnGrid(size_t nx, size_t ny, size_t nz) {
+    ownGrid.reset(new alsfvm::grid::Grid(rvec3{0, 0, 0},
+            rvec3{1, 1, 1},
+            ivec3{int(nz), int(ny), int(nz)}));
 }
 }
 }
