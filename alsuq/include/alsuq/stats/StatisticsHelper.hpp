@@ -66,6 +66,8 @@ protected:
         const alsfvm::simulator::TimestepInformation& timestepInformation,
         const alsfvm::volume::Volume& conservedVariables,
         size_t nx, size_t ny, size_t nz, const std::string& platform = "default");
+
+    void makeOwnGrid(size_t nx, size_t ny, size_t nz);
 private:
     size_t samples;
 
@@ -73,6 +75,8 @@ private:
     writers;
 
     alsuq::mpi::ConfigurationPtr mpiConfig;
+
+    std::unique_ptr<alsfvm::grid::Grid> ownGrid{{nullptr}};
 };
 } // namespace stats
 } // namespace alsuq
