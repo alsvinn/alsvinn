@@ -41,10 +41,7 @@ void StatisticsHelper::combineStatistics() {
                 for (size_t variable = 0; variable < volume->getNumberOfVariables();
                     variable++) {
 
-                    std::cout << "Writing variable " << volume->getName(variable) << std::endl;
-                    std::cout << "Size: " << volume->getTotalNumberOfXCells() << ", "
-                        << volume->getTotalNumberOfYCells() << ", " << volume->getTotalNumberOfZCells()
-                        << std::endl;
+
 
                     auto statisticsData = volume->getScalarMemoryArea(variable);
                     auto statisticsDataToReduce = statisticsData;
@@ -134,18 +131,20 @@ StatisticsSnapshot& StatisticsHelper::findOrCreateSnapshot(
     size_t nx, size_t ny, size_t nz, const std::string& platform) {
     auto currentTime = timestepInformation.getCurrentTime();
 
-    if (nx != conservedVariables.getNumberOfXCells()
-        || ny != conservedVariables.getNumberOfYCells() ||
-        nz != conservedVariables.getNumberOfZCells()) {
-
-        ALSVINN_LOG(INFO, "Making new grid for saving statistics");
-        makeOwnGrid(nx, ny, nz);
-    }
 
     if (snapshots.find(currentTime) != snapshots.end()
         && snapshots[currentTime].find(name) != snapshots[currentTime].end()) {
         return snapshots[currentTime][name];
     } else {
+
+        if (nx != conservedVariables.getNumberOfXCells()
+            || ny != conservedVariables.getNumberOfYCells() ||
+            nz != conservedVariables.getNumberOfZCells()) {
+
+            ALSVINN_LOG(INFO, "Making new grid for saving statistics");
+            makeOwnGrid(nx, ny, nz);
+        }
+
         auto conservedVariablesClone = conservedVariables.makeInstance(nx, ny, nz,
                 platform);
 
