@@ -163,7 +163,7 @@ StatisticsSnapshot& StatisticsHelper::findOrCreateSnapshot(
 void StatisticsHelper::makeOwnGrid(size_t nx, size_t ny, size_t nz) {
     ownGrid.reset(new alsfvm::grid::Grid(rvec3{0, 0, 0},
             rvec3{1, 1, 1},
-            ivec3{int(nz), int(ny), int(nz)}));
+            ivec3{int(nx), int(ny), int(nz)}));
 }
 }
 }
