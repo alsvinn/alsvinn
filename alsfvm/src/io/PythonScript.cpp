@@ -77,7 +77,9 @@ void PythonScript::write(const volume::Volume& conservedVariables,
     try {
         copyToDatasets(conservedVariables);
         classInstance.attr("write")(datasetsConserved,
-            makeGrid(grid));
+            makeGrid(grid),
+            timestepInformation.getCurrentTime(),
+            timestepInformation.getNumberOfStepsPerformed());
 
 
 #ifdef ALSVINN_USE_MPI

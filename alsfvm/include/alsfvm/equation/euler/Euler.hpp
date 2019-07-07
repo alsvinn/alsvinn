@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -199,7 +199,7 @@ public:
     /// Here we compute
     /// \f[u =\frac{1}{\rho} m\f]
     /// and
-    /// \f[p = (1-\gamma)(E-\frac{1}{2\rho}m^2)\f]
+    /// \f[p = (\gamma-1)(E-\frac{1}{2\rho}m^2)\f]
     ///
     __device__ __host__  ExtraVariables computeExtra(const ConservedVariables& u)
     const {
@@ -387,20 +387,20 @@ private:
 };
 
 
-  template<>
-  inline std::string Euler<3>::getName() {
+template<>
+inline std::string Euler<3>::getName() {
     return "euler3";
-  }
+}
 
-  template<>
-  inline std::string Euler<2>::getName() {
+template<>
+inline std::string Euler<2>::getName() {
     return "euler2";
-  }
+}
 
-  template<>
-  inline std::string Euler<1>::getName() {
+template<>
+inline std::string Euler<1>::getName() {
     return "euler1";
-  }
+}
 
 
 

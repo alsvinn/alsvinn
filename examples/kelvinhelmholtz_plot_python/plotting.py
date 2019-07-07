@@ -39,7 +39,7 @@ class PlotKH(object):
 
         self.basename = 'kh_{cmap}_{sample}_{x}_{y}_{t}.png'
 
-    def write(self, conserved, extra, grid):
+    def write(self, conserved, grid, time, timesteps):
         nx = int(grid['local_size'][0])
         ny = int(grid['local_size'][1])
 
