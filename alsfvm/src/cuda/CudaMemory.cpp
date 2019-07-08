@@ -26,6 +26,9 @@
 #include "alsutils/log.hpp"
 #include "alsutils/config.hpp"
 
+#include <chrono>
+#include <thread>
+
 #define CHECK_SIZE_AND_HOST(x) { \
     if (x.isOnHost()) {\
         THROW(#x << " is on host."); \
@@ -46,7 +49,27 @@ template<class T> CudaMemory<T>::CudaMemory(size_t nx, size_t ny, size_t nz)
     ALSVINN_LOG(INFO, "CUDA allocating " << size << " bytes (" << sizeGb <<
         " GB), in " << alsutils::debug::getShortStacktrace());
 #endif
-    CUDA_SAFE_CALL(cudaMalloc(&memoryPointer, nx * ny * nz * sizeof(T)));
+
+    try {
+        CUDA_SAFE_CALL(cudaMalloc(&memoryPointer, nx * ny * nz * sizeof(T)));
+    } catch (std::runtime_error& exception) {
+        // allocation failed, but will will give it another go, since this
+        // sometimes happens because the bus is busy.
+        const int waitTimeInMilliseconds = 50;
+        int currentCudaDevice = -1;
+
+        CUDA_SAFE_CALL(cudaGetDevice(&currentCudaDevice));
+        ALSVINN_LOG(WARNING, "Failed allocating "
+            << (nx * ny * nz * sizeof(T)) << " bytes, \n"
+            << "Current CUDA device: " << currentCudaDevice << "\n"
+            << "Error message was: " << exception.what() << "\n"
+            << "Trying one more time in " << waitTimeInMilliseconds << " ms\n");
+
+        // We usually give this one more shot, first we wait 50 milliseconds
+        std::this_thread::sleep_for (std::chrono::milliseconds(waitTimeInMilliseconds));
+        CUDA_SAFE_CALL(cudaMalloc(&memoryPointer, nx * ny * nz * sizeof(T)));
+    }
+
     CUDA_SAFE_CALL(cudaMemset(memoryPointer, 0, nx * ny * nz * sizeof(T)));
 }
 
