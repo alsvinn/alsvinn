@@ -1,5 +1,6 @@
 #pragma once
 #include <thrust/device_vector.h>
+#include "alsfvm/functional/structure_common.hpp"
 namespace alsfvm {
 
 namespace functional {
@@ -39,9 +40,9 @@ __global__ void computeStructureCubeKernel(real* output,
 template<class PowerClass, class BufferClass>
 void computeStructureCubeCUDA(alsfvm::volume::Volume& output,
     const alsfvm::volume::Volume& input,
-                              BufferClass& buffer,
+    BufferClass& buffer,
 
-                      size_t numberOfH, double p) {
+    size_t numberOfH, double p) {
     for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
         auto inputView = input[var]->getView();
         auto outputView = output[var]->getView();
@@ -63,7 +64,8 @@ void computeStructureCubeCUDA(alsfvm::volume::Volume& output,
             const int blockNumber = (size + threads - 1) / threads;
 
 
-            computeStructureCubeKernel<PowerClass> <<< blockNumber, threads>>>(thrust::raw_pointer_cast(
+            computeStructureCubeKernel<PowerClass> <<< blockNumber, threads>>>
+            (thrust::raw_pointer_cast(
                     buffer.data()),
                 inputView,
                 h, nx, ny, nz, ngx, ngy, ngz, p, dimensions);
@@ -82,7 +84,7 @@ void computeStructureCubeCUDA(alsfvm::volume::Volume& output,
 
 inline void dispatchComputeStructureCubeCUDA(alsfvm::volume::Volume& output,
     const alsfvm::volume::Volume& input, thrust::device_vector<real>& buffer,
-                                             int numberOfH, double p) {
+    int numberOfH, double p) {
     if (p == 1.0) {
         computeStructureCubeCUDA < alsutils::math::FastPower<1>>
             (output, input, buffer, numberOfH, p);
