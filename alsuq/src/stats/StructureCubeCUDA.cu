@@ -20,6 +20,7 @@
 #include "alsuq/stats/structure_common.hpp"
 #include "alsutils/math/FastPower.hpp"
 #include "alsutils/math/PowPower.hpp"
+#include "alsfvm/functional/structure_common_cuda.hpp"
 namespace alsuq {
 namespace stats {
 
@@ -83,77 +84,13 @@ void StructureCubeCUDA::computeStatistics(const alsfvm::volume::Volume&
             conservedVariables,
             numberOfH, 1, 1, "cpu");
 
-
-    if (p == 1) {
-        computeStructure<alsutils::math::FastPower<1>>(*structure.getVolumes().getConservedVolume(),
-        conservedVariables);
-
-    } else if (p == 2) {
-        computeStructure<alsutils::math::FastPower<2>>(*structure.getVolumes().getConservedVolume(),
-        conservedVariables);
-
-    } else if (p==3) {
-        computeStructure<alsutils::math::FastPower<3>>(*structure.getVolumes().getConservedVolume(),
-        conservedVariables);
-
-    } else if (p==4) {
-        computeStructure<alsutils::math::FastPower<4>>(*structure.getVolumes().getConservedVolume(),
-        conservedVariables);
-
-    } else  if (p ==5) {
-        computeStructure<alsutils::math::FastPower<5>>(*structure.getVolumes().getConservedVolume(),
-        conservedVariables);
-
-    } else {
-        computeStructure<alsutils::math::PowPower>(*structure.getVolumes().getConservedVolume(),
-        conservedVariables);
-
-    }
+    alsfvm::functional::dispatchComputeStructureCubeCUDA(*structure.getVolumes().getConservedVolume(),
+                                              conservedVariables, structureOutput, numberOfH, p);
 
 }
 
 void StructureCubeCUDA::finalizeStatistics() {
 
-}
-
-template<class PowerClass>
-void StructureCubeCUDA::computeStructure(alsfvm::volume::Volume& output,
-    const alsfvm::volume::Volume& input) {
-    for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
-        auto inputView = input[var]->getView();
-        auto outputView = output[var]->getView();
-
-        const int ngx = input.getNumberOfXGhostCells();
-        const int ngy = input.getNumberOfYGhostCells();
-        const int ngz = input.getNumberOfZGhostCells();
-
-        const int nx = int(input.getNumberOfXCells()) - 2 * ngx;
-        const int ny = int(input.getNumberOfYCells()) - 2 * ngy;
-        const int nz = int(input.getNumberOfZCells()) - 2 * ngz;
-
-        structureOutput.resize(nx * ny * nz);
-        const int dimensions = input.getDimensions();
-
-        for (int h = 1; h < numberOfH; ++h) {
-            const int threads = 1024;
-            const int size = nx * ny * nz;
-            const int blockNumber = (size + threads - 1) / threads;
-
-
-            computeStructureCube<PowerClass> <<< blockNumber, threads>>>(thrust::raw_pointer_cast(
-                    structureOutput.data()),
-                inputView,
-                h, nx, ny, nz, ngx, ngy, ngz, p, dimensions);
-
-
-            real structureResult = thrust::reduce(structureOutput.begin(),
-                    structureOutput.end(),
-                    0.0, thrust::plus<real>());
-
-            outputView.at(h) += structureResult / (nx * ny * nz);
-        }
-
-    }
 }
 
 REGISTER_STATISTICS(cuda, structure_cube, StructureCubeCUDA)

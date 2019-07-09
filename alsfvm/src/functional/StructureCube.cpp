@@ -32,54 +32,17 @@ void StructureCube::operator()(volume::Volume& conservedVolumeOut,
     const volume::Volume& conservedVolumeIn,
     const real weight,
     const grid::Grid& grid) {
-    computeStructure(conservedVolumeOut,
-        conservedVolumeIn);
+
+    conservedVolumeOut.makeZero();
+    dispatchComputeStructureCubeCPU(conservedVolumeOut, conservedVolumeIn,
+        numberOfH, p);
+
 }
 
 ivec3 StructureCube::getFunctionalSize(const grid::Grid& grid) const {
     return {numberOfH, 1, 1};
 }
 
-void StructureCube::computeStructure(volume::Volume& output,
-    const volume::Volume& input) {
-    for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
-        auto inputView = input[var]->getView();
-        auto outputView = output[var]->getView();
-
-        int ngx = input.getNumberOfXGhostCells();
-        int ngy = input.getNumberOfYGhostCells();
-        int ngz = input.getNumberOfZGhostCells();
-
-        int nx = int(input.getNumberOfXCells()) - 2 * ngx;
-        int ny = int(input.getNumberOfYCells()) - 2 * ngy;
-        int nz = int(input.getNumberOfZCells()) - 2 * ngz;
-
-        for (int k = 0; k < nz; ++k) {
-            for (int j = 0; j < ny; ++j) {
-                for (int i = 0; i < nx; ++i) {
-                    for (int h = 1; h < numberOfH; ++h) {
-
-                        computeCube(outputView, inputView, i, j, k, h, nx, ny, nz,
-                            ngx, ngy, ngz, input.getDimensions());
-
-                    }
-                }
-            }
-        }
-
-
-    }
-}
-
-void StructureCube::computeCube(alsfvm::memory::View<real>& output,
-    const alsfvm::memory::View<const real>& input,
-    int i, int j, int k, int h,
-    int nx, int ny, int nz,
-    int ngx, int ngy, int ngz,
-    int dimensions) {
-    computeStructureCube(output, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz,
-        dimensions, p);
-}
 
 REGISTER_FUNCTIONAL(cpu, structure_cube, StructureCube)
 }

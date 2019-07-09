@@ -58,19 +58,6 @@ public:
 
 private:
 
-    void computeStructure(alsfvm::volume::Volume& outputVolume,
-        const alsfvm::volume::Volume& input);
-
-
-    //! Helper function, computes the volume integral
-    //!
-    //! \note This must be called in order according to the ordering of h
-    //! ie h=0 must be called first, then h=1, etc.
-    void computeCube(alsfvm::memory::View<real>& output,
-        const alsfvm::memory::View<const real>& input,
-        int i, int j, int k, int h, int nx, int ny, int nz,
-        int ngx, int ngy, int ngz, int dimensions);
-
     const real p;
     const int numberOfH;
 };
