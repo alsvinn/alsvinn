@@ -16,7 +16,7 @@
 #include "alsuq/stats/StructureCube.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsuq/stats/stats_util.hpp"
-#include "alsuq/stats/structure_common.hpp"
+#include "alsfvm/functional/structure_common.hpp"
 namespace alsuq {
 namespace stats {
 

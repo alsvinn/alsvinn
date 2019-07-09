@@ -45,7 +45,9 @@ void computeStructureCubeCUDA(alsfvm::volume::Volume& output,
     size_t numberOfH, double p) {
     for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
         auto inputView = input[var]->getView();
-        auto outputView = output[var]->getView();
+
+        auto outputMemory = output[var]->getHostMemory();
+        auto outputView = outputMemory->getView();
 
         const int ngx = int(input.getNumberOfXGhostCells());
         const int ngy = int(input.getNumberOfYGhostCells());
@@ -76,6 +78,10 @@ void computeStructureCubeCUDA(alsfvm::volume::Volume& output,
                     0.0, thrust::plus<real>());
 
             outputView.at(h) += structureResult / (nx * ny * nz);
+        }
+
+        if (!output[var]->isOnHost()) {
+            output[var]->copyFrom(*outputMemory);
         }
 
     }

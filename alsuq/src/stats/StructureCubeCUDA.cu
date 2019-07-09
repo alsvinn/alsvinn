@@ -17,7 +17,6 @@
 
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsuq/stats/stats_util.hpp"
-#include "alsuq/stats/structure_common.hpp"
 #include "alsutils/math/FastPower.hpp"
 #include "alsutils/math/PowPower.hpp"
 #include "alsfvm/functional/structure_common_cuda.hpp"
