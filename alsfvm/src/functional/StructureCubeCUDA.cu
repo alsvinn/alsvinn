@@ -13,14 +13,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "alsfvm/functional/StructureCube.hpp"
-#include "alsfvm/functional/structure_common.hpp"
+#include "alsfvm/functional/StructureCubeCUDA.hpp"
+#include "alsfvm/functional/structure_common_cuda.hpp"
 #include "alsfvm/functional/register_functional.hpp"
 
 namespace alsfvm {
 namespace functional {
 
-StructureCube::StructureCube(const Functional::Parameters& parameters)
+StructureCubeCUDA::StructureCubeCUDA(const Functional::Parameters& parameters)
     :  p(parameters.getDouble("p")),
        numberOfH(parameters.getInteger("numberOfH"))
 
@@ -28,22 +28,24 @@ StructureCube::StructureCube(const Functional::Parameters& parameters)
 
 }
 
-void StructureCube::operator()(volume::Volume& conservedVolumeOut,
+void StructureCubeCUDA::operator()(volume::Volume& conservedVolumeOut,
     const volume::Volume& conservedVolumeIn,
     const real weight,
     const grid::Grid& grid) {
 
     conservedVolumeOut.makeZero();
-    dispatchComputeStructureCubeCPU(conservedVolumeOut, conservedVolumeIn,
-        numberOfH, p);
+
+    alsfvm::functional::dispatchComputeStructureCubeCUDA(conservedVolumeOut,
+                                              conservedVolumeIn, structureOutput, numberOfH, p);
+
 
 }
 
-ivec3 StructureCube::getFunctionalSize(const grid::Grid& grid) const {
+ivec3 StructureCubeCUDA::getFunctionalSize(const grid::Grid& grid) const {
     return {numberOfH, 1, 1};
 }
 
 
-REGISTER_FUNCTIONAL(cpu, structure_cube, StructureCube)
+REGISTER_FUNCTIONAL(cuda, structure_cube, StructureCubeCUDA)
 }
 }

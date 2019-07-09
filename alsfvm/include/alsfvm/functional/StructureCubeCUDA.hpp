@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 ETH Zurich, Kjetil Olsen Lye
+/* Copyright (c) 2018, 2019 ETH Zurich, Kjetil Olsen Lye
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,6 +15,7 @@
 
 #pragma once
 #include "alsfvm/functional/Functional.hpp"
+#include <thrust/device_vector.h>
 
 namespace alsfvm {
 namespace functional {
@@ -23,9 +24,9 @@ namespace functional {
 //! stats/StructureCube.
 //!
 //! @todo Refactor this to avoid code duplication.
-class StructureCube : public Functional {
+class StructureCubeCUDA : public Functional {
 public:
-    StructureCube(const Functional::Parameters& parameters);
+    StructureCubeCUDA(const Functional::Parameters& parameters);
 
     //! Computes the operator value on the givne input data
     //!
@@ -60,6 +61,11 @@ private:
 
     const real p;
     const int numberOfH;
+
+
+    // For now we use thurst's version of reduce, and to make everything
+    // play nice, we use thrust device vector to hold the temporary results.
+    thrust::device_vector<real> structureOutput;
 };
 } // namespace functional
 } // namespace alsfvm

@@ -16,7 +16,7 @@
 #include "alsuq/stats/StructureCube.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsuq/stats/stats_util.hpp"
-#include "alsuq/stats/structure_common.hpp"
+#include "alsfvm/functional/structure_common.hpp"
 namespace alsuq {
 namespace stats {
 
@@ -44,81 +44,18 @@ void StructureCube::computeStatistics(const alsfvm::volume::Volume&
             numberOfH, 1, 1);
 
 
-    if (p == 1.0) {
-        computeStructure < alsutils::math::FastPower<1>>
-            (*structure.getVolumes().getConservedVolume(),
-                conservedVariables);
-    } else if (p == 1.0) {
-        computeStructure < alsutils::math::FastPower<2>>
-            (*structure.getVolumes().getConservedVolume(),
-                conservedVariables);
-    }
+    alsfvm::functional::dispatchComputeStructureCubeCPU(
+        *structure.getVolumes().getConservedVolume(),
+        conservedVariables,
+        numberOfH,
+        p);
 
-    else if (p == 3.0) {
-        computeStructure < alsutils::math::FastPower<3>>
-            (*structure.getVolumes().getConservedVolume(),
-                conservedVariables);
-    } else if (p == 4.0) {
-        computeStructure < alsutils::math::FastPower<4>>
-            (*structure.getVolumes().getConservedVolume(),
-                conservedVariables);
-    } else if (p == 5.0) {
-        computeStructure < alsutils::math::FastPower<5>>
-            (*structure.getVolumes().getConservedVolume(),
-                conservedVariables);
-    } else {
-        computeStructure < alsutils::math::PowPower>
-        (*structure.getVolumes().getConservedVolume(),
-            conservedVariables);
-    }
 }
 
 void StructureCube::finalizeStatistics() {
 
 }
 
-template<class PowerClass>
-void StructureCube::computeStructure(alsfvm::volume::Volume& output,
-    const alsfvm::volume::Volume& input) {
-    for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
-        auto inputView = input[var]->getView();
-        auto outputView = output[var]->getView();
-
-        int ngx = input.getNumberOfXGhostCells();
-        int ngy = input.getNumberOfYGhostCells();
-        int ngz = input.getNumberOfZGhostCells();
-
-        int nx = int(input.getNumberOfXCells()) - 2 * ngx;
-        int ny = int(input.getNumberOfYCells()) - 2 * ngy;
-        int nz = int(input.getNumberOfZCells()) - 2 * ngz;
-
-        for (int k = 0; k < nz; ++k) {
-            for (int j = 0; j < ny; ++j) {
-                for (int i = 0; i < nx; ++i) {
-                    for (int h = 1; h < numberOfH; ++h) {
-
-                        computeCube<PowerClass>(outputView, inputView, i, j, k, h, nx, ny, nz,
-                            ngx, ngy, ngz, input.getDimensions());
-
-                    }
-                }
-            }
-        }
-
-
-    }
-}
-
-template<class PowerClass>
-void StructureCube::computeCube(alsfvm::memory::View<real>& output,
-    const alsfvm::memory::View<const real>& input,
-    int i, int j, int k, int h, int nx, int ny, int nz,
-    int ngx, int ngy, int ngz, int dimensions) {
-
-    computeStructureCube<PowerClass>(output, input, i, j, k, h, nx, ny, nz, ngx,
-        ngy, ngz,
-        dimensions, p);
-}
 REGISTER_STATISTICS(cpu, structure_cube, StructureCube)
 }
 }

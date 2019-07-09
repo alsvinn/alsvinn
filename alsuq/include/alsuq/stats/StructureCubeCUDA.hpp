@@ -47,9 +47,6 @@ public:
 
 private:
 
-    template<class PowerClass>
-    void computeStructure(alsfvm::volume::Volume& outputVolume,
-        const alsfvm::volume::Volume& input);
 
     const real p;
     const int numberOfH;
