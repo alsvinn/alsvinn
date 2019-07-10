@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -217,6 +217,10 @@ public:
 
 
     virtual std::shared_ptr<Memory<T> > getHostMemory() override;
+
+    //! Copies the data to host if it is on GPU, otherwise makes a copy
+    //! Const version
+    virtual const std::shared_ptr<const Memory<T> > getHostMemory() const override;
 
     //! Computes the total variation, given here as
     //!

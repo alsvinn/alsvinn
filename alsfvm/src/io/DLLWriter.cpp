@@ -3,6 +3,7 @@
 #include <boost/dll.hpp>
 #include <boost/algorithm/string.hpp>
 #include "alsutils/config.hpp"
+#include "alsutils/cuda/get_current_gpu_id.hpp"
 
 namespace alsfvm {
 namespace io {
@@ -101,9 +102,7 @@ void DLLWriter::write(const volume::Volume& conservedVariables,
     const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
 
-    if (needsDataOnHost && !conservedVariables.getScalarMemoryArea(0)->isOnHost()) {
 
-    }
 
     if (newTimestepFunction) {
         newTimestepFunction(dllData, parametersStruct,
@@ -130,15 +129,28 @@ void DLLWriter::write(const volume::Volume& conservedVariables,
 
 
     for (size_t var = 0; var < conservedVariables.getNumberOfVariables(); ++var) {
+        auto dataSmartPointer =  conservedVariables.getScalarMemoryArea(var);
+
+        if (needsDataOnHost && !dataSmartPointer->isOnHost()) {
+            dataSmartPointer = dataSmartPointer->getHostMemory();
+
+        }
+
+        int gpuID = -1;
+
+        if (!dataSmartPointer->isOnHost()) {
+            gpuID = alsutils::cuda::getCurrentGPUId();
+        }
+
         writeFunction(dllData, parametersStruct,
             timestepInformation.getCurrentTime(),
             conservedVariables.getName(var).c_str(),
-            conservedVariables.getScalarMemoryArea(var)->getPointer(),
+            dataSmartPointer->getPointer(),
             nx, ny, nz,
             ngx, ngy, ngz,
             ax, ay, az,
             bx, by, bz,
-            int(!conservedVariables.getScalarMemoryArea(var)->isOnHost()) - 1);
+            gpuID);
     }
 
     if (endTimestepFunction) {
