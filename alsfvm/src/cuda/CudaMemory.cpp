@@ -339,6 +339,17 @@ std::shared_ptr<memory::Memory<T> > CudaMemory<T>::getHostMemory() {
 }
 
 template<class T>
+const std::shared_ptr<const memory::Memory<T> > CudaMemory<T>::getHostMemory()
+const {
+    std::shared_ptr<memory::Memory<T> > pointer(new memory::HostMemory<T>(this->nx,
+            this->ny, this->nz));
+
+    this->copyToHost(pointer->getPointer(), pointer->getSize());
+
+    return std::dynamic_pointer_cast<const memory::Memory<T>>(pointer);
+}
+
+template<class T>
 real CudaMemory<T>::getTotalVariation(int p, const ivec3& start,
     const ivec3& end) const {
     return compute_total_variation(this->getPointer(), this->nx,

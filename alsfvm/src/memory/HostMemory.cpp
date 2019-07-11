@@ -305,6 +305,12 @@ std::shared_ptr<Memory<T> > HostMemory<T>::getHostMemory() {
 }
 
 template<class T>
+const std::shared_ptr<const Memory<T> > HostMemory<T>::getHostMemory() const {
+    return this->shared_from_this();
+
+}
+
+template<class T>
 real HostMemory<T>::getTotalVariation(int p, const ivec3& start,
     const ivec3& end) const {
     // See http://www.ams.org/journals/tran/1933-035-04/S0002-9947-1933-1501718-2/S0002-9947-1933-1501718-2.pdf

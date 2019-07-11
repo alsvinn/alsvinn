@@ -296,6 +296,10 @@ public:
     //! Copies the data to host if it is on GPU, otherwise makes a copy
     virtual std::shared_ptr<Memory<T> > getHostMemory() = 0;
 
+    //! Copies the data to host if it is on GPU, otherwise makes a copy
+    //! Const version
+    virtual const std::shared_ptr<const Memory<T> > getHostMemory() const = 0;
+
     //! Computes the total variation, given here as
     //!
     //! \f[\sum_{i,j,k} \sqrt(\sum_{n=1}^d|u_{(i,j,k)}-u_{(i,j,k)-e_n}|^2)^p.\f]
