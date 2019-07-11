@@ -50,12 +50,14 @@ void TimeIntegrationFunctional::write(const volume::Volume& conservedVariables,
 
 void TimeIntegrationFunctional::finalize(const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
+    const ivec3 numberOfNodes = grid.getGlobalSize() / grid.getDimensions();
     grid::Grid smallerGrid(grid.getOrigin(),
         grid.getTop(),
         functionalSize,
         grid.getBoundaryConditions(),
         grid.getGlobalPosition(),
-        grid.getGlobalSize());
+        numberOfNodes * functionalSize);
+
     writer->write(*conservedVolume, smallerGrid, timestepInformation);
 }
 
