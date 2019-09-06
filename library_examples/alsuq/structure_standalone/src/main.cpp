@@ -4,7 +4,7 @@
 #include <random>
 
 // Alsvinn headers
-#include <alsfvm/io/WriterFactory.hpp>
+#include <alsfvm/io/MpiWriterFactory.hpp>
 #include <alsuq/stats/StatisticsFactory.hpp>
 #include <alsfvm/volume/make_volume.hpp>
 #include <alsfvm/volume/VolumePair.hpp>
@@ -86,8 +86,9 @@ void addWriters(alsuq::stats::StatisticsFactory::StatisticsPointer
     const std::string& outputName,
     const std::string& writerType,
     boost::property_tree::ptree extraAttributes,
-    const std::string& allCommandLineArguments) {
-    alsfvm::io::WriterFactory factory;
+    const std::string& allCommandLineArguments,
+    alsfvm::mpi::ConfigurationPtr mpiConfiguration) {
+    alsfvm::io::MpiWriterFactory factory(mpiConfiguration);
     boost::property_tree::ptree tree;
     alsfvm::io::Parameters parameters(tree);
 
@@ -202,17 +203,38 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
                 NULL,
                 NULL));
 
-        std::vector<::alsfvm::real> buffer (nx * ny * nz);
+
+        int numberOfDimensions = 1;
+        NETCDF_SAFE_CALL(nc_inq_varndims(file, varid, &numberOfDimensions));
+
+        std::vector<int> dimensionIds(numberOfDimensions, 0);
+
+        NETCDF_SAFE_CALL(nc_inq_vardimid(file, varid, dimensionIds.data()));
+
+        std::vector<size_t> dimensionLengths(numberOfDimensions, 1);
+
+        for (int dim = 0; dim < numberOfDimensions; ++dim) {
+            NETCDF_SAFE_CALL(
+                nc_inq_dimlen(file, dimensionIds[dim], &dimensionLengths[dim]));
+        }
+
+        size_t totalSize = 1;
+
+        for (size_t l : dimensionLengths) {
+            totalSize *= l;
+        }
+
+        std::vector<::alsfvm::real> buffer (totalSize);
 
         if (netcdftype == NC_DOUBLE) {
-            std::vector<double> bufferTmp(nx * ny * nz);
+            std::vector<double> bufferTmp(totalSize);
 
             NETCDF_SAFE_CALL(nc_get_var_double(file, varid, bufferTmp.data()));
 
             std::copy(bufferTmp.begin(), bufferTmp.end(), buffer.begin());
 
         } else if (netcdftype == NC_FLOAT) {
-            std::vector<float> bufferTmp(nx * ny * nz);
+            std::vector<float> bufferTmp(totalSize);
 
             NETCDF_SAFE_CALL(nc_get_var_float(file, varid, bufferTmp.data()));
 
@@ -220,8 +242,93 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
 
         }
 
-        conservedVolume->getScalarMemoryArea(var)->copyFromHost(buffer.data(),
-            buffer.size());
+        if (ny == 1 && nz > 1 || (nx == 1 && (ny > 1 || nz > 1))) {
+            THROW("We assume nx is greater than 1 whenever ny is, and ny is greater than 1 whenever nz is\n given  ("
+                << nx << ", " << ny << ", " << nz << ")")
+        }
+
+        if (dimensionLengths[0] > nx || dimensionLengths[1] > ny
+            || dimensionLengths[2] > nz) {
+            THROW("We do not support downscaling! Given a file with dimensions: ("
+                << dimensionLengths[0] << ", " << dimensionLengths[1] << ", " <<
+                dimensionLengths[2] << "),"
+                << "however, the following was requested ("
+                << nx << ", " << ny << ", " << nz << ")")
+        }
+
+        if ((nx / dimensionLengths[0])*dimensionLengths[0] != nx ||
+            (ny / dimensionLengths[1])*dimensionLengths[1] != ny ||
+            (nz / dimensionLengths[2])*dimensionLengths[2] != nz) {
+            THROW("The requested dimensions are not divisible by the file dimensions, given ("
+                << dimensionLengths[0] << ", " << dimensionLengths[1] << ", " <<
+                dimensionLengths[2] << "),"
+                << "however, the following was requested ("
+                << nx << ", " << ny << ", " << nz << ")")
+        }
+
+
+        if (ny > 1) {
+            if ((ny / dimensionLengths[1]) != (nx / dimensionLengths[0])) {
+                THROW("We only support dimension lengths of the sample multiple ("
+                    << dimensionLengths[0] << ", " << dimensionLengths[1] << ", " <<
+                    dimensionLengths[2] << "),"
+                    << "however, the following was requested ("
+                    << nx << ", " << ny << ", " << nz << ")")
+            }
+
+            if (nz > 1) {
+                if ((nz / dimensionLengths[2]) != (nx / dimensionLengths[0])) {
+                    THROW("We only support dimension lengths of the sample multiple ("
+                        << dimensionLengths[0] << ", " << dimensionLengths[1] << ", " <<
+                        dimensionLengths[2] << "),"
+                        << "however, the following was requested ("
+                        << nx << ", " << ny << ", " << nz << ")")
+                }
+            }
+
+        }
+
+
+        if (dimensionLengths.size() != 3) {
+            THROW("Expected a three dimensional file, got " << dimensionLengths.size() <<
+                " dimensions.");
+        }
+
+        std::vector<::alsfvm::real> bufferFinal (nx * ny * nz);
+
+        for (size_t z = 0; z < dimensionLengths[2]; ++z) {
+            for (size_t y = 0; y < dimensionLengths[1]; ++y) {
+                for (size_t x = 0; x < dimensionLengths[0]; ++x) {
+                    const size_t cellsPerZ = nz / dimensionLengths[2];
+
+                    for (size_t k = 0; k < cellsPerZ; ++k) {
+                        const size_t cellsPerY = ny / dimensionLengths[1];
+
+                        for (size_t j = 0; j < cellsPerY; ++j) {
+                            const size_t cellsPerX = nx / dimensionLengths[0];
+
+                            for (size_t i = 0; i < cellsPerX; ++i) {
+                                const size_t outZ = z * cellsPerZ + k;
+                                const size_t outY = y * cellsPerY + j;
+                                const size_t outX = x * cellsPerX + i;
+
+                                const size_t inputIndex = z * dimensionLengths[1] * dimensionLengths[0]
+                                    + y * dimensionLengths[0] + x;
+
+                                const size_t outputIndex = outZ * nx * ny + outY * nx + outX;
+
+                                bufferFinal[outputIndex] = buffer[inputIndex];
+
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+        conservedVolume->getScalarMemoryArea(var)->copyFromHost(bufferFinal.data(),
+            bufferFinal.size());
     }
 
     NETCDF_SAFE_CALL(nc_close(file));
@@ -362,7 +469,8 @@ int main(int argc, char** argv) {
     auto statistics = makeStructureFunction(p, numberOfH, numberOfSamples, platform,
             mpiConfiguration);
     addWriters(statistics, filenameOutput, writerType, attributes,
-        allCommandLineArguments.str());
+        allCommandLineArguments.str(),
+        mpiConfiguration->makeSubConfiguration(rank, 0));
 
     alsfvm::grid::Grid grid(lower, upper, {nx, ny, nz});
 
