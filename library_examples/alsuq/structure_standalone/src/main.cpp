@@ -4,7 +4,7 @@
 #include <random>
 
 // Alsvinn headers
-#include <alsfvm/io/WriterFactory.hpp>
+#include <alsfvm/io/MpiWriterFactory.hpp>
 #include <alsuq/stats/StatisticsFactory.hpp>
 #include <alsfvm/volume/make_volume.hpp>
 #include <alsfvm/volume/VolumePair.hpp>
@@ -86,8 +86,9 @@ void addWriters(alsuq::stats::StatisticsFactory::StatisticsPointer
     const std::string& outputName,
     const std::string& writerType,
     boost::property_tree::ptree extraAttributes,
-    const std::string& allCommandLineArguments) {
-    alsfvm::io::WriterFactory factory;
+    const std::string& allCommandLineArguments,
+    alsfvm::mpi::ConfigurationPtr mpiConfiguration) {
+    alsfvm::io::MpiWriterFactory factory(mpiConfiguration);
     boost::property_tree::ptree tree;
     alsfvm::io::Parameters parameters(tree);
 
@@ -468,7 +469,8 @@ int main(int argc, char** argv) {
     auto statistics = makeStructureFunction(p, numberOfH, numberOfSamples, platform,
             mpiConfiguration);
     addWriters(statistics, filenameOutput, writerType, attributes,
-        allCommandLineArguments.str());
+        allCommandLineArguments.str(),
+        mpiConfiguration);
 
     alsfvm::grid::Grid grid(lower, upper, {nx, ny, nz});
 
