@@ -310,7 +310,7 @@ alsfvm::volume::VolumePair getSample(const std::string& platform,
                             for (size_t i = 0; i < cellsPerX; ++i) {
                                 const size_t outZ = z * cellsPerZ + k;
                                 const size_t outY = y * cellsPerY + j;
-                                const size_t outX = z * cellsPerX + i;
+                                const size_t outX = x * cellsPerX + i;
 
                                 const size_t inputIndex = z * dimensionLengths[1] * dimensionLengths[0]
                                     + y * dimensionLengths[0] + x;
