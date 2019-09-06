@@ -470,7 +470,7 @@ int main(int argc, char** argv) {
             mpiConfiguration);
     addWriters(statistics, filenameOutput, writerType, attributes,
         allCommandLineArguments.str(),
-        mpiConfiguration);
+        mpiConfiguration->makeSubConfiguration(rank, 0));
 
     alsfvm::grid::Grid grid(lower, upper, {nx, ny, nz});
 
