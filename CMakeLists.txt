@@ -19,7 +19,7 @@ ELSE()
 	ENDMACRO()
 ENDIF()
 
-project (alsvinn VERSION 0.5.3 LANGUAGES C CXX )
+project (alsvinn VERSION 0.5.4 LANGUAGES C CXX )
 SET(ALSVINN_USE_FLOAT OFF CACHE BOOL "Do all computations with 32 bits
 floating point numbers, instead of 64 bit double precision")
 SET(ALSVINN_USE_CUDA ON CACHE BOOL "Build with CUDA")
