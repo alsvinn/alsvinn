@@ -4,7 +4,7 @@
 #    docker build . -f containers/docker/cpu/Dockerfile -t <whatever tag>
 #
 
-FROM alsvinn/cpu_base:release-v2.1.0
+FROM alsvinn/cpu_base:release-v2.2.0
 
 ARG ALSVINN_USE_FLOAT=OFF
 ARG ALSVINN_DOCKER_CONTAINER="Unknown"
