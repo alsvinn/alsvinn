@@ -36,6 +36,7 @@
 #include "alsfvm/functional/TimeIntegrationFunctional.hpp"
 #include <set>
 #include "alsutils/log.hpp"
+#include <algorithm>
 
 #ifdef ALSVINN_USE_MPI
     #include "alsfvm/mpi/domain/CartesianDecomposition.hpp"
@@ -376,12 +377,23 @@ alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(
                         timeInterval, endTime, writeInitialTimestep));
         } else if (writerNode.find("timeRadius") != writerNode.not_found()) {
 
-            const real time = writerNode.get<size_t>("time");
-            const real timeRadius = writerNode.get<size_t>("timeRadius");
+            const real time = writerNode.get<real>("time");
+            const real timeRadius = writerNode.get<real>("timeRadius");
 
-            return alsfvm::shared_ptr<io::Writer>(new io::TimeIntegratedWriter(baseWriter,
+            auto timeIntegratedWriter = alsfvm::shared_ptr<io::Writer>
+                (new io::TimeIntegratedWriter(baseWriter,
                         time,
                         timeRadius));
+
+            if (writerNode.find("numberOfSnapshots") != writerNode.not_found()) {
+                size_t numberOfSnapshots = writerNode.get<size_t>("numberOfSnapshots");
+                real timeInterval = timeRadius / numberOfSnapshots;
+
+                return alsfvm::shared_ptr<io::Writer>(new io::FixedIntervalWriter(
+                            timeIntegratedWriter,
+                            timeInterval, time + timeRadius, false,
+                            std::max(time - timeRadius, real(0.0))));
+            }
         }
 
         return baseWriter;
@@ -554,16 +566,30 @@ std::vector<io::WriterPointer> SimulatorSetup::createFunctionals(
                         configuration), name, parameters);
 
             if (functional.second.find("time") != functional.second.not_found()) {
-                auto time = functional.second.get<double>("time");
-                auto timeRadius = functional.second.get<double>("timeRadius");
+                real time = functional.second.get<real>("time");
+                real timeRadius = functional.second.get<real>("timeRadius");
 
 
 
                 auto timeIntegrationFunctional =
-                    alsfvm::make_shared<functional::TimeIntegrationFunctional>(volumeFactory,
-                        writer, functionalPointer, time, timeRadius);
+                    alsfvm::dynamic_pointer_cast<io::Writer>
+                    (alsfvm::make_shared<functional::TimeIntegrationFunctional>(volumeFactory,
+                            writer, functionalPointer, time, timeRadius));
 
-                functionalPointers.push_back(alsfvm::dynamic_pointer_cast<io::Writer>
+
+                if (functional.second.find("numberOfSnapshots") !=
+                    functional.second.not_found()) {
+                    size_t numberOfSnapshots = functional.second.get<size_t>("numberOfSnapshots");
+                    real timeInterval = timeRadius / numberOfSnapshots;
+
+                    timeIntegrationFunctional = alsfvm::shared_ptr<io::Writer>
+                        (new io::FixedIntervalWriter(
+                                timeIntegrationFunctional,
+                                timeInterval, time + timeRadius, false,
+                                std::max(time - timeRadius, real(0.0))));
+                }
+
+                functionalPointers.push_back(
                     (timeIntegrationFunctional));
             } else if (functional.second.find("numberOfSaves") !=
                 functional.second.not_found()) {
