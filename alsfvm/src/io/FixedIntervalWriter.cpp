@@ -21,9 +21,9 @@ namespace alsfvm {
 namespace io {
 
 FixedIntervalWriter::FixedIntervalWriter(alsfvm::shared_ptr<Writer>& writer,
-    real timeInterval, real, bool writeInitialTimestep )
+    real timeInterval, real, bool writeInitialTimestep, real startTime)
     : writer(writer), timeInterval(timeInterval), numberSaved(0),
-      writeInitialTimestep(writeInitialTimestep) {
+      writeInitialTimestep(writeInitialTimestep), startTime(startTime) {
     if (!writeInitialTimestep) {
         numberSaved = 1;
     }
@@ -35,7 +35,7 @@ void FixedIntervalWriter::write(const volume::Volume& conservedVariables,
     const simulator::TimestepInformation& timestepInformation) {
     const real currentTime = timestepInformation.getCurrentTime();
 
-    if (currentTime >= numberSaved * timeInterval) {
+    if (currentTime >= numberSaved * timeInterval + startTime) {
         writer->write(conservedVariables, grid, timestepInformation);
         numberSaved++;
     }
@@ -45,7 +45,7 @@ void FixedIntervalWriter::write(const volume::Volume& conservedVariables,
 real FixedIntervalWriter::adjustTimestep(real dt,
     const simulator::TimestepInformation& timestepInformation) const {
     if (numberSaved > 0) {
-        const real nextSaveTime = numberSaved * timeInterval;
+        const real nextSaveTime = numberSaved * timeInterval + startTime;
         return std::min(dt, nextSaveTime - timestepInformation.getCurrentTime());
     } else {
         return dt;
