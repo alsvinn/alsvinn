@@ -36,6 +36,7 @@
 #include "alsfvm/functional/TimeIntegrationFunctional.hpp"
 #include <set>
 #include "alsutils/log.hpp"
+#include <algorithm>
 
 #ifdef ALSVINN_USE_MPI
     #include "alsfvm/mpi/domain/CartesianDecomposition.hpp"
@@ -488,8 +489,7 @@ void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree&
     }
 }
 
-alsfvm::shared_ptr<diffusion::DiffusionOperator>
-SimulatorSetup::createDiffusion(
+alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion(
     const SimulatorSetup::ptree& configuration,
     const grid::Grid& grid,
     const simulator::SimulatorParameters& simulatorParameters,
