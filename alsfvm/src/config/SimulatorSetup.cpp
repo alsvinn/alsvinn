@@ -376,8 +376,8 @@ alsfvm::shared_ptr<io::Writer> SimulatorSetup::createWriter(
                         timeInterval, endTime, writeInitialTimestep));
         } else if (writerNode.find("timeRadius") != writerNode.not_found()) {
 
-            const real time = writerNode.get<size_t>("time");
-            const real timeRadius = writerNode.get<size_t>("timeRadius");
+            const real time = writerNode.get<real>("time");
+            const real timeRadius = writerNode.get<real>("timeRadius");
 
             auto timeIntegratedWriter = alsfvm::shared_ptr<io::Writer>
                 (new io::TimeIntegratedWriter(baseWriter,
@@ -566,8 +566,8 @@ std::vector<io::WriterPointer> SimulatorSetup::createFunctionals(
                         configuration), name, parameters);
 
             if (functional.second.find("time") != functional.second.not_found()) {
-                auto time = functional.second.get<double>("time");
-                auto timeRadius = functional.second.get<double>("timeRadius");
+                real time = functional.second.get<real>("time");
+                real timeRadius = functional.second.get<real>("timeRadius");
 
 
 
