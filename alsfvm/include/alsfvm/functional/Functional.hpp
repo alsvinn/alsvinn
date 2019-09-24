@@ -67,6 +67,8 @@ public:
 
     virtual ivec3 getGhostCellSizes(const grid::Grid& grid,
         const volume::Volume& volume) const;
+
+    virtual std::string getPlatformToAllocateOn(const std::string& platform) const;
 };
 
 typedef alsfvm::shared_ptr<Functional> FunctionalPointer;

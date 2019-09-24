@@ -23,5 +23,10 @@ ivec3 Functional::getGhostCellSizes(const grid::Grid&,
     return ivec3{0, 0, 0};
 }
 
+std::string Functional::getPlatformToAllocateOn(const std::string& platform)
+const {
+    return platform;
+}
+
 }
 }

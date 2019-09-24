@@ -26,7 +26,6 @@ IntervalFunctionalWriter::IntervalFunctionalWriter(volume::VolumeFactory
     : volumeFactory(volumeFactory),
       writer(writer),
       functional(functional) {
-
 }
 
 void IntervalFunctionalWriter::write(const volume::Volume& conservedVariables,
@@ -75,6 +74,26 @@ void IntervalFunctionalWriter::makeVolumes(const grid::Grid& grid,
     conservedVolume->makeZero();
 
 
+    auto platformMain = "cpu";
+
+    // TODO: Make some  nice getters for this
+    if (!(conservedVolume->getScalarMemoryArea(0)->isOnHost())) {
+        platformMain = "cuda";
+    }
+
+    auto platform = functional->getPlatformToAllocateOn(platformMain);
+
+    if ((platform != "cuda") && (platform != "cpu")) {
+        THROW("Unknown platform " << platform);
+    }
+
+    if (platformMain == "cuda" && platform == "cpu") {
+        conservedVolume = conservedVolume->getCopyOnCPU();
+    }
+
+    else if (platformMain == "cpu" && platform == "cuda" ) {
+        THROW("We do not support allocating on cuda when the major platform is given as cpu");
+    }
 }
 
 }
