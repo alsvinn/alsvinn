@@ -132,7 +132,7 @@ void add_power(T* a, const T* b, double power, size_t size);
 //!
 //! \f[a += factor*pow(b,power)\f]
 template<class T>
-void add_power(T* a, const T* b, double power, T factor, size_t size);
+void add_power(T* a, const T* b, double power, double factor, size_t size);
 
 
 //! Basically runs

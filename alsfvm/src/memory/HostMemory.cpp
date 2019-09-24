@@ -291,7 +291,7 @@ void HostMemory<T>::addPower(const Memory<T>& other, double power) {
 
 template<class T>
 void HostMemory<T>::addPower(const Memory<T>& other, double power,
-    real factor) {
+    double factor) {
     CHECK_SIZE_AND_HOST(other);
     #pragma omp parallel for
 

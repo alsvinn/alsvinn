@@ -121,7 +121,7 @@ __global__ void add_power_device(T* out, const T* a, double power,
 
 
 template<class T>
-__global__ void add_power_device(T* out, const T* a, double power, T factor,
+__global__ void add_power_device(T* out, const T* a, double power, double factor,
     size_t size) {
     size_t index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -355,7 +355,7 @@ void add_power(T* a, const T* b, double power, size_t size) {
 
 
 template<class T>
-void add_power(T* a, const T* b, double power, T factor, size_t size) {
+void add_power(T* a, const T* b, double power, double factor, size_t size) {
     const size_t threadCount = 1024;
     add_power_device << < (size + threadCount - 1) / threadCount,
                      threadCount >> > (a, b, power, factor, size);

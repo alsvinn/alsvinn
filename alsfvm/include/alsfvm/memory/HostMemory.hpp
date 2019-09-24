@@ -215,7 +215,7 @@ public:
     //! @param other the other memory area to the the power of
     //! @param power the power to use
     virtual void addPower(const Memory<T>& other, double power,
-        real factor) override;
+        double factor) override;
 
     //! Subtracts a power of the other memory area to this memory area, ie
     //!
