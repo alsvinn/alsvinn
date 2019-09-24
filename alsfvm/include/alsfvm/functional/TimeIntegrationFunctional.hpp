@@ -51,7 +51,7 @@ public:
         const simulator::TimestepInformation& timestepInformation) override;
 
 private:
-    void makeVolumes(const grid::Grid& grid);
+    void makeVolumes(const grid::Grid& grid, const volume::Volume& volume);
     volume::VolumeFactory volumeFactory;
     io::WriterPointer writer;
     FunctionalPointer functional;

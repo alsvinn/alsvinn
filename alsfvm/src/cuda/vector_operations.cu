@@ -121,6 +121,17 @@ __global__ void add_power_device(T* out, const T* a, double power,
 
 
 template<class T>
+__global__ void add_power_device(T* out, const T* a, double power, T factor,
+    size_t size) {
+    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index < size) {
+        out[index] += factor * pow(a[index], power);
+    }
+}
+
+
+template<class T>
 __global__ void subtract_power_device(T* out, const T* a, double power,
     size_t size) {
     size_t index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -344,6 +355,15 @@ void add_power(T* a, const T* b, double power, size_t size) {
 
 
 template<class T>
+void add_power(T* a, const T* b, double power, T factor, size_t size) {
+    const size_t threadCount = 1024;
+    add_power_device << < (size + threadCount - 1) / threadCount,
+                     threadCount >> > (a, b, power, factor, size);
+}
+
+
+
+template<class T>
 void subtract_power(T* a, const T* b, double power, size_t size) {
     const size_t threadCount = 1024;
     subtract_power_device << < (size + threadCount - 1) / threadCount,
@@ -421,6 +441,10 @@ template void add_linear_combination<real>(real a1, real* v1, real a2,
     size_t size);
 
 template void add_power<real>(real* a, const real* b, double power,
+    size_t size);
+
+
+template void add_power<real>(real* a, const real* b, double power, real factor,
     size_t size);
 
 template void subtract_power<real>(real* a, const real* b, double power,

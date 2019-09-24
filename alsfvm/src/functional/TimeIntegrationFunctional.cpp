@@ -14,6 +14,7 @@
  */
 
 #include "alsfvm/functional/TimeIntegrationFunctional.hpp"
+#include <iostream>
 
 namespace alsfvm {
 namespace functional {
@@ -33,14 +34,13 @@ void TimeIntegrationFunctional::write(const volume::Volume& conservedVariables,
     const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
     if (!conservedVolume) {
-        makeVolumes(grid);
+        makeVolumes(grid, conservedVariables);
     }
 
     const double currentTime = timestepInformation.getCurrentTime();
     const double dt = currentTime - lastTime;
 
     if (std::abs(currentTime - time) <= timeRadius) {
-
         (*functional)(*conservedVolume,  conservedVariables,
             dt, grid);
     }
@@ -61,11 +61,13 @@ void TimeIntegrationFunctional::finalize(const grid::Grid& grid,
     writer->write(*conservedVolume, smallerGrid, timestepInformation);
 }
 
-void TimeIntegrationFunctional::makeVolumes(const grid::Grid& grid) {
+void TimeIntegrationFunctional::makeVolumes(const grid::Grid& grid,
+    const volume::Volume& volume) {
     functionalSize = functional->getFunctionalSize(grid);
 
+    auto ghostCells = functional->getGhostCellSizes(grid, volume);
     conservedVolume = volumeFactory.createConservedVolume(functionalSize.x,
-            functionalSize.y, functionalSize.z, 0);
+            functionalSize.y, functionalSize.z, ghostCells.x);
     conservedVolume->makeZero();
 
 

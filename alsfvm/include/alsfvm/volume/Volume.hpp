@@ -295,6 +295,14 @@ public:
     //! @param power the power to use
     virtual void addPower(const Volume& other, real power);
 
+    //! Adds a power of the other volume to this volume, ie
+    //!
+    //! \f[this += factor*pow(other, power)\f]
+    //!
+    //! @param other the other volume to the the power of
+    //! @param power the power to use
+    virtual void addPower(const Volume& other, real power, real factor);
+
     //! Subtracts a power of the other volume to this volume, ie
     //!
     //! \f[this -= pow(other, power)\f]

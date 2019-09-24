@@ -320,6 +320,13 @@ void CudaMemory<T>::addPower(const memory::Memory<T>& other, double power) {
     add_power(getPointer(), other.getPointer(), power, this->getSize());
 }
 
+template<class T>
+void CudaMemory<T>::addPower(const memory::Memory<T>& other, double power,
+    real factor) {
+    CHECK_SIZE_AND_HOST(other);
+    add_power(getPointer(), other.getPointer(), power, factor, this->getSize());
+}
+
 
 template<class T>
 void CudaMemory<T>::subtractPower(const memory::Memory<T>& other,

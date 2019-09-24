@@ -383,6 +383,14 @@ void Volume::addPower(const Volume& other, real power) {
 }
 
 
+
+void Volume::addPower(const Volume& other, real power, real factor) {
+    for (size_t i = 0; i < memoryAreas.size(); ++i) {
+        memoryAreas[i]->addPower(*other[i], power, factor);
+    }
+
+}
+
 void Volume::subtractPower(const Volume& other, real power) {
     for (size_t i = 0; i < memoryAreas.size(); ++i) {
         memoryAreas[i]->subtractPower(*other[i], power);

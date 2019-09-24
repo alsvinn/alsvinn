@@ -33,7 +33,7 @@ void IntervalFunctionalWriter::write(const volume::Volume& conservedVariables,
     const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
     if (!conservedVolume) {
-        makeVolumes(grid);
+        makeVolumes(grid, conservedVariables);
     }
 
     conservedVolume->makeZero();
@@ -65,11 +65,13 @@ void IntervalFunctionalWriter::write(const volume::Volume& conservedVariables,
 
 }
 
-void IntervalFunctionalWriter::makeVolumes(const grid::Grid& grid) {
+void IntervalFunctionalWriter::makeVolumes(const grid::Grid& grid,
+    const volume::Volume& volume) {
     functionalSize = functional->getFunctionalSize(grid);
 
+    auto ghostCells = functional->getGhostCellSizes(grid, volume);
     conservedVolume = volumeFactory.createConservedVolume(functionalSize.x,
-            functionalSize.y, functionalSize.z, 0);
+            functionalSize.y, functionalSize.z, ghostCells.x);
     conservedVolume->makeZero();
 
 

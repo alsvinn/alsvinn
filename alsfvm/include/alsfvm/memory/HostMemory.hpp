@@ -207,6 +207,16 @@ public:
     //! @param power the power to use
     virtual void addPower(const Memory<T>& other, double power) override;
 
+
+    //! Adds a power of the other memory area to this memory area, ie
+    //!
+    //! \f[this += factor*pow(other, power)\f]
+    //!
+    //! @param other the other memory area to the the power of
+    //! @param power the power to use
+    virtual void addPower(const Memory<T>& other, double power,
+        real factor) override;
+
     //! Subtracts a power of the other memory area to this memory area, ie
     //!
     //! \f[this -= pow(other, power)\f]

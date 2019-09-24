@@ -44,7 +44,8 @@ public:
 
 
 private:
-    void makeVolumes(const grid::Grid& grid);
+    void makeVolumes(const grid::Grid& grid,
+        const volume::Volume& conservedVariables);
     volume::VolumeFactory volumeFactory;
     io::WriterPointer writer;
     FunctionalPointer functional;

@@ -283,6 +283,15 @@ public:
     //! @param power the power to use
     virtual void addPower(const Memory<T>& other, double power) = 0;
 
+    //! Adds a power of the other memory area to this memory area, ie
+    //!
+    //! \f[this += factor*pow(other, power)\f]
+    //!
+    //! @param other the other memory area to the the power of
+    //! @param power the power to use
+    //! @param factor the factor to multiply
+    virtual void addPower(const Memory<T>& other, double power, double factor) = 0;
+
 
     //! Subtracts a power of the other memory area to this memory area, ie
     //!
