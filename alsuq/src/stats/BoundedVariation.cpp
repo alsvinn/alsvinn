@@ -45,9 +45,9 @@ void BoundedVariation::computeStatistics(const alsfvm::volume::Volume&
 
     for (size_t var = 0; var < conservedVariables.getNumberOfVariables(); ++var) {
         bv.getVolumes().getConservedVolume()->getScalarMemoryArea(var)->getPointer()[0]
-            = conservedVariables.getScalarMemoryArea(var)->getTotalVariation(p,
-                    start,
-                    end);
+        += conservedVariables.getScalarMemoryArea(var)->getTotalVariation(p,
+                start,
+                end);
     }
 }
 

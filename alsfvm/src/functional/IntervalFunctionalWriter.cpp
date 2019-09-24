@@ -26,14 +26,13 @@ IntervalFunctionalWriter::IntervalFunctionalWriter(volume::VolumeFactory
     : volumeFactory(volumeFactory),
       writer(writer),
       functional(functional) {
-
 }
 
 void IntervalFunctionalWriter::write(const volume::Volume& conservedVariables,
     const grid::Grid& grid,
     const simulator::TimestepInformation& timestepInformation) {
     if (!conservedVolume) {
-        makeVolumes(grid);
+        makeVolumes(grid, conservedVariables);
     }
 
     conservedVolume->makeZero();
@@ -65,14 +64,36 @@ void IntervalFunctionalWriter::write(const volume::Volume& conservedVariables,
 
 }
 
-void IntervalFunctionalWriter::makeVolumes(const grid::Grid& grid) {
+void IntervalFunctionalWriter::makeVolumes(const grid::Grid& grid,
+    const volume::Volume& volume) {
     functionalSize = functional->getFunctionalSize(grid);
 
+    auto ghostCells = functional->getGhostCellSizes(grid, volume);
     conservedVolume = volumeFactory.createConservedVolume(functionalSize.x,
-            functionalSize.y, functionalSize.z, 0);
+            functionalSize.y, functionalSize.z, ghostCells.x);
     conservedVolume->makeZero();
 
 
+    auto platformMain = "cpu";
+
+    // TODO: Make some  nice getters for this
+    if (!(conservedVolume->getScalarMemoryArea(0)->isOnHost())) {
+        platformMain = "cuda";
+    }
+
+    auto platform = functional->getPlatformToAllocateOn(platformMain);
+
+    if ((platform != "cuda") && (platform != "cpu")) {
+        THROW("Unknown platform " << platform);
+    }
+
+    if (platformMain == "cuda" && platform == "cpu") {
+        conservedVolume = conservedVolume->getCopyOnCPU();
+    }
+
+    else if (platformMain == "cpu" && platform == "cuda" ) {
+        THROW("We do not support allocating on cuda when the major platform is given as cpu");
+    }
 }
 
 }
