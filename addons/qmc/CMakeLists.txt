@@ -14,7 +14,7 @@ if (ALSVINN_BUILD_QMC)
          CONFIGURE_COMMAND ""
          BUILD_COMMAND ""
          INSTALL_COMMAND ""
-         #GIT_TAG        v0.1
+         GIT_TAG        v0.1.0
          SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/qmc_generators
        )
     else()
