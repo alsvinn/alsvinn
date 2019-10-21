@@ -134,11 +134,11 @@ TEST_P(QMCMeanVarTest, QMCMeanVarTest) {
 
     double rateMean = alsfvm::linearFit(logM, logMeanError)[0];
 
-    ASSERT_LE(0.49, -rateMean);
+    ASSERT_LE(0.8, -rateMean);
 
     double rateVar = alsfvm::linearFit(logM, logVarError)[0];
 
-    ASSERT_LE(0.49, -rateVar);
+    ASSERT_LE(0.8, -rateVar);
 
     std::cout << "Rate " << rateMean << ", " << rateVar << std::endl;
 }
