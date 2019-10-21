@@ -7,3 +7,6 @@
 [submodule "addons/fbm/fractional_brownian_motion"]
 	path = addons/fbm/fractional_brownian_motion
 	url = https://github.com/alsvinn/fractional_brownian_motion
+[submodule "addons/qmc/qmc_generators"]
+	path = addons/qmc/qmc_generators
+	url = https://github.com/alsvinn/qmc_generators.git

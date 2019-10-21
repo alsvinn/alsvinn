@@ -19,8 +19,8 @@
 namespace alsuq {
 namespace distribution {
 Normal::Normal(const Parameters& parameters)
-    : mean(parameters.getParameter("mean")),
-      standardDeviation(parameters.getParameter("sd")) {
+    : mean(parameters.getDouble("mean")),
+      standardDeviation(parameters.getDouble("sd")) {
     // The problem with normal distribution is that it needs to regenerate the samples
     // which does not combine well with how we generate samples at the moment (see alsuq/src/generator/STLMersenne.cpp)
     //

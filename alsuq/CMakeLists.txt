@@ -45,6 +45,7 @@ TARGET_LINK_LIBRARIES(alsuq
   alsfvm
   alsutils
   alsuq_cuda
+  QMC::qmc_base
   Boost::filesystem
   Boost::system
   Boost::log

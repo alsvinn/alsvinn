@@ -19,8 +19,8 @@ namespace alsuq {
 namespace distribution {
 
 Uniform::Uniform(const Parameters& parameters)
-    : a(parameters.getParameter("lower")),
-      b(parameters.getParameter("upper")) {
+    : a(parameters.getDouble("lower")),
+      b(parameters.getDouble("upper")) {
 
 }
 

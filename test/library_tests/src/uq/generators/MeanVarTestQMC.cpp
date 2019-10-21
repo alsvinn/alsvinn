@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 ETH Zurich, Kjetil Olsen Lye
+/* Copyright (c) 2019 ETH Zurich, Kjetil Olsen Lye
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,9 +17,10 @@
 #include "alsuq/distribution/DistributionFactory.hpp"
 #include "alsuq/generator/GeneratorFactory.hpp"
 #include "utils/polyfit.hpp"
+#include "alsutils/config.hpp"
 
 using namespace alsuq;
-
+#ifdef ALSVINN_BUILD_QMC
 namespace {
 struct MeanVarTestParameters {
 
@@ -56,10 +57,11 @@ std::ostream& operator<<(std::ostream& os,
 }
 }
 
-struct MeanVarTest : public ::testing::TestWithParam <MeanVarTestParameters> {
+struct QMCMeanVarTest : public ::testing::TestWithParam
+    <MeanVarTestParameters> {
 
 
-    MeanVarTest () {
+    QMCMeanVarTest () {
 
     }
 
@@ -82,7 +84,7 @@ struct MeanVarTest : public ::testing::TestWithParam <MeanVarTestParameters> {
 
 
 
-TEST_P(MeanVarTest, MeanVarTest) {
+TEST_P(QMCMeanVarTest, QMCMeanVarTest) {
     int D = GetParam().D;
     // make sure we converge towards the mean with rate 1/2
     std::vector<real> logM;
@@ -92,7 +94,7 @@ TEST_P(MeanVarTest, MeanVarTest) {
     const real actualVar = GetParam().variance;
     const real actualMean = GetParam().mean;
 
-    for (int k = 4; k < 20; k++) {
+    for (int k = 4; k < 13; k++) {
         int M = 1 << k;
         auto generator = makeGenerator(M, D);
         auto dist = makeDistribution(M, D);
@@ -137,13 +139,22 @@ TEST_P(MeanVarTest, MeanVarTest) {
     double rateVar = alsfvm::linearFit(logM, logVarError)[0];
 
     ASSERT_LE(0.49, -rateVar);
+
+    std::cout << "Rate " << rateMean << ", " << rateVar << std::endl;
 }
 
-INSTANTIATE_TEST_CASE_P(MeanVarConvergenceTests,
-    MeanVarTest,
+INSTANTIATE_TEST_CASE_P(QMCMeanVarConvergenceTests,
+    QMCMeanVarTest,
     ::testing::Values(
-        //MeanVarTestParameters("stlmersenne", "normal", 0, 1, {"mean", "sd"}, {0, 1},40),
-        MeanVarTestParameters("stlmersenne", "uniform", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+
+        MeanVarTestParameters("stlmersenne", "qmc_sobol", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+            40), MeanVarTestParameters("stlmersenne", "qmc_halton", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+            40), MeanVarTestParameters("stlmersenne", "qmc_halton409", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+            40), MeanVarTestParameters("stlmersenne", "qmc_faure", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+            40), MeanVarTestParameters("stlmersenne", "qmc_hammersley", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+            40), MeanVarTestParameters("stlmersenne", "qmc_latin_random", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
             40)
 
     ));
+
+#endif
