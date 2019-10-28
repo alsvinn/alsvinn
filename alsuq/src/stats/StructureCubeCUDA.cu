@@ -23,42 +23,6 @@
 namespace alsuq {
 namespace stats {
 
-namespace {
-
-
-
-
-
-//! Computes the structure function for FIXED h
-//!
-//! The goal is to compute the structure function, then reduce (sum) over space
-//! then go on to next h
-//!
-template<class PowerClass>
-__global__ void computeStructureCube(real* output,
-    alsfvm::memory::View<const real> input,
-    int h,
-    int nx, int ny, int nz, int ngx, int ngy, int ngz,
-    real p, int dimensions) {
-    const int index = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (index >= nx * ny * nz) {
-        return;
-    }
-
-    const int i = index % nx;
-    const int j = (index / nx) % ny;
-    const int k = (index / nx / ny);
-
-
-    output[index] = 0;
-    forEachPointInComputeStructureCube([&] (double u, double u_h) {
-        output[index] += PowerClass::power(fabs(u - u_h), p);
-    }, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions);
-
-}
-
-}
 
 StructureCubeCUDA::StructureCubeCUDA(const StatisticsParameters& parameters)
     : StatisticsHelper(parameters),
@@ -83,8 +47,30 @@ void StructureCubeCUDA::computeStatistics(const alsfvm::volume::Volume&
             conservedVariables,
             numberOfH, 1, 1, "cpu");
 
-    alsfvm::functional::dispatchComputeStructureCubeCUDA(*structure.getVolumes().getConservedVolume(),
-                                              conservedVariables, structureOutput, numberOfH, p);
+
+    const auto boundaryConditions = grid.getBoundaryCondition(0);
+    for (auto boundaryConditionOnSide : grid.getBoundaryConditions()) {
+        if (boundaryConditionOnSide != boundaryConditions) {
+            THROW("We require that the boundary conditions are the same on all "
+                << "sides for structurere CUBE. "
+                << "Given " << boundaryConditions << " and " << boundaryConditionOnSide);
+        }
+    }
+
+    if (boundaryConditions == alsfvm::boundary::PERIODIC) {
+        alsfvm::functional::dispatchComputeStructureCubeCUDA<alsfvm::boundary::PERIODIC>(*structure.getVolumes().getConservedVolume(),
+                                                  conservedVariables, structureOutput, numberOfH, p);
+
+    } else if (boundaryConditions == alsfvm::boundary::NEUMANN) {
+        alsfvm::functional::dispatchComputeStructureCubeCUDA<alsfvm::boundary::NEUMANN>(*structure.getVolumes().getConservedVolume(),
+                                                  conservedVariables, structureOutput, numberOfH, p);
+
+    } else {
+        THROW("Unsupported boundary condition for StructureCube structure functions. "
+            << "Maybe you are trying to run MPI with multi_x, multi_y or multi_z > 1?"
+            << " This is not supported in the current version.");
+    }
+
 
 }
 

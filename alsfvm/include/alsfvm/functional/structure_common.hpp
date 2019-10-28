@@ -19,6 +19,7 @@
 #include "alsfvm/volume/Volume.hpp"
 #include "alsutils/math/FastPower.hpp"
 #include "alsutils/math/PowPower.hpp"
+#include "alsfvm/boundary/ValueAtBoundary.hpp"
 
 namespace alsfvm {
 namespace functional {
@@ -33,13 +34,16 @@ inline __device__ __host__ int makePositive(int position, int N) {
 }
 
 
-template<class Function>
+template<alsfvm::boundary::Type BoundaryType, class Function>
 __device__ __host__ void forEachPointInComputeStructureCube(
     Function f,
     const alsfvm::memory::View<const real>& input,
     int i, int j, int k, int h, int nx, int ny, int nz,
     int ngx, int ngy, int ngz, int dimensions) {
     const auto u = input.at(i + ngx, j + ngy, k + ngz);
+
+    const auto numberOfCellsWithoutGhostCells = ivec3{nx, ny, nz};
+    const auto numberOfGhostCells = ivec3{ngx, ngy, ngz};
 
     for (int d = 0; d < dimensions; d++) {
         // side = 0 represents bottom, side = 1 represents top
@@ -69,10 +73,16 @@ __device__ __host__ void forEachPointInComputeStructureCube(
             for (int z = zStart; z < zEnd; z++) {
                 for (int y = yStart; y < yEnd; y++) {
                     for (int x = xStart; x < xEnd; x++) {
-                        const auto u_h = input.at(makePositive(x, nx) % nx + ngx,
-                                makePositive(y, ny) % ny + ngy,
-                                makePositive(z, nz) % nz + ngz);
-                        f(u, u_h);
+                        const auto discretePosition = ivec3{i, j, k};
+                        const auto discretePositionPlusH = discretePosition + ivec3{x, y, z};
+
+                        const auto u_ijk_h =
+                            alsfvm::boundary::ValueAtBoundary<BoundaryType>::getValueAtBoundary(
+                                input,
+                                discretePositionPlusH,
+                                numberOfCellsWithoutGhostCells,
+                                numberOfGhostCells);
+                        f(u, u_ijk_h);
                     }
                 }
             }
@@ -80,14 +90,14 @@ __device__ __host__ void forEachPointInComputeStructureCube(
     }
 }
 
-template<class PowerClass>
+template<alsfvm::boundary::Type BoundaryType, class PowerClass>
 __device__ __host__ void computeStructureCube(
     alsfvm::memory::View<real>&
     output,
     const alsfvm::memory::View<const real>& input,
     int i, int j, int k, int h, int nx, int ny, int nz,
     int ngx, int ngy, int ngz, int dimensions, real p) {
-    forEachPointInComputeStructureCube([&](double u, double u_h) {
+    forEachPointInComputeStructureCube<BoundaryType>([&](double u, double u_h) {
         output.at(h) += PowerClass::power(fabs(u - u_h), p) / (nx * ny * nz);
     }, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions);
 }
@@ -95,7 +105,7 @@ __device__ __host__ void computeStructureCube(
 
 
 
-template<class PowerClass>
+template<alsfvm::boundary::Type BoundaryType, class PowerClass>
 inline void computeStructureCubeCPU(alsfvm::volume::Volume& output,
     const alsfvm::volume::Volume& input, int numberOfH, double p) {
     for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
@@ -115,7 +125,8 @@ inline void computeStructureCubeCPU(alsfvm::volume::Volume& output,
                 for (int i = 0; i < nx; ++i) {
                     for (int h = 1; h < numberOfH; ++h) {
 
-                        computeStructureCube<PowerClass>(outputView, inputView, i, j, k, h, nx, ny, nz,
+                        computeStructureCube<BoundaryType, PowerClass>(outputView, inputView, i, j, k,
+                            h, nx, ny, nz,
                             ngx, ngy, ngz, input.getDimensions(), p);
 
                     }
@@ -127,27 +138,28 @@ inline void computeStructureCubeCPU(alsfvm::volume::Volume& output,
     }
 }
 
+template<alsfvm::boundary::Type BoundaryType>
 inline void dispatchComputeStructureCubeCPU(alsfvm::volume::Volume& output,
     const alsfvm::volume::Volume& input, int numberOfH, double p) {
     if (p == 1.0) {
-        computeStructureCubeCPU < alsutils::math::FastPower<1>>
+        computeStructureCubeCPU <BoundaryType, alsutils::math::FastPower<1>>
             (output, input, numberOfH, p);
     } else if (p == 2.0) {
-        computeStructureCubeCPU < alsutils::math::FastPower<2>>
+        computeStructureCubeCPU <BoundaryType, alsutils::math::FastPower<2>>
             (output, input, numberOfH, p);
     }
 
     else if (p == 3.0) {
-        computeStructureCubeCPU < alsutils::math::FastPower<3>>
+        computeStructureCubeCPU <BoundaryType, alsutils::math::FastPower<3>>
             (output, input, numberOfH, p);
     } else if (p == 4.0) {
-        computeStructureCubeCPU < alsutils::math::FastPower<4>>
+        computeStructureCubeCPU <BoundaryType, alsutils::math::FastPower<4>>
             (output, input, numberOfH, p);
     } else if (p == 5.0) {
-        computeStructureCubeCPU < alsutils::math::FastPower<5>>
+        computeStructureCubeCPU <BoundaryType, alsutils::math::FastPower<5>>
             (output, input, numberOfH, p);
     } else {
-        computeStructureCubeCPU < alsutils::math::PowPower>
+        computeStructureCubeCPU <BoundaryType, alsutils::math::PowPower>
         (output, input, numberOfH, p);
     }
 }

@@ -34,8 +34,32 @@ void StructureCube::operator()(volume::Volume& conservedVolumeOut,
     const grid::Grid& grid) {
 
     conservedVolumeOut.makeZero();
-    dispatchComputeStructureCubeCPU(conservedVolumeOut, conservedVolumeIn,
-        numberOfH, p);
+
+    const auto boundaryConditions = grid.getBoundaryCondition(0);
+
+    for (auto boundaryConditionOnSide : grid.getBoundaryConditions()) {
+        if (boundaryConditionOnSide != boundaryConditions) {
+            THROW("We require that the boundary conditions are the same on all "
+                << "sides for structurere CUBE. "
+                << "Given " << boundaryConditions << " and " << boundaryConditionOnSide);
+        }
+    }
+
+    if (boundaryConditions == alsfvm::boundary::PERIODIC) {
+        dispatchComputeStructureCubeCPU<alsfvm::boundary::PERIODIC>(conservedVolumeOut,
+            conservedVolumeIn,
+            numberOfH, p);
+
+    } else if (boundaryConditions == alsfvm::boundary::NEUMANN) {
+        dispatchComputeStructureCubeCPU<alsfvm::boundary::NEUMANN>(conservedVolumeOut,
+            conservedVolumeIn,
+            numberOfH, p);
+
+    } else {
+        THROW("Unsupported boundary condition for StructureCube structure functions. "
+            << "Maybe you are trying to run MPI with multi_x, multi_y or multi_z > 1?"
+            << " This is not supported in the current version.");
+    }
 
 }
 

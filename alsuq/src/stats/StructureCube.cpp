@@ -43,12 +43,34 @@ void StructureCube::computeStatistics(const alsfvm::volume::Volume&
             conservedVariables,
             numberOfH, 1, 1);
 
+    const auto boundaryConditions = grid.getBoundaryCondition(0);
 
-    alsfvm::functional::dispatchComputeStructureCubeCPU(
-        *structure.getVolumes().getConservedVolume(),
-        conservedVariables,
-        numberOfH,
-        p);
+    for (auto boundaryConditionOnSide : grid.getBoundaryConditions()) {
+        if (boundaryConditionOnSide != boundaryConditions) {
+            THROW("We require that the boundary conditions are the same on all "
+                << "sides for structurere CUBE. "
+                << "Given " << boundaryConditions << " and " << boundaryConditionOnSide);
+        }
+    }
+
+    if (boundaryConditions == alsfvm::boundary::PERIODIC) {
+        alsfvm::functional::dispatchComputeStructureCubeCPU<alsfvm::boundary::PERIODIC>(
+            *structure.getVolumes().getConservedVolume(),
+            conservedVariables,
+            numberOfH,
+            p);
+    } else if (boundaryConditions == alsfvm::boundary::NEUMANN) {
+        alsfvm::functional::dispatchComputeStructureCubeCPU<alsfvm::boundary::NEUMANN>(
+            *structure.getVolumes().getConservedVolume(),
+            conservedVariables,
+            numberOfH,
+            p);
+    } else {
+        THROW("Unsupported boundary condition for StructureCube structure functions. "
+            << "Maybe you are trying to run MPI with multi_x, multi_y or multi_z > 1?"
+            << " This is not supported in the current version.");
+    }
+
 
 }
 
