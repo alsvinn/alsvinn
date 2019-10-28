@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -208,6 +208,20 @@ public:
     //!    5   |     < not used > |   < not used >  |    back
     //!
     std::array<boundary::Type, 6> getBoundaryConditions() const;
+
+    //! Gets the boundary conditions for each side
+    //!
+    //! Index  |  Spatial side 1D | Spatial side 2D | Spatial side 3D
+    //! -------|------------------|-----------------|-----------------
+    //!    0   |       left       |     left        |    left
+    //!    1   |       right      |     right       |    right
+    //!    2   |     < not used > |     bottom      |    bottom
+    //!    3   |     < not used > |     top         |    top
+    //!    4   |     < not used > |   < not used >  |    front
+    //!    5   |     < not used > |   < not used >  |    back
+    //!
+    //! Will have length 2 * getActiveDimensions
+    std::vector<boundary::Type> getActiveBoundaryConditions() const;
 
     //! Gets the global position index of the grid,
     //! that is, the grid is contained in a virtual larger grid.

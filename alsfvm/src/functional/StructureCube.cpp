@@ -37,7 +37,7 @@ void StructureCube::operator()(volume::Volume& conservedVolumeOut,
 
     const auto boundaryConditions = grid.getBoundaryCondition(0);
 
-    for (auto boundaryConditionOnSide : grid.getBoundaryConditions()) {
+    for (auto boundaryConditionOnSide : grid.getActiveBoundaryConditions()) {
         if (boundaryConditionOnSide != boundaryConditions) {
             THROW("We require that the boundary conditions are the same on all "
                 << "sides for structurere CUBE. "
