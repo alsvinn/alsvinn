@@ -3,12 +3,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -146,24 +146,27 @@ rvec3 Grid::getCellLengths() const {
 }
 
 const std::vector<rvec3>& Grid::getCellMidpoints() const {
-  ALSVINN_LOG(WARNING, "Using depreacted functions getCellMidpoints()\n"<< dimensions);
+    ALSVINN_LOG(WARNING, "Using depreacted functions getCellMidpoints()\n" <<
+        dimensions);
+
     if (cellMidpoints.size() == 0) {
-      // Create the cell midpoints
-      cellMidpoints.resize(dimensions.x * dimensions.y * dimensions.z);
+        // Create the cell midpoints
+        cellMidpoints.resize(dimensions.x * dimensions.y * dimensions.z);
 
-      for (int z = 0; z < dimensions.z; z++) {
-        for (int y = 0; y < dimensions.y; y++) {
-	  for (int x = 0; x < dimensions.x; x++) {
-                rvec3 position = origin
-		  + rvec3(cellLengths.x * x, cellLengths.y * y, cellLengths.z * z)
-		  + cellLengths / real(2.0);
+        for (int z = 0; z < dimensions.z; z++) {
+            for (int y = 0; y < dimensions.y; y++) {
+                for (int x = 0; x < dimensions.x; x++) {
+                    rvec3 position = origin
+                        + rvec3(cellLengths.x * x, cellLengths.y * y, cellLengths.z * z)
+                        + cellLengths / real(2.0);
 
-                cellMidpoints[z * dimensions.x * dimensions.y + y * dimensions.x + x] =
-		  position;
-	  }
+                    cellMidpoints[z * dimensions.x * dimensions.y + y * dimensions.x + x] =
+                        position;
+                }
+            }
         }
-      }
     }
+
     return cellMidpoints;
 }
 
@@ -173,6 +176,16 @@ boundary::Type Grid::getBoundaryCondition(int side) const {
 
 std::array<boundary::Type, 6> Grid::getBoundaryConditions() const {
     return boundaryConditions;
+}
+
+std::vector<boundary::Type> Grid::getActiveBoundaryConditions() const {
+    std::vector<boundary::Type> boundaryTypes;
+
+    for (size_t side = 0; side < 2 * getActiveDimension(); ++side) {
+        boundaryTypes.push_back(boundaryConditions[side]);
+    }
+
+    return boundaryTypes;
 }
 
 ivec3 Grid::getGlobalPosition() const {

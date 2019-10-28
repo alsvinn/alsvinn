@@ -44,7 +44,7 @@ public:
     //! Creates a new instance of the class with the given name and arguments.
     static PointerType createInstance(const std::string& name, Args... args) {
         return impl::FactoryRegistry<T, Args...>::getInstance().createInstance(name,
-                &args...);
+                args...);
     }
 
     //! Registers a new class to the registry.

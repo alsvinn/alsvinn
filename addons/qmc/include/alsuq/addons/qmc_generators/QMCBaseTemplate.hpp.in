@@ -1,0 +1,16 @@
+#include "alsuq/addons/qmc_generators/QMCDistribution.hpp"
+
+namespace alsuq {
+  namespace addons {
+    namespace qmc_generators {
+      class QMCDistribution${QMCDistributionName} : public QMCDistribution {
+      public:
+        QMCDistribution${QMCDistributionName}( const size_t dimensions,
+                         const size_t numberVariables,
+                         const alsutils::parameters::Parameters& parameters);
+
+        
+      };
+    }
+  }
+}

@@ -69,6 +69,10 @@ void Parameters::addIntegerParameter(const std::string& name, int i) {
     ptree.put(name, i);
 }
 
+void Parameters::addDoubleParameter(const std::string& name, double i) {
+    ptree.put(name, i);
+}
+
 void Parameters::addStringParameter(const std::string& name,
     std::string value) {
     ptree.put(name, value);

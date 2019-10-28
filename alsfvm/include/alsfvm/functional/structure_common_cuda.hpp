@@ -1,6 +1,7 @@
 #pragma once
 #include <thrust/device_vector.h>
 #include "alsfvm/functional/structure_common.hpp"
+
 namespace alsfvm {
 
 namespace functional {
@@ -12,7 +13,7 @@ namespace functional {
 //! The goal is to compute the structure function, then reduce (sum) over space
 //! then go on to next h
 //!
-template<class PowerClass>
+template<alsfvm::boundary::Type BoundaryType, class PowerClass>
 __global__ void computeStructureCubeKernel(real* output,
     alsfvm::memory::View<const real> input,
     int h,
@@ -30,14 +31,14 @@ __global__ void computeStructureCubeKernel(real* output,
 
 
     output[index] = 0;
-    forEachPointInComputeStructureCube([&] (double u, double u_h) {
+    forEachPointInComputeStructureCube<BoundaryType>([&] (double u, double u_h) {
         output[index] += PowerClass::power(fabs(u - u_h), p);
     }, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions);
 
 }
 
 
-template<class PowerClass, class BufferClass>
+template<alsfvm::boundary::Type BoundaryType, class PowerClass, class BufferClass>
 void computeStructureCubeCUDA(alsfvm::volume::Volume& output,
     const alsfvm::volume::Volume& input,
     BufferClass& buffer,
@@ -53,9 +54,9 @@ void computeStructureCubeCUDA(alsfvm::volume::Volume& output,
         const int ngy = int(input.getNumberOfYGhostCells());
         const int ngz = int(input.getNumberOfZGhostCells());
 
-        const int nx = int(input.getNumberOfXCells()) - 2 * ngx;
-        const int ny = int(input.getNumberOfYCells()) - 2 * ngy;
-        const int nz = int(input.getNumberOfZCells()) - 2 * ngz;
+        const int nx = int(input.getNumberOfXCells());
+        const int ny = int(input.getNumberOfYCells());
+        const int nz = int(input.getNumberOfZCells());
 
         buffer.resize(nx * ny * nz);
         const int dimensions = input.getDimensions();
@@ -66,7 +67,8 @@ void computeStructureCubeCUDA(alsfvm::volume::Volume& output,
             const int blockNumber = (size + threads - 1) / threads;
 
 
-            computeStructureCubeKernel<PowerClass> <<< blockNumber, threads>>>
+            computeStructureCubeKernel<BoundaryType,  PowerClass>
+            <<< blockNumber, threads>>>
             (thrust::raw_pointer_cast(
                     buffer.data()),
                 inputView,
@@ -88,28 +90,29 @@ void computeStructureCubeCUDA(alsfvm::volume::Volume& output,
 }
 
 
+template<alsfvm::boundary::Type BoundaryType>
 inline void dispatchComputeStructureCubeCUDA(alsfvm::volume::Volume& output,
     const alsfvm::volume::Volume& input, thrust::device_vector<real>& buffer,
     int numberOfH, double p) {
     if (p == 1.0) {
-        computeStructureCubeCUDA < alsutils::math::FastPower<1>>
+        computeStructureCubeCUDA < BoundaryType, alsutils::math::FastPower<1>>
             (output, input, buffer, numberOfH, p);
     } else if (p == 2.0) {
-        computeStructureCubeCUDA < alsutils::math::FastPower<2>>
+        computeStructureCubeCUDA <BoundaryType,  alsutils::math::FastPower<2>>
             (output, input, buffer, numberOfH, p);
     }
 
     else if (p == 3.0) {
-        computeStructureCubeCUDA < alsutils::math::FastPower<3>>
+        computeStructureCubeCUDA < BoundaryType, alsutils::math::FastPower<3>>
             (output, input, buffer, numberOfH, p);
     } else if (p == 4.0) {
-        computeStructureCubeCUDA < alsutils::math::FastPower<4>>
+        computeStructureCubeCUDA < BoundaryType, alsutils::math::FastPower<4>>
             (output, input, buffer, numberOfH, p);
     } else if (p == 5.0) {
-        computeStructureCubeCUDA < alsutils::math::FastPower<5>>
+        computeStructureCubeCUDA < BoundaryType, alsutils::math::FastPower<5>>
             (output, input, buffer, numberOfH, p);
     } else {
-        computeStructureCubeCUDA < alsutils::math::PowPower>
+        computeStructureCubeCUDA < BoundaryType, alsutils::math::PowPower>
         (output, input, buffer, numberOfH, p);
     }
 }

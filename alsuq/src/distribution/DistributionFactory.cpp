@@ -19,7 +19,8 @@
 #include "alsutils/error/Exception.hpp"
 #include "alsuq/distribution/Uniform1D.hpp"
 #include "alsuq/distribution/DLLDistribution.hpp"
-
+#include "alsuq/addons/qmc_generators/QMCFactory.hpp"
+#include "alsuq/distribution/FunctionDistribution.hpp"
 
 namespace alsuq {
 namespace distribution {
@@ -39,12 +40,22 @@ std::shared_ptr<Distribution> DistributionFactory::createDistribution(
         distribution.reset(new Uniform(parameters));
     } else if (name == "uniform1d") {
         distribution.reset(new Uniform1D(numberVariables,
-                parameters.getParameter("a"),
-                parameters.getParameter("b")));
+                parameters.getDouble("a"),
+                parameters.getDouble("b")));
     } else if (name == "dll") {
         distribution.reset(new DLLDistribution(numberVariables, dimensions,
                 parameters));
 
+    } else if (name.substr(0, 4) == "qmc_") {
+        auto distributionFunction = [qmcDistribution =
+                                    alsuq::addons::qmc_generators::QMCFactory::makeQMCDistribution(name, dimensions,
+                                        numberVariables, parameters)](
+                size_t component,
+        size_t sample) {
+
+            return (*qmcDistribution)(component, sample);
+        };
+        distribution.reset(new FunctionDistribution(distributionFunction));
     } else {
         THROW("Unknown distribution " << name);
     }

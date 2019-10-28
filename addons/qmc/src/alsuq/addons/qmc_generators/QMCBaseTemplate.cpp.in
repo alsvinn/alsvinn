@@ -1,0 +1,31 @@
+#include <alsuq/addons/qmc_generators/QMCFactory.hpp>
+#include "alsuq/addons/qmc_generators/QMCDistribution${QMCDistributionName}.hpp"
+#include "qmc/${QMCDistributionName}_api.h"
+namespace alsuq {
+  namespace addons {
+    namespace qmc_generators {
+      QMCDistribution${QMCDistributionName}::QMCDistribution${QMCDistributionName} (
+      const size_t dimensions,
+      const size_t numberVariables,
+      const alsutils::parameters::Parameters& parameters)
+      : QMCDistribution(numberVariables, dimensions,
+                        ${QMCDistributionName}_make_parameters,
+                        ${QMCDistributionName}_set_parameter,
+                        ${QMCDistributionName}_delete_parameters,
+                        ${QMCDistributionName}_create,
+                        ${QMCDistributionName}_delete,
+                        ${QMCDistributionName}_generate,
+                        parameters)
+      {
+      }
+
+
+    bool qmc_distribution_registered_${QMCDistributionName} = QMCFactory::addDistribution("qmc_${QMCDistributionName}",
+    [](const size_t dimensions,
+        const size_t numberVariables,
+        const alsutils::parameters::Parameters& parameters) {
+        return alsfvm::dynamic_pointer_cast<QMCDistribution>(std::make_shared<QMCDistribution${QMCDistributionName}>(dimensions, numberVariables, parameters));
+        });
+    }
+  }
+}

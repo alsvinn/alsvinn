@@ -42,6 +42,7 @@ public:
     std::vector<std::string> getKeys() const;
 
     void addIntegerParameter(const std::string& name, int i);
+    void addDoubleParameter(const std::string& name, double i);
     void addStringParameter(const std::string& name, std::string value);
     void addVectorParameter(const std::string& name,
         const std::vector<std::string>& values);

@@ -1,0 +1,15 @@
+#include <alsuq/addons/qmc_generators/make_qmc_distribution.hpp>
+
+namespace alsuq {
+namespace addons {
+namespace qmc_generators {
+alsfvm::shared_ptr<alsuq::distribution::Distribution> makeQMCDistribution(const std::string& name,
+  const size_t dimensions,
+  const size_t numberVariables,
+  const Parameters& parameters) {
+    
+
+  }
+}
+}
+}

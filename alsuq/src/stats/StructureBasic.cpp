@@ -16,6 +16,7 @@
 #include "alsuq/stats/StructureBasic.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsuq/stats/stats_util.hpp"
+#include "alsfvm/boundary/ValueAtBoundary.hpp"
 namespace alsuq {
 namespace stats {
 
@@ -44,28 +45,43 @@ void StructureBasic::computeStatistics(const alsfvm::volume::Volume&
             conservedVariables,
             numberOfH, 1, 1);
 
-
-    computeStructure(*structure.getVolumes().getConservedVolume(),
-        conservedVariables);
+    if (grid.getBoundaryCondition(direction) == alsfvm::boundary::PERIODIC) {
+        computeStructure<alsfvm::boundary::PERIODIC>
+        (*structure.getVolumes().getConservedVolume(),
+            conservedVariables);
+    } else if (grid.getBoundaryCondition(direction) == alsfvm::boundary::NEUMANN) {
+        computeStructure<alsfvm::boundary::NEUMANN>
+        (*structure.getVolumes().getConservedVolume(),
+            conservedVariables);
+    } else {
+        THROW("Unsupported boundary condition for StructureBasic structure functions. "
+            << "Maybe you are trying to run MPI with multi_x, multi_y or multi_z > 1?"
+            << " This is not supported in the current version.");
+    }
 }
 
 void StructureBasic::finalizeStatistics() {
 
 }
 
+template<alsfvm::boundary::Type BoundaryType>
 void StructureBasic::computeStructure(alsfvm::volume::Volume& output,
     const alsfvm::volume::Volume& input) {
     for (size_t var = 0; var < input.getNumberOfVariables(); ++var) {
         auto inputView = input[var]->getView();
         auto outputView = output[var]->getView();
+        auto numberOfGhostCells = input.getNumberOfGhostCells();
 
-        int ngx = input.getNumberOfXGhostCells();
-        int ngy = input.getNumberOfYGhostCells();
-        int ngz = input.getNumberOfZGhostCells();
 
-        int nx = int(input.getNumberOfXCells()) - 2 * ngx;
-        int ny = int(input.getNumberOfYCells()) - 2 * ngy;
-        int nz = int(input.getNumberOfZCells()) - 2 * ngz;
+        int ngx = int(input.getNumberOfXGhostCells());
+        int ngy = int(input.getNumberOfYGhostCells());
+        int ngz = int(input.getNumberOfZGhostCells());
+
+        int nx = int(input.getNumberOfXCells());
+        int ny = int(input.getNumberOfYCells());
+        int nz = int(input.getNumberOfZCells());
+
+        const auto numberOfCellsWithoutGhostCells = ivec3{nx, ny, nz};
 
         for (int k = 0; k < nz; ++k) {
             for (int j = 0; j < ny; ++j) {
@@ -73,18 +89,24 @@ void StructureBasic::computeStructure(alsfvm::volume::Volume& output,
                     for (int h = 0; h < int(numberOfH); ++h) {
 
 
-                        auto u_ijk = inputView.at(i + ngx, j + ngy, k + ngz);
+                        const auto u_ijk = inputView.at(i + ngx, j + ngy, k + ngz);
 
 
 
 
+                        const auto discretePositionPlusH = ivec3{i, j, k} + h* directionVector;
 
                         // For now we assume periodic boundary conditions
-                        auto u_ijk_h = inputView.at((i + h * directionVector.x) % nx + ngx,
-                                (j + h * directionVector.y) % ny + ngy,
-                                (k + h * directionVector.z) % nz + ngz);
+                        //auto u_ijk_h = inputView.at((i + h * directionVector.x) % nx + ngx,
+                        //        (j + h * directionVector.y) % ny + ngy,
+                        //        (k + h * directionVector.z) % nz + ngz);
 
-
+                        const auto u_ijk_h =
+                            alsfvm::boundary::ValueAtBoundary<BoundaryType>::getValueAtBoundary(
+                                inputView,
+                                discretePositionPlusH,
+                                numberOfCellsWithoutGhostCells,
+                                numberOfGhostCells);
 
                         outputView.at(h, 0, 0) += std::pow(std::abs(u_ijk - u_ijk_h),
                                 p) / (nx * ny * nz);
