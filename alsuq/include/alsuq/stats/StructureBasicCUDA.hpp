@@ -48,6 +48,7 @@ public:
 
 
 private:
+    template<alsfvm::boundary::Type BoundaryType>
     void computeStructure(alsfvm::volume::Volume& outputVolume,
         const alsfvm::volume::Volume& input);
 

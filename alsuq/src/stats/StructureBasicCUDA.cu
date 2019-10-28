@@ -16,6 +16,7 @@
 #include "alsuq/stats/StructureBasicCUDA.hpp"
 #include "alsfvm/volume/volume_foreach.hpp"
 #include "alsuq/stats/stats_util.hpp"
+#include "alsfvm/boundary/ValueAtBoundary.hpp"
 namespace alsuq {
 namespace stats {
 
@@ -26,6 +27,7 @@ namespace {
 //!
 //! The goal is to compute the structure function, then reduce (sum) over space
 //! then go on to next h
+template<alsfvm::boundary::Type BoundaryType>
 __global__ void computeStructureBasic(real* output,
     alsfvm::memory::View<const real> input,
     ivec3 directionVector,
@@ -48,8 +50,18 @@ __global__ void computeStructureBasic(real* output,
     const int yNext = y + h * directionVector.y;
     const int zNext = z + h * directionVector.z;
 
+    const auto discretePositionPlusH = ivec3{xNext, yNext, zNext};
+    const auto numberOfCellsWithoutGhostCells = ivec3{nx, ny, nz};
+    const auto numberOfGhostCells = ivec3{ngx, ngy, ngz};
+
     const real u = input.at(x + ngx, y + ngy, z + ngz);
-    const real u_h = input.at(xNext % nx + ngx, yNext % ny + ngy, zNext % nz + ngz);
+    const auto u_h =
+        alsfvm::boundary::ValueAtBoundary<BoundaryType>::getValueAtBoundary(
+            input,
+            discretePositionPlusH,
+            numberOfCellsWithoutGhostCells,
+            numberOfGhostCells);
+
 
     output[index] = pow(fabs(u - u_h), p);
 }
@@ -80,15 +92,26 @@ void StructureBasicCUDA::computeStatistics(const alsfvm::volume::Volume&
             conservedVariables,
             numberOfH, 1, 1, "cpu");
 
-
-    computeStructure(*structure.getVolumes().getConservedVolume(),
-        conservedVariables);
+    if (grid.getBoundaryCondition(direction) == alsfvm::boundary::PERIODIC) {
+        computeStructure<alsfvm::boundary::PERIODIC>
+        (*structure.getVolumes().getConservedVolume(),
+            conservedVariables);
+    } else if (grid.getBoundaryCondition(direction) == alsfvm::boundary::NEUMANN) {
+        computeStructure<alsfvm::boundary::NEUMANN>
+        (*structure.getVolumes().getConservedVolume(),
+            conservedVariables);
+    } else {
+        THROW("Unsupported boundary condition for StructureBasicCUDA structure functions. "
+            << "Maybe you are trying to run MPI with multi_x, multi_y or multi_z > 1?"
+            << " This is not supported in the current version.");
+    }
 }
 
 void StructureBasicCUDA::finalizeStatistics() {
 
 }
 
+template<alsfvm::boundary::Type BoundaryType>
 void StructureBasicCUDA::computeStructure(alsfvm::volume::Volume& output,
     const alsfvm::volume::Volume& input) {
 
@@ -113,7 +136,7 @@ void StructureBasicCUDA::computeStructure(alsfvm::volume::Volume& output,
             const int size = nx * ny * nz;
             const int blockNumber = (size + threads - 1) / threads;
 
-            computeStructureBasic <<< blockNumber, threads>>>(thrust::raw_pointer_cast(
+            computeStructureBasic<BoundaryType> <<< blockNumber, threads>>>(thrust::raw_pointer_cast(
                     structureOutput.data()), inputView, directionVector,
                 h, nx, ny, nz, ngx, ngy, ngz, p);
 
