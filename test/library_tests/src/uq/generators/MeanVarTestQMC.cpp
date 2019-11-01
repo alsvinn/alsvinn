@@ -94,7 +94,7 @@ TEST_P(QMCMeanVarTest, QMCMeanVarTest) {
     const real actualVar = GetParam().variance;
     const real actualMean = GetParam().mean;
 
-    for (int k = 4; k < 13; k++) {
+    for (int k = 4; k < 10; k++) {
         int M = 1 << k;
         auto generator = makeGenerator(M, D);
         auto dist = makeDistribution(M, D);
@@ -148,12 +148,12 @@ INSTANTIATE_TEST_CASE_P(QMCMeanVarConvergenceTests,
     ::testing::Values(
 
         MeanVarTestParameters("stlmersenne", "qmc_sobol", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
-            40), MeanVarTestParameters("stlmersenne", "qmc_halton", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
-            40), MeanVarTestParameters("stlmersenne", "qmc_halton409", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
-            40), MeanVarTestParameters("stlmersenne", "qmc_faure", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
-            40), MeanVarTestParameters("stlmersenne", "qmc_hammersley", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
-            40), MeanVarTestParameters("stlmersenne", "qmc_latin_random", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
-            40)
+            20), MeanVarTestParameters("stlmersenne", "qmc_halton", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+            20), MeanVarTestParameters("stlmersenne", "qmc_halton409", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+            20), MeanVarTestParameters("stlmersenne", "qmc_faure", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+            20), MeanVarTestParameters("stlmersenne", "qmc_hammersley", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+            20), MeanVarTestParameters("stlmersenne", "qmc_latin_random", 0.5, 1.0 / 12., {"lower", "upper"}, {0, 1},
+            20)
 
     ));
 
