@@ -28,14 +28,7 @@ void Identity::operator()(volume::Volume& conservedVolumeOut,
     const real weight,
     const grid::Grid& grid) {
 
-    const auto lengths = grid.getCellLengths();
-
-    if (lengths.z > 1 || lengths.y == 1) {
-        THROW("For now, Legendre polynomials only support 2d, givne dimensions " <<
-            lengths);
-    }
-
-
+  
     const auto ghostCells = conservedVolumeIn.getNumberOfGhostCells();
 
 
