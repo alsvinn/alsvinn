@@ -81,6 +81,22 @@ vec3<T> parseVector(const std::string& vectorAsString) {
     return vec3<T>(a, b, c);
 
 }
+
+template<class ParameterClass>
+void readAllEquationParameters(const boost::property_tree::ptree&
+    configuration, ParameterClass& parameters) {
+    auto fvmNode = configuration.get_child("fvm");
+
+    if (fvmNode.find("equationParameters") != fvmNode.not_found()) {
+
+        for (const auto& node : fvmNode.get_child("equationParameters")) {
+            const auto name = node.first;
+            const auto value = node.second.data();
+
+            parameters.addStringParameter(name, value);
+        }
+    }
+}
 }
 
 std::pair<alsfvm::shared_ptr<simulator::Simulator>,
@@ -489,7 +505,8 @@ void SimulatorSetup::readEquationParameters(const SimulatorSetup::ptree&
     }
 }
 
-alsfvm::shared_ptr<diffusion::DiffusionOperator> SimulatorSetup::createDiffusion(
+alsfvm::shared_ptr<diffusion::DiffusionOperator>
+SimulatorSetup::createDiffusion(
     const SimulatorSetup::ptree& configuration,
     const grid::Grid& grid,
     const simulator::SimulatorParameters& simulatorParameters,
@@ -561,6 +578,8 @@ std::vector<io::WriterPointer> SimulatorSetup::createFunctionals(
             auto writer = writerFactory->createWriter(writerType, writerBasename,
                     io::Parameters(functional.second.get_child("writer")));
             functional::Functional::Parameters parameters(functional.second);
+
+            readAllEquationParameters(configuration, parameters);
 
             auto functionalPointer = functionalFactory.makeFunctional(this->readPlatform(
                         configuration), name, parameters);
