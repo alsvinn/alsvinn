@@ -299,9 +299,10 @@ TEST_P(StructureTestBoundary, TestLinear) {
                         // Due to round off errors in summation (CUDA is actually MORE accurate here),
                         // we need to show some lenience
                         ASSERT_NEAR(correctValue, copyOnCPU->getScalarMemoryArea(
-                                var)->getPointer()[h], 1e-8 * correctValue) <<
-                                    "Wrong structure function with boundary condition " << boundaryName
-                                    << ", variable " << copyOnCPU->getName(var) << ", h = " << h;
+                                var)->getPointer()[h], std::numeric_limits<real>::epsilon() * 1e6 *
+                            correctValue) <<
+                                "Wrong structure function with boundary condition " << boundaryName
+                                << ", variable " << copyOnCPU->getName(var) << ", h = " << h;
                     }
 
                 }
@@ -610,9 +611,10 @@ TEST_P(StructureTestBoundary, TestLinear2D) {
                         // Due to round off errors in summation (CUDA is actually MORE accurate here),
                         // we need to show some lenience
                         ASSERT_NEAR(correctValue, copyOnCPU->getScalarMemoryArea(
-                                var)->getPointer()[h], 1e-8 * correctValue) <<
-                                    "Wrong structure function with boundary condition " << boundaryName
-                                    << ", variable " << copyOnCPU->getName(var) << ", h = " << h;
+                                var)->getPointer()[h], std::numeric_limits<real>::epsilon() * 1e6 *
+                            correctValue) <<
+                                "Wrong structure function with boundary condition " << boundaryName
+                                << ", variable " << copyOnCPU->getName(var) << ", h = " << h;
                     }
 
                 }
@@ -955,9 +957,10 @@ TEST_P(StructureTestBoundary, TestLinear3D) {
                         // Due to round off errors in summation (CUDA is actually MORE accurate here),
                         // we need to show some lenience
                         ASSERT_NEAR(correctValue, copyOnCPU->getScalarMemoryArea(
-                                var)->getPointer()[h], 1e-8 * correctValue) <<
-                                    "Wrong structure function with boundary condition " << boundaryName
-                                    << ", variable " << copyOnCPU->getName(var) << ", h = " << h;
+                                var)->getPointer()[h], std::numeric_limits<real>::epsilon() * 1e6 *
+                            correctValue) <<
+                                "Wrong structure function with boundary condition " << boundaryName
+                                << ", variable " << copyOnCPU->getName(var) << ", h = " << h;
                     }
 
                 }
