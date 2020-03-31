@@ -2,7 +2,9 @@
 #include "alsfvm/boundary/Type.hpp"
 #include "alsfvm/memory/View.hpp"
 #include "alsfvm/types.hpp"
-#include <cuda.h>
+#ifdef __CUDA_ARCH__
+    #include <cuda.h>
+#endif
 #include <stdio.h>
 namespace alsfvm {
 namespace boundary {
