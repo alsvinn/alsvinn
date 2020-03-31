@@ -2,7 +2,8 @@
 #include "alsfvm/boundary/Type.hpp"
 #include "alsfvm/memory/View.hpp"
 #include "alsfvm/types.hpp"
-
+#include <cuda.h>
+#include <stdio.h>
 namespace alsfvm {
 namespace boundary {
 
@@ -69,12 +70,23 @@ public:
         using namespace std;
 
         const auto innerPosition = ivec3{
-            max(0, min(discretePosition.x, numberOfCellsWithoutGhostCells.x)),
-            max(0, min(discretePosition.y, numberOfCellsWithoutGhostCells.y)),
-            max(0, min(discretePosition.z, numberOfCellsWithoutGhostCells.z))
+            max(0, min(discretePosition.x, numberOfCellsWithoutGhostCells.x - 1)),
+            max(0, min(discretePosition.y, numberOfCellsWithoutGhostCells.y - 1)),
+            max(0, min(discretePosition.z, numberOfCellsWithoutGhostCells.z - 1))
         };
 
         const auto positionWithGhostCells = innerPosition + numberGhostCells;
+#if 0
+        printf("N: %02d, gc: %02d, given: %02d, wo gc: %02d, inner: %02d, index: %02d, value: %f\n",
+            numberOfCellsWithoutGhostCells.x, numberGhostCells.x,
+            discretePosition.x,
+            discretePosition.x - numberGhostCells.x,
+            innerPosition.x, view.index(positionWithGhostCells.x, positionWithGhostCells.y,
+                positionWithGhostCells.z), view.at(view.index(positionWithGhostCells.x,
+                    positionWithGhostCells.y,
+
+                    positionWithGhostCells.z)));
+#endif
         return view.at(view.index(positionWithGhostCells.x, positionWithGhostCells.y,
                     positionWithGhostCells.z));
     }

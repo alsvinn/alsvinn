@@ -53,28 +53,38 @@ __device__ __host__ void forEachPointInComputeStructureCube(
             const bool xDir = (d == 0);
             // Either we start on the left (i == 0), or on the right(i==1)
             const int zStart = zDir ?
-                (side == 0 ? k - h : k + h + 1) : (dimensions > 2 ? k - h + 1 : 0);
+                (side == 0 ? k - h : k + h) : (dimensions > 2 ? k - h : 0);
 
             const int zEnd = zDir ?
-                (zStart + 1) : (dimensions > 2 ? k + h : 1);
+                (zStart + 1) : (dimensions > 2 ? k + h + 1 : 1);
 
-            const int yStart = yDir ?
-                (side == 0 ? j - h : j + h + 1) : (dimensions > 1 ? j - h + 1 : 0);
+            int yStart = yDir ?
+                (side == 0 ? j - h : j + h) : (dimensions == 2 ? j - h + 1 :
+                    (dimensions == 3 ? j - h + 1 : 0));
 
-            const int yEnd = yDir ?
-                (yStart + 1) : (dimensions > 1 ? j + h : 1);
+            int yEnd = yDir ?
+                (yStart + 1) : (dimensions == 2 ? j + h : (dimensions == 3 ? j + h : 1));
 
-            const int xStart = xDir ?
-                (side == 0 ? i - h : i + h + 1) : i - h;
+            int xStart = xDir ?
+                (side == 0 ? i - h : i + h) : i - h;
 
-            const int xEnd = xDir ?
+            int xEnd = xDir ?
                 (xStart + 1) : i + h + 1;
+
+            if (zDir) {
+                xStart += 1;
+                xEnd -= 1;
+
+                //yStart += 1;
+                //yEnd -= 1;
+            }
 
             for (int z = zStart; z < zEnd; z++) {
                 for (int y = yStart; y < yEnd; y++) {
                     for (int x = xStart; x < xEnd; x++) {
                         const auto discretePosition = ivec3{i, j, k};
-                        const auto discretePositionPlusH = discretePosition + ivec3{x, y, z};
+                        const auto discretePositionPlusH = ivec3{x, y, z};
+
 
                         const auto u_ijk_h =
                             alsfvm::boundary::ValueAtBoundary<BoundaryType>::getValueAtBoundary(
@@ -82,6 +92,8 @@ __device__ __host__ void forEachPointInComputeStructureCube(
                                 discretePositionPlusH,
                                 numberOfCellsWithoutGhostCells,
                                 numberOfGhostCells);
+
+
                         f(u, u_ijk_h);
                     }
                 }
@@ -97,6 +109,7 @@ __device__ __host__ void computeStructureCube(
     const alsfvm::memory::View<const real>& input,
     int i, int j, int k, int h, int nx, int ny, int nz,
     int ngx, int ngy, int ngz, int dimensions, real p) {
+
     forEachPointInComputeStructureCube<BoundaryType>([&](double u, double u_h) {
         output.at(h) += PowerClass::power(fabs(u - u_h), p) / (nx * ny * nz);
     }, input, i, j, k, h, nx, ny, nz, ngx, ngy, ngz, dimensions);
@@ -116,9 +129,9 @@ inline void computeStructureCubeCPU(alsfvm::volume::Volume& output,
         int ngy = int(input.getNumberOfYGhostCells());
         int ngz = int(input.getNumberOfZGhostCells());
 
-        int nx = int(input.getNumberOfXCells()) - 2 * ngx;
-        int ny = int(input.getNumberOfYCells()) - 2 * ngy;
-        int nz = int(input.getNumberOfZCells()) - 2 * ngz;
+        int nx = int(input.getNumberOfXCells());
+        int ny = int(input.getNumberOfYCells());
+        int nz = int(input.getNumberOfZCells());
 
         for (int k = 0; k < nz; ++k) {
             for (int j = 0; j < ny; ++j) {
@@ -136,6 +149,8 @@ inline void computeStructureCubeCPU(alsfvm::volume::Volume& output,
 
 
     }
+
+
 }
 
 template<alsfvm::boundary::Type BoundaryType>

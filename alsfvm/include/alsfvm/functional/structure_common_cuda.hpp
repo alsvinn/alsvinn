@@ -62,7 +62,8 @@ void computeStructureCubeCUDA(alsfvm::volume::Volume& output,
         const int dimensions = input.getDimensions();
 
         for (int h = 1; h < numberOfH; ++h) {
-            const int threads = 1024;
+            // CUDA can't handle too large kernels with pow
+            const int threads = (p < 6 && p == int(p)) ? 1024 : 512;
             const int size = nx * ny * nz;
             const int blockNumber = (size + threads - 1) / threads;
 
