@@ -444,8 +444,15 @@ template void add_power<real>(real* a, const real* b, double power,
     size_t size);
 
 
-template void add_power<real>(real* a, const real* b, double power, real factor,
+template void add_power<real>(real* a, const real* b, double power, double factor,
     size_t size);
+
+//template void add_power<double>(double* a, const double* b, double power,
+//    size_t size);
+//
+//
+//template void add_power<double>(double* a, const double* b, double power, double factor,
+//    size_t size);
 
 template void subtract_power<real>(real* a, const real* b, double power,
     size_t size);

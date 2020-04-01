@@ -290,7 +290,8 @@ TEST_P(StructureTestBoundary, TestLinear) {
                     const std::string boundaryName = grid.getBoundaryCondition(
                             0) == boundary::PERIODIC ? "periodic" : "neumann";
 
-                    if ((platform == "cpu" && p < 7) || p < 6) {
+                    if (std::is_same<real, double>::value && ((platform == "cpu" && p < 7)
+                            || p < 6)) {
                         ASSERT_DOUBLE_EQ(correctValue, copyOnCPU->getScalarMemoryArea(
                                 var)->getPointer()[h]) <<
                                     "Wrong structure function with boundary condition " << boundaryName
@@ -602,7 +603,8 @@ TEST_P(StructureTestBoundary, TestLinear2D) {
                     const std::string boundaryName = grid.getBoundaryCondition(
                             0) == boundary::PERIODIC ? "periodic" : "neumann";
 
-                    if ((platform == "cpu" && p < 7) || p < 6) {
+                    if (std::is_same<real, double>::value && ((platform == "cpu" && p < 7)
+                            || p < 6)) {
                         ASSERT_DOUBLE_EQ(correctValue, copyOnCPU->getScalarMemoryArea(
                                 var)->getPointer()[h]) <<
                                     "Wrong structure function with boundary condition " << boundaryName
@@ -948,7 +950,8 @@ TEST_P(StructureTestBoundary, TestLinear3D) {
                     const std::string boundaryName = grid.getBoundaryCondition(
                             0) == boundary::PERIODIC ? "periodic" : "neumann";
 
-                    if ((platform == "cpu" && p < 2) || p < 2) {
+                    if (std::is_same<real, double>::value && ((platform == "cpu" && p < 2)
+                            || p < 2)) {
                         ASSERT_DOUBLE_EQ(correctValue, copyOnCPU->getScalarMemoryArea(
                                 var)->getPointer()[h]) <<
                                     "Wrong structure function with boundary condition " << boundaryName
