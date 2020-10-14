@@ -6,7 +6,7 @@ phi = atan2(yc, xc) if abs(xc) > 0 else 0
 if phi < 0:
     phi += 2*pi
 
-N = len(a)/2
+N = int(len(a)/2)
 
 a1 = a[:10]
 

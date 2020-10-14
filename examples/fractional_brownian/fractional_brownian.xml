@@ -7,9 +7,9 @@
   <grid>
     <lowerCorner>0 0 0</lowerCorner>
     <upperCorner>1 0 0</upperCorner>
-    <dimension>16384 1 1</dimension>
+    <dimension>1024 1 1</dimension>
   </grid>
-  <boundary>neumann</boundary>
+  <boundary>periodic</boundary>
   <flux>godunov</flux>
   <endTime>0.2</endTime>
   <equation>burgers</equation>
@@ -22,15 +22,23 @@
     <parameters>
       <parameter>
         <name>X</name>
-        <length>131072</length>
+        <length>1048576</length>
         <values><value>0</value></values>
       </parameter>
+
+      <parameter>
+        <name>hurst</name>
+        <length>1</length>
+        <value>0.5</value>
+      </parameter>
+
     </parameters>
   </initialData>
   <writer>
     <type>netcdf</type>
     <basename>fractional_brownian</basename>
     <numberOfSaves>1</numberOfSaves>
+    <writeInitialTimestep>true</writeInitialTimestep>
   </writer>
 </fvm>
 <uq>
@@ -39,8 +47,8 @@
   <parameters>
     <parameter>
       <name>X</name>
-      <length>131072</length>
-      <type>normal</type>
+      <length>1048576</length>
+      <type>uniform</type>
     </parameter>
   </parameters>
   <stats>
