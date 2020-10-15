@@ -40,7 +40,7 @@ std::string getShortStacktrace();
 //!
 //!     http://www.gnu.org/software/libc/manual/html_node/Backtraces.html
 //!
-//! @return a string on the form toplevelfunctionname\nsomefunction\n<...>\nlastfunctionname
+//! @return a string on the form toplevelfunctionname somefunction <...> lastfunctionname
 std::string getLongStacktrace();
 
 }
