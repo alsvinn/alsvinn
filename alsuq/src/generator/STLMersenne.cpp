@@ -43,10 +43,10 @@ real STLMersenne::generate(size_t component, size_t sample) {
     }
 
 
-    if (generator.second / long(dimension) < long(sample) - 1) {
+    if (generator.second / long(dimension) < long(sample)) {
 
 
-        const auto samplesToBeAdded = (long(sample) - 1) * dimension -
+      const auto samplesToBeAdded = (long(sample)) * dimension -
             generator.second;
 
         ALSVINN_LOG(INFO, "(not matching sample) Discarding " << samplesToBeAdded <<
@@ -62,8 +62,8 @@ real STLMersenne::generate(size_t component, size_t sample) {
         generator.second += samplesToBeAdded;
     }
 
-    if (generator.second % long(dimension) < long(component) - 1) {
-        const auto samplesToBeAdded = long(component) - 1 - long(generator.second %
+    if (generator.second % long(dimension) < long(component)) {
+        const auto samplesToBeAdded = long(component) - long(generator.second %
                 dimension);
         ALSVINN_LOG(INFO, "(not matching component) Discarding " << samplesToBeAdded <<
             " samples"
