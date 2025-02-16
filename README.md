@@ -8,7 +8,7 @@ Alsvinn is a toolset consisting of a finite volume simulator (FVM) and modules f
 All the major operations can be computed on either a multi-core CPU or an NVIDIA GPU (through CUDA).
 It also supports cluster configurations consisting of either CPUs or GPUs. It exhibits excellent scaling.
 
-Alsvinn is maintained by [Kjetil Olsen Lye](https://github.com/kjetil-lye/) at ETH Zurich. We want Alsvinn to be easy to use, so if you have issues compiling or running it, please don't hesitate to leave an issue.
+Alsvinn is maintained by [Kjetil Olsen Lye](https://github.com/kjetil-lye/) at SINTEF Digital. We want Alsvinn to be easy to use, so if you have issues compiling or running it, please don't hesitate to leave an issue.
 
 Alsvinn is also [available as a Docker container](https://hub.docker.com/r/alsvinn/). See below for [how to run with Docker or Singularity without any installation needed.](#running-in-docker-or-singularity)
 
